@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r266 - trunk/source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r266%20-%20trunk/source/view&In-Reply-To=%3C200507281735.j6SHZmHq013089%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000250.html">
+   <LINK REL="Next"  HREF="000252.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r266 - trunk/source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r266%20-%20trunk/source/view&In-Reply-To=%3C200507281735.j6SHZmHq013089%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r266 - trunk/source/view">skinner at berlios.de
+       </A><BR>
+    <I>Thu Jul 28 19:35:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000250.html">[openrecord-svn] r265 - in trunk: documentation source source/model source/view
+</A></li>
+        <LI>Next message: <A HREF="000252.html">[openrecord-svn] r267 - in trunk: documentation source source/model source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#251">[ date ]</a>
+              <a href="thread.html#251">[ thread ]</a>
+              <a href="subject.html#251">[ subject ]</a>
+              <a href="author.html#251">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-28 19:35:41 +0200 (Thu, 28 Jul 2005)
+New Revision: 266
+
+Modified:
+   trunk/source/view/EntryView.js
+Log:
+We now use non-breaking space characters (same as &nbsp; in HTML) for the text in a lozenge, so that the lozenge does not wrap from one line to the next.
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-27 18:52:44 UTC (rev 265)
++++ trunk/source/view/EntryView.js	2005-07-28 17:35:41 UTC (rev 266)
+@@ -218,7 +218,7 @@
+   var htmlElement = this.getHtmlElement();
+   View.removeChildrenOfElement(htmlElement);
+   
+-  var textString = this._getText();
++  var textString = this._getText(true);
+   var className = (this._isProvisional ? EntryView.CSS_CLASS_PROVISIONAL : '');
+   this._textSpan = View.appendNewElement(htmlElement, &quot;span&quot;, className, null);
+   this._textNode = View.appendNewTextNode(this._textSpan, textString);
+@@ -522,9 +522,22 @@
+  *
+  * @scope    private instance method
+  */
+-EntryView.prototype._getText = function() {
+-  if (this._isProvisional) {return this._provisionalText;}
+-  if (this._entry) {return this._item.getDisplayStringForEntry(this._entry);}
++EntryView.prototype._getText = function(useNonBreakingSpaces) {
++  if (this._isProvisional) {
++    return this._provisionalText;
++  }
++  if (this._entry) {
++    var text = this._item.getDisplayStringForEntry(this._entry);
++    if (useNonBreakingSpaces) {
++      var dataType = this._entry.getType();
++      if (dataType != this.getWorld().getTypeCalledText()) {
++        var regExpForAllSpaces = new RegExp(' ','g');
++        var unicodeNonBreakingSpace = '\u00a0'; // The same as &nbsp; in HTML
++        text = text.replace(regExpForAllSpaces, unicodeNonBreakingSpace);
++      }
++    }
++    return text;
++  }
+   return '';
+ };
+ 
+@@ -535,11 +548,11 @@
+  * @scope    private instance method
+  */
+ EntryView.prototype._restoreText = function(dontSelect) {
+-  var oldText = (this._entry) ?  this._getText() : '';
++  var useNonBreakingSpaces = !this._isEditing;
++  var oldText = (this._entry) ?  this._getText(useNonBreakingSpaces) : '';
+   if (this._isEditing) {
+     this._editField.value = oldText;
+-  }
+-  else {
++  } else {
+     this._textNode.data = oldText;
+   }
+   if (!dontSelect) {this._editField.select();}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000250.html">[openrecord-svn] r265 - in trunk: documentation source source/model source/view
+</A></li>
+	<LI>Next message: <A HREF="000252.html">[openrecord-svn] r267 - in trunk: documentation source source/model source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#251">[ date ]</a>
+              <a href="thread.html#251">[ thread ]</a>
+              <a href="subject.html#251">[ subject ]</a>
+              <a href="author.html#251">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

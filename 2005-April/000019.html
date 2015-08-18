@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r25 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r25%20-%20trunk/source&In-Reply-To=%3C200504052201.j35M1WQa009467%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000018.html">
+   <LINK REL="Next"  HREF="000020.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r25 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r25%20-%20trunk/source&In-Reply-To=%3C200504052201.j35M1WQa009467%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r25 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr  6 00:01:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000018.html">[openrecord-svn] r24 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000020.html">[openrecord-svn] r26 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-06 00:01:31 +0200 (Wed, 06 Apr 2005)
+New Revision: 25
+
+Modified:
+   trunk/source/PageView.js
+   trunk/source/SectionView.js
+   trunk/source/TextView.js
+   trunk/source/Util.js
+   trunk/source/View.js
+Log:
+Renamed MultiLineTextView to be TextView
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-04-05 21:54:37 UTC (rev 24)
++++ trunk/source/PageView.js	2005-04-05 22:01:31 UTC (rev 25)
+@@ -122,7 +122,7 @@
+   headerElement.innerHTML = this.myPage.getDisplayName();
+ 
+   var summaryViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+-  this._myPageSummaryView = new MultiLineTextView(this, summaryViewDiv, this.myPage, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++  this._myPageSummaryView = new TextView(this, summaryViewDiv, this.myPage, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, SectionView.ELEMENT_CLASS_TEXT_VIEW);
+ 
+   // add &lt;div&gt; elements for each of the sections on the page
+   // and create a new SectionView for each section
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-04-05 21:54:37 UTC (rev 24)
++++ trunk/source/SectionView.js	2005-04-05 22:01:31 UTC (rev 25)
+@@ -209,7 +209,7 @@
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
+   headerH2.innerHTML = this.mySection.getDisplayName();
+   var summaryDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+-  this._mySectionSummaryView = new MultiLineTextView(this, summaryDiv, this.mySection, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++  this._mySectionSummaryView = new TextView(this, summaryDiv, this.mySection, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, SectionView.ELEMENT_CLASS_TEXT_VIEW);
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+   // create the plugin editing controls, if we're in edit mode
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-04-05 21:54:37 UTC (rev 24)
++++ trunk/source/TextView.js	2005-04-05 22:01:31 UTC (rev 25)
+@@ -1,5 +1,5 @@
+ /*****************************************************************************
+- text_view.js
++ TextView.js
+  
+ ******************************************************************************
+  Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+@@ -38,13 +38,13 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// MultiLineTextView public class constants
++// TextView public class constants
+ // -------------------------------------------------------------------
+-MultiLineTextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;;
++TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;;
+ 
+ 
+ /**
+- * An instance of MultiLineTextView can be placed in any parent container View
++ * An instance of TextView can be placed in any parent container View
+  * to display and (if in edit mode) edit multi-lines of text
+  *
+  * @scope    public instance constructor
+@@ -55,8 +55,8 @@
+  * @param    theDivElement    The HTMLDivElement to display the HTML in. 
+  * @param    theClassType    A string that gives a class name to assign to the HTML element. 
+  */
+-MultiLineTextView.prototype = new View();  // makes MultiLineTextView be a subclass of View
+-function MultiLineTextView(theSuperview, theDivElement, theItem, theAttribute, theClassType) {
++TextView.prototype = new View();  // makes TextView be a subclass of View
++function TextView(theSuperview, theDivElement, theItem, theAttribute, theClassType) {
+   Util.assert(theItem instanceof Item);
+   //Util.assert(theAttribute instanceof Attribute); PENDING need to check that attribute is an attribute
+   
+@@ -78,7 +78,7 @@
+  *
+  * @scope    public instance method
+  */
+-MultiLineTextView.prototype.refresh = function() {
++TextView.prototype.refresh = function() {
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+@@ -91,16 +91,16 @@
+ 
+ 
+ /**
+- * Re-creates all the HTML for the MultiLineTextView, and hands the HTML to the 
++ * Re-creates all the HTML for the TextView, and hands the HTML to the 
+  * browser to be re-drawn.
+  *
+  * @scope    public instance method
+  */
+-MultiLineTextView.prototype.doInitialDisplay = function() {
++TextView.prototype.doInitialDisplay = function() {
+   var divElement = this.getDivElement();
+   Util.assert(divElement instanceof HTMLDivElement);
+   
+-  divElement.className = MultiLineTextView.ELEMENT_CLASS_TEXT_BLOCK;
++  divElement.className = TextView.ELEMENT_CLASS_TEXT_BLOCK;
+   var textList = this.textItem.getValueListFromAttribute(this.attribute);
+   var textString = &quot;&quot;;
+   for (var i in textList) {
+@@ -122,7 +122,7 @@
+  *
+  * @scope    public instance method
+  */
+-MultiLineTextView.prototype.startEditing = function() {
++TextView.prototype.startEditing = function() {
+   if (!this.isEditing) {
+     var editField = this.editField;
+     if (!editField) {
+@@ -154,7 +154,7 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-MultiLineTextView.prototype.onClick = function(inEventObject) {
++TextView.prototype.onClick = function(inEventObject) {
+   if (this.isInEditMode()) {
+     this.startEditing();
+   }
+@@ -170,7 +170,7 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-MultiLineTextView.prototype.onBlur = function(inEventObject) {
++TextView.prototype.onBlur = function(inEventObject) {
+   if (this.isEditing) {
+     var newText = this.editField.value;
+     this.textItem.clear(this.attribute);
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-04-05 21:54:37 UTC (rev 24)
++++ trunk/source/Util.js	2005-04-05 22:01:31 UTC (rev 25)
+@@ -1,5 +1,5 @@
+ /*****************************************************************************
+- util.js
++ Util.js
+  
+ ******************************************************************************
+  Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-04-05 21:54:37 UTC (rev 24)
++++ trunk/source/View.js	2005-04-05 22:01:31 UTC (rev 25)
+@@ -1,5 +1,5 @@
+ /*****************************************************************************
+- view.js
++ View.js
+  
+ ******************************************************************************
+  Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   util.js
++//   Util.js
+ // -------------------------------------------------------------------
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000018.html">[openrecord-svn] r24 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000020.html">[openrecord-svn] r26 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#19">[ date ]</a>
+              <a href="thread.html#19">[ thread ]</a>
+              <a href="subject.html#19">[ subject ]</a>
+              <a href="author.html#19">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

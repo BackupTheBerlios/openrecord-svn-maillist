@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r94 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r94%20-%20trunk/source/model&In-Reply-To=%3C200505310543.j4V5hVuS005922%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000080.html">
+   <LINK REL="Next"  HREF="000082.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r94 - trunk/source/model</H1>
+    <B>Mignon Belongie at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r94%20-%20trunk/source/model&In-Reply-To=%3C200505310543.j4V5hVuS005922%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r94 - trunk/source/model">mignon at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 31 07:43:31 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000080.html">[openrecord-svn] r91 - in trunk: documentation source
+</A></li>
+        <LI>Next message: <A HREF="000082.html">[openrecord-svn] r95 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-05-31 07:43:26 +0200 (Tue, 31 May 2005)
+New Revision: 94
+
+Modified:
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Added World.getCategories and StubVirtualServer.getCategories and refactored.  Added embryonic unit test testFilteredLists.
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-05-29 01:48:59 UTC (rev 93)
++++ trunk/source/model/ModelTest.js	2005-05-31 05:43:26 UTC (rev 94)
+@@ -501,7 +501,35 @@
+   world.logout();
+ }
+ 
++
+ /*
++Tests World._getFilteredList, via World.getUsers and World.getCategories.
++*/
++function testFilteredLists() {
++  var world = new World();
++  var listOfUsers = world.getUsers();
++  assertTrue(&quot;Initially, there's only an axiomatic user&quot;, listOfUsers.length == 1);
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);  
++  listOfUsers = world.getUsers();
++  assertTrue(&quot;Now there are two users&quot;, listOfUsers.length == 2);
++
++  var listOfCategories = world.getCategories();
++  var origNumberOfCategories = listOfCategories.length;
++  assertTrue(&quot;Should be at least 3 categories&quot;, origNumberOfCategories &gt;= 3);
++  
++  // Need to login before adding a category.
++  loginSuccess = world.login(userJane, janesPassword);
++  assertTrue('login succeeded', loginSuccess);
++  assertTrue('Jane is logged in', world.getCurrentUser() == userJane);  
++
++  var categoryCalledBlueThings = world.newCategory(&quot;BlueThings&quot;);
++  listOfCategories = world.getCategories();
++  assertTrue(&quot;Should be exactly one more category than before.&quot;, listOfCategories.length == origNumberOfCategories + 1);
++}
++
++
++/*
+ function testBigLumpVirtualServerStringOutput() {
+   var fileName = &quot;test_data_2005_april_chronological_lump.json&quot;;
+   var url = &quot;../../../source/model/&quot; + fileName;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-29 01:48:59 UTC (rev 93)
++++ trunk/source/model/StubVirtualServer.js	2005-05-31 05:43:26 UTC (rev 94)
+@@ -283,6 +283,17 @@
+   return this.__myListOfUsers;
+ };
+ 
++StubVirtualServer.prototype.getCategories = function () {
++  var listOfCategories = [];
++  for (var key in this.__myHashTableOfItemsKeyedByUuid) {
++    var item = this.__myHashTableOfItemsKeyedByUuid[key];
++    var categoryCalledCategory = this.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
++    if (item.isInCategory(categoryCalledCategory)) {
++      listOfCategories.push(item);
++    }
++  }
++  return listOfCategories;
++};
+ 
+ /**
+  * Returns an item representing the user who is currently logged in.
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-05-29 01:48:59 UTC (rev 93)
++++ trunk/source/model/World.js	2005-05-31 05:43:26 UTC (rev 94)
+@@ -145,8 +145,8 @@
+  * Marks the beginning of a transaction.
+  *
+  * Each time you call beginTransaction() you open a new transaction, 
+- * which you need to close later using endTransation().  Transactions
+- * may be nested, but the beginTransaction and endTransation calls
++ * which you need to close later using endTransaction().  Transactions
++ * may be nested, but the beginTransaction and endTransaction calls
+  * always need to come in pairs. 
+  *
+  * @scope    public instance method
+@@ -411,16 +411,25 @@
+  */
+ World.prototype.getUsers = function () {
+   var listOfUsers = this.__myVirtualServer.getUsers();
+-  var filteredListOfUsers = [];
+-  var user;
++  return this._getFilteredList(listOfUsers);
++};
++
++World.prototype.getCategories = function () {
++  var listOfCategories = this.__myVirtualServer.getCategories();
++  return this._getFilteredList(listOfCategories);
++};
++
++World.prototype._getFilteredList = function(unfilteredList) {
++  var filteredList = [];
++  var item;
+   
+   var filter = this.getRetrievalFilter();
+   switch (filter) {
+     case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
+-      for (var key in listOfUsers) {
+-        user = listOfUsers[key];
+-        if (!user.hasBeenDeleted()) {
+-          filteredListOfUsers.push(user);
++      for (var key in unfilteredList) {
++        item = unfilteredList[key];
++        if (!item.hasBeenDeleted()) {
++          filteredList.push(item);
+         }
+       }
+       break;
+@@ -433,7 +442,7 @@
+       Util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+-      filteredListOfUsers = listOfUsers;
++      filteredList = unfilteredList;
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+@@ -441,8 +450,8 @@
+       break;
+   }
+ 
+-  filteredListOfUsers.sort(IdentifiedRecord.compareOrdinals);
+-  return filteredListOfUsers;
++  filteredList.sort(IdentifiedRecord.compareOrdinals);
++  return filteredList;
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000080.html">[openrecord-svn] r91 - in trunk: documentation source
+</A></li>
+	<LI>Next message: <A HREF="000082.html">[openrecord-svn] r95 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#81">[ date ]</a>
+              <a href="thread.html#81">[ thread ]</a>
+              <a href="subject.html#81">[ subject ]</a>
+              <a href="author.html#81">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

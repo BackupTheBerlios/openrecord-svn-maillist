@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r439 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r439%20-%20trunk/source&In-Reply-To=%3C200602070432.k174WNkJ025595%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000419.html">
+   <LINK REL="Next"  HREF="000421.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r439 - trunk/source</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r439%20-%20trunk/source&In-Reply-To=%3C200602070432.k174WNkJ025595%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r439 - trunk/source">skinner at berlios.de
+       </A><BR>
+    <I>Tue Feb  7 05:32:23 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000419.html">[openrecord-svn] r438 - trunk/tests/model
+</A></li>
+        <LI>Next message: <A HREF="000421.html">[openrecord-svn] r440 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#420">[ date ]</a>
+              <a href="thread.html#420">[ thread ]</a>
+              <a href="subject.html#420">[ subject ]</a>
+              <a href="author.html#420">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-02-07 05:32:19 +0100 (Tue, 07 Feb 2006)
+New Revision: 439
+
+Modified:
+   trunk/source/OpenRecordLoaderStepThree.js
+Log:
+fixed OpenRecordLoaderStepThree.js so that it doesn't overwrite window.onload
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-02-07 03:53:40 UTC (rev 438)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-02-07 04:32:19 UTC (rev 439)
+@@ -52,7 +52,7 @@
+   dojo.hostenv.writeIncludes(); // needed when using &quot;debugAtAllCosts: true&quot;
+ }
+ 
+-function onload(){
++orp.finishLoading = function(){
+   // figure out if we're running in IE or Firefox
+   var firefox = true;  // PENDING: hack!
+   var errorMessage;
+@@ -73,9 +73,8 @@
+   }
+ }
+ 
+-dojo.hostenv.modulesLoadedListeners.push(onload);
++dojo.addOnLoad(orp.finishLoading);
+ 
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000419.html">[openrecord-svn] r438 - trunk/tests/model
+</A></li>
+	<LI>Next message: <A HREF="000421.html">[openrecord-svn] r440 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#420">[ date ]</a>
+              <a href="thread.html#420">[ thread ]</a>
+              <a href="subject.html#420">[ subject ]</a>
+              <a href="author.html#420">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

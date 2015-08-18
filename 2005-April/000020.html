@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r26 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r26%20-%20trunk/source&In-Reply-To=%3C200504052341.j35Nfg8r007042%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000019.html">
+   <LINK REL="Next"  HREF="000021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r26 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r26%20-%20trunk/source&In-Reply-To=%3C200504052341.j35Nfg8r007042%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r26 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr  6 01:41:42 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000019.html">[openrecord-svn] r25 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000021.html">[openrecord-svn] r27 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-06 01:41:39 +0200 (Wed, 06 Apr 2005)
+New Revision: 26
+
+Modified:
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/base_style.css
+Log:
+Added more UI feedback to let you know you're in edit mode.
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-04-05 22:01:31 UTC (rev 25)
++++ trunk/source/PageView.js	2005-04-05 23:41:39 UTC (rev 26)
+@@ -44,10 +44,7 @@
+ PageView.ELEMENT_ID_SECTION_DIV_MIDFIX = &quot;_in_page_&quot;;
+ PageView.ELEMENT_ID_SUMMARY_VIEW_DIV_PREFIX = &quot;_summary_view_for_page_&quot;;
+ 
+-PageView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
+-PageView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+ 
+-
+ /**
+  * The RootView uses an instance of a PageView to display a Page in the
+  * browser window.
+@@ -96,7 +93,6 @@
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+-    this.getDivElement().className = (this.isInEditMode()) ? PageView.ELEMENT_CLASS_EDIT_MODE : PageView.ELEMENT_CLASS_VIEW_MODE;
+     this._myPageSummaryView.refresh();
+     for (var key in this.myListOfSectionViews) {
+       var sectionView = this.myListOfSectionViews[key];      
+@@ -116,7 +112,6 @@
+   Util.assert(this.getDivElement() instanceof HTMLDivElement);
+   
+   var pageDivElement = this.getDivElement();
+-  pageDivElement.className = (this.isInEditMode()) ? PageView.ELEMENT_CLASS_EDIT_MODE : PageView.ELEMENT_CLASS_VIEW_MODE;
+   
+   var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
+   headerElement.innerHTML = this.myPage.getDisplayName();
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-04-05 22:01:31 UTC (rev 25)
++++ trunk/source/RootView.js	2005-04-05 23:41:39 UTC (rev 26)
+@@ -50,7 +50,10 @@
+ RootView.URL_HASH_PAGE_PREFIX = &quot;#&quot; + RootView.URL_PAGE_PREFIX;
+ RootView.URL_HASH_ITEM_PREFIX = &quot;#&quot; + RootView.URL_ITEM_PREFIX;
+ 
++RootView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
++RootView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+ 
++
+ // -------------------------------------------------------------------
+ // RootView class properties
+ // -------------------------------------------------------------------
+@@ -122,6 +125,7 @@
+   this._myContentViewDivElement = contentViewDiv;
+   this.myDebugDivElement = debugDiv;
+   this.myStatusBlurbSpanElement = statusBlurbSpan;
++  this._myRootDiv = rootDiv;
+   
+   Util.setErrorReportCallback(RootView.displayTextInDebugTextarea);
+   this.setCurrentContentViewFromUrl();
+@@ -234,6 +238,7 @@
+   Util.assert(this._myCurrentContentView instanceof Object);
+ 
+   document.title = this._myCurrentContentView.getPageTitle() + &quot; - openagenda.org&quot;;
++  this._myRootDiv.className = (this.isInEditMode()) ? RootView.ELEMENT_CLASS_EDIT_MODE : RootView.ELEMENT_CLASS_VIEW_MODE;
+   this.displayControlSpan();
+   this.displayNavbar();
+   this.displayDebugArea();
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-04-05 22:01:31 UTC (rev 25)
++++ trunk/source/base_style.css	2005-04-05 23:41:39 UTC (rev 26)
+@@ -190,6 +190,14 @@
+   width: 100%;
+ }
+ 
++div.editmode .header {
++  background-color: rgb(100%, 100%, 40%);
++}
++
++div.viewmode .header {
++  background-color: rgb(100%, 100%, 100%);
++}
++
+ .logo a {
+   font-weight: bold;
+   text-decoration: none;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000019.html">[openrecord-svn] r25 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000021.html">[openrecord-svn] r27 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#20">[ date ]</a>
+              <a href="thread.html#20">[ thread ]</a>
+              <a href="subject.html#20">[ subject ]</a>
+              <a href="author.html#20">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

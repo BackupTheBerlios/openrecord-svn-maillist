@@ -1,0 +1,517 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r459 - in trunk/source: . model view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r459%20-%20in%20trunk/source%3A%20.%20model%20view&In-Reply-To=%3C200603140154.k2E1sgGj015568%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000439.html">
+   <LINK REL="Next"  HREF="000441.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r459 - in trunk/source: . model view</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r459%20-%20in%20trunk/source%3A%20.%20model%20view&In-Reply-To=%3C200603140154.k2E1sgGj015568%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r459 - in trunk/source: . model view">mignon at berlios.de
+       </A><BR>
+    <I>Tue Mar 14 02:54:42 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000439.html">[openrecord-svn] r458 - in trunk/web_pages: chrome content page
+</A></li>
+        <LI>Next message: <A HREF="000441.html">[openrecord-svn] r460 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#440">[ date ]</a>
+              <a href="thread.html#440">[ thread ]</a>
+              <a href="subject.html#440">[ subject ]</a>
+              <a href="author.html#440">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-03-14 02:54:10 +0100 (Tue, 14 Mar 2006)
+New Revision: 459
+
+Modified:
+   trunk/source/DetailPlugin.js
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/model/READ_ME.txt
+   trunk/source/model/World.js
+   trunk/source/view/LoginView.js
+Log:
+Added combo boxes to TablePlugin and DetailPlugin for choosing an attribute.  New entries can now be added in DetailPlugin.  Updated model/READ_ME.txt.  
+
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/DetailPlugin.js	2006-03-14 01:54:10 UTC (rev 459)
+@@ -38,7 +38,7 @@
+ dojo.require(&quot;orp.util.Util&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+-
++  
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+@@ -54,7 +54,7 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * A DetailPlugin display one or more content items. 
++ * A DetailPlugin displays one or more content items. 
+  *
+  * @scope    public instance constructor
+  * @extends  PluginView
+@@ -66,6 +66,7 @@
+  */
+ orp.DetailPlugin = function(superview, htmlElement, querySpec, layoutItem) {
+   orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;DetailPlugin&quot;);
++  dojo.event.connect(this.getRootView(), &quot;setShowToolsMode&quot;, this, &quot;justSwitchedShowToolsMode&quot;);
+ };
+ 
+ dojo.inherits(orp.DetailPlugin, orp.view.PluginView);  // makes DetailPlugin be a subclass of PluginView
+@@ -116,6 +117,8 @@
+  * @scope    public instance method
+  */
+ orp.DetailPlugin.prototype.refresh = function () {
++  orp.view.View.removeChildrenOfElement(this.getHtmlElement());
++
+   // for each content item, create a table for it
+   var listOfContentItems = this.fetchItems();
+   for (var contentItemKey in listOfContentItems) {
+@@ -125,9 +128,12 @@
+   }
+ };
+ 
++orp.DetailPlugin.prototype.justSwitchedShowToolsMode = function () {
++  this.refresh();
++};
+ 
+ /**
+- * Given an item to be display, returns a string with XHTML to display
++ * Given an item to display, returns a string with XHTML to display
+  * the item.
+  *
+  * @scope    public instance method
+@@ -140,25 +146,136 @@
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   
+   var itemTable = orp.view.View.appendNewElement(this.getHtmlElement(),&quot;table&quot;, orp.view.SectionView.cssClass.SIMPLE_TABLE);
+-  var headerRow = orp.view.View.appendNewElement(itemTable,&quot;tr&quot;);
+-  orp.view.View.appendNewElement(headerRow,&quot;td&quot;, orp.view.SectionView.cssClass.LABEL + &quot; &quot; + orp.view.SectionView.cssClass.TITLE,null,attributeCalledName.getDisplayName());
+-  var aCell = orp.view.View.appendNewElement(headerRow,&quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, inItem.getDisplayName());
+-  var multiEntriesView = new orp.view.MultiEntriesView(this, aCell, inItem, attributeCalledName);
+-  multiEntriesView.refresh();
++  var headerRow = orp.view.View.appendNewElement(itemTable, &quot;tr&quot;);
++  orp.view.View.appendNewElement(headerRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Attribute&quot;);
++  orp.view.View.appendNewElement(headerRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Value&quot;);
++  
++  if (this.getRootView().isInShowToolsMode()) {
++    orp.view.View.appendNewElement(headerRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Expected Type&quot;);
++  }
++  
++  this.createRowForAttribute(inItem, attributeCalledName, itemTable);
++  
+   var listOfAttributes = inItem.getAttributes();
+   for (var key in listOfAttributes) { 
+     var attribute = listOfAttributes[key];
+     if (attribute != attributeCalledName) {
+-      var itemRow = orp.view.View.appendNewElement(itemTable,&quot;tr&quot;);
+-      orp.view.View.appendNewElement(itemRow,&quot;td&quot;, orp.view.SectionView.cssClass.LABEL,null,attribute.getDisplayName());
+-      aCell = orp.view.View.appendNewElement(itemRow,&quot;td&quot;, orp.view.SectionView.cssClass.PLAIN);
+-      multiEntriesView = new orp.view.MultiEntriesView(this, aCell, inItem, attribute);
+-      multiEntriesView.refresh();
++      this.createRowForAttribute(inItem, attribute, itemTable);
+     }
+   }
++  if (this.isInEditMode()) {
++    var newRow = orp.view.View.appendNewElement(itemTable,&quot;tr&quot;);
++    var cssLine = &quot;comboBox&quot;;
++    var newAttributeCell = orp.view.View.appendNewElement(newRow, &quot;td&quot;, cssLine);
++    newAttributeCell.superView = this;
++    var listOfAttributes = this.getWorld().getAttributes();
++    
++    var comboData = new Array();
++    var j = 0;
++    for (var i = 0; i &lt; listOfAttributes.length; ++i) {
++      // Only list attributes that aren't already in the table.
++      if (inItem.getSingleEntryFromAttribute(listOfAttributes[i]) == null) {
++        comboData[j++] = new Array(listOfAttributes[i].getDisplayName(), listOfAttributes[i].getUuidString());
++      }
++    }
++    var comboBox = dojo.widget.createWidget(&quot;ComboBox&quot;, {}, newAttributeCell, &quot;last&quot;);
++    var provider = comboBox.dataProvider;
++    provider.setData(comboData);
++    newAttributeCell.onComboBoxKeyUp = function(evt) {
++      if (evt.keyCode != orp.util.ASCII.RETURN) {
++        return;
++      }
++      var attribute = orp.DetailPlugin.getAttributeFromComboBoxValue(evt.target.value, this.superView.getWorld());
++      inItem.addEntry({attribute: attribute, value: &quot;&quot;});
++      orp.DetailPlugin.updateNewRow(newRow, inItem, attribute, this.superView);
++    };
++    dojo.event.connect(comboBox, &quot;onKeyUp&quot;, newAttributeCell, &quot;onComboBoxKeyUp&quot;);
++    newAttributeCell.selectOption = function(evt) {
++      if (evt &amp;&amp; evt.type == &quot;click&quot; &amp;&amp; evt.target &amp;&amp; evt.target.textContent) {
++        var attribute = orp.DetailPlugin.getAttributeFromComboBoxValue(evt.target.textContent, this.superView.getWorld());
++        inItem.addEntry({attribute: attribute, value: &quot;&quot;});
++        orp.DetailPlugin.updateNewRow(newRow, inItem, attribute, this.superView);
++      }
++    };
++    dojo.event.connect(comboBox, &quot;selectOption&quot;, newAttributeCell, &quot;selectOption&quot;);
++  }
+ };
+ 
++orp.DetailPlugin.updateNewRow = function(newRow, item, attribute, superView) {
++  orp.view.View.removeChildrenOfElement(newRow);
++  var cssLine = orp.view.SectionView.cssClass.LABEL + &quot; &quot; + orp.view.SectionView.cssClass.PLAIN;  
++  var columnOneCell = orp.view.View.appendNewElement(newRow, &quot;td&quot;, cssLine, null, attribute.getDisplayName());
++  var columnTwoCell = orp.view.View.appendNewElement(newRow, &quot;td&quot;, null, null);
++  var multiEntriesView = new orp.view.MultiEntriesView(superView, columnTwoCell, item, attribute);
++  multiEntriesView.refresh();
++  multiEntriesView.select(true);
++  multiEntriesView.setKeyPressFunction(function (evt, entryView) {return superView.keyPressOnEditField(evt, entryView);});
++};
+ 
++orp.DetailPlugin.getAttributeFromComboBoxValue = function(comboBoxValue, world) {
++  var listOfAttributes = world.getAttributes();
++  var attribute;
++  for (var i = 0; i &lt; listOfAttributes.length; ++i) {
++    if (listOfAttributes[i].getDisplayName() == comboBoxValue) {
++      attribute = listOfAttributes[i];
++      break;
++    }
++  }
++  if (i == listOfAttributes.length) {
++    attribute = world.newAttribute(comboBoxValue);
++  }
++  return attribute;
++};
++
++orp.DetailPlugin.prototype.createRowForAttribute = function (item, attribute, htmlTableElement, cssClass) {
++  var tableRow = orp.view.View.appendNewElement(htmlTableElement, &quot;tr&quot;);
++  var cssLine = orp.view.SectionView.cssClass.LABEL;
++
++  var columnOneCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssLine, null, attribute.getDisplayName());
++  var columnTwoCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssClass, null);
++  var multiEntriesView = new orp.view.MultiEntriesView(this, columnTwoCell, item, attribute);
++  multiEntriesView.refresh();
++
++  if (this.getRootView().isInShowToolsMode()) {
++    var columnThreeCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssClass);
++    var attributeCalledExpectedType = this.getWorld().getAttributeCalledExpectedType();
++    var multiEntriesView2 = new orp.view.MultiEntriesView(this, columnThreeCell, attribute, attributeCalledExpectedType);
++    multiEntriesView2.refresh();
++  }
++};
++
++/*
++This is a subset of orp.TablePlugin.prototype.keyPressOnEditField.
++*/
++orp.DetailPlugin.prototype.keyPressOnEditField = function(eventObject, anEntryView) {
++  var asciiValueOfKey = eventObject.keyCode;
++  var shiftKeyPressed = eventObject.shiftKey;
++  
++  var MOVE_LEFT = &quot;left&quot;;
++  var MOVE_UP = &quot;up&quot;;
++  var MOVE_RIGHT = &quot;right&quot;;
++  var MOVE_DOWN = &quot;down&quot;;
++  
++  var move = null;
++  switch (asciiValueOfKey) {
++    case orp.util.ASCII.RETURN:
++      move = (shiftKeyPressed) ? MOVE_UP : MOVE_DOWN;
++      break;
++    case orp.util.ASCII.TAB:
++      move = (shiftKeyPressed) ? MOVE_LEFT : MOVE_RIGHT;
++      break;
++    default:
++      move = null;
++      break;
++  }
++  
++  if (move) {
++    anEntryView.stopEditing();
++    this.refresh();
++  }
++  return move;
++};
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-03-14 01:54:10 UTC (rev 459)
+@@ -44,6 +44,8 @@
+ dojo.require(&quot;dojo.widget.Button2&quot;);
+ dojo.require(&quot;dojo.widget.html.Button2&quot;);
+ dojo.require(&quot;dojo.widget.Menu2&quot;);
++dojo.require(&quot;dojo.widget.ComboBox&quot;);
++dojo.require(&quot;dojo.widget.html.ComboBox&quot;);
+ 
+ 
+ if (djConfig.debugAtAllCosts) {
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/TablePlugin.js	2006-03-14 01:54:10 UTC (rev 459)
+@@ -223,13 +223,13 @@
+ orp.TablePlugin.prototype._buildAddColumnControl = function(headerRow) {
+   var cssClass = &quot;add_column&quot; + &quot; &quot; + orp.view.RootView.cssClass.EDIT_TOOL;
+   var headerCell = orp.view.View.appendNewElement(headerRow, &quot;th&quot;, cssClass);
+-  var emptySpan = orp.view.View.appendNewElement(headerCell, &quot;span&quot;);
+-  orp.view.View.appendNewTextNode(emptySpan, &quot; &quot;);
+-  orp.view.View.appendNewElement(headerCell, &quot;br&quot;);
++  headerCell.superView = this;
+   
+-  var ADD_COLUMN_CONTROL_USES_HTML_INSTEAD_OF_DOJO = true;
++  var ADD_COLUMN_CONTROL_USES_HTML_INSTEAD_OF_DOJO = false;
+   if (ADD_COLUMN_CONTROL_USES_HTML_INSTEAD_OF_DOJO) {
+-    // var htmlElement = this.getHtmlElement();
++    var emptySpan = orp.view.View.appendNewElement(headerCell, &quot;span&quot;);
++    orp.view.View.appendNewTextNode(emptySpan, &quot; &quot;);
++    orp.view.View.appendNewElement(headerCell, &quot;br&quot;);
+     var selectElt = orp.view.View.appendNewElement(headerCell, &quot;select&quot;);
+     var listOfAttributes = this.getWorld().getAttributes();
+     var optionElt = orp.view.View.appendNewElement(selectElt, &quot;option&quot;);
+@@ -245,10 +245,35 @@
+     }
+     this._selectElement = selectElt;
+   } else {
+-    var editButton = orp.view.View.appendNewElement(headerCell, &quot;input&quot;);
+-    editButton.type = &quot;Button&quot;;
+-    editButton.value = &quot;Add column...&quot;;
+-    dojo.event.connect(editButton, &quot;onclick&quot;, this, &quot;_clickOnAddColumnButton&quot;);
++    var listOfAttributes = this.getWorld().getAttributes();    
++    var comboData = new Array();
++    var j = 0;
++    for (var i = 0; i &lt; listOfAttributes.length; ++i) {
++      var attribute = listOfAttributes[i];
++      if (!orp.util.isObjectInSet(attribute, this._displayAttributes)) {
++        comboData[j++] = new Array(listOfAttributes[i].getDisplayName(), listOfAttributes[i].getUuidString());
++      }
++    }
++    var comboBox = dojo.widget.createWidget(&quot;ComboBox&quot;, {}, headerCell, &quot;last&quot;);
++    var provider = comboBox.dataProvider;
++    provider.setData(comboData);
++    
++    var _this = this;
++    headerCell.onComboBoxKeyUp = function(evt) {
++      if (evt.keyCode != orp.util.ASCII.RETURN) {
++        return;
++      }
++      var attribute = orp.TablePlugin.getAttributeFromComboBoxValue(evt.target.value, this.superView.getWorld());
++      _this._addOrRemoveOneColumn(attribute);
++    };
++    dojo.event.connect(comboBox, &quot;onKeyUp&quot;, headerCell, &quot;onComboBoxKeyUp&quot;);
++    headerCell.selectOption = function(evt) {
++      if (evt &amp;&amp; evt.type == &quot;click&quot; &amp;&amp; evt.target &amp;&amp; evt.target.textContent) {
++        var attribute = orp.TablePlugin.getAttributeFromComboBoxValue(evt.target.textContent, this.superView.getWorld());
++        _this._addOrRemoveOneColumn(attribute);
++      }
++    };
++    dojo.event.connect(comboBox, &quot;selectOption&quot;, headerCell, &quot;selectOption&quot;);
+   }
+ };
+ 
+@@ -530,19 +555,19 @@
+   }
+ };
+ 
+-orp.TablePlugin.prototype._clickOnAddColumnButton = function(eventObject) {
+-  var popupMenu = dojo.widget.createWidget(&quot;PopupMenu2&quot;, {}, null);
+-  var listOfAttributes = this.getWorld().getAttributes();
+-  for (var i in listOfAttributes) {
+-    var attribute = listOfAttributes[i];
+-    if (!orp.util.isObjectInSet(attribute, this._displayAttributes)) {
+-      var attributeName = attribute.getDisplayString();
+-      var menuItem = dojo.widget.createWidget(&quot;MenuItem2&quot;, {caption: attributeName}, null);
+-      dojo.event.connect(menuItem, &quot;onClick&quot;,  orp.lang.bind(this, &quot;_addOrRemoveOneColumn&quot;, attribute));
+-      popupMenu.addChild(menuItem);
++orp.TablePlugin.getAttributeFromComboBoxValue = function(comboBoxValue, world) {
++  var listOfAttributes = world.getAttributes();
++  var attribute;
++  for (var i = 0; i &lt; listOfAttributes.length; ++i) {
++    if (listOfAttributes[i].getDisplayName() == comboBoxValue) {
++      attribute = listOfAttributes[i];
++      break;
+     }
+   }
+-  popupMenu.onOpen(eventObject);
++  if (i == listOfAttributes.length) {
++    attribute = world.newAttribute(comboBoxValue);
++  }
++  return attribute;
+ };
+ 
+ /*
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/base_style.css	2006-03-14 01:54:10 UTC (rev 459)
+@@ -812,11 +812,30 @@
+ }
+ 
+ 
++/****************************************/
++/* ComboBox styles                     */
+ 
++.simple_table td.comboBox {
++  padding: 0 0 0 0;
++  font-size: 1.0em;
++}
++
++.simple_table th.add_column {
++  height: 100%;
++  padding: 0 0 0 0;
++}
++
++table.dojoComboBox {
++  border-collapse: collapse;
++}
++table.dojoComboBox td {
++  background: rgb(90%, 90%, 100%);
++}
++
++table.dojoComboBox input.comboBoxInput {
++  background: rgb(90%, 90%, 100%);
++}
++
+ /****************************************/
+ /* END                                  */
+ /****************************************/
+-
+-.add_column {
+-  background: rgb(50%, 0%, 0%);
+-}
+
+Modified: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/model/READ_ME.txt	2006-03-14 01:54:10 UTC (rev 459)
+@@ -37,30 +37,38 @@
+ 
+ Item methods --------------------
+ 
+-  item.addEntryForAttribute() 
+   item.addEntry()
+   item.replaceEntry()
+-  item.replaceEntryWithEntryForAttribute()
++  item.addConnectionEntry()
+   
+   item.getAttributes()
+   item.getEntriesForAttribute()
+   item.getEntries()
++  item.getValuesForAttribute()
++  item.hasAttributeValue()
+   
+   item.getDisplayName()
+   item.getNameEntries()
+   item.getShortNameEntries()
++  item.getDisplayString()
++  item.getDisplayStringForEntry()
++  item.toString()
++  item.doesStringMatchName()
+   
++  item.getSingleEntryFromAttribute()
++  item.getSingleValueFromAttribute()
++  item.getSingleStringValueFromAttribute()
++  
+   item.isInCategory()
+-  item.reorderBetween()
++  item.assignToCategory()
++  item.getFirstCategory()
+   
+-  item.hasBeenDeleted()
+-  item.voteToDelete()
+-  item.voteToRetain()
+-  
+   item.addObserver()
+   item.removeObserver()
+-
+   
++  item.isProvisional()
++  
++  
+ Entry methods ------------------- 
+ 
+   entry.getValue()
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/model/World.js	2006-03-14 01:54:10 UTC (rev 459)
+@@ -748,6 +748,9 @@
+   var item = this._archive.newItem(name, observer);
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+   item.assignToCategory(categoryCalledAttribute);
++  var attributeCalledExpectedType = this.getAttributeCalledExpectedType();
++  var typeCalledText = this.getTypeCalledText();
++  item.addEntry({attribute: attributeCalledExpectedType, value: typeCalledText});
+   this.endTransaction();
+   return item;
+ };
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2006-03-02 23:01:59 UTC (rev 458)
++++ trunk/source/view/LoginView.js	2006-03-14 01:54:10 UTC (rev 459)
+@@ -233,7 +233,7 @@
+  * @scope    private instance method
+  */
+ orp.view.LoginView.prototype._signinPasswordKeyPress = function(eventObject) {
+-  // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
++  // see if &lt;return&gt; is pressed, if so, simulate clicking on sign in button
+   if (eventObject.keyCode == orp.util.ASCII.RETURN) {
+     this._clickOnSignInButton(eventObject);
+   }
+@@ -246,7 +246,7 @@
+  * @scope    private instance method
+  */
+ orp.view.LoginView.prototype._createAccountPasswordKeyPress = function(eventObject) {
+-  // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
++  // see if &lt;return&gt; is pressed, if so, simulate clicking on sign in button
+   if (eventObject.keyCode == orp.util.ASCII.RETURN) {
+     this._clickOnNewAcctButton(eventObject);
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000439.html">[openrecord-svn] r458 - in trunk/web_pages: chrome content page
+</A></li>
+	<LI>Next message: <A HREF="000441.html">[openrecord-svn] r460 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#440">[ date ]</a>
+              <a href="thread.html#440">[ thread ]</a>
+              <a href="subject.html#440">[ subject ]</a>
+              <a href="author.html#440">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

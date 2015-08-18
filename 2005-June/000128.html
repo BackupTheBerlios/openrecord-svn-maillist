@@ -1,0 +1,959 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r142 - in trunk: documentation source source/model source/repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r142%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/repositories/demo_page&In-Reply-To=%3C200506151927.j5FJRKFb010277%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000127.html">
+   <LINK REL="Next"  HREF="000129.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r142 - in trunk: documentation source source/model source/repositories/demo_page</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r142%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/repositories/demo_page&In-Reply-To=%3C200506151927.j5FJRKFb010277%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r142 - in trunk: documentation source source/model source/repositories/demo_page">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 15 21:27:20 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000127.html">[openrecord-svn] r141 - in trunk: documentation source source/model
+</A></li>
+        <LI>Next message: <A HREF="000129.html">[openrecord-svn] r143 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-15 21:27:18 +0200 (Wed, 15 Jun 2005)
+New Revision: 142
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/SectionView.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/READ_ME.txt
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+   trunk/source/repositories/demo_page/2005_may_chronological_list.json
+Log:
+ Move to better persistent representation for queries, replaced matchingCategory to matchingValue and matchingItem to matchingAttribute for queries.
+
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/documentation/release_planning.txt	2005-06-15 19:27:18 UTC (rev 142)
+@@ -165,7 +165,7 @@
+ chao   | 0.5  IED |         |  8. UI for entering a number literal (instead of a string literal) in a table
+ chao   | 1    IED |         |  9. UI for entering a date literal in a table (and data model support)
+        |          |         | 10. Add data model support for bi-directional references
+-chao   | ?        |         | 11. Move to better persistent representation for queries
++chao   | 2    IED |         | 11. Move to better persistent representation for queries
+        |          |         | 12. Make sure view code uses transactions
+        |          |         | 13. Deal with \n in page name or summary fields
+        |          |         | 14. BUG: problems with newlines and HTML characters in text strings
+@@ -451,5 +451,6 @@
+ + Should we rename &quot;World&quot;?
+ + Should we adopt &quot;Globals&quot; convention for JSLint?
+ + Should we get rid of semi-colon checking in JSLint?
+++ Should we work on making OpenRecord work within MediaWiki?
+ 
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/SectionView.js	2005-06-15 19:27:18 UTC (rev 142)
+@@ -266,38 +266,26 @@
+ SectionView.prototype._refreshQueryEditSpan = function () {
+   this._queryEditSpan.innerHTML = '';
+   
+-  var attributeCalledQueryMatchingCategory = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var listOfMatchingCategories = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingCategory);
+-  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
+-  var selectedCategoryName = isCategoryMatchingQuery ? listOfMatchingCategories[0].getValue().getDisplayName() : &quot;no category selected&quot;;
++  var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++  var listOfMatchingEntries = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var isCategoryMatchingQuery = (listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0));
++  var selectedCategoryName = isCategoryMatchingQuery ? listOfMatchingEntries[0].getValue().getDisplayName() : &quot;no category selected&quot;;
+ 
+   var isEmptyQuery = false;
+-  if (!isCategoryMatchingQuery) {
+-    var attributeCalledQueryMatchingItem = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+-    var listOfMatchingItems = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingItem);
+-    var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
+-    isEmptyQuery = !isItemMatchingQuery;
+-  }
+-  
+-  if (isCategoryMatchingQuery || isEmptyQuery) {
+-    var listener = this; 
+-    var querySelectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
+-    var listOfCategories = this.getWorld().getCategories();
+-    var optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
+-    optionElement.setAttribute(&quot;value&quot;, null);
++  var listener = this; 
++  var querySelectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
++  var listOfCategories = this.getWorld().getCategories();
++  var optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
++  optionElement.setAttribute(&quot;value&quot;, null);
++  Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
++  optionElement.innerHTML = &quot;(none)&quot;;
++  for (var key in listOfCategories) {
++    var category = listOfCategories[key];
++    optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
++    optionElement.selected = (selectedCategoryName == category.getDisplayName());
++    optionElement.setAttribute(&quot;value&quot;, category._getUuid());
+     Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
+-    optionElement.innerHTML = &quot;(none)&quot;;
+-    for (var key in listOfCategories) {
+-      var category = listOfCategories[key];
+-      optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
+-      optionElement.selected = (selectedCategoryName == category.getDisplayName());
+-      optionElement.setAttribute(&quot;value&quot;, category._getUuid());
+-      Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
+-      optionElement.innerHTML = category.getDisplayName();
+-    }
+-  } else {
+-    var textTheGiven = document.createTextNode(&quot; the given&quot;);
+-    this._queryEditSpan.appendChild(textTheGiven);
++    optionElement.innerHTML = category.getDisplayName();
+   }
+ };
+ 
+@@ -358,17 +346,17 @@
+   var newQueryMatchingCategory = this.getWorld().getItemFromUuid(newChoiceUuid);
+   var newChoiceName = newQueryMatchingCategory.getDisplayName();
+   
+-  var attributeCalledQueryMatchingCategory = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var listOfMatchingCategories = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingCategory);
+-  var currentQueryMatchingCategoryEntry = listOfMatchingCategories.length &gt; 0? listOfMatchingCategories[0] : null;
+-  var currentQueryMatchingCategory = listOfMatchingCategories.length &gt; 0? listOfMatchingCategories[0].getValue() : null;
++  var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++  var listOfMatchingEntries = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var currentQueryMatchingCategoryEntry = listOfMatchingEntries.length &gt; 0? listOfMatchingEntries[0] : null;
++  var currentQueryMatchingCategory = listOfMatchingEntries.length &gt; 0? listOfMatchingEntries[0].getValue() : null;
+   var currentCategoryName = currentQueryMatchingCategory? currentQueryMatchingCategory.getDisplayName() : &quot;none&quot;;
+  
+   if (currentCategoryName != newChoiceName) {
+     if (currentQueryMatchingCategory) {
+       this.getQuery().replaceEntry(currentQueryMatchingCategoryEntry, newQueryMatchingCategory);
+     } else {
+-      this.getQuery().addEntryForAttribute(attributeCalledQueryMatchingCategory, newQueryMatchingCategory);
++      this.getQuery().addEntryForAttribute(attributeCalledQueryMatchingValue, newQueryMatchingCategory);
+     }
+     // I think we need these next 3 lines in to make sure the view gets updated  
+     // to reflect the new query.  When we get a chance we should probably do 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/model/Item.js	2005-06-15 19:27:18 UTC (rev 142)
+@@ -253,7 +253,8 @@
+       Util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+-      filteredListOfEntries = listOfEntries;
++      Util.assert(false);
++      filteredListOfEntries = listOfEntries; //PENDING No such variable as listOfEntries ?!!
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+@@ -412,6 +413,29 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Does this item have an attribute with a particular entry?
++ * Used in getting query results
++ *
++ * @scope public instance method
++ * @return Boolean. True if this item has an attribute with the entry
++ */
++Item.prototype.hasAttributeValue = function (inAttribute, inValue) {
++  Util.assert(inAttribute instanceof Item, inAttribute + ' is not an item');
++  //Util.assert(inValue);
++  var entryList = this.getEntriesForAttribute(inAttribute);
++
++  // look at all the entries this item's attribute is assigned to, 
++  // and see if one of them is &quot;inEntry&quot;
++  for (var key in entryList) {
++    var entry = entryList[key];
++    if (entry.getValue() == inValue) {
++      return true;
++    }
++  }
++  return false;
++};
++
++/**
+  * Given a category, returns &quot;true&quot; if the item has been assigned to 
+  * that category.
+  *
+@@ -422,17 +446,8 @@
+   Util.assert(inCategory instanceof Item);
+ 
+   var categoryAttribute = this.getWorld().getAttributeCalledCategory();
+-  var entryList = this.getEntriesForAttribute(categoryAttribute);
++  return this.hasAttributeValue(categoryAttribute, inCategory);
+   
+-  // look at all the categories this item is assigned to, 
+-  // and see if one of them is &quot;inCategory&quot;
+-  for (var key in entryList) {
+-    var entry = entryList[key];
+-    if (entry.getValue() == inCategory) {
+-      return true;
+-    }
+-  }
+-  
+   /*
+    * Also returns true if the item has been assigned to some category which is in
+    * turn assigned to the given category, and so on, up the chain of category 
+@@ -454,8 +469,8 @@
+       return true;
+     }
+   }
++  return false;
+   */
+-  return false;
+ };
+  
+ 
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/model/ModelTest.js	2005-06-15 19:27:18 UTC (rev 142)
+@@ -535,17 +535,18 @@
+ 
+   var hasAll;
+   var queryForFoods = world.newQueryForItemsByCategory(categoryCalledFood);
+-  var queryForCities = world.newQueryForSpecificItems([tokyo, seattle]);
+   
+   var listOfFoods = world.getResultItemsForQuery(queryForFoods);
+   hasAll = Util.areObjectsInSet([apple, brownie, cupcake], listOfFoods);
+   assertTrue('Food query returns 3 foods', listOfFoods.length == 3);
+   assertTrue('Food query returns all 3 foods', hasAll);
+ 
++/*  NO LONGER SUPPORT QUERY FOR SPECIFIC ITEMS 6/14/05
++  var queryForCities = world.newQueryForSpecificItems([tokyo, seattle]);
+   var listOfCities = world.getResultItemsForQuery(queryForCities);
+   hasAll = Util.areObjectsInSet([tokyo, seattle], listOfCities);
+   assertTrue('City query returns 2 cities', listOfCities.length == 2);
+-  assertTrue('City query returns all cities', hasAll);
++  assertTrue('City query returns all cities', hasAll);*/
+ 
+   world.setItemToBeIncludedInQueryResultList(tokyo, queryForFoods);
+   assertTrue('Tokyo is now a food', tokyo.isInCategory(categoryCalledFood));
+@@ -555,6 +556,29 @@
+   assertTrue('Food query returns 4 foods', listOfFoods.length == 4);
+   assertTrue('Food query returns all 4 foods', hasAll);
+ 
++  // test for queries using non-category attribute e.g. continent
++  var attributeCalledContinent = world.newItem(&quot;Continent&quot;);
++  tokyo.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
++  var beijing = world.newItem(&quot;Beijing&quot;);
++  beijing.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
++  var seattleEntry = seattle.addEntryForAttribute(attributeCalledContinent, &quot;North America&quot;);
++  var asiaQuery = world.newQuery(attributeCalledContinent, &quot;Asia&quot;)
++  var listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  assertTrue('Asia query returns 2 countries', listOfCountries.length == 2);
++  hasAll = Util.areObjectsInSet([tokyo,beijing], listOfCountries);
++  assertTrue('Asia query returns all 2 countries', hasAll);
++  
++  var northAmericaQuery = world.newQuery(attributeCalledContinent, &quot;North America&quot;);
++  listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  assertTrue('North America query returned only Seattle',
++    listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
++    
++  seattle.replaceEntry(seattleEntry, &quot;Asia&quot;);
++  var listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  assertTrue('Asia query returns 3 countries', listOfCountries.length == 3);
++  hasAll = Util.areObjectsInSet([tokyo,beijing,seattle], listOfCountries);
++  assertTrue('Asia query returns all 3 countries', hasAll);
++  
+   world.logout();
+ }
+ 
+
+Modified: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/model/READ_ME.txt	2005-06-15 19:27:18 UTC (rev 142)
+@@ -91,7 +91,6 @@
+   world.newAttribute()
+   world.newCategory()
+   world.newQueryForItemsByCategory()
+-  world.newQueryForSpecificItems()
+   
+   world.getItemsInCategory()
+   world.getResultItemsForQuery() 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/model/StubVirtualServer.js	2005-06-15 19:27:18 UTC (rev 142)
+@@ -490,46 +490,44 @@
+ StubVirtualServer.prototype.getResultItemsForQuery = function (inQuery, inObserver) {
+   Util.assert(inQuery instanceof Item);
+   
+-  var attributeCalledQueryMatchingCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var attributeCalledQueryMatchingItem = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++  var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+ 
+   var uuid = null;
+   var item = null;
+   var key;
+   var listOfQueryResultItems = [];
+-  var listOfMatchingCategories = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingCategory);
+-  var listOfMatchingItems = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingItem);
+-  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
+-  var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
+-
+-  Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
+-
+-  if (isItemMatchingQuery) {
+-    for (key in listOfMatchingItems) {
+-      var itemEntry = listOfMatchingItems[key];
+-      item = itemEntry.getValue();
+-      listOfQueryResultItems.push(item);
+-    }
++  var listOfMatchingEntries = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var listOfMatchingAttrs = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++  if (!listOfMatchingEntries || listOfMatchingEntries.length == 0) {
++    return [];
+   }
+-  
+-  if (isCategoryMatchingQuery) {
+-    // This is a wildly inefficient search.  But maybe it doesn't matter,
+-    // because this code should all be replaced someday by server code.
+-    for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
+-      item = this.__myHashTableOfItemsKeyedByUuid[uuid];
+-      if (!item.hasBeenDeleted()) {
+-        var includeItem = true;
+-        for (key in listOfMatchingCategories) {
+-          var categoryEntry = listOfMatchingCategories[key];
+-          var category = categoryEntry.getValue();
+-          if (includeItem &amp;&amp; !(item.isInCategory(category))) {
+-            includeItem = false;
+-          }
++  var matchingAttribute;
++  if (listOfMatchingAttrs.length === 0) {
++    // by default matching attribute is category
++    matchingAttribute = this.getWorld().getAttributeCalledCategory();
++  }
++  else {
++    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    matchingAttribute = listOfMatchingAttrs[0].getValue();
++  }
++
++  // This is a wildly inefficient search.  But maybe it doesn't matter,
++  // because this code should all be replaced someday by server code.
++  for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
++    item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++    if (!item.hasBeenDeleted()) {
++      var includeItem = true;
++      for (key in listOfMatchingEntries) {
++        var matchingEntry = listOfMatchingEntries[key];
++        var match = matchingEntry.getValue();
++        if (includeItem &amp;&amp; !(item.hasAttributeValue(matchingAttribute, match))) {
++          includeItem = false;
+         }
+-        if (includeItem) {
+-          listOfQueryResultItems.push(item);
+-        }
+       }
++      if (includeItem) {
++        listOfQueryResultItems.push(item);
++      }
+     }
+   }
+   
+@@ -551,29 +549,27 @@
+ StubVirtualServer.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
+   Util.assert(inItem instanceof Item);
+   Util.assert(inQuery instanceof Item);
++  var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++  var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+ 
+-  var attributeCalledQueryMatchingCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var attributeCalledQueryMatchingItem = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+-
+-  var listOfMatchingCategories = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingCategory);
+-  var listOfMatchingItems = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingItem);
+-  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
+-  var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
+-
+-  Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
+-
+-  if (isItemMatchingQuery) {
+-    inQuery.addEntryForAttribute(attributeCalledQueryMatchingItem, inItem);
++  var listOfMatchingEntries = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var listOfMatchingAttrs = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++  Util.assert(listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0));
++  var matchingAttribute;
++  if (listOfMatchingAttrs.length === 0) {
++    // by default matching attribute is category
++    matchingAttribute = this.getWorld().getAttributeCalledCategory();
+   }
+-  
+-  var attributeCalledCategory = this.__myWorld.getAttributeCalledCategory();
+-  if (isCategoryMatchingQuery) {
+-    for (var key in listOfMatchingCategories) {
+-      var categoryEntry = listOfMatchingCategories[key];
+-      var category = categoryEntry.getValue();
+-      if (!(inItem.isInCategory(category))) {
+-        inItem.addEntryForAttribute(attributeCalledCategory, category);
+-      }
++  else {
++    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    matchingAttribute = listOfMatchingAttrs[0].getValue();
++  }
++
++  for (var key in listOfMatchingEntries) {
++    var matchingEntry = listOfMatchingEntries[key];
++    var match = matchingEntry.getValue();
++    if (!(inItem.isInCategory(match))) {
++      inItem.addEntryForAttribute(matchingAttribute, match);
+     }
+   }
+ };
+@@ -719,8 +715,8 @@
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY]          = &quot;Body&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY]      = &quot;Category&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY]         = &quot;Query&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = &quot;Matching Category&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = &quot;Matching Item&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE] = &quot;Matching Value&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE] = &quot;Matching Attribute&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED]       = &quot;Unfiled Entry&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE] = &quot;Expected Type&quot;;
+ 
+@@ -764,8 +760,8 @@
+   hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY]          = [World.UUID_FOR_TYPE_TEXT];
+   hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY]      = [World.UUID_FOR_CATEGORY_CATEGORY];
+   hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY]         = [World.UUID_FOR_CATEGORY_QUERY];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = [World.UUID_FOR_CATEGORY_CATEGORY];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = [World.UUID_FOR_TYPE_ITEM];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE] = [World.UUID_FOR_CATEGORY_CATEGORY];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE] = [World.UUID_FOR_TYPE_ITEM];
+   hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED]       = [World.UUID_FOR_TYPE_ANYTHING];
+   hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE] = [World.UUID_FOR_CATEGORY_TYPE, World.UUID_FOR_CATEGORY_CATEGORY];
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/model/World.js	2005-06-15 19:27:18 UTC (rev 142)
+@@ -57,8 +57,8 @@
+ World.UUID_FOR_ATTRIBUTE_BODY          = &quot;00000104-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_CATEGORY      = &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY         = &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY = &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM = &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE = &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE = &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_UNFILED       = &quot;00000109-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE = &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+@@ -116,8 +116,8 @@
+   this._attributeCalledSummary               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
+   this._attributeCalledCategory              = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
+   this._attributeCalledQuery                 = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
+-  this._attributeCalledQueryMatchingCategory = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  this._attributeCalledQueryMatchingItem     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  this._attributeCalledQueryMatchingValue = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE);
++  this._attributeCalledQueryMatchingAttribute     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE);
+   this._attributeCalledUnfiled               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
+   this._attributeCalledExpectedType          = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
+ 
+@@ -370,12 +370,12 @@
+   return this._attributeCalledQuery;
+ };
+ 
+-World.prototype.getAttributeCalledQueryMatchingCategory = function() {
+-  return this._attributeCalledQueryMatchingCategory;
++World.prototype.getAttributeCalledQueryMatchingValue = function() {
++  return this._attributeCalledQueryMatchingValue;
+ };
+ 
+-World.prototype.getAttributeCalledQueryMatchingItem = function() {
+-  return this._attributeCalledQueryMatchingItem;
++World.prototype.getAttributeCalledQueryMatchingAttribute = function() {
++  return this._attributeCalledQueryMatchingAttribute;
+ };
+ 
+ World.prototype.getAttributeCalledUnfiled = function() {
+@@ -606,30 +606,33 @@
+  * Returns a newly created item representing a query.
+  *
+  * @scope    public instance method
+- * @param    category    Optional. A category item, or an array of category items. 
++ * @param    matchingAttribute Attribute to query against
++ * @param    matchingEntriesOrList an Entry or array of entries to be matched against,  
+  * @return   A newly created item representing a query.
+  */
+-World.prototype.newQueryForItemsByCategory = function(categoryOrListOfCategories) {
++World.prototype.newQuery = function(matchingAttribute, matchingEntriesOrList) {
++  Util.assert(matchingAttribute instanceof Item);
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(&quot;A query&quot;);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+   item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+ 
+-  var attributeCalledQueryMatchingCategory = this.getAttributeCalledQueryMatchingCategory();
+-  var category;
+-  if (categoryOrListOfCategories) {
+-    if (categoryOrListOfCategories instanceof Item) {
+-      category = categoryOrListOfCategories;
+-      item.addEntryForAttribute(attributeCalledQueryMatchingCategory, category);
+-    }
+-    if (Util.isArray(categoryOrListOfCategories)) {
+-      var listOfCategories = categoryOrListOfCategories;
+-      for (var key in listOfCategories) {
+-        category = listOfCategories[key];
+-        item.addEntryForAttribute(attributeCalledQueryMatchingCategory, category);
++  var attributeCalledQueryMatchingAttribute = this.getAttributeCalledQueryMatchingAttribute();
++  var attributeCalledQueryMatchingValue = this.getAttributeCalledQueryMatchingValue();
++  var matchingEntry;
++  item.addEntryForAttribute(attributeCalledQueryMatchingAttribute, matchingAttribute);
++  if (matchingEntriesOrList) {
++    if (Util.isArray(matchingEntriesOrList)) {
++      for (var key in matchingEntriesOrList) {
++        matchingEntry = listOfCategories[key];
++        item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
+       }
+     }
++    else {
++      matchingEntry = matchingEntriesOrList;
++      item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
++    }
+   }
+ 
+   this.endTransaction();
+@@ -641,9 +644,21 @@
+  * Returns a newly created item representing a query.
+  *
+  * @scope    public instance method
++ * @param    category    Optional. A category item, or an array of category items. 
++ * @return   A newly created item representing a query.
++ */
++World.prototype.newQueryForItemsByCategory = function(categoryOrListOfCategories) {
++  var attributeCalledCategory = this.getAttributeCalledCategory();
++  return this.newQuery(attributeCalledCategory, categoryOrListOfCategories);
++};
++
++
++/** OBSOLETE - no more support for queries for specific items 
++ * Returns a newly created item representing a query.
++ *
++ * @scope    public instance method
+  * @param    itemOrListOfItems    Optional. An item, or an array of items. 
+  * @return   A newly created item representing a query.
+- */
+ World.prototype.newQueryForSpecificItems = function(itemOrListOfItems) {
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(&quot;A query&quot;);
+@@ -668,6 +683,7 @@
+   this.endTransaction();
+   return item;
+ };
++*/
+ 
+ 
+ /**
+
+Modified: trunk/source/repositories/demo_page/2005_may_chronological_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-15 06:57:22 UTC (rev 141)
++++ trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-15 19:27:18 UTC (rev 142)
+@@ -43,13 +43,13 @@
+       &quot;timestamp&quot;: &quot;1114819457218&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Matching Category
++  { &quot;Item&quot;: {                             // Matching Value
+            &quot;uuid&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457218&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Matching Item
++  { &quot;Item&quot;: {                             // Matching Attribute
+            &quot;uuid&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457234&quot; }
+@@ -347,12 +347,12 @@
+       &quot;timestamp&quot;: &quot;1114819457312&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Matching Category
++  { &quot;Entry&quot;: {                             // Matching Value
+            &quot;uuid&quot;: &quot;1486&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;type&quot;: &quot;StringValue&quot;,
+-          &quot;value&quot;: &quot;Matching Category&quot;,
++          &quot;value&quot;: &quot;Matching Value&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457468&quot; }
+   },
+@@ -360,29 +360,19 @@
+   { &quot;Entry&quot;: {                             // Attribute
+            &quot;uuid&quot;: &quot;1487&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457484&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Category
+-           &quot;uuid&quot;: &quot;1487888&quot;,
+-      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
+-           &quot;item&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
+-           &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457312&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Matching Item
++  { &quot;Entry&quot;: {                             // Matching Attribute
+            &quot;uuid&quot;: &quot;1488&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Item
++           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Attribute
+            &quot;type&quot;: &quot;StringValue&quot;,
+-          &quot;value&quot;: &quot;Matching Item&quot;,
++          &quot;value&quot;: &quot;Matching Attribute&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457500&quot; }
+   },
+@@ -390,19 +380,19 @@
+   { &quot;Entry&quot;: {                             // Attribute
+            &quot;uuid&quot;: &quot;1489&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Item
++           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Attribute
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457500&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Item
++  { &quot;Entry&quot;: {                             // Attribute
+            &quot;uuid&quot;: &quot;1489888&quot;,
+       &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
+-           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Item
++           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Attribute
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;00000130-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++          &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457312&quot; }
+   },
+@@ -811,24 +801,12 @@
+       &quot;timestamp&quot;: &quot;1114819457734&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // One Book
+-           &quot;uuid&quot;: &quot;3020&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819457750&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Query for all books
+            &quot;uuid&quot;: &quot;3011&quot;,
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+       &quot;timestamp&quot;: &quot;1114819457750&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Query for one book
+-           &quot;uuid&quot;: &quot;3021&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819457765&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Bugs and Features to Implement
+            &quot;uuid&quot;: &quot;4000&quot;,
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+@@ -1159,16 +1137,6 @@
+       &quot;timestamp&quot;: &quot;1114819458828&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // One Book
+-           &quot;uuid&quot;: &quot;6027&quot;,
+-      &quot;attribute&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+-           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
+-           &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;3020&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458843&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Section
+            &quot;uuid&quot;: &quot;6028&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+@@ -1219,56 +1187,6 @@
+       &quot;timestamp&quot;: &quot;1114819458937&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Section
+-           &quot;uuid&quot;: &quot;6033&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;3020&quot;,                // One Book
+-           &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458968&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // One Book
+-           &quot;uuid&quot;: &quot;6034&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;3020&quot;,                // One Book
+-           &quot;type&quot;: &quot;StringValue&quot;,
+-          &quot;value&quot;: &quot;One Book&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458984&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Detail
+-           &quot;uuid&quot;: &quot;6035&quot;,
+-      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
+-           &quot;item&quot;: &quot;3020&quot;,                // One Book
+-           &quot;type&quot;: &quot;StringValue&quot;,
+-          &quot;value&quot;: &quot;Detail&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819459000&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query for one book
+-           &quot;uuid&quot;: &quot;6036&quot;,
+-      &quot;attribute&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
+-           &quot;item&quot;: &quot;3020&quot;,                // One Book
+-           &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;3021&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819459031&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // This section shows a just a...
+-           &quot;uuid&quot;: &quot;6037&quot;,
+-      &quot;attribute&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
+-           &quot;item&quot;: &quot;3020&quot;,                // One Book
+-           &quot;type&quot;: &quot;StringValue&quot;,
+-          &quot;value&quot;: &quot;This section shows a just a single selected book. The section is populated using a query that asks for just a single book item.&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819459046&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Query
+            &quot;uuid&quot;: &quot;6038&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+@@ -1289,36 +1207,6 @@
+       &quot;timestamp&quot;: &quot;1114819459093&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query
+-           &quot;uuid&quot;: &quot;6041&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;3021&quot;,                // Query for one book
+-           &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819459140&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query for one book
+-           &quot;uuid&quot;: &quot;6042&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;3021&quot;,                // Query for one book
+-           &quot;type&quot;: &quot;StringValue&quot;,
+-          &quot;value&quot;: &quot;Query for one book&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819459156&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
+-           &quot;uuid&quot;: &quot;6043&quot;,
+-      &quot;attribute&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Item
+-           &quot;item&quot;: &quot;3021&quot;,                // Query for one book
+-           &quot;type&quot;: &quot;RelatedUuid&quot;,
+-          &quot;value&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819459171&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Page
+            &quot;uuid&quot;: &quot;6078&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+@@ -1581,7 +1469,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Feature
+            &quot;uuid&quot;: &quot;6104&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;4011&quot;,                // Query for all features
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;4102&quot;,
+@@ -1611,7 +1499,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Bug
+            &quot;uuid&quot;: &quot;6107&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;4021&quot;,                // Query for all bugs
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;4101&quot;,
+@@ -1641,7 +1529,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Closed Tasks
+            &quot;uuid&quot;: &quot;6110&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;4031&quot;,                // Query for all closed items
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;4103&quot;,
+@@ -1671,7 +1559,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Bug
+            &quot;uuid&quot;: &quot;6113&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;4041&quot;,                // Query for all closed bugs
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;4101&quot;,
+@@ -1681,7 +1569,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Closed Tasks
+            &quot;uuid&quot;: &quot;6114&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;4041&quot;,                // Query for all closed bugs
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;4103&quot;,
+@@ -2221,7 +2109,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Charity
+            &quot;uuid&quot;: &quot;6190&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;5011&quot;,                // Query for all charities
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;5101&quot;,
+@@ -2588,7 +2476,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Category
+            &quot;uuid&quot;: &quot;5e551cd6-7cae-4e7b-8a15-ba71f803805e&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -2676,7 +2564,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Attribute
+            &quot;uuid&quot;: &quot;f9afff15-663e-4b45-8d62-bf2297ec0fe7&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
+    &quot;previousEntry&quot;: &quot;5e551cd6-7cae-4e7b-8a15-ba71f803805e&quot;,
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+@@ -2759,7 +2647,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Person
+            &quot;uuid&quot;: &quot;a11a8ac9-08d4-460b-8cfe-23ea90b04f7e&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
+    &quot;previousEntry&quot;: &quot;f9afff15-663e-4b45-8d62-bf2297ec0fe7&quot;,
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+@@ -3004,7 +2892,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Publisher
+            &quot;uuid&quot;: &quot;5cceee12-d202-46ac-8724-0474ba4860ae&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
+    &quot;previousEntry&quot;: &quot;a11a8ac9-08d4-460b-8cfe-23ea90b04f7e&quot;,
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+@@ -3171,7 +3059,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Book
+            &quot;uuid&quot;: &quot;cd9b4dfb-6fec-4f0f-815b-e0a2ae2ac7c3&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
+    &quot;previousEntry&quot;: &quot;5cceee12-d202-46ac-8724-0474ba4860ae&quot;,
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+@@ -3615,7 +3503,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Book
+            &quot;uuid&quot;: &quot;0515ceef-33b9-477b-8ebf-66a3d0baf174&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;3011&quot;,                // Query for all books
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot;,
+@@ -3636,7 +3524,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Person
+            &quot;uuid&quot;: &quot;ff73a3d6-7155-44cb-89e9-33a89404f203&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
+    &quot;previousEntry&quot;: &quot;cd9b4dfb-6fec-4f0f-815b-e0a2ae2ac7c3&quot;,
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+@@ -3798,7 +3686,7 @@
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Publisher
+            &quot;uuid&quot;: &quot;414b2c92-ded7-4071-8ff3-af2468ec665b&quot;,
+-      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Value
+            &quot;item&quot;: &quot;e30ba726-d976-46fb-88ac-7f5e841a6b43&quot;,                // New Query
+            &quot;type&quot;: &quot;RelatedUuid&quot;,
+           &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot;,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000127.html">[openrecord-svn] r141 - in trunk: documentation source source/model
+</A></li>
+	<LI>Next message: <A HREF="000129.html">[openrecord-svn] r143 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

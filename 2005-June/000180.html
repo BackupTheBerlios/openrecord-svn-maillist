@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r194 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r194%20-%20trunk/source&In-Reply-To=%3C200506292304.j5TN4J8q020797%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000179.html">
+   <LINK REL="Next"  HREF="000181.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r194 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r194%20-%20trunk/source&In-Reply-To=%3C200506292304.j5TN4J8q020797%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r194 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 01:04:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000179.html">[openrecord-svn] r193 - in trunk: . source source/model
+</A></li>
+        <LI>Next message: <A HREF="000181.html">[openrecord-svn] r195 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-30 01:04:06 +0200 (Thu, 30 Jun 2005)
+New Revision: 194
+
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/NavbarView.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+Log:
+Minor cleanup work.
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/BarChartPlugin.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -161,7 +161,7 @@
+   }
+ 
+   // add the table header row(s)
+-  listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + SectionView.ELEMENT_CLASS_SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
++  listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + SectionView.CSS_CLASS_SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
+   listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   listOfStrings.push(&quot;&lt;th&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/th&gt;&quot;);
+@@ -176,7 +176,7 @@
+   for (var kKey in listOfContentItems) {
+     contentItem = listOfContentItems[kKey];
+     listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+-    listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_PLAIN + &quot;\&quot;&gt;&quot; + contentItem.getDisplayName(&quot;{no name}&quot;) + &quot;&lt;/td&gt;&quot;);
++    listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.CSS_CLASS_PLAIN + &quot;\&quot;&gt;&quot; + contentItem.getDisplayName(&quot;{no name}&quot;) + &quot;&lt;/td&gt;&quot;);
+     var numericValue = 0;
+     if (selectedAttribute) {
+       listOfEntries = contentItem.getEntriesForAttribute(selectedAttribute);
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/DetailPlugin.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -126,19 +126,19 @@
+   var listOfStrings = [];
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   
+-  listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + SectionView.ELEMENT_CLASS_SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
++  listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + SectionView.CSS_CLASS_SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
+   listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+-  listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_LABEL + &quot; &quot; + SectionView.ELEMENT_CLASS_TITLE + &quot;\&quot;&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/td&gt;&quot;);
+-  listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_TITLE + &quot;\&quot;&gt;&quot; + inItem.getDisplayName() + &quot;&lt;/td&gt;&quot;);
++  listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.CSS_CLASS_LABEL + &quot; &quot; + SectionView.CSS_CLASS_TITLE + &quot;\&quot;&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/td&gt;&quot;);
++  listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.CSS_CLASS_TITLE + &quot;\&quot;&gt;&quot; + inItem.getDisplayName() + &quot;&lt;/td&gt;&quot;);
+   listOfStrings.push(&quot;&lt;/tr&gt;&quot;);
+   var listOfAttributes = inItem.getAttributes();
+   for (var key in listOfAttributes) { 
+     var attribute = listOfAttributes[key];
+     if (attribute != attributeCalledName) {
+       listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+-      listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_LABEL + &quot;\&quot;&gt;&quot; + attribute.getDisplayName() + &quot;&lt;/td&gt;&quot;);
++      listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.CSS_CLASS_LABEL + &quot;\&quot;&gt;&quot; + attribute.getDisplayName() + &quot;&lt;/td&gt;&quot;);
+       var listOfEntries = inItem.getEntriesForAttribute(attribute); 
+-      listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_PLAIN + &quot;\&quot;&gt;&quot;);
++      listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.CSS_CLASS_PLAIN + &quot;\&quot;&gt;&quot;);
+       for (var j = 0; j &lt; listOfEntries.length; ++j) {
+         listOfStrings.push(listOfEntries[j].getDisplayString() + &quot;&lt;br/&gt;&quot;);
+       }
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/NavbarView.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -98,7 +98,7 @@
+   var finalString = listOfStrings.join(&quot;&quot;);
+   divElement.innerHTML = finalString;
+   
+-  var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++  var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
+   newPageButton.type = &quot;button&quot;;
+   newPageButton.value = &quot;New Page&quot;;
+   newPageButton.onclick = this._clickOnNewPageButton.bindAsEventListener(this);
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/OutlinePlugin.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -103,7 +103,7 @@
+     var contentItem = listOfContentItems[contentItemKey];
+     var liElement = View.createAndAppendElement(ulElement, &quot;li&quot;);
+     View.createAndAppendTextNode(liElement, contentItem.getDisplayName(&quot;{no name}&quot;) + &quot; &quot;);
+-    var anchorElement = View.createAndAppendElement(liElement, &quot;a&quot;, SectionView.ELEMENT_CLASS_MORE_LINK);
++    var anchorElement = View.createAndAppendElement(liElement, &quot;a&quot;, SectionView.CSS_CLASS_MORE_LINK);
+ 
+     // PENDING: 
+     //  We shouldn't call the private method _getUuid()
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/PageView.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -220,10 +220,10 @@
+ PageView.prototype._buildEditControls = function() {
+   if (!this._editModeDiv) {
+     var pageDivElement = this.getHTMLElement();
+-    this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, SectionView.ELEMENT_CLASS_SECTION);
++    this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, SectionView.CSS_CLASS_SECTION);
+     View.createAndAppendElement(this._editModeDiv,&quot;br&quot;);
+     var editButton = View.createAndAppendElement(this._editModeDiv, &quot;input&quot;, 
+-      RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++      RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
+     editButton.type = &quot;Button&quot;;
+     editButton.value = &quot;New Section&quot;;
+     editButton.onclick = this._addNewSection.bindAsEventListener(this);
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/RootView.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -42,7 +42,11 @@
+ // -------------------------------------------------------------------
+ // RootView public class constants
+ // -------------------------------------------------------------------
+-RootView.ELEMENT_CLASS_PAGE_EDIT_BUTTON = &quot;page_edit_button&quot;;
++RootView.CSS_CLASS_PAGE_EDIT_BUTTON = &quot;page_edit_button&quot;;
++RootView.CSS_CLASS_EDIT_MODE = &quot;editmode&quot;;
++RootView.CSS_CLASS_VIEW_MODE = &quot;viewmode&quot;;
++RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL = &quot;edit_mode_only_control&quot;;
++RootView.CSS_CLASS_CONTROL_SPAN = &quot;control_span&quot;;
+ 
+ RootView.ELEMENT_ID_DEBUG_TEXTAREA = &quot;debug_textarea&quot;;
+ 
+@@ -51,18 +55,10 @@
+ RootView.URL_HASH_PAGE_PREFIX = &quot;#&quot; + RootView.URL_PAGE_PREFIX;
+ RootView.URL_HASH_ITEM_PREFIX = &quot;#&quot; + RootView.URL_ITEM_PREFIX;
+ 
+-RootView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
+-RootView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+-RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL = &quot;edit_mode_only_control&quot;;
+-
+-RootView.CONTROL_SPAN_CLASS = &quot;control_span&quot;;
+-
+ RootView.UUID_FOR_CATEGORY_PAGE    = &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ RootView.UUID_FOR_CATEGORY_SECTION = &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-// RootView.UUID_FOR_HOME_PAGE        = &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-
+ // -------------------------------------------------------------------
+ // RootView class properties
+ // -------------------------------------------------------------------
+@@ -124,7 +120,7 @@
+   var logoSpan = View.createAndAppendElement(headerP, &quot;span&quot;, &quot;logo&quot;);
+   logoSpan.innerHTML = '&lt;a href=&quot;<A HREF="http://openrecord.org">http://openrecord.org</A>&quot;&gt;&lt;span class=&quot;logostart&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;logomiddle&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;logoend&quot;&gt;.org&lt;/span&gt;&lt;/a&gt;';
+   var mainControlSpan = View.createAndAppendElement(headerP, &quot;span&quot;, null, &quot;main_control_span&quot;);
+-  mainControlSpan.className = RootView.CONTROL_SPAN_CLASS;
++  mainControlSpan.className = RootView.CSS_CLASS_CONTROL_SPAN;
+   View.createAndAppendElement(headerP, &quot;br&quot;);
+   var navbarDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;navbar&quot;);
+   var contentAreaDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;content_area&quot;);
+@@ -190,7 +186,6 @@
+  * @return   A page item.
+  */
+ RootView.prototype.getHomePage = function () {
+-  // return this.getWorld().getItemFromUuid(RootView.UUID_FOR_HOME_PAGE);
+   return this._homePage;
+ };
+ 
+@@ -341,7 +336,7 @@
+   Util.assert(this._myCurrentContentView instanceof Object);
+ 
+   document.title = this._myCurrentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
+-  this._myRootDiv.className = (this.isInEditMode()) ? RootView.ELEMENT_CLASS_EDIT_MODE : RootView.ELEMENT_CLASS_VIEW_MODE;
++  this._myRootDiv.className = (this.isInEditMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
+   this._displayLoginSpan();
+   this._displayNavbar();
+   this._displayDebugArea();
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/SectionView.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -45,16 +45,16 @@
+ // -------------------------------------------------------------------
+ // SectionView public class constants
+ // -------------------------------------------------------------------
+-SectionView.ELEMENT_CLASS_SECTION = &quot;section&quot;;
+-SectionView.ELEMENT_CLASS_SIMPLE_TABLE = &quot;simple_table&quot;;
+-SectionView.ELEMENT_CLASS_NEW_ITEM = &quot;newitem&quot;;
+-SectionView.ELEMENT_CLASS_PLAIN = &quot;plain&quot;;
+-SectionView.ELEMENT_CLASS_LABEL = &quot;label&quot;;
+-SectionView.ELEMENT_CLASS_TITLE = &quot;title&quot;;
+-SectionView.ELEMENT_CLASS_TEXT_FIELD_IN_TABLE_CELL = &quot;text_field_in_table_cell&quot;;
+-SectionView.ELEMENT_CLASS_SELECTED = &quot;selected&quot;;
+-SectionView.ELEMENT_CLASS_MORE_LINK = &quot;more&quot;;
+-SectionView.ELEMENT_CLASS_TEXT_VIEW = &quot;text_view&quot;;
++SectionView.CSS_CLASS_SECTION = &quot;section&quot;;
++SectionView.CSS_CLASS_SIMPLE_TABLE = &quot;simple_table&quot;;
++SectionView.CSS_CLASS_NEW_ITEM = &quot;newitem&quot;;
++SectionView.CSS_CLASS_PLAIN = &quot;plain&quot;;
++SectionView.CSS_CLASS_LABEL = &quot;label&quot;;
++SectionView.CSS_CLASS_TITLE = &quot;title&quot;;
++SectionView.CSS_CLASS_TEXT_FIELD_IN_TABLE_CELL = &quot;text_field_in_table_cell&quot;;
++SectionView.CSS_CLASS_SELECTED = &quot;selected&quot;;
++SectionView.CSS_CLASS_MORE_LINK = &quot;more&quot;;
++SectionView.CSS_CLASS_TEXT_VIEW = &quot;text_view&quot;;
+ SectionView.CSS_CLASS_SECTION_HEADER = &quot;section_header&quot;;
+ SectionView.CSS_CLASS_SUMMARY_TEXT = &quot;summary_text&quot;;
+ 
+@@ -233,7 +233,7 @@
+   }
+   
+   var sectionDiv = this.getHTMLElement();
+-  var outerDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;, SectionView.ELEMENT_CLASS_SECTION);
++  var outerDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;, SectionView.CSS_CLASS_SECTION);
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+@@ -242,11 +242,11 @@
+     SectionView.CSS_CLASS_SECTION_HEADER);
+   var summaryDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+   this._mySectionSummaryView = new TextView(this, summaryDiv, this.mySection, attributeCalledSummary,
+-    this.mySection.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
++    this.mySection.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.CSS_CLASS_TEXT_VIEW, true);
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+   // create the editing controls, if we're in edit mode
+-  var controlArea = View.createAndAppendElement(outerDiv, &quot;p&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++  var controlArea = View.createAndAppendElement(outerDiv, &quot;p&quot;, RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
+   var textShowMeA = document.createTextNode(&quot;Show me a &quot;);
+   controlArea.appendChild(textShowMeA);
+ 
+@@ -362,7 +362,7 @@
+   var entrySpan = View.createAndAppendElement(this._queryEditSpan, &quot;span&quot;);
+   
+   var entryTextView =  new TextView(this, entrySpan, myQuery, attributeCalledQueryMatchingValue, matchingEntry,
+-    RootView.ELEMENT_CLASS_EDIT_MODE);
++    RootView.CSS_CLASS_EDIT_MODE);
+   entryTextView.setSuggestions(listOfPossibleEntries);
+   entryTextView.alwaysUseEditField();
+   entryTextView.setAutoWiden(true);
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/TablePlugin.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -69,8 +69,8 @@
+   PluginView.call(this, inSectionView, inHTMLElement, inQuery, inLayout);
+ 
+   // PENDING should probably make this independent of sectionview
+-  this.myClass = SectionView.ELEMENT_CLASS_SIMPLE_TABLE;
+-  this.myCellClass = SectionView.ELEMENT_CLASS_PLAIN;
++  this.myClass = SectionView.CSS_CLASS_SIMPLE_TABLE;
++  this.myCellClass = SectionView.CSS_CLASS_PLAIN;
+   this.myTable = null;
+   this._sortAttribute = null;
+   this._ascendingOrder = true;
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-29 21:40:59 UTC (rev 193)
++++ trunk/source/TextView.js	2005-06-29 23:04:06 UTC (rev 194)
+@@ -41,7 +41,7 @@
+ // -------------------------------------------------------------------
+ // TextView public class constants
+ // -------------------------------------------------------------------
+-TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;; 
++// TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;; 
+ TextView.CSS_CLASS_VALUE_IS_ITEM = &quot;textViewItem&quot;;
+ TextView.PROVISIONAL_COLOR = '#999999';
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000179.html">[openrecord-svn] r193 - in trunk: . source source/model
+</A></li>
+	<LI>Next message: <A HREF="000181.html">[openrecord-svn] r195 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#180">[ date ]</a>
+              <a href="thread.html#180">[ thread ]</a>
+              <a href="subject.html#180">[ subject ]</a>
+              <a href="author.html#180">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

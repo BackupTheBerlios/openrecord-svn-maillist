@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r87 - in trunk/source: . model repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r87%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200505271758.j4RHwx7K027373%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000076.html">
+   <LINK REL="Next"  HREF="000077.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r87 - in trunk/source: . model repositories/demo_page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r87%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200505271758.j4RHwx7K027373%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r87 - in trunk/source: . model repositories/demo_page">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 27 19:58:59 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000076.html">[openrecord-svn] r86 - in trunk: source third_party third_party/md5
+</A></li>
+        <LI>Next message: <A HREF="000077.html">[openrecord-svn] r88 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-27 19:58:58 +0200 (Fri, 27 May 2005)
+New Revision: 87
+
+Modified:
+   trunk/source/Util.js
+   trunk/source/UtilTest.html
+   trunk/source/UtilTest.js
+   trunk/source/demo_page.html
+   trunk/source/model/ModelTest.html
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/repositories/demo_page/2005_may_user_list.json
+Log:
+User passwords are now saved as md5 hashes, rather than as clear text.
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/Util.js	2005-05-27 17:58:58 UTC (rev 87)
+@@ -418,6 +418,16 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Methods for doing encryption
++// -------------------------------------------------------------------
++
++Util.hex_md5 = function (inString) {
++  // Calls the hex_md5() function in .../trunk/third_party/md5/md5.js
++  return hex_md5(inString);
++};
++
++
++// -------------------------------------------------------------------
+ // Methods for working with UUIDs
+ // -------------------------------------------------------------------
+ 
+
+Modified: trunk/source/UtilTest.html
+===================================================================
+--- trunk/source/UtilTest.html	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/UtilTest.html	2005-05-27 17:58:58 UTC (rev 87)
+@@ -14,6 +14,7 @@
+     &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/UtilTest.js	2005-05-27 17:58:58 UTC (rev 87)
+@@ -67,6 +67,13 @@
+   
+ }
+ 
++function testEncryptionMethods() {
++  var longString = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
++  assertTrue('md5 of &quot;&quot; is correct', (Util.hex_md5(&quot;&quot;) == &quot;d41d8cd98f00b204e9800998ecf8427e&quot;));
++  assertTrue('md5 of &quot;iggy&quot; is correct', (Util.hex_md5(&quot;iggy&quot;) == &quot;0e026f55a72c0861a93e750c2a5427b1&quot;));
++  assertTrue('md5 of longString is correct', (Util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
++}
++
+ function testMethodsForWorkingWithUuids() {
+   
+   var uuidString = Util.generateRandomUuid();
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/demo_page.html	2005-05-27 17:58:58 UTC (rev 87)
+@@ -13,6 +13,7 @@
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Demo Page&lt;/title&gt;
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/model/ModelTest.html	2005-05-27 17:58:58 UTC (rev 87)
+@@ -14,6 +14,7 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/model/StubVirtualServer.js	2005-05-27 17:58:58 UTC (rev 87)
+@@ -252,7 +252,12 @@
+   var newUser = this._createNewItem(inObserver, false);
+   newUser.__myCreationUserstamp = newUser;
+   this.__myListOfUsers.push(newUser);
+-  this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = inAuthentication;
++  
++  var md5Authentication = null;
++  if (inAuthentication) {
++    md5Authentication = Util.hex_md5(inAuthentication);
++  }
++  this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = md5Authentication;
+ 
+   if (inName) { 
+     this.__myCurrentUser = newUser;
+@@ -296,10 +301,10 @@
+  *
+  * @scope    public instance method
+  * @param    inUser    The user to be logged in. 
+- * @param    inAuthentication    Authentication info for the user. 
++ * @param    inPassword    Password supplied at login. 
+  * @return   True if we were able to log in the user. False if the login failed.
+  */
+-StubVirtualServer.prototype.login = function (inUser, inAuthentication) {
++StubVirtualServer.prototype.login = function (inUser, inPassword) {
+   
+   // Only one user can be logged in at once.  We consider it an error
+   // if you try to log in a new user before logging out the old one.
+@@ -317,8 +322,12 @@
+     return false;
+   }
+   
++  var md5hashOfPassword = null;
++  if (inPassword) {
++    md5hashOfPassword = Util.hex_md5(inPassword);
++  }
+   var realAuthentication = this.__getAuthenticationInfoForUser(inUser);
+-  var successfulAuthentication = ((realAuthentication == inAuthentication) || !realAuthentication);
++  var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+   
+   // PENDING: temporary hack
+   // if (!successfulAuthentication) {
+
+Modified: trunk/source/repositories/demo_page/2005_may_user_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_may_user_list.json	2005-05-27 17:16:02 UTC (rev 86)
++++ trunk/source/repositories/demo_page/2005_may_user_list.json	2005-05-27 17:58:58 UTC (rev 87)
+@@ -2,8 +2,8 @@
+ { &quot;format&quot;: &quot;2005_MAY_USER_LIST&quot;, 
+   &quot;users&quot;: [
+     { &quot;uuid&quot;: &quot;100&quot;, &quot;password&quot;: null },
+-    { &quot;uuid&quot;: &quot;1502&quot;, &quot;password&quot;: &quot;guest&quot; },
+-    { &quot;uuid&quot;: &quot;6239&quot;, &quot;password&quot;: &quot;b&quot; },
++    { &quot;uuid&quot;: &quot;1502&quot;, &quot;password&quot;: &quot;084e0343a0486ff05530df6c705c8bb4&quot; },
++    { &quot;uuid&quot;: &quot;6239&quot;, &quot;password&quot;: &quot;92eb5ffee6ae2fec3ad71c777531578f&quot; },
+     { &quot;uuid&quot;: &quot;6241&quot;, &quot;password&quot;: null },
+     { &quot;uuid&quot;: &quot;6243&quot;, &quot;password&quot;: null } ]
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000076.html">[openrecord-svn] r86 - in trunk: source third_party third_party/md5
+</A></li>
+	<LI>Next message: <A HREF="000077.html">[openrecord-svn] r88 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#75">[ date ]</a>
+              <a href="thread.html#75">[ thread ]</a>
+              <a href="subject.html#75">[ subject ]</a>
+              <a href="author.html#75">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

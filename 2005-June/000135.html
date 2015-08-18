@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r149 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r149%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506162057.j5GKvvNd031895%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000134.html">
+   <LINK REL="Next"  HREF="000136.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r149 - in trunk/source: . model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r149%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506162057.j5GKvvNd031895%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r149 - in trunk/source: . model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 16 22:57:57 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000134.html">[openrecord-svn] r148 - in trunk: documentation source source/model
+</A></li>
+        <LI>Next message: <A HREF="000136.html">[openrecord-svn] r150 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-16 22:57:56 +0200 (Thu, 16 Jun 2005)
+New Revision: 149
+
+Modified:
+   trunk/source/TextView.js
+   trunk/source/Util.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+1) Fixed numerous bugs associated with new query system and support for Dates
+2) Added unit tests to prevent same bugs
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-16 20:01:15 UTC (rev 148)
++++ trunk/source/TextView.js	2005-06-16 20:57:56 UTC (rev 149)
+@@ -306,7 +306,7 @@
+             break;
+           case typeCalledDate:
+             var dateVal = Date.parse(value);
+-            if (dateVal != NaN) {return new Date(value);}
++            if (!isNaN(dateVal)) {return new Date(value);}
+             break;
+           default:
+             if (aType.isInCategory(categoryCalledCategory)) {
+@@ -338,9 +338,11 @@
+     var oldValue = this._entry.getValue();
+     if (oldValue != value) {
+       this._entry = this._item.replaceEntry(this._entry, value);
++      this._restoreText(true);
+     }
+   } else if (value) {
+     this._entry = this._item.addEntryForAttribute(this._attribute, value);
++    this._restoreText(true);
+   }
+ };
+ 
+@@ -362,11 +364,15 @@
+  *
+  * @scope    private instance method
+  */
+-TextView.prototype._restoreText = function() {
+-  Util.assert(this._isEditing);
++TextView.prototype._restoreText = function(dontSelect) {
+   var oldText = (this._entry) ?  this._entry.getDisplayString() : '';
+-  this._editField.value = oldText;
+-  this._editField.select();
++  if (this._isEditing) {
++    this._editField.value = oldText;
++  }
++  else {
++    this._textNode.data = oldText;
++  }
++  if (!dontSelect) {this._editField.select();}
+ };
+ 
+ 
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-16 20:01:15 UTC (rev 148)
++++ trunk/source/Util.js	2005-06-16 20:57:56 UTC (rev 149)
+@@ -61,7 +61,7 @@
+ Util.ASCII_VALUE_FOR_RETURN = 13;
+ Util.ASCII_VALUE_FOR_TAB = 9;
+ Util.ASCII_VALUE_FOR_ESCAPE = 27;
+-
++Util.ABBREV_MONTHS_ARRAY = new Array(&quot;Jan&quot;,&quot;Feb&quot;,&quot;Mar&quot;,&quot;Apr&quot;,&quot;May&quot;,&quot;Jun&quot;,&quot;Jul&quot;,&quot;Aug&quot;,&quot;Sep&quot;,&quot;Oct&quot;,&quot;Nov&quot;,&quot;Dec&quot;);
+ // &#37; = %
+ // &#38; = &amp;
+ // &#39; = '
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-16 20:01:15 UTC (rev 148)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-16 20:57:56 UTC (rev 149)
+@@ -298,9 +298,11 @@
+           case DeltaVirtualServer.JSON_TYPE_NUMBER_VALUE:
+             finalData = rawData;
+             break;
+-          case DeltaVirtualServer.JSON_TYPE_Date_VALUE:
++          case DeltaVirtualServer.JSON_TYPE_DATE_VALUE:
+             finalData = new Date(rawData);
+             break;
++          default:
++            Util.assert(false,'Unknown data type while _rehydrating()');
+         }
+         var entry = this.__getEntryFromUuidOrBootstrapEntry(entryUuid);
+         var itemOrEntry = previousEntry || item;
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-16 20:01:15 UTC (rev 148)
++++ trunk/source/model/Entry.js	2005-06-16 20:57:56 UTC (rev 149)
+@@ -224,13 +224,15 @@
+  * @return   A string representing the literal data in this entry.
+  */
+ Entry.prototype.getDisplayString = function () {
+-  var returnString = &quot;&quot;;
+   if (this.__myValue instanceof Item) {
+-    returnString += this.__myValue.getDisplayName();
+-  } else {
+-    returnString += &quot;&quot; + this.__myValue;
++    return this.__myValue.getDisplayName();
++  } else if (this.__myValue instanceof Date) {
++    var aDate = this.__myValue;
++    return Util.ABBREV_MONTHS_ARRAY[aDate.getMonth()] + ' ' + aDate.getDate() + ', '+ (aDate.getYear()+1900);
+   }
+-  return returnString;
++  else {
++    return &quot;&quot; + this.__myValue;
++  }
+ };
+ 
+ 
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-16 20:01:15 UTC (rev 148)
++++ trunk/source/model/ModelTest.js	2005-06-16 20:57:56 UTC (rev 149)
+@@ -571,14 +571,22 @@
+   var northAmericaQuery = world.newQuery(attributeCalledContinent, &quot;North America&quot;);
+   listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
+   assertTrue('North America query returned only Seattle',
+-    listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
++  listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
+     
+-  seattle.replaceEntry(seattleEntry, &quot;Asia&quot;);
+-  var listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  seattle.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
++  listOfCountries = world.getResultItemsForQuery(asiaQuery);
+   assertTrue('Asia query returns 3 countries', listOfCountries.length == 3);
+   hasAll = Util.areObjectsInSet([tokyo,beijing,seattle], listOfCountries);
+   assertTrue('Asia query returns all 3 countries', hasAll);
+   
++  world.setItemToBeIncludedInQueryResultList(beijing, northAmericaQuery);
++  listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  assertTrue('Beijing is now in North America',Util.isObjectInSet(beijing,listOfCountries));
++  assertTrue('North America query returns 2 countries',listOfCountries.length == 2);
++  world.setItemToBeIncludedInQueryResultList(seattle, northAmericaQuery);
++  listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  assertTrue('North America still returns only 2 countries',listOfCountries.length == 2);
++  
+   world.logout();
+ }
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-16 20:01:15 UTC (rev 148)
++++ trunk/source/model/StubVirtualServer.js	2005-06-16 20:57:56 UTC (rev 149)
+@@ -582,7 +582,7 @@
+   for (var key in listOfMatchingEntries) {
+     var matchingEntry = listOfMatchingEntries[key];
+     var match = matchingEntry.getValue();
+-    if (!(inItem.isInCategory(match))) {
++    if (!inItem.hasAttributeValue(matchingAttribute, match)) {
+       inItem.addEntryForAttribute(matchingAttribute, match);
+     }
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000134.html">[openrecord-svn] r148 - in trunk: documentation source source/model
+</A></li>
+	<LI>Next message: <A HREF="000136.html">[openrecord-svn] r150 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#135">[ date ]</a>
+              <a href="thread.html#135">[ thread ]</a>
+              <a href="subject.html#135">[ subject ]</a>
+              <a href="author.html#135">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

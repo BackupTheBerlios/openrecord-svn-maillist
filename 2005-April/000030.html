@@ -1,0 +1,3812 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r37 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r37%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200504250434.j3P4Y5f2031017%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000029.html">
+   <LINK REL="Next"  HREF="000031.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r37 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r37%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200504250434.j3P4Y5f2031017%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r37 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Mon Apr 25 06:34:05 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000029.html">[openrecord-svn] r36 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000031.html">[openrecord-svn] r38 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-25 06:33:45 +0200 (Mon, 25 Apr 2005)
+New Revision: 37
+
+Added:
+   trunk/source/model/
+   trunk/source/model/BigLumpVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/LintTest.html
+   trunk/source/model/LintTest.js
+   trunk/source/model/ModelTest.html
+   trunk/source/model/ModelTest.js
+   trunk/source/model/Ordinal.js
+   trunk/source/model/READ_ME.txt
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/Value.js
+   trunk/source/model/Vote.js
+   trunk/source/model/World.js
+Modified:
+   trunk/source/Rectangle.js
+Log:
+Initial check-in of the code in &quot;model&quot; directory.  This code is an experimental prototype for a data model framework.
+
+Modified: trunk/source/Rectangle.js
+===================================================================
+--- trunk/source/Rectangle.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/Rectangle.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -17,13 +17,18 @@
+ //       + each file has just one public class
+ //       + file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
+ //       + directories are all lower case, with underscores: &quot;basic_shapes&quot;
++//    + unit tests
++//       + a JavaScript code file typically has two associated unit test files
++//       + the unit test files have the suffix &quot;Test&quot;
++//       + example: Book.js has unit test files BookTest.html and BookTest.js
+ //    + variable scoping prefixes
+ //       + class variables are prefixed with &quot;our&quot;
+ //       + instance variables are prefixed with &quot;my&quot;
+ //       + global variables are prefixed with &quot;window.global&quot;
+ //       + locally scoped variables are not prefixed
+ //       + function input parameters are prefixed with &quot;in&quot;
+-//       + private variables are prefixed with &quot;_&quot;
++//       + private variables and methods are prefixed with &quot;__&quot;
++//       + protected variables and methods are prefixed with &quot;_&quot;
+ //    + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
+ //    + array variables are prefixed with &quot;ListOf&quot; or &quot;HashTableOf&quot; or &quot;ArrayOf&quot;
+ //       + var myListOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
+
+Added: trunk/source/model/BigLumpVirtualServer.js
+===================================================================
+--- trunk/source/model/BigLumpVirtualServer.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/BigLumpVirtualServer.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,490 @@
++/*****************************************************************************
++ BigLumpVirtualServer.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Util.js
++//   World.js
++//   Item.js
++//   Vote.js
++//   Value.js
++//   Ordinal.js
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// BigLumpVirtualServer public class constants
++// -------------------------------------------------------------------
++BigLumpVirtualServer.JSON_MEMBER_FORMAT = &quot;format&quot;;
++BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP = &quot;timestamp&quot;;
++BigLumpVirtualServer.JSON_MEMBER_DATA = &quot;data&quot;;
++BigLumpVirtualServer.JSON_MEMBER_USERS = &quot;users&quot;;
++BigLumpVirtualServer.JSON_FORMAT_2005_MARCH = &quot;2005_MARCH_ITEM_CENTRIC_LIST&quot;;
++BigLumpVirtualServer.JSON_FORMAT_2005_APRIL = &quot;2005_APRIL_CHRONOLOGICAL_LIST&quot;;
++
++BigLumpVirtualServer.JSON_MEMBER_TYPE = &quot;type&quot;;
++BigLumpVirtualServer.JSON_MEMBER_DATA = &quot;value&quot;;
++BigLumpVirtualServer.JSON_TYPE_STRING_VALUE = &quot;StringValue&quot;;
++BigLumpVirtualServer.JSON_TYPE_UUID = &quot;Uuid&quot;;
++BigLumpVirtualServer.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
++BigLumpVirtualServer.JSON_TYPE_RELATED_UUID = &quot;RelatedUuid&quot;;
++BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE = &quot;NumberValue&quot;;
++
++BigLumpVirtualServer.JSON_MEMBER_WUID = &quot;Wuid&quot;;
++
++BigLumpVirtualServer.JSON_MEMBER_ITEM_CLASS = &quot;Item&quot;;
++BigLumpVirtualServer.JSON_MEMBER_VALUE_CLASS = &quot;Value&quot;;
++BigLumpVirtualServer.JSON_MEMBER_VOTE_CLASS = &quot;Vote&quot;;
++BigLumpVirtualServer.JSON_MEMBER_ORDINAL_CLASS = &quot;Ordinal&quot;;
++
++BigLumpVirtualServer.JSON_MEMBER_ATTRIBUTE = &quot;attribute&quot;;
++BigLumpVirtualServer.JSON_MEMBER_PREVIOUS_VALUE = &quot;previousValue&quot;;
++BigLumpVirtualServer.JSON_MEMBER_USERSTAMP = &quot;userstamp&quot;;
++BigLumpVirtualServer.JSON_MEMBER_ENTRY = &quot;entry&quot;;
++BigLumpVirtualServer.JSON_MEMBER_ITEM = &quot;item&quot;;
++BigLumpVirtualServer.JSON_MEMBER_RETAIN_FLAG = &quot;retainFlag&quot;;
++BigLumpVirtualServer.JSON_MEMBER_ORDINAL_NUMBER = &quot;ordinalNumber&quot;;
++
++/**
++ * The BigLumpVirtualServer is a datastore that loads and saves
++ * an entire World of items as a single monolithic JSON string.
++ *
++ * @scope    public instance constructor
++ * @param    inJsonString    A JSON string literal representing the world of items. 
++ */
++BigLumpVirtualServer.prototype = new StubBackingStore();  // makes BigLumpVirtualServer be a subclass of StubBackingStore
++function BigLumpVirtualServer(inJsonString) {
++  this.__myDehydratedWorld = inJsonString;
++}
++
++
++// -------------------------------------------------------------------
++// Private Methods
++// -------------------------------------------------------------------
++
++/**
++ * Overrides the superclass method.  The BigLumpVirtualServer 
++ * does not create axiomatic items from scratch, but instead loads all
++ * the saved items, including the axiomatic items.
++ *
++ * @scope    private instance method
++ */
++BigLumpVirtualServer.prototype.__loadAxiomaticItems = function () {
++  this.__loadWorldFromJsonString(this.__myDehydratedWorld);
++};
++  
++  
++/**
++ * Loads a world of items from a dehydrated JSON string.
++ *
++ * Given a world of items in JSON format, bootstraps new 
++ * instances of items corresponding to the dehydrated data.
++ * 
++ * @scope    private instance method
++ * @param    inJsonString    A JSON string literal representing the world of items. 
++ */
++BigLumpVirtualServer.prototype.__loadWorldFromJsonString = function (inJsonString) {
++  Util.assert(Util.isString(inJsonString));
++  var dehydratedWorld = null;
++  eval(&quot;dehydratedWorld = &quot; + inJsonString + &quot;;&quot;);
++  Util.assert(Util.isObject(dehydratedWorld));
++  
++  var fileFormat = dehydratedWorld[BigLumpVirtualServer.JSON_MEMBER_FORMAT];
++  if (fileFormat == BigLumpVirtualServer.JSON_FORMAT_2005_MARCH) {
++    // this is an old file format, circa 2005-March-16
++    var listOfItems = dehydratedWorld[BigLumpVirtualServer.JSON_MEMBER_DATA];
++    Util.assert(Util.isArray(listOfItems));
++    this.__loadWorldFromOld2005MarchFormatList(listOfItems);
++  } else {
++    // this is newer file format, circa 2005-April-21
++    Util.assert(fileFormat == BigLumpVirtualServer.JSON_FORMAT_2005_APRIL);
++    var listOfRecords = dehydratedWorld[BigLumpVirtualServer.JSON_MEMBER_DATA];
++    var listOfUsers = dehydratedWorld[BigLumpVirtualServer.JSON_MEMBER_USERS];
++    Util.assert(Util.isArray(listOfRecords));
++    this.__loadWorldFromListOfRecordsAndUsers(listOfRecords, listOfUsers);
++  }
++};
++  
++
++/**
++ * Loads a world of items from a dehydrated list of items.
++ *
++ * @scope    private instance method
++ * @param    inListOfItems    A JSON list of dehydrated items. 
++ */
++BigLumpVirtualServer.prototype.__loadWorldFromOld2005MarchFormatList = function (inListOfItems) {
++  var listOfItems = inListOfItems;
++  var uuid;
++  var item;
++  
++  // Have the StubBackingStore load the axiomatic items, because it will
++  // correctly set the creator of those items to be the axiomatic user.
++  this.__loadAxiomaticItems();
++  
++  var guestUser = this.newUser(&quot;Guest&quot;, null);
++  this.__myCurrentUser = guestUser;
++    
++  for (var listKey in listOfItems) {
++    var dehydratedItem = listOfItems[listKey];
++    var dehydratedUuid = dehydratedItem[World.UUID_FOR_ATTRIBUTE_UUID];
++    uuid = dehydratedUuid[BigLumpVirtualServer.JSON_MEMBER_DATA];
++    item = this.__getItemFromUuidOrCreateNewItem(uuid);
++    for (var propertyKey in dehydratedItem) {
++      if (propertyKey != World.UUID_FOR_ATTRIBUTE_UUID) { 
++        var propertyValue = dehydratedItem[propertyKey];
++        var attributeUuid = propertyKey;
++        Util.assert(Util.isArray(propertyValue));
++        for (var valueKey in propertyValue) {
++          var valueObject = propertyValue[valueKey];
++          var valueType = valueObject[BigLumpVirtualServer.JSON_MEMBER_TYPE];
++          var valueValue = valueObject[BigLumpVirtualServer.JSON_MEMBER_DATA];
++          var finalValue = null;
++          switch (valueType) {
++            case BigLumpVirtualServer.JSON_TYPE_FOREIGN_UUID:
++              finalValue = this.__getItemFromUuidOrCreateNewItem(valueValue);
++              break;
++            case BigLumpVirtualServer.JSON_TYPE_STRING_VALUE:
++              finalValue = valueValue;
++              break;
++            case BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE:
++              finalValue = valueValue;
++              break;
++          }
++          var attribute = this.__getItemFromUuidOrCreateNewItem(attributeUuid);
++          item.addAttributeValue(attribute, finalValue);
++        }
++      }
++    }
++  }
++  
++  for (var key in this.__myChronologicalListOfNewlyCreatedRecords) {
++    var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
++    this.__myChronologicalListOfRecords.push(newRecord);
++  }
++  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  this.__myCurrentUser = null;
++};
++
++
++/**
++ * Given a UUID, either (a) returns the existing item identified by that UUID, 
++ * or (b) creates an new item object, set its UUID, and returns that object.
++ *
++ * @scope    private instance method
++ * @param    inUuid    The UUID of the item to be returned. 
++ * @return   The item identified by the given UUID.
++ */
++StubVirtualServer.prototype.__getItemFromUuidOrBootstrapItem = function (inUuid) {
++  var item = this.getItemFromUuid(inUuid);
++  if (!item) {
++    this.__myNextAvailableUuid = Math.max(this.__myNextAvailableUuid, (inUuid + 1));   
++    item = new Item(this.__myWorld, inUuid);
++    this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
++  }
++  return item;
++};
++
++
++/**
++ * Given a UUID, either (a) returns the existing value identified by that UUID, 
++ * or (b) creates an new value object, set its UUID, and returns that object.
++ *
++ * @scope    private instance method
++ * @param    inUuid    The UUID of the value to be returned. 
++ * @return   The value identified by the given UUID.
++ */
++StubVirtualServer.prototype.__getValueFromUuidOrBootstrapValue = function (inUuid) {
++  var value = this.__myHashTableOfValuesKeyedByUuid[inUuid];
++  if (!value) {
++    this.__myNextAvailableUuid = Math.max(this.__myNextAvailableUuid, (inUuid + 1));   
++    value = new Value(this.__myWorld, inUuid);
++    this.__myHashTableOfValuesKeyedByUuid[inUuid] = value;
++  }
++  return value;
++};
++
++
++/**
++ * Loads a world of items from a dehydrated list of entries, where those
++ * entries may represent items, values, votes, or ordinal settings.
++ *
++ * @scope    private instance method
++ * @param    inJsonString    A JSON string literal representing the world of items. 
++ */
++BigLumpVirtualServer.prototype.__loadWorldFromListOfRecordsAndUsers = function (inListOfRecords, inListOfUsers) {
++  var key;
++  var itemUuid;
++  var item;
++  var entryUuid;
++  var entry;
++  
++  for (key in inListOfRecords) {
++    var dehydratedRecord = inListOfRecords[key];
++
++    var dehydratedItem = dehydratedRecord[BigLumpVirtualServer.JSON_MEMBER_ITEM_CLASS];
++    var dehydratedVote = dehydratedRecord[BigLumpVirtualServer.JSON_MEMBER_VOTE_CLASS];
++    var dehydratedOrdinal = dehydratedRecord[BigLumpVirtualServer.JSON_MEMBER_ORDINAL_CLASS];
++    var dehydratedValue = dehydratedRecord[BigLumpVirtualServer.JSON_MEMBER_VALUE_CLASS];
++
++    var contents = dehydratedItem || dehydratedVote || dehydratedOrdinal || dehydratedValue;
++
++    var timestampString = contents[BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP];
++    var userstampUuid = contents[BigLumpVirtualServer.JSON_MEMBER_USERSTAMP];
++    var timestamp = new Date(timestampString);
++    var userstamp = this.__getItemFromUuidOrBootstrapItem(userstampUuid);
++
++    if (dehydratedItem) {
++      itemUuid = dehydratedItem[BigLumpVirtualServer.JSON_MEMBER_WUID];
++      item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
++      item._rehydrate(timestamp, userstamp);
++      this.__myChronologicalListOfRecords.push(item);
++    }
++    if (dehydratedVote) {
++      var retainFlag = dehydratedVote[BigLumpVirtualServer.JSON_MEMBER_RETAIN_FLAG];
++      entryUuid = dehydratedVote[BigLumpVirtualServer.JSON_MEMBER_ENTRY];
++      entry = this.__getEntryFromUuid(entryUuid);
++      var vote = new Vote(entry, userstamp, retainFlag, timestamp);
++      this.__myChronologicalListOfRecords.push(vote);
++    }
++    if (dehydratedOrdinal) {
++      var ordinalNumber = dehydratedVote[BigLumpVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
++      entryUuid = dehydratedVote[BigLumpVirtualServer.JSON_MEMBER_ENTRY];
++      entry = this.__getEntryFromUuid(entryUuid);
++      var ordinal = new Ordinal(entry, userstamp, ordinalNumber, timestamp);
++      this.__myChronologicalListOfRecords.push(ordinal);
++    }
++    if (dehydratedValue) {
++      var valueUuid = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_WUID];
++      itemUuid = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_ITEM];
++      item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
++      var attributeUuid = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_ATTRIBUTE];
++      var attribute = null;
++      if (attributeUuid) {
++        attribute = this.__getItemFromUuidOrBootstrapItem(attributeUuid);
++      }
++      var previousValueUuid = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_PREVIOUS_VALUE];
++      var previousValue = null;
++      if (previousValueUuid) {
++        previousValue = this.__getValueFromUuidOrBootstrapValue(previousValueUuid);
++      }
++      var pickledData = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_DATA];
++      var dataType = pickledData[BigLumpVirtualServer.JSON_MEMBER_TYPE];
++      var rawData = pickledData[BigLumpVirtualServer.JSON_MEMBER_DATA];
++      var finalData = null;
++      switch (dataType) {
++        case BigLumpVirtualServer.JSON_TYPE_RELATED_UUID:
++          finalData = this.__getItemFromUuidOrBootstrapItem(rawData);
++          break;
++        case BigLumpVirtualServer.JSON_TYPE_STRING_VALUE:
++          finalData = rawData;
++          break;
++        case BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE:
++          finalData = rawData;
++          break;
++      }
++      var value = this.__getValueFromUuidOrBootstrapValue(valueUuid);
++      var itemOrValue = previousValue || item;
++      value._rehydrate(itemOrValue, attribute, finalData, timestamp, userstamp);
++      this.__myChronologicalListOfRecords.push(value);
++    }
++  }
++  for (key in inListOfUsers) {
++    var userUuid = inListOfUsers[key];
++    var user = this.getItemFromUuid(userUuid);
++    this.__myListOfUsers.push(user);
++  }
++};
++  
++
++/**
++ * Returns a huge string, containing a JavaScript &quot;object literal&quot;
++ * representation of the entire world.
++ *
++ * @scope    private instance method
++ * @return   A JSON string literal, representing all the items in the world. 
++ */
++BigLumpVirtualServer.prototype.__getJsonStringRepresentingEntireWorld = function () {
++  var fileTimestamp = new Date();
++  var listOfStrings = [];
++  var key;
++  
++  listOfStrings.push('// Repository dump, in JSON format' + '\n');
++  listOfStrings.push('{ ');
++  listOfStrings.push('&quot;' + BigLumpVirtualServer.JSON_MEMBER_FORMAT + '&quot;: &quot;' + BigLumpVirtualServer.JSON_FORMAT_2005_APRIL + '&quot;, ' + '\n');
++  listOfStrings.push('  &quot;' + BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + fileTimestamp.toString() + '&quot;, ' + '\n');
++  listOfStrings.push('  &quot;' + BigLumpVirtualServer.JSON_MEMBER_DATA + '&quot;: ' + '[' + '\n');
++  var firstEntry = true;
++  for (key in this.__myChronologicalListOfRecords) {
++    var record = this.__myChronologicalListOfRecords[key];
++    if (!firstEntry) {
++      listOfStrings.push(',\n');
++    }
++    if (record instanceof Item) {
++      var item = record;
++      listOfStrings.push('  { &quot;' + BigLumpVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ' + '{');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_WUID + '&quot;: &quot;' + item._getUuid() + '&quot;,\n');
++    }
++    if (record instanceof Vote) {
++      var vote = record;
++      listOfStrings.push('  { &quot;' + BigLumpVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_ENTRY + '&quot;: &quot;' + vote.getEntry()._getUuid() + '&quot;,\n');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;,\n');
++    }
++    if (record instanceof Ordinal) {
++      var ordinal = record;
++      listOfStrings.push('  { &quot;' + BigLumpVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_ENTRY + '&quot;: &quot;' + ordinal.getEntry()._getUuid() + '&quot;,\n');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;,\n');
++    }
++    if (record instanceof Value) {
++      var value = record;
++      listOfStrings.push('  { &quot;' + BigLumpVirtualServer.JSON_MEMBER_VALUE_CLASS + '&quot;: ' + '{');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_WUID + '&quot;: &quot;' + value._getUuid() + '&quot;,\n');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_ITEM + '&quot;: &quot;' + value.getItem()._getUuid() + '&quot;,\n');
++      var attribute = value.getAttribute();
++      if (attribute) {
++        var attributeName = attribute.getDisplayName();
++        var attributeNameSubstring = (attributeName + '          ').substring(0, 10);
++        listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: &quot;' + attribute._getUuid() + '&quot;,');
++        listOfStrings.push(' /* ' + attributeNameSubstring + ' */ \n');
++      }
++      var previousValue = value.getPreviousValue();
++      if (previousValue) {
++        listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousValue._getUuid() + '&quot;,\n');
++      }
++      var contentData = value.getContentData();
++      var pickleString = &quot;&quot;;
++      var typeString = null;
++      var valueString = null;
++      if (Util.isNumber(contentData)) {
++        typeString = BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE;
++        valueString = contentData;
++      }
++      if (Util.isString(contentData)) {
++        typeString = BigLumpVirtualServer.JSON_TYPE_STRING_VALUE;
++        valueString = '&quot;' + contentData + '&quot;';
++      }
++      if (contentData instanceof Item) {
++        typeString = BigLumpVirtualServer.JSON_TYPE_RELATED_UUID;
++        valueString = contentData._getUuid();
++      }
++      pickleString = '{ &quot;' + BigLumpVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeString + '&quot;, &quot;' + BigLumpVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + ' }';
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_DATA + '&quot;: ' + pickleString + ',\n');
++    }
++    listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().getUTCMilliseconds() + '&quot;,\n');
++    listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_USERSTAMP + '&quot;: &quot;' + record.getUserstamp()._getUuid() + '&quot;}\n');
++    listOfStrings.push('  }');
++  }
++  listOfStrings.push(&quot;  ], \n&quot;);
++  listOfStrings.push('  &quot;' + BigLumpVirtualServer.JSON_MEMBER_USERS + '&quot;: ' + '[');
++
++  firstEntry = true;
++  for (key in this.__myListOfUsers) {
++    var user = this.__myListOfUsers[key];
++    if (!firstEntry) {
++      listOfStrings.push(', ');
++    }
++    listOfStrings.push('&quot;' + user._getUuid() + '&quot;');
++  }
++  listOfStrings.push(&quot;]\n&quot;);
++  listOfStrings.push(&quot;}&quot;);
++  var finalString = listOfStrings.join(&quot;&quot;);
++  return finalString;
++};
++
++
++/**
++ * Sends all the changes to the server, so that the server can record the
++ * changes.
++ *
++ * @scope    public instance method
++ * @return   The list of changes made. 
++ */
++BigLumpVirtualServer.saveChangesToServer = function () {
++  var saveChanges = false;
++  if (window.location) {
++    if (window.location.protocol == &quot;http:&quot;) {
++      saveChanges = true;
++    }
++    if (window.location.protocol == &quot;file:&quot;) {
++      window.alert(&quot;I can't save changes to server, because this page was loaded from a \&quot;<A HREF="file:///\">file:///\</A>&quot; location, not a real \&quot;<A HREF="http://\">http://\</A>&quot; location.  Sorry.&quot;); 
++    }
++  }
++  
++  for (var key in this.__myChronologicalListOfNewlyCreatedRecords) {
++    var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
++    this.__myChronologicalListOfRecords.push(newRecord);
++  }
++  
++  if (saveChanges) {
++    var url = &quot;save_changes.php&quot;;
++    this.__myXMLHttpRequestObject.open(&quot;POST&quot;, url, true);
++    this.__myXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/xml&quot;);
++    this.__myXMLHttpRequestObject.send(this.__getJsonStringRepresentingEntireWorld());
++  }
++  
++  var listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
++  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  return listOfChangesMade;
++};
++
++
++/**
++ * Returns a newly created XMLHttpRequest object.
++ *
++ * @scope    private instance method
++ * @return   A newly created XMLHttpRequest object. 
++ */
++BigLumpVirtualServer.prototype.__newXMLHttpRequestObject = function () {
++  var newXMLHttpRequestObject = null;
++  if (window.XMLHttpRequest) {
++    newXMLHttpRequestObject = new XMLHttpRequest();
++  } else {
++    if (window.ActiveXObject) {
++      newXMLHttpRequestObject = new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);
++    }
++  }
++  if (newXMLHttpRequestObject) {
++    var self = this;
++    newXMLHttpRequestObject.onreadystatechange = function() {
++      window.alert(&quot;onreadystatechange:\n&quot; +
++        &quot;readyState: &quot; + self.__myXMLHttpRequestObject.readyState + &quot;\n&quot; +
++        &quot;status: &quot; + self.__myXMLHttpRequestObject.status + &quot;\n&quot; +
++        &quot;statusText: &quot; + self.__myXMLHttpRequestObject.statusText + &quot;\n&quot; +
++        &quot;responseText: &quot; + self.__myXMLHttpRequestObject.responseText + &quot;\n&quot;);
++    };
++  }
++  return newXMLHttpRequestObject;
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/Entry.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,383 @@
++/*****************************************************************************
++ Entry.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Vote.js
++//   Ordinal.js
++//   Util.js
++//   World.js
++// -------------------------------------------------------------------
++
++/**
++ * The Entry class serves as an abstract superclass for the class Item
++ * and the class Value.
++ *
++ * @scope    public instance constructor
++ * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ */
++function Entry() {
++  throw new Error(&quot;Entry is an abstract superclass. You can't create instances of it.&quot;);
++}
++
++
++// -------------------------------------------------------------------
++// Protected methods
++// -------------------------------------------------------------------
++
++/**
++ * Called from the constructor function of each subclass of Entry.
++ *
++ * @scope    protected instance method
++ * @param    inWorld    The world that this value is a part of. 
++ * @param    inUuid    The UUID for this value. 
++ */
++Entry.prototype._Entry = function (inWorld, inUuid) {
++  Util.assert(!inUuid || Util.isNumeric(inUuid));
++  
++  this.__myWorld = inWorld;
++  this.__myUuid = inUuid;
++  
++  this.__myCreationTimestamp = null;
++  this.__myCreationUserstamp = null;
++
++  // Don't create these properties until we know we need them.
++  // this.__mySetOfVotes = null;
++  // this.__mySetOfOrdinals = null;
++};
++
++
++/**
++ * Initializes a new entry that has just been created by a user action.
++ *
++ * WARNING: This method should be called ONLY from subclasses.
++ *
++ * @scope    protected instance method
++ */
++Entry.prototype._initializeEntry = function () {
++  this.__myCreationTimestamp = new Date();
++  this.__myCreationUserstamp = this.getWorld().getCurrentUser();
++};
++
++
++/**
++ * Sets the properties of a newly rehydrated entry object.
++ *
++ * WARNING: This method should be called ONLY from subclasses.
++ *
++ * @scope    protected instance method
++ * @param    inTimestamp    A Date object with the creation timestamp for this item. 
++ * @param    inUserstamp    The user who created this item. 
++ */
++Entry.prototype._rehydrateEntry = function (inTimestamp, inUserstamp) {
++  this.__myCreationTimestamp = new Date();
++  this.__myCreationUserstamp = this.getWorld().getCurrentUser();
++};
++
++
++/**
++ * Returns the UUID of the item. 
++ *
++ * WARNING: This method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * If you're writing code in the view layer, call
++ * item.getUniqueKeyString() instead of item._getUuid();
++ *
++ * @scope    protected instance method
++ * @return   The UUID of the item.
++ */
++Entry.prototype._getUuid = function () {
++  return this.__myUuid;
++};
++
++
++/**
++ * Records a user's vote to retain or delete this value.
++ *
++ * @scope    protected instance method
++ * @param    inVote    A vote to retain or delete this value. 
++ */
++Entry.prototype._addVote = function (inVote) {
++  if (!this.__mySetOfVotes) {
++    this.__mySetOfVotes = [];
++  }
++  this.__mySetOfVotes.push(inVote);
++};
++
++
++/**
++ * Records the ordinal number that a user sets for this value.
++ *
++ * @scope    protected instance method
++ * @param    inOrdinal    A vote to retain or delete this value. 
++ */
++Entry.prototype._addOrdinal = function (inOrdinal) {
++  if (!this.__mySetOfOrdinals) {
++    this.__mySetOfOrdinals = [];
++  }
++  this.__mySetOfOrdinals.push(inOrdinal);
++};
++
++
++// -------------------------------------------------------------------
++// Simple accessor methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the world that this item was created in.
++ *
++ * @scope    public instance method
++ * @return   A world object.
++ */
++Entry.prototype.getWorld = function () {
++  return this.__myWorld;
++};
++
++
++/**
++ * Returns a Date object with the creation timestamp for this item.
++ *
++ * @scope    public instance method
++ * @return   A Date object.
++ */
++Entry.prototype.getTimestamp = function () {
++  return this.__myCreationTimestamp;
++};
++
++
++/**
++ * Returns the item representing the user who created this item.
++ *
++ * @scope    public instance method
++ * @return   A user item.
++ */
++Entry.prototype.getUserstamp = function () {
++  return this.__myCreationUserstamp;
++};
++
++
++/**
++ * Returns a string which can be used as a unique key in a hash table. 
++ *
++ * @scope    public instance method
++ * @return   A string which can serve as a unique key.
++ */
++Entry.prototype.getUniqueKeyString = function () {
++  return this.__myUuid;
++};
++
++
++/**
++ * Returns the ordinal number that this entry was given at creation. 
++ *
++ * @scope    public instance method
++ * @return   A number.
++ */
++Entry.prototype.getOrdinalNumberAtCreation = function () {
++  return (0 - this.__myCreationTimestamp.getUTCMilliseconds());
++};
++
++
++// -------------------------------------------------------------------
++// Accessor methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the ordinal number for this entry. 
++ *
++ * @scope    public instance method
++ * @return   A number.
++ */
++Entry.prototype.getOrdinalNumber = function () {
++  if (!this.__mySetOfOrdinals || this.__mySetOfOrdinals.length === 0) {
++    return this.getOrdinalNumberAtCreation();
++  }
++
++  var ordinalNumber = this.getOrdinalNumberAtCreation();
++  var key;
++  var ordinal;
++  var filter = this.__myWorld.getRetrievalFilter();
++  
++  switch (filter) {
++    case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      var mostRecentOrdinal = this.__mySetOfOrdinals[0];
++      for (key in this.__mySetOfOrdinals) {
++        ordinal = this.__mySetOfOrdinals[key];
++        if (ordinal.getTimestamp() &gt; mostRecentOrdinal.getTimestamp()) {
++          mostRecentOrdinal = ordinal;
++        }
++      }
++      ordinalNumber = !mostRecentOrdinal.getOrdinalNumber();
++      break;
++    case World.RETRIEVAL_FILTER_SINGLE_USER:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_DEMOCRATIC:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_UNABRIDGED:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    default:
++      // We should never get here.  If we get here, it's an error.
++      Util.assert(false);
++      break;
++  }
++  return ordinalNumber;
++};
++
++
++/**
++ * Returns true if this entry has been deleted. 
++ *
++ * @scope    public instance method
++ * @return   A boolean.
++ */
++Entry.prototype.hasBeenDeleted = function () {
++  if (!this.__mySetOfVotes || this.__mySetOfVotes.length === 0) {
++    return false;
++  }
++  
++  var hasBeenDeleted = false;
++  var key;
++  var vote;
++  var filter = this.__myWorld.getRetrievalFilter();
++  
++  switch (filter) {
++    case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      var mostRecentVote = this.__mySetOfVotes[0];
++      for (key in this.__mySetOfVotes) {
++        vote = this.__mySetOfVotes[key];
++        if (vote.getTimestamp() &gt; mostRecentVote.getTimestamp()) {
++          mostRecentVote = vote;
++        }
++      }
++      hasBeenDeleted = !mostRecentVote.getRetainFlag();
++      break;
++    case World.RETRIEVAL_FILTER_SINGLE_USER:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_DEMOCRATIC:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_UNABRIDGED:
++      hasBeenDeleted = false;
++      break;
++    default:
++      // We should never get here.  If we get here, it's an error.
++      Util.assert(false);
++      break;
++  }
++  return hasBeenDeleted;
++};
++
++
++/**
++ * Moves this entry to a new position in a list, by creating a new
++ * ordinal for this entry with an ordinal number that is set such
++ * that this entry appears between two other entries.
++ *
++ * @scope    public instance method
++ * @param    inEntryFirst    The entry that should come before this one. 
++ * @param    inEntryThird    The entry that should come after this one. 
++ */
++Entry.prototype.reorderBetween = function (inEntryFirst, inEntryThird) {
++  var firstOrdinalNumber = null;
++  var secondOrdinalNumber = null;
++  var thirdOrdinalNumber = null;
++  var arbitraryNumberToMoveUsUpOrDownSlightly = 100;
++  
++  if (inEntryFirst) {
++    firstOrdinalNumber = inEntryFirst.getOrdinalNumber();
++  }
++  if (inEntryThird) {
++    thirdOrdinalNumber = inEntryThird.getOrdinalNumber();
++  }
++  
++  if (firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
++    secondOrdinalNumber = (firstOrdinalNumber + thirdOrdinalNumber) / 2;
++  }
++  if (firstOrdinalNumber &amp;&amp; !thirdOrdinalNumber) {
++    secondOrdinalNumber = (firstOrdinalNumber - arbitraryNumberToMoveUsUpOrDownSlightly);
++  }
++  if (!firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
++    secondOrdinalNumber = (firstOrdinalNumber + arbitraryNumberToMoveUsUpOrDownSlightly);
++  }
++  
++  this.getWorld()._newOrdinal(this, secondOrdinalNumber);
++};
++
++
++/**
++ * Registers a vote to delete this entry. 
++ *
++ * @scope    public instance method
++ */
++Entry.prototype.voteToDelete = function () {
++  this.getWorld()._newVote(this, false);
++};
++
++
++/**
++ * Registers a vote to retain this entry. 
++ *
++ * @scope    public instance method
++ */
++Entry.prototype.voteToRetain = function () {
++  this.getWorld()._newVote(this, true);
++};
++
++
++// -------------------------------------------------------------------
++// Class methods
++// -------------------------------------------------------------------
++
++/**
++ * Registers a vote to retain this entry. 
++ *
++ * @scope    public class method
++ */
++Entry.compareOrdinals = function (inEntryOne, inEntryTwo) {
++  var ordinalNumberOne = inEntryOne.getOrdinalNumber();
++  var ordinalNumberTwo = inEntryTwo.getOrdinalNumber();
++  return (ordinalNumberTwo - ordinalNumberOne);
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/Item.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,440 @@
++/*****************************************************************************
++ Item.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Util.js
++//   World.js
++//   Value.js
++//   Entry.js
++// -------------------------------------------------------------------
++
++
++/**
++ * Instances of the Item class know how to store and retrieve their
++ * attribute values.
++ *
++ * WARNING: This constructor method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * If you're writing code in a view class, instead of calling this
++ * constructor, call the newItem() method on World: world.newItem()
++ * 
++ * @scope    protected instance constructor
++ * @param    inWorld    The world that this value is a part of. 
++ * @param    inUuid    The UUID for this value. 
++ */
++Item.prototype = new Entry();  // makes Item be a subclass of Entry
++function Item(inWorld, inUuid) {
++  this._Entry(inWorld, inUuid);
++  
++  this.__myListOfValues = null;
++}
++
++
++/**
++ * Initializes a new item that has just been created by a user action.
++ *
++ * WARNING: This method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * This method is NOT used for setting the properties of values that
++ * are being rehydrated from a dehydrated JSON string.  For that, you
++ * need to call item.rehydrate();
++ *
++ * @scope    protected instance method
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ */
++Item.prototype._initialize = function (inObserver) {
++  this._initializeEntry();
++
++  this.__myListOfValues = [];
++  if (inObserver) {
++    this.addObserver(inObserver);
++  }
++};
++
++
++/**
++ * Sets the properties of a newly rehydrated value object.
++ *
++ * WARNING: This method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * This method should only be called from VirtualServer code that is
++ * rehydrating dehydrated value objects. 
++ *
++ * @scope    protected instance method
++ * @param    inTimestamp    A Date object with the creation timestamp for this item. 
++ * @param    inUserstamp    The user who created this item. 
++ */
++Item.prototype._rehydrate = function (inTimestamp, inUserstamp) {
++  this._rehydrateEntry(inTimestamp, inUserstamp);
++  
++  this.__myListOfValues = [];
++};
++
++
++// -------------------------------------------------------------------
++// Value adding methods
++// -------------------------------------------------------------------
++
++/**
++ * Creates a new value object and adds the new value to the item's 
++ * list of values.
++ *
++ * @scope    public instance method
++ * @param    inAttribute    The attribute to associate the value with. 
++ * @param    inContentData    The content data to initialize the value to.
++ * @return   A value object.
++ */
++Item.prototype.addValue = function (inContentData) {
++  return this.addAttributeValue(null, inContentData);
++};
++
++
++/**
++ * Assigns a value to an attribute in this item.
++ *
++ * Given an attribute and content data, creates a value object with the 
++ * content data, and sets the item's attribute to the new value.
++ * For example, to make a Kermit green:
++ * &lt;pre&gt;
++ *    kermit.addAttributeValue(color, &quot;green&quot;);
++ * &lt;/pre&gt;
++ * Attributes can always have more than one assigned value, so
++ * you can make Kermit be both blue and green by doing:
++ * &lt;pre&gt;
++ *    kermit.addAttributeValue(color, &quot;green&quot;);
++ *    kermit.addAttributeValue(color, &quot;blue&quot;);
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    inAttribute    The attribute to assign the value to. 
++ * @param    inContentData    The content data to initialize the value with.
++ * @return   A value object.
++ */
++Item.prototype.addAttributeValue = function (inAttribute, inContentData) {
++  return this.replaceValueWithAttributeValue(null, inAttribute, inContentData);
++};
++
++
++/**
++ * Replaces an existing value with a new value.
++ *
++ * @scope    public instance method
++ * @param    inValue    The old value to be replaced.
++ * @param    inContentData    The content data to initialize the new value to.
++ * @return   The new replacement value object.
++ */
++Item.prototype.replaceValue = function (inValue, inContentData) {
++  return this.replaceValueWithAttributeValue(inValue, null, inContentData);
++};
++
++
++/**
++ * Replaces an existing value with a new value, and assigns the new value
++ * to an attribute.
++ *
++ * @scope    public instance method
++ * @param    inValue    The old value to be replaced.
++ * @param    inAttribute    The attribute to assign the value to. 
++ * @param    inContentData    The content data to initialize the new value to.
++ * @return   The new replacement value object.
++ */
++Item.prototype.replaceValueWithAttributeValue = function (inValue, inAttribute, inContentData) {
++  var itemOrValue = inValue || this;
++  var value = this.getWorld()._newValue(itemOrValue, inAttribute, inContentData);
++  this.__myListOfValues.push(value);
++  return value;
++};
++
++
++// -------------------------------------------------------------------
++// Accessor methods where the answer depends on the retrieval filter
++// -------------------------------------------------------------------
++
++/**
++ * Given an attribute, this method returns the list of all the values that 
++ * have been assigned to that attribute for this item.
++ *
++ * For example, to find out what color Kermit is: 
++ * &lt;pre&gt;
++ *    var valueList = kermit.getValuesForAttribute(color);
++ *    for (var i = 0; i &lt; valueList.length; ++i) {
++ *      alert(&quot;Kermit is &quot; + valueList[i]);
++ *    }
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    inAttribute    An attribute that we want to know the values of. 
++ * @return   A list of value objects.
++ */
++Item.prototype.getValuesForAttribute = function (inAttribute) {
++  var listOfValuesForAttribute = [];
++  var listOfValues = this.getValues();
++  for (var key in listOfValues) {
++    var value = listOfValues[key];
++    var attribute = value.getAttribute();
++    if (attribute == inAttribute) {
++      listOfValuesForAttribute.push(value);
++    }
++  }
++  listOfValuesForAttribute.sort(Entry.compareOrdinals);
++  return listOfValuesForAttribute;
++};
++
++
++/**
++ * Returns a list of all the values assigned to an item.
++ *
++ * @scope    public instance method
++ * @return   A list of value objects.
++ */
++Item.prototype.getValues = function () {
++  var filter = this.getWorld().getRetrievalFilter();
++  var listOfValues = this.__myListOfValues;
++  var filteredListOfValues = [];
++  var key;
++  var value;
++  
++  switch (filter) {
++    case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      for (key in listOfValues) {
++        value = listOfValues[key];
++        if (!value.hasBeenReplaced() &amp;&amp; !value.hasBeenDeleted()) {
++          filteredListOfValues.push(value);
++        }
++      }
++      break;
++    case World.RETRIEVAL_FILTER_SINGLE_USER:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_DEMOCRATIC:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_UNABRIDGED:
++      filteredListOfValues = listOfValues;
++      break;
++    default:
++      // We should never get here.  If we get here, it's an error.
++      Util.assert(false);
++      break;
++  }
++  filteredListOfValues.sort(Entry.compareOrdinals);
++  return filteredListOfValues;
++};
++
++
++/**
++ * Returns a list of all the attributes that this item has values
++ * assigned to.
++ *
++ * @scope    public instance method
++ * @return   A list of attribute items.
++ */
++Item.prototype.getAttributes = function () {
++  var listOfAttributes = [];
++  var listOfValues = this.getValues();
++  for (var key in listOfValues) {
++    var value = listOfValues[key];
++    var attribute = value.getAttribute();
++    Util.addObjectToSet(attribute, listOfAttributes);
++  }
++  listOfAttributes.sort(Entry.compareOrdinals);
++  return listOfAttributes;
++};
++
++
++// -------------------------------------------------------------------
++// Attribute accessor methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a display name for the item.
++ *
++ * @scope    public instance method
++ * @return   A string with a display name for the item.
++ */
++Item.prototype.getDisplayName = function (inDefaultString) {
++  var listOfNameValues = this.getName();
++  var primaryName = listOfNameValues[0];
++  return primaryName.getDisplayString();
++};
++  
++
++/**
++ * Returns a list of the values assigned to the &quot;name&quot; attribute.
++ *
++ * @scope    public instance method
++ * @return   A list of the values assigned to the &quot;name&quot; attribute.
++ */
++Item.prototype.getName = function (inDefaultString) {
++  var attributeCalledName = this.getWorld().getAttributeCalledName();
++  return this.getValuesForAttribute(attributeCalledName);
++};
++
++
++/**
++ * Returns a list of the values assigned to the &quot;short name&quot; attribute.
++ *
++ * @scope    public instance method
++ * @return   A list of the values assigned to the &quot;short name&quot; attribute.
++ */
++Item.prototype.getShortName = function (inDefaultString) {
++  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
++  return this.getValuesForAttribute(attributeCalledShortName);
++};
++
++
++/**
++ * Returns a string describing the item.
++ *
++ * @scope    public instance method
++ * @return   A string with a description of the item.
++ */
++Item.prototype.toString = function () {
++  var returnString = &quot;[Item #&quot; + this.getUniqueKeyString() + &quot; &quot;;
++  var attributeCategory = this.getWorld().getAttributeCalledCategory();
++  var listOfCategories = this.getValuesForAttribute(attributeCategory);
++  for (var key in listOfCategories) {
++    var category = listOfCategories[key];
++    Util.assert(category instanceof Item);
++    returnString += &quot;(&quot; + category.getDisplayName() + &quot;)&quot;;
++  }
++  returnString += &quot; \&quot;&quot; + this.getDisplayName() + &quot;\&quot;&quot; + &quot;]&quot;;
++  return returnString; 
++};
++
++
++// -------------------------------------------------------------------
++// Non-Attribute Accessor Methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a category, returns &quot;true&quot; if the item has been assigned to 
++ * that category.
++ *
++ * Also returns true if the item has been assigned to some category which is in
++ * turn assigned to the given category, and so on, up the chain of category 
++ * assignments.
++ *
++ * @scope    public instance method
++ * @return   A boolean.  True if the item has been assigned to the category.
++ */
++Item.prototype.isInCategory = function (inCategory) {
++  Util.assert(inCategory instanceof Item);
++
++  var categoryAttribute = this.getWorld().getAttributeCalledCategory();
++  var valueList = this.getValuesForAttribute(categoryAttribute);
++  var key;
++  var value;
++  
++  // look at all the categories this item is assigned to, and see if one of them is &quot;inCategory&quot;
++  for (key in valueList) {
++    value = valueList[key];
++    if (value.getContentData() == inCategory) {
++      return true;
++    }
++  }
++  
++  // look at all the categories this item is assigned to, and see if one of them
++  // is in turn in the categoery &quot;inCategory&quot;
++  for (key in valueList) {
++    value = valueList[key];
++    // PENDING: 
++    //   This will go into an infinite loop if there is ever a cycle in the category 
++    //   assignments, like: A is in category B, and B is in C, and C is in A.
++    //   We need to use a non-recursive search of the graph.
++    // PENDING:
++    //   Do we also need to register as an observer of something, so that if we later
++    //   become a member of that category in question, then we can notify whoever
++    //   is observing us?
++    if ((value.getContentData() != this) &amp;&amp; (value.getContentData().isInCategory(inCategory))) {
++      return true;
++    }
++  }
++  return false;
++};
++ 
++
++// -------------------------------------------------------------------
++// Observer/Observable Methods
++// -------------------------------------------------------------------
++
++/**
++ * Registers an object or method as an observer of this item, so that
++ * the observer will be notified when the item changes.
++ *
++ * @scope    public instance method
++ * @param    inObserver    An object or method to be registered as an observer of the item. 
++ */
++Item.prototype.addObserver = function (inObserver) {
++  this.getWorld().addItemObserver(this, inObserver);
++};
++
++
++/**
++ * Removes an object or method from the set of observers of this item, so 
++ * that the observer will no longer be notified when the item changes.
++ *
++ * @scope    public instance method
++ * @param    inObserver    The object or method to be removed from the set of observers. 
++ */
++Item.prototype.removeObserver = function (inObserver) {
++  this.getWorld().removeItemObserver(this, inObserver);
++};
++
++
++// -------------------------------------------------------------------
++// Protected Methods
++// -------------------------------------------------------------------
++
++/**
++ * Adds a new value to the item when the items and values are first
++ * being loaded by the backing store.
++ *
++ * WARNING: This method should be called ONLY from the  
++ * value._rehydrate() method.
++ * 
++ * @scope    protected instance method
++ * @param    inValue    The value to be associated with this item. 
++ */
++Item.prototype._addRehydratedValue = function (inValue) {
++  this.__myListOfValues.push(inValue);
++};
++  
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/LintTest.html
+===================================================================
+--- trunk/source/model/LintTest.html	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/LintTest.html	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,92 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Value.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;World.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;StubVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;BigLumpVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/LintTest.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,150 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var Lint = {};
++
++
++/**
++ * Given a string containing JavaScript code, returns true if the code passes 
++ * the lint tests.
++ *
++ * @scope    public class method
++ * @param    inString    A string containing JavaScript code. 
++ * @return   A boolean value. True if the code is good (according to jslint).
++ */
++Lint.isCodeCleanInString = function(inString) {
++  jslint.laxLineEnd = false;
++  jslint.plusplus = true;
++  jslint.cap = false;
++  jslint.jscript = false;
++  jslint(inString);
++  var report = jslint.report();
++  var jslingIsOkay = (report.substr(0, 2) == 'ok');
++  var noTabs = (inString.indexOf(&quot;\t&quot;) == -1);
++  var noBackspaces = (inString.indexOf(&quot;\b&quot;) == -1);
++  var noCarriageReturns = (inString.indexOf(&quot;\r&quot;) == -1);
++  var noFormFeeds = (inString.indexOf(&quot;\f&quot;) == -1);
++  var allClean = jslingIsOkay &amp;&amp; noTabs &amp;&amp; noBackspaces &amp;&amp; noCarriageReturns &amp;&amp; noFormFeeds;
++  return (allClean);
++}; 
++
++
++/**
++ * Given the URL of a file, returns the contents of the file as a text string.
++ *
++ * @scope    public class method
++ * @param    inUrl    A string with the URL of a file containing JavaScript code. 
++ * @return   A string containing the contents of the file.
++ */
++// PENDING: move this up into Util.js
++Util.getStringContentsOfFileAtURL = function (inUrl) {
++  var anXMLHttpRequestObject = new XMLHttpRequest();
++  anXMLHttpRequestObject.open(&quot;GET&quot;, inUrl, false);
++  anXMLHttpRequestObject.send(null);
++  var fileContents = anXMLHttpRequestObject.responseText;
++  return fileContents;
++};
++
++
++/**
++ * Given the URL of a file containing JavaScript code, returns true if the code 
++ * passes the lint tests.
++ *
++ * @scope    public class method
++ * @param    inUrl    A string with the URL of a file containing JavaScript code. 
++ * @return   A boolean value. True if the code is good (according to jslint).
++ */
++Lint.isCodeCleanAtUrl = function (inUrl) {
++  var fileContents = Util.getStringContentsOfFileAtURL(inUrl);
++  return Lint.isCodeCleanInString(fileContents);
++};
++
++
++/**
++ * Given the name of a file containing JavaScript code, returns true if the 
++ * code passes the lint tests.
++ *
++ * @scope    public class method
++ * @param    inFileName    A string with the name of a file containing JavaScript code. 
++ * @return   A boolean value. True if the code is good (according to jslint).
++ */
++Lint.isCodeCleanInFile = function (inFileName) {
++  var url  = &quot;../../current/trunk/source/&quot; + inFileName;
++  return Lint.isCodeCleanAtUrl(url);
++};
++
++function setUp() {
++}
++
++function testJsLintOnGoodCodeFragment() {
++  var textToRunLintOn = &quot;function iggy() { var pop = 'no fun'; }&quot;;
++  assertTrue(&quot;jslint says clean code is clean&quot;, Lint.isCodeCleanInString(textToRunLintOn));
++}
++
++function testJsLintOnBadCodeFragment() {
++  // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
++  var badFragmentOne = &quot;function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD&quot;;
++
++  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
++  // method should catch
++  var badFragmentTwo = &quot;function iggy()		{ var pop = 'no fun'; } &quot;;
++  
++  // badFragmentThree has a carriage return character in it, which our own 
++  // isCodeCleanInString() method should catch
++  var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
++  
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentOne));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentTwo));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentThree));
++}
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;Ordinal.js&quot;,
++    &quot;Vote.js&quot;,
++    &quot;Entry.js&quot;,
++    &quot;Item.js&quot;,
++    &quot;Value.js&quot;,
++    &quot;World.js&quot;,
++    &quot;StubVirtualServer.js&quot;,
++    &quot;BigLumpVirtualServer.js&quot;,
++    &quot;ModelTest.js&quot;];
++  for (var key in listOfSourceCodeFiles) {
++    var fileName = listOfSourceCodeFiles[key];
++    assertTrue(&quot;jslint says &quot; + fileName + &quot; is clean&quot;, Lint.isCodeCleanInFile(fileName));
++  }
++}
++
++function tearDown() {
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/ModelTest.html	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,84 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for the data model&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;ModelTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for the data model&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/ModelTest.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,179 @@
++/*****************************************************************************
++ ModelTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var ModelTestVars = null;
++
++function setUp() {
++  ModelTestVars = {};
++}
++
++function testLoginLogout() {
++  var world = new World();
++  var listOfUsers;
++  var loginSuccess;
++  
++  listOfUsers = world.getUsers();
++  assertTrue(&quot;Initially, there's only an axiomatic user&quot;, listOfUsers.length == 1);
++  assertTrue('Nobody is logged in', world.getCurrentUser() === null);
++
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);  
++  listOfUsers = world.getUsers();
++  assertTrue(&quot;Now there are two users&quot;, listOfUsers.length == 2);
++  assertTrue('Nobody is logged in', world.getCurrentUser() === null);
++
++  loginSuccess = world.login(userJane, &quot;wrong password&quot;);
++  assertFalse('Can not log in with wrong password', loginSuccess);
++  assertTrue('Jane is not logged in', world.getCurrentUser() === null);
++
++  loginSuccess = world.login(userJane, janesPassword);
++  assertTrue('Can log in with right password', loginSuccess);
++  assertTrue('Jane is logged in', world.getCurrentUser() == userJane);
++  
++  world.logout();
++  assertTrue('Nobody is logged in', world.getCurrentUser() === null);
++  
++  var passwordForChris = &quot;Kringlishous!&quot;;
++  var userChris = world.newUser(&quot;Chris Kringle&quot;, passwordForChris);
++  world.login(userChris, passwordForChris);
++  assertTrue('Chris is logged in', world.getCurrentUser() == userChris);
++  
++  world.login(userJane, janesPassword);
++  assertTrue('Jane is logged in', world.getCurrentUser() == userJane);
++  assertFalse('Chris is not logged in', world.getCurrentUser() == userChris);
++  
++  world.logout();
++}
++  
++
++function testAccessorsForAxiomaticItems() {
++  var key;
++  var item;
++  var world = new World();
++  
++  var listOfAttributes = [];
++  listOfAttributes.push(world.getAttributeCalledName());
++  listOfAttributes.push(world.getAttributeCalledShortName());
++  listOfAttributes.push(world.getAttributeCalledSummary());
++  listOfAttributes.push(world.getAttributeCalledCategory());
++  listOfAttributes.push(world.getAttributeCalledOrdinal());
++  listOfAttributes.push(world.getAttributeCalledCreationUserstamp());
++  listOfAttributes.push(world.getAttributeCalledCreationTimestamp());
++  for (key in listOfAttributes) {
++    item = listOfAttributes[key];
++    var attributeName = item.getName();
++    assertTrue('Every axiomatic attribute has a name', Util.isString(attributeName));
++  }
++  
++  var listOfCategories = [];
++  listOfCategories.push(world.getCategoryCalledAttribute());
++  listOfCategories.push(world.getCategoryCalledCategory());
++  for (key in listOfCategories) {
++    item = listOfCategories[key];
++    var categoryName = item.getName();
++    assertTrue('Every axiomatic category has a name', Util.isString(categoryName));
++  }
++}
++
++  
++function testAdditionsAndRetrievals() {
++  var world = new World();
++  var nameAttribute = world.getAttributeCalledName();
++  var ordinalAttribute = world.getAttributeCalledOrdinal();
++  var userstampAttribute = world.getAttributeCalledCreationUserstamp();
++  var timestampAttribute = world.getAttributeCalledCreationTimestamp();
++  
++  var janesPassword = &quot;jane's password&quot;;
++  var listOfCharacters = null;
++  var listOfValues = null;
++  var listOfAttributes = null;
++  var worldRetrievalFilter = null;
++  var hasAll;
++  
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++
++  var characterAttribute = world.newAttribute(&quot;Characters&quot;);
++  var starWars = world.newItem(&quot;Star Wars&quot;);
++  var luck = starWars.addAttributeValue(characterAttribute, &quot;Luck Skywalker&quot;);
++  var c3po = starWars.addAttributeValue(characterAttribute, &quot;C3PO&quot;);
++  var r2d2 = starWars.addValue(&quot;R2D2&quot;);
++  listOfCharacters = starWars.getValuesForAttribute(characterAttribute);
++  hasAll = true;
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(luck, listOfCharacters);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(c3po, listOfCharacters);
++  assertTrue('&quot;Star Wars&quot; has characters: luck, c3po', hasAll);
++  assertTrue('Exactly 2 characters in the star wars', listOfCharacters.length == 2);
++  listOfValues = starWars.getValues();
++  hasAll = true;
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(luck, listOfCharacters);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(c3po, listOfCharacters);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(r2d2, listOfCharacters);
++  assertTrue('&quot;Star Wars&quot; has values: luck, c3po, r2d2', hasAll);  
++  listOfAttributes = starWars.getAttributes();
++  hasAll = true;
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(nameAttribute, listOfAttributes);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(ordinalAttribute, listOfAttributes);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(userstampAttribute, listOfAttributes);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(timestampAttribute, listOfAttributes);
++  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(characterAttribute, listOfAttributes);
++  assertTrue('&quot;Star Wars&quot; has all 5 expected attributes', hasAll);
++  
++  worldRetrievalFilter = world.getRetrievalFilter();
++  assertTrue('Default retrieval filter is &quot;last edit wins&quot;', worldRetrievalFilter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS);
++  
++  var luke = starWars.replaceValue(luck, &quot;Luke Skywalker&quot;);
++  var previousValue = luke.getPreviousValue();
++  assertTrue('&quot;Luke&quot; has the previous version &quot;Luck&quot;', previousValue !== null);
++
++  world.logout();
++  
++  var passwordForChris = &quot;Kringlishous!&quot;;
++  var userChris = world.newUser(&quot;Chris Kringle&quot;, passwordForChris);
++  world.login(userChris, passwordForChris);
++
++  r2d2 = starWars.replaceValueWithAttributeValue(r2d2, characterAttribute, &quot;R2D2&quot;);
++  var hasR2d2;
++  
++  listOfCharacters = starWars.getValuesForAttribute(characterAttribute);
++  hasR2d2 = Util.isObjectInSet(r2d2, listOfCharacters);
++  assertTrue('Chris sees R2D2 as a character', hasR2d2);
++  
++  world.logout();
++}
++
++
++function tearDown() {
++  ModelTestVars = null;
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/Ordinal.js
+===================================================================
+--- trunk/source/model/Ordinal.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/Ordinal.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,79 @@
++/*****************************************************************************
++ Ordinal.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   User.js
++//   Entry.js
++// -------------------------------------------------------------------
++
++/**
++ * Each instance of the Ordinal class keeps track of the fact that
++ * a user set an ordinal number for an item or a value of an item.
++ *
++ * @scope    public instance constructor
++ * @param    inEntry    The item or value that this vote is attached to. 
++ * @param    inUser    The user who voted. 
++ * @param    inOrdinalNumber    The ordinal number itself. 
++ * @param    inTimestamp    Optional. The time the vote was made. 
++ */
++function Ordinal(inEntry, inUser, inOrdinalNumber, inTimestamp) {
++  this.__myEntry = inEntry;
++  this.__myUserstamp = inUser;
++  this.__myOrdinalNumber = inOrdinalNumber;
++  if (inTimestamp) {
++    this.__myTimestamp = inTimestamp;
++  } else {
++    this.__myTimestamp = new Date();
++  }
++  this.__myEntry._addOrdinal(this);
++}
++
++Ordinal.prototype.getEntry = function () {
++  return this.__myEntry;
++};
++
++Ordinal.prototype.getTimestamp = function () {
++  return this.__myTimestamp;
++};
++
++Ordinal.prototype.getUserstamp = function () {
++  return this.__myUserstamp;
++};
++
++Ordinal.prototype.getOrdinalNumber = function () {
++  return this.__myOrdinalNumber;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/READ_ME.txt	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,88 @@
++=================================
++Experimental Data Model Framework
++=================================
++
++This directory, named &quot;model&quot;, contains 8 or 10 JavaScript classes.  Together these JavaScript classes form an experimental data model framework.  
++
++This isn't a finished product, just a sort of experimental prototype, or maybe an extreme progamming &quot;spike solution&quot;.  Right now this is still a work in progress.  The code doesn't run yet, it doesn't pass its unit tests, and it isn't as clean and tidy as I would like it to be.  But all the pieces are in place, and there's enough detail here to give you a good sense of what this solution would look like.
++
++
++---------------------------------
++Terminology
++---------------------------------
++Here's a quick overview of the terminology and concepts...
++
++Item -- items have attribute values
++Value -- an attribute value attached to an item
++  
++Entry -- the abstract superclass for Item and Value
++Ordinal -- keeps track of where an Entry should appear in a list
++Vote -- keeps track of who thinks an Entry should be replaced/deleted
++Record -- an Item, Value, Ordinal, or Vote -- things that have to be recorded
++
++World -- a set of items, like the &quot;OpenAgenda&quot; world or the &quot;CoolChaser&quot; world
++Server -- server-side code to run queries and deliver items to the browser
++VirtualServer -- client-side proxy, by which a World talks to a Server
++StubVirtualServer -- a simple VirtualServer which doesn't even talk to a Server
++BigLumpVirtualServer -- a simple VirtualServer that transfers data in big lumps
++
++
++---------------------------------
++Client API
++---------------------------------
++Here's a quick overview of the Data Model API that's available for people who are writing view code which allows users to view and edit items.
++
++Item methods --------------------
++
++  item.addAttributeValue()
++  item.addValue()
++  item.replaceValue()
++  item.replaceValueWithAttributeValue()
++  
++  item.getAttributes()
++  item.getValuesForAttribute()
++  item.getValues()
++  
++  item.getDisplayName()
++  item.getName()
++  item.getShortName()
++  
++  item.isInCategory()
++  item.reorderBetween()
++  
++  item.hasBeenDeleted()
++  item.voteToDelete()
++  item.voteToRetain()
++  
++  item.addObserver()
++  item.removeObserver()
++
++  
++Value methods ------------------- 
++
++  value.hasBeenReplaced()
++  value.getPreviousValue()
++  value.getAttribute()
++  value.getItem()
++  value.getContentData()
++
++  
++World methods ------------------- 
++
++  world.login()
++  world.logout()
++  
++  world.getUsers()
++  world.getCurrentUser()
++  world.newUser()
++  
++  world.newItem()
++  world.getListOfItemsInCategory()
++  world.getListOfResultItemsForQuery()
++  world.setItemToBeIncludedInQueryResultList()
++  world.removeObserverOfList()
++  
++  world.beginTransaction()
++  world.endTransaction()
++
++
+
+Added: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/StubVirtualServer.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,567 @@
++/*****************************************************************************
++ StubVirtualServer.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Util.js
++//   World.js
++//   Item.js
++//   Entry.js
++//   Ordinal.js
++//   Value.js
++//   Vote.js
++//   Vote.js
++// -------------------------------------------------------------------
++
++
++/**
++ * The StubVirtualServer is a dummy place-holder datastore that does
++ * a bare-minimum job of providing data to a World.
++ *
++ * @scope    public instance constructor
++ */
++function StubVirtualServer() {
++}
++
++
++/**
++ * Initializes the instance variables for a newly created StubVirtualServer.
++ *
++ * @scope    private instance method
++ * @param    inWorld    The world that we provide data for. 
++ */
++StubVirtualServer.prototype.__initialize = function (inWorld) {
++  this.__myWorld = inWorld;
++  
++  this.__myNextAvailableUuid = 1;
++  this.__myHashTableOfItemsKeyedByUuid = {};
++  this.__myHashTableOfValuesKeyedByUuid = {};
++  this.__myChronologicalListOfRecords = [];
++  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  
++  this.__myListOfUsers = [];
++  this.__myHashTableOfUserAuthenticationInfo = {};
++  this.__myCurrentUser = null;
++};
++ 
++
++/**
++ * Initializes the instance variables for a newly created StubVirtualServer,
++ * and does the initial loading of at least the axiomatic items.
++ *
++ * @scope    public instance method
++ * @param    inWorld    The world that we provide data for. 
++ */
++StubVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
++  this.__initialize(inWorld);
++  this.__loadAxiomaticItems();
++};
++
++
++// -------------------------------------------------------------------
++// Methods for creating and changing items
++// -------------------------------------------------------------------
++
++/**
++ * Returns a newly created item.
++ *
++ * @scope    public instance method
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created item.
++ */
++StubVirtualServer.prototype.newItem = function (inObserver) {
++  var uuid = this.__getNewUuid();
++  var item = new Item(this.__myWorld, uuid);
++  item._initialize(inObserver);
++  this.__myHashTableOfItemsKeyedByUuid[uuid] = item;
++  this.__myChronologicalListOfNewlyCreatedRecords.push(item);
++  return item;
++};
++
++
++/**
++ * Returns a newly created value.
++ *
++ * @scope    public instance method
++ * @param    inItemOrValue    The item that this is a value of, or the old value that this value is replacing. 
++ * @param    inAttribute    The attribute that this value is assigned to. May be null. 
++ * @param    inContentData    The content datat to initialize the value with. 
++ * @return   A newly created value.
++ */
++StubVirtualServer.prototype.newValue = function (inItemOrValue, inAttribute, inContentData) {
++  var uuid = this.__getNewUuid();
++  var value = new Value(this.__myWorld, uuid);
++  value._initialize(inItemOrValue, inAttribute, inContentData);
++  this.__myHashTableOfValuesKeyedByUuid[uuid] = value;
++  this.__myChronologicalListOfNewlyCreatedRecords.push(value);
++  return value;
++};
++ 
++
++/**
++ * Returns a newly created ordinal.
++ *
++ * @scope    public instance method
++ * @param    inEntry    The entry that this is an ordinal for. 
++ * @param    inOrdinalNumber    The ordinal number itself. 
++ * @return   A newly created ordinal.
++ */
++StubVirtualServer.prototype.newOrdinal = function (inEntry, inOrdinalNumber) {
++  var ordinal = new Ordinal(inEntry, this.__myWorld.getCurrentUser(), inOrdinalNumber);
++  this.__myChronologicalListOfNewlyCreatedRecords.push(ordinal);
++  return ordinal;
++};
++
++
++/**
++ * Returns a newly created vote.
++ *
++ * @scope    public instance method
++ * @param    inEntry    The entry to attach this vote to. 
++ * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
++ * @return   A newly created vote.
++ */
++StubVirtualServer.prototype._newVote = function (inEntry, inRetainFlag) {
++  var vote = new Vote(inEntry, this.__myWorld.getCurrentUser(), inRetainFlag);
++  this.__myChronologicalListOfNewlyCreatedRecords.push(vote);
++  return vote;
++};
++
++
++// -------------------------------------------------------------------
++// Methods having to do with users
++// -------------------------------------------------------------------
++
++/**
++ * Creates a new item, where the new item represents a user of this datastore.
++ *
++ * @scope    public instance method
++ * @param    inName    A string, which will be assigned to the name attribute of the new item. 
++ * @param    inAuthentication    A string which will be used as the login password for the user. 
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created item representing a user.
++ */
++StubVirtualServer.prototype.newUser = function (inName, inAuthentication, inObserver) {
++  var newUser = this.newItem(inObserver);
++  this.__myListOfUsers.push(newUser);
++  this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = inAuthentication;
++  return newUser;
++};
++
++
++/**
++ * Returns an list of all the items that represent users of this datastore.
++ *
++ * @scope    public instance method
++ * @return   A list of items.
++ */
++StubVirtualServer.prototype.getUsers = function () {
++  return this.__myListOfUsers;
++};
++
++
++/**
++ * Returns an item representing the user who is currently logged in.
++ *
++ * @scope    public instance method
++ * @return   An item representing the user who is currently logged in.
++ */
++StubVirtualServer.prototype.getCurrentUser = function () {
++  return this.__myCurrentUser;
++};
++
++
++// -------------------------------------------------------------------
++// Login and logout methods
++// -------------------------------------------------------------------
++
++/**
++ * Attempts to login a user.
++ *
++ * @scope    public instance method
++ * @param    inUser    The user to be logged in. 
++ * @param    inAuthentication    Authentication info for the user. 
++ * @return   True if we were able to log in the user. False if the login failed.
++ */
++StubVirtualServer.prototype.login = function (inUser, inAuthentication) {
++  
++  // Only one user can be logged in at once.  We consider it an error
++  // if you try to log in a new user before logging out the old one.
++  if (this.__myCurrentUser) {
++    Util.assert(false);
++  }
++  
++  var isKnownUser = Util.isObjectInSet(inUser, this.__myListOfUsers);
++  if (!isKnownUser) {
++    return false;
++  }
++
++  var realAuthentication = this.__getAuthenticationInfoForUser(inUser);
++  var successfulAuthentication = (realAuthentication == inAuthentication);
++  if (successfulAuthentication) {
++    this.__myCurrentUser = inUser;
++    return true;
++  } else {
++    return false;
++  }
++};
++
++
++/**
++ * Logs out the current user.
++ *
++ * @scope    public instance method
++ * @return   True if the current user was logged out. False if there was no current user logged in.
++ */
++StubVirtualServer.prototype.logout = function () {
++  if (this.__myCurrentUser) {
++    this.__myCurrentUser = null;
++    return true;
++  } else {
++    return false;
++  }
++};
++
++
++// -------------------------------------------------------------------
++// Other public methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a UUID, returns the item identified by that UUID.
++ *
++ * @scope    public instance method
++ * @param    inUuid    The UUID of the item to be returned. 
++ * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @return   The item identified by the given UUID.
++ */
++StubVirtualServer.prototype.getItemFromUuid = function (inUuid, inObserver) {
++  Util.assert(Util.isNumeric(inUuid));
++  
++  var item = this.__myHashTableOfItemsKeyedByUuid[inUuid];
++  if (item &amp;&amp; inObserver) {
++    item.addObserver(inObserver);
++  }
++  return item;
++};
++
++
++/**
++ * Sends all the changes to the server, so that the server can record the
++ * changes.
++ *
++ * @scope    public instance method
++ */
++StubVirtualServer.saveChangesToServer = function () {
++  // The StubVirtualServer doesn't ever actually talk to a server.
++  // Other VirtualServer implementations would be expected to actually
++  // implement this method such that it saves changes to the server
++  var listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
++  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  return listOfChangesMade;
++};
++  
++
++// -------------------------------------------------------------------
++// Query methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a query item, this method returns a list of all the items that 
++ * match the query criteria.
++ *
++ * @scope    public instance method
++ * @param    inQuery    A query item. 
++ * @return   A list of items.
++ */
++StubVirtualServer.prototype.getListOfResultItemsForQuery = function (inQuery, inObserver) {
++  Util.assert(inQuery instanceof Item);
++  
++  var attributeCalledQueryMatchingCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var attributeCalledQueryMatchingItem = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++
++  var uuid = null;
++  var item = null;
++  var listOfQueryResultItems = null;
++  var listOfMatchingCategories = inQuery.getValuesForAttribute(attributeCalledQueryMatchingCategory);
++  var listOfMatchingItems = inQuery.getValuesForAttribute(attributeCalledQueryMatchingItem);
++  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
++  var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
++
++  Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
++
++  if (isItemMatchingQuery) {
++    listOfQueryResultItems = listOfMatchingItems;
++  }
++  
++  if (isCategoryMatchingQuery) {
++    listOfQueryResultItems = [];
++    // This is a wildly inefficient search.  But maybe it doesn't matter,
++    // because this code should all be replaced someday by server code.
++    for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
++      item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++      if (!item.hasBeenDeleted()) {
++        var includeItem = true;
++        for (var key in listOfMatchingCategories) {
++          var category = listOfMatchingCategories[key];
++          if (includeItem &amp;&amp; !(item.isInCategory(category))) {
++            includeItem = false;
++          }
++        }
++        if (includeItem) {
++          listOfQueryResultItems.push(item);
++        }
++      }
++    }
++  }
++  
++  if (!isItemMatchingQuery &amp;&amp; !isCategoryMatchingQuery) {
++    listOfQueryResultItems = [];
++    for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
++      item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++      if (!item.hasBeenDeleted()) {
++        listOfQueryResultItems.push(item);
++      }
++    }
++  }
++  
++  listOfQueryResultItems.sort(Entry.compareOrdinals);
++  return listOfQueryResultItems; 
++};
++
++
++
++/**
++ * Given an item and a query item, this method modifies the attributes 
++ * of the item so that when the query is next evaluated the item will be 
++ * included in query result list.
++ *
++ * @scope    public instance method
++ * @param    inItem    An item, which will be modified so that it matches the query. 
++ * @param    inQuery    A query item. 
++ */
++StubVirtualServer.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
++  Util.assert(inItem instanceof Item);
++  Util.assert(inQuery instanceof Item);
++
++  var attributeCalledQueryMatchingCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var attributeCalledQueryMatchingItem = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++
++  var listOfMatchingCategories = inQuery.getValuesForAttribute(attributeCalledQueryMatchingCategory);
++  var listOfMatchingItems = inQuery.getValuesForAttribute(attributeCalledQueryMatchingItem);
++  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
++  var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
++
++  Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
++
++  if (isItemMatchingQuery) {
++    inQuery.addAttributeValue(attributeCalledQueryMatchingItem, inItem);
++  }
++  
++  var attributeCalledCategory = this.__myWorld.getAttributeCalledCategory();
++  if (isCategoryMatchingQuery) {
++    for (var key in listOfMatchingCategories) {
++      var category = listOfMatchingCategories[key];
++      if (!(inItem.isInCategory(category))) {
++        inItem.addAttributeValue(attributeCalledCategory, category);
++      }
++    }
++  }
++};
++
++
++/**
++ * Given a category, this method returns a list of all the items that have been 
++ * assigned to that category.
++ *
++ * @scope    public instance method
++ * @param    inCategory    A category item. 
++ * @return   A list of items.
++ */
++StubVirtualServer.prototype.getListOfItemsInCategory = function (inCategory) {
++  Util.assert(inCategory instanceof Item);
++
++  var listOfItems = [];
++  for (var uuid in this.__myHashTableOfItemsKeyedByUuid) {
++    var item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++    if (!item.hasBeenDeleted() &amp;&amp; item.isInCategory(inCategory)) {
++      listOfItems.push(item);
++    }
++  }
++  listOfItems.sort(Entry.compareOrdinals);
++  return listOfItems; 
++};
++
++
++// -------------------------------------------------------------------
++// Private methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a UUID, returns the item or value identified by that UUID.
++ *
++ * @scope    private instance method
++ * @param    inUuid    The UUID of the item or value to be returned. 
++ * @return   The item or value identified by the given UUID.
++ */
++StubVirtualServer.prototype.__getEntryFromUuid = function (inUuid) {
++  var item = this.getItemFromUuid(inUuid);
++  if (item) {
++    return item;
++  } else {
++    return this.__myHashTableOfValuesKeyedByUuid[inUuid];
++  }
++};
++
++
++/**
++ * Creates a brand new UUID to allocate to an item or value.
++ *
++ * @scope    private instance method
++ * @return   A newly created UUID.
++ */
++StubVirtualServer.prototype.__getNewUuid = function () {
++  var newUuid = this.__myNextAvailableUuid;
++  this.__myNextAvailableUuid += 1;
++  return newUuid;
++};
++
++
++/**
++ * Given an item representing a user, return the authentication info
++ * associated with that user.
++ *
++ * @scope    private instance method
++ * @param    inUser    An item representing a user. 
++ * @return   The authentication info for the user.
++ */
++StubVirtualServer.prototype.__getAuthenticationInfoForUser = function (inUser) {
++  return this.__myHashTableOfUserAuthenticationInfo[inUser.getUniqueKeyString()];
++};
++
++
++/**
++ * Given a UUID, either (a) returns the existing item identified by that UUID, 
++ * or (b) creates an new item object, set its UUID, and returns that object.
++ *
++ * @scope    private instance method
++ * @param    inUuid    The UUID of the item to be returned. 
++ * @return   The item identified by the given UUID.
++ */
++StubVirtualServer.prototype.__getItemFromUuidOrCreateNewItem = function (inUuid) {
++  var item = this.getItemFromUuid(inUuid);
++  if (!item) {
++    this.__myNextAvailableUuid = Math.max(this.__myNextAvailableUuid, (inUuid + 1));   
++    item = new Item(this.__myWorld, inUuid);
++    item._initialize();
++    this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
++    this.__myChronologicalListOfNewlyCreatedRecords.push(item);
++  }
++  return item;
++};
++
++
++/**
++ * Creates the basic items that needed in order to do anything else, 
++ * like the items for &quot;name&quot;, &quot;attribute&quot;, and &quot;category&quot;.
++ *
++ * @scope    private instance method
++ */
++StubVirtualServer.prototype.__loadAxiomaticItems = function () {
++  var uuid;
++  var name;
++  var item;
++  var value;
++  
++  var axiomaticUser = this.newUser(&quot;Amy ex machina&quot;, &quot;null&quot;);
++  this.__myCurrentUser = axiomaticUser;
++  
++  // associate display names with the UUIDs of all the attributes
++  var hashTableOfAttributeNamesKeyedByUuid = {};
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_NAME] = &quot;Name&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SHORT_NAME] = &quot;Short Name&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SUMMARY] = &quot;Summary&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY] = &quot;Body&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY] = &quot;Category&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_USERSTAMP] = &quot;Userstamp&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_TIMESTAMP] = &quot;Timestamp&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SECTION] = &quot;Section&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY] = &quot;Query&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = &quot;Matching Category&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = &quot;Matching Item&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_PLUGIN_NAME] = &quot;Plugin Name&quot;;
++
++  // create all the Item objects for the attributes
++  for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
++    this.__getItemFromUuidOrCreateNewItem(uuid);
++  }
++  
++  // associate display names with the UUIDs of all the categories
++  var hashTableOfCategoryNamesKeyedByUuid = {};
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_ATTRIBUTE] = &quot;Attribute&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_CATEGORY] = &quot;Category&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_PAGE] = &quot;Page&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_SECTION] = &quot;Section&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_QUERY] = &quot;Query&quot;;
++
++  // create all the Item objects for the categories
++  for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
++    this.__getItemFromUuidOrCreateNewItem(uuid);
++  }
++ 
++  // set the display names of all the attributes, and put them in the category called &quot;Attribute&quot;
++  var categoryCalledAttribute = this.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
++  var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
++  var attributeCalledCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
++  for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
++    item = this.getItemFromUuid(uuid);
++    name = hashTableOfAttributeNamesKeyedByUuid[uuid];
++    item.addAttributeValue(attributeCalledName, name);
++    item.addAttributeValue(attributeCalledCategory, categoryCalledAttribute);
++  }
++  
++  // set the display names of all the categories, and put them in the category called &quot;Category&quot;
++  var categoryCalledCategory = this.__getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_CATEGORY);
++  for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
++    item = this.getItemFromUuid(uuid);
++    name = hashTableOfCategoryNamesKeyedByUuid[uuid];
++    item.addAttributeValue(attributeCalledName, name);
++    item.addAttributeValue(attributeCalledCategory, categoryCalledCategory);
++  }
++  
++  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  this.__myCurrentUser = null;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/Value.js
+===================================================================
+--- trunk/source/model/Value.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/Value.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,270 @@
++/*****************************************************************************
++ Value.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Util.js
++//   Item.js
++//   World.js
++//   Entry.js
++// -------------------------------------------------------------------
++
++/**
++ * Instances of the Value class represent literal values, like strings
++ * and numbers.
++ *
++ * WARNING: This constructor method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * If you're writing code in a view class, instead of calling this
++ * constructor, call a method on Item, like item.addAttributeValue()
++ *
++ * @scope    protected instance constructor
++ * @param    inWorld    The world that this value is a part of. 
++ * @param    inUuid    The UUID for this value. 
++ */
++Value.prototype = new Entry();  // makes Value be a subclass of Entry
++function Value(inWorld, inUuid) {
++  this._Entry(inWorld, inUuid);
++ 
++  this.__myPreviousValue = null;
++  this.__myListOfSubsequentValues = [];
++  this.__myItem = null;
++
++  this.__myAttribute = null;
++  this.__myContentData = null;
++}
++
++
++/**
++ * Initializes a new value that has just been created by a user action.
++ *
++ * WARNING: This method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * This method is NOT used for setting the properties of values that
++ * are being rehydrated from a dehydrated JSON string.  For that, you
++ * need to call value.rehydrate();
++ *
++ * @scope    protected instance method
++ * @param    inItemOrValue    The item that this is a value of, or the old value that this value replaces. 
++ * @param    inAttribute    The attribute that this value is assigned to. May be null. 
++ * @param    inContentData    The content datat to initialize the value with. 
++ */
++Value.prototype._initialize = function (inItemOrValue, inAttribute, inContentData) {
++  this._initializeEntry();
++
++  if (inItemOrValue instanceof Value) {
++    this.__myPreviousValue = inItemOrValue;
++    this.__myItem = this.__myPreviousValue.getItem();
++    this.__myPreviousValue.__addSubsequentValue(this);
++  } else {
++    this.__myPreviousValue = null;
++    this.__myItem = inItemOrValue;
++  }
++  
++  this.__myAttribute = inAttribute;
++
++  if (Util.isString(inContentData)) {
++    this.__myContentData = Util.getCleanString(inContentData);
++  } else {
++    this.__myContentData = inContentData;
++  }
++};
++
++
++/**
++ * Sets the properties of a newly rehydrated value object.
++ *
++ * WARNING: This method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * This method should only be called from VirtualServer code that is
++ * rehydrating dehydrated value objects. 
++ *
++ * @scope    protected instance method
++ * @param    inItemOrValue    The item that this is a value of, or the old value that this value replaces. 
++ * @param    inAttribute    The attribute that this value is assigned to. May be null. 
++ * @param    inContentData    The content data to initialize the value with. 
++ * @param    inTimestamp    A Date object with the creation timestamp for this value. 
++ * @param    inUserstamp    The user who created this value. 
++ */
++Value.prototype._rehydrate = function (inItemOrValue, inAttribute, inContentData, inTimestamp, inUserstamp) {
++  this._rehydrateEntry(inTimestamp, inUserstamp);
++
++  if (inItemOrValue instanceof Value) {
++    this.__myPreviousValue = inItemOrValue;
++    this.__myItem = this.__myPreviousValue.getItem();
++    this.__myPreviousValue.__addSubsequentValue(this);
++  } else {
++    this.__myPreviousValue = null;
++    this.__myItem = inItemOrValue;
++  }
++
++  this.__myAttribute = inAttribute;
++  this.__myContentData = inContentData;
++
++  this.__myItem._addRehydratedValue(this);
++};
++
++
++// -------------------------------------------------------------------
++// Accessor methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the item that this is a value of.
++ *
++ * @scope    public instance method
++ * @return   The item that this is a value of.
++ */
++Value.prototype.getItem = function () {
++  return this.__myItem;
++};
++
++
++/**
++ * If this value was established as the replacement for a previous
++ * value, this method returns the previous value.
++ *
++ * @scope    public instance method
++ * @return   The previous value, which this value replaces. 
++ */
++Value.prototype.getPreviousValue = function () {
++  return this.__myPreviousValue;
++};
++
++
++/**
++ * Returns the attribute that this value was assigned to, if any.
++ *
++ * @scope    public instance method
++ * @return   An attribute item.
++ */
++Value.prototype.getAttribute = function () {
++  return this.__myAttribute;
++};
++
++
++/**
++ * Returns the content data that this value holds.
++ *
++ * @scope    public instance method
++ * @return   The content data this value was initialized to hold.
++ */
++Value.prototype.getContentData = function () {
++  return this.__myContentData;
++};
++
++
++/**
++ * Returns the content data of this value as a string.
++ *
++ * @scope    public instance method
++ * @return   A string representing the literal data in this value.
++ */
++Value.prototype.getDisplayString = function () {
++  var returnString = &quot;&quot;;
++  if (this.__myContentData instanceof Item) {
++    returnString += this.__myContentData.getDisplayName();
++  } else {
++    returnString += this.__myContentData;
++  }
++  return returnString;
++};
++
++
++/**
++ * Returns a string describing the item.
++ *
++ * @scope    public instance method
++ * @return   A string with a description of the item.
++ */
++Value.prototype.toString = function () {
++  var returnString = &quot;[Value #&quot; + this.getUniqueKeyString() + 
++    &quot; \&quot;&quot; + this.getDisplayString() + &quot;\&quot;&quot; + &quot;]&quot;;
++  return returnString;
++};
++
++
++/**
++ * Returns true if the value has been replaced by a subsequent value.
++ *
++ * @scope    public instance method
++ * @return   True if this value has been replaced. False if it has not.
++ */
++Value.prototype.hasBeenReplaced = function () {
++  var listOfValues = this.__myListOfSubsequentValues;
++
++  if (!listOfValues || listOfValues.length === 0) {
++    return false;
++  }
++  
++  var filter = this.getWorld().getRetrievalFilter();
++
++  switch (filter) {
++    case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      return true;
++    case World.RETRIEVAL_FILTER_SINGLE_USER:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_DEMOCRATIC:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_UNABRIDGED:
++      return false;
++    default:
++      // We should never get here.  If we get here, it's an error.
++      Util.assert(false);
++      break;
++  }
++};
++
++// -------------------------------------------------------------------
++// Private methods
++// -------------------------------------------------------------------
++
++/**
++ * Called by a subsquent value, to tell this value that it has been replaced.
++ *
++ * @scope    private instance method
++ * @param    inValue    The value that replaces this one.
++ */
++Value.prototype.__addSubsequentValue = function (inValue) {
++  this.__myListOfSubsequentValues.push(inValue);
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/Vote.js
+===================================================================
+--- trunk/source/model/Vote.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/Vote.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,78 @@
++/*****************************************************************************
++ Vote.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   User.js
++//   Entry.js
++// -------------------------------------------------------------------
++
++/**
++ * Each instance of the Vote class keeps track of a vote to retain or delete
++ * an item or a value of an item.
++ *
++ * @scope    public instance constructor
++ * @param    inEntry    The item or value that this vote is attached to. 
++ * @param    inUser    The user who voted. 
++ * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
++ * @param    inTimestamp    Optional. The time the vote was made. 
++ */
++function Vote(inEntry, inUser, inRetainFlag, inTimestamp) {
++  this.__myEntry = inEntry;
++  this.__myUserstamp = inUser;
++  this.__myRetainFlag = inRetainFlag;
++  if (inTimestamp) {
++    this.__myTimestamp = inTimestamp;
++  } else {
++    this.__myTimestamp = new Date();
++  }
++  this.__myEntry._addVote(this);
++}
++
++Vote.prototype.getEntry = function () {
++  return this.__myEntry;
++};
++
++Vote.prototype.getTimestamp = function () {
++  return this.__myTimestamp;
++};
++
++Vote.prototype.getUserstamp = function () {
++  return this.__myUserstamp;
++};
++
++Vote.prototype.getRetainFlag = function () {
++  return this.__myRetainFlag;
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-04-17 17:03:33 UTC (rev 36)
++++ trunk/source/model/World.js	2005-04-25 04:33:45 UTC (rev 37)
+@@ -0,0 +1,724 @@
++/*****************************************************************************
++ World.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Util.js
++//   Item.js
++//   StubVirtualServer.js
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// World public class constants
++// -------------------------------------------------------------------
++World.RETRIEVAL_FILTER_LAST_EDIT_WINS = &quot;RETRIEVAL_FILTER_LAST_EDIT_WINS&quot;;
++World.RETRIEVAL_FILTER_SINGLE_USER = &quot;RETRIEVAL_FILTER_SINGLE_USER&quot;;
++World.RETRIEVAL_FILTER_DEMOCRATIC = &quot;RETRIEVAL_FILTER_DEMOCRATIC&quot;;
++World.RETRIEVAL_FILTER_UNABRIDGED = &quot;RETRIEVAL_FILTER_UNABRIDGED&quot;;
++
++World.UUID_FOR_USER_AMY = 1;
++
++World.UUID_FOR_ATTRIBUTE_UUID = 100;
++World.UUID_FOR_ATTRIBUTE_NAME = 102;
++World.UUID_FOR_ATTRIBUTE_SHORT_NAME = 101;
++World.UUID_FOR_ATTRIBUTE_SUMMARY = 103;
++World.UUID_FOR_ATTRIBUTE_BODY = 104;
++World.UUID_FOR_ATTRIBUTE_CATEGORY = 105;
++World.UUID_FOR_ATTRIBUTE_ORDINAL = 113;
++World.UUID_FOR_ATTRIBUTE_USERSTAMP = 106;
++World.UUID_FOR_ATTRIBUTE_TIMESTAMP = 107;
++World.UUID_FOR_ATTRIBUTE_QUERY = 109;
++World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY = 110;
++World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM = 111;
++
++World.UUID_FOR_CATEGORY_BOOK = 141;      // here as an example only
++World.UUID_FOR_CATEGORY_MOVIE = 142;     // here as an example only
++World.UUID_FOR_CATEGORY_ATTRIBUTE = 143;
++World.UUID_FOR_CATEGORY_CATEGORY = 144;
++World.UUID_FOR_CATEGORY_QUERY = 147;
++
++
++// -------------------------------------------------------------------
++// World private class constants
++// -------------------------------------------------------------------
++World.__TUPLE_KEY_LIST = &quot;list&quot;;
++World.__TUPLE_KEY_OBSERVERS = &quot;observers&quot;;
++
++
++/**
++ * The World class represents a &quot;world&quot; of items.
++ *
++ * When the view code works with items, it accesses the items through the
++ * context of a &quot;world&quot;.  Items exist within a world.  Users can login to
++ * a world to edit the items there.
++ *
++ * @scope    public instance constructor
++ * @param    inVirtualServer    Optional. The datastore that this world gets its data from. 
++ */
++function World(inVirtualServer) {
++  this.__myCurrentRetrievalFilter = World.RETRIEVAL_FILTER_LAST_EDIT_WINS;
++  if (inVirtualServer) {
++    this.__myVirtualServer = inVirtualServer;
++  } else {
++    this.__myVirtualServer = new StubVirtualServer();
++  }
++  this.__myVirtualServer.setWorldAndLoadAxiomaticItems();
++  
++  this.__myHashTableOfObserverListsKeyedByItemUuid = {};
++  this.__myListOfListObserverTuples = [];
++  
++  // load the axiomatic attributes
++  this.__myAttributeCalledName = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
++  this.__myAttributeCalledShortName = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SHORT_NAME);
++  this.__myAttributeCalledSummary = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
++  this.__myAttributeCalledCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
++  this.__myAttributeCalledOrdinal = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_ORDINAL);
++  this.__myAttributeCalledCreationUserstamp = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_USERSTAMP);
++  this.__myAttributeCalledCreationTimestamp = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_TIMESTAMP);
++  this.__myAttributeCalledQuery = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
++
++  // load the axiomatic categories
++  this.__myCategoryCalledAttribute = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
++  this.__myCategoryCalledCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
++  this.__myCategoryCalledQuery = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_QUERY);
++}
++
++
++// -------------------------------------------------------------------
++// Transaction Methods
++// -------------------------------------------------------------------
++
++/**
++ * Marks the beginning of a transaction.
++ *
++ * Each time you call beginTransaction() you open a new transaction, 
++ * which you need to close later using endTransation().  Transactions
++ * may be nested, but the beginTransaction and endTransation calls
++ * always need to come in pairs. 
++ *
++ * @scope    public instance method
++ */
++World.prototype.beginTransaction = function () {
++  this.__myCountOfNestedTransactions += 1;
++  // PENDING:
++  //   This is just a stub method for now.  Once we start implementing
++  //   support for transactions we'll have to put some real code here.
++};
++ 
++
++/**
++ * Marks the end of a transaction.
++ *
++ * @scope    public instance method
++ */
++World.prototype.endTransaction = function () {
++  this.__myCountOfNestedTransactions -= 1;
++  Util.assert(this.__myCountOfNestedTransactions &gt;= 0);
++  // PENDING:
++  //   This is just a stub method for now.  Once we start implementing
++  //   support for transactions we'll have to put some real code here.
++  if (this.__myCountOfNestedTransactions === 0) {
++    // PENDING: 
++    // World.js should not depend on RootView.js like this.
++    // Instead, the view code should hand the world a &quot;status display function&quot;
++    // that the world can use to display status info.
++    var listOfChangesMade = this.__myVirtualServer.saveChangesToServer();
++    if (listOfChangesMade.length &gt; 0) {
++      RootView.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
++      this.__notifyObserversOfChanges(listOfChangesMade);
++    }
++  }
++};
++
++
++// ===================================================================
++// PENDING: Line of Completion. Beyond there be dragons...
++/**
++ * Sends notification messages to registered observers to let them know 
++ * about any new changes to items or lists that they're observers of.
++ *
++ * @scope    private instance method
++ * @param    inListOfNewlyCreatedRecords    A list of records representing the changes. 
++ */
++World.prototype.__notifyObserversOfChanges = function (inListOfNewlyCreatedRecords) {
++  var hashTableOfNewlyCreatedRecordsKeyedByItemUuid = {};
++  var key;
++  var uuid;
++  var item;
++  var observer;
++  var itemOrValue;
++  var listOfRecordsForItem;
++  
++  // Look at each of the newly created records to see what item it changes,
++  // and build a hash table that divides up the records based on the item
++  // being changed, so that we can easily find all the records that impact
++  // a given item.
++  for (key in inListOfNewlyCreatedRecords) {
++    var record = inListOfNewlyCreatedRecords[key];
++    item = null;
++    if (record instanceof Item) {
++      item = record;
++    }
++    if ((record instanceof Vote) || (record instanceof Ordinal)) {
++      itemOrValue = record.getEntry();
++      if (itemOrValue instanceof Item) {
++        item = itemOrValue;
++      }
++       if (itemOrValue instanceof Value) {
++        item = itemOrValue.getItem();
++      }
++    }
++    if (record instanceof Value) {
++      item = record.getItem();
++    }
++    if (item) {
++      listOfRecordsForItem = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item._getUuid()];
++      if (!listOfRecordsForItem) {
++        listOfRecordsForItem = [];
++        hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item._getUuid()] = listOfRecordsForItem;
++      }
++      listOfRecordsForItem.push(record);
++    }
++  }
++  
++  // For each of the items that was impacted by some changes, find
++  // the observers of that item, and notify them of the changes.
++  for (uuid in hashTableOfNewlyCreatedRecordsKeyedByItemUuid) {
++    item = this.getItemFromUuid(uuid);
++    listOfRecordsForItem = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[uuid];
++    var listOfObserversForItem = this.__myHashTableOfObserverListsKeyedByItemUuid[uuid];
++    for (key in listOfObserversForItem) {
++      observer = listOfObserversForItem[key];
++      if (Util.isFunction(observer)) {
++        observer.call(null, item, listOfRecordsForItem);
++      } else {
++        if (Util.isObject(observer)) {
++          observer.observedItemHasChanged(item, listOfRecordsForItem);
++        } else {
++          // We should never get here.  If we do, consider it an error.
++          Util.assert(false);
++        }
++      }
++    }
++  }
++  
++  // Look at all the observers who have registered interest in a 
++  // list of items rather than in an individual item.  For each of
++  // those observers, notify them of all the changes to all the items.
++  for (var ikey in this.__myListOfListObserverTuples) {
++    var observerTuple = this.__myListOfListObserverTuples[ikey];
++    var listBeingObserved = observerTuple[World.__TUPLE_KEY_LIST];
++    var setOfObservers = observerTuple[World.__TUPLE_KEY_OBSERVERS];
++    var listOfItemChangeReports = null;
++    for (key in listBeingObserved) {
++      item = listBeingObserved[key];
++      var changes = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item._getUuid()];
++      if (changes) {
++        var changeReportForItem = [item, changes];
++        if (!listOfItemChangeReports) {
++          listOfItemChangeReports = [];
++        }
++        listOfItemChangeReports.push(changeReportForItem);
++      }
++    }
++    if (listOfItemChangeReports) {
++      for (key in setOfObservers) {
++        observer = setOfObservers[key];
++        if (Util.isFunction(observer)) {
++          observer.call(null, listBeingObserved, listOfItemChangeReports);
++        } else {
++          if (Util.isObject(observer)) {
++            observer.observedListHasChanged(listBeingObserved, listOfItemChangeReports);
++          } else {
++            // We should never get here.  If we do, consider it an error.
++            Util.assert(false);
++          }
++        }
++      }
++    }
++  }
++};
++
++
++// -------------------------------------------------------------------
++// Methods for the retrieval filters
++// -------------------------------------------------------------------
++
++/**
++ * Returns the retrieval filter that this world is currently using.
++ *
++ * @scope    public instance method
++ * @return   A string constant representing one of the three supported retrieval filters.
++ */
++World.prototype.getRetrievalFilter = function () {
++  return this.__myCurrentRetrievalFilter;
++};
++
++
++/**
++ * Sets the retrieval filter that this world will use.
++ *
++ * @scope    public instance method
++ * @param    inFilter    A string constant representing one of the three supported retrieval filters.
++ */
++World.prototype.setRetrievalFilter = function (inFilter) {
++  Util.assert(inFilter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS ||
++              inFilter == World.RETRIEVAL_FILTER_SINGLE_USER ||
++              inFilter == World.RETRIEVAL_FILTER_DEMOCRATIC ||
++              inFilter == World.RETRIEVAL_FILTER_UNABRIDGED);
++  this.__myCurrentRetrievalFilter = inFilter;
++};
++
++
++// -------------------------------------------------------------------
++// Accessor methods for axiomatic attributes
++// -------------------------------------------------------------------
++World.prototype.getAttributeCalledName = function () {
++  return this.__myAttributeCalledName;
++};
++
++World.prototype.getAttributeCalledShortName = function () {
++  return this.__myAttributeCalledShortName;
++};
++
++World.prototype.getAttributeCalledSummary = function () {
++  return this.__myAttributeCalledSummary;
++};
++
++World.prototype.getAttributeCalledCategory = function () {
++  return this.__myAttributeCalledCategory;
++};
++
++World.prototype.getAttributeCalledOrdinal = function () {
++  return this.__myAttributeCalledOrdinal;
++};
++
++World.prototype.getAttributeCalledCreationUserstamp = function () {
++  return this.__myAttributeCalledCreationUserstamp;
++};
++
++World.prototype.getAttributeCalledCreationTimestamp = function () {
++  return this.__myAttributeCalledCreationTimestamp;
++};
++
++World.prototype.getAttributeCalledQuery = function () {
++  return this.__myAttributeCalledQuery;
++};
++
++
++// -------------------------------------------------------------------
++// Accessor methods for axiomatic categories
++// -------------------------------------------------------------------
++World.prototype.getCategoryCalledAttribute = function () {
++  return this.__myCategoryCalledAttribute;
++};
++
++World.prototype.getCategoryCalledCategory = function () {
++  return this.__myCategoryCalledCategory;
++};
++
++World.prototype.getCategoryCalledQuery = function () {
++  return this.__myCategoryCalledQuery;
++};
++
++
++// -------------------------------------------------------------------
++// Login and logout methods
++// -------------------------------------------------------------------
++
++/**
++ * Attempts to login a user.
++ *
++ * @scope    public instance method
++ * @param    inUser    The user to be logged in. 
++ * @param    inAuthentication    Authentication info for the user. 
++ * @return   True if we were able to log in the user. False if the login failed.
++ */
++World.prototype.login = function (inUser, inAuthentication) {
++  return this.__myVirtualServer.login(inUser, inAuthentication);
++};
++
++
++/**
++ * Logs out the current user.
++ *
++ * @scope    public instance method
++ * @return   True if the current user was logged out. False if there was no current user logged in.
++ */
++World.prototype.logout = function () {
++  return this.__myVirtualServer.logout();
++};
++
++
++// -------------------------------------------------------------------
++// Methods having to do with users
++// -------------------------------------------------------------------
++
++/**
++ * Returns an list of all the items that represent users of this datastore.
++ *
++ * @scope    public instance method
++ * @return   A list of items.
++ */
++World.prototype.getUsers = function () {
++  var listOfUsers = this.__myVirtualServer.getUsers();
++  var filteredListOfUsers = [];
++  var user;
++  
++  var filter = this.getRetrievalFilter();
++  switch (filter) {
++    case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      for (var key in listOfUsers) {
++        user = listOfUsers[key];
++        if (!user.hasBeenDeleted()) {
++          filteredListOfUsers.push(user);
++        }
++      }
++      break;
++    case World.RETRIEVAL_FILTER_SINGLE_USER:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_DEMOCRATIC:
++      // PENDING: This still needs to be implemented.
++      Util.assert(false);
++      break;
++    case World.RETRIEVAL_FILTER_UNABRIDGED:
++      filteredListOfUsers = listOfUsers;
++      break;
++    default:
++      // We should never get here.  If we get here, it's an error.
++      Util.assert(false);
++      break;
++  }
++
++  filteredListOfUsers.sort(Entry.compareOrdinals);
++  return filteredListOfUsers;
++};
++
++
++/**
++ * Returns an item representing the user who is currently logged in.
++ *
++ * @scope    public instance method
++ * @return   An item representing the user who is currently logged in.
++ */
++World.prototype.getCurrentUser = function () {
++  return this.__myVirtualServer.getCurrentUser();
++};
++
++
++/**
++ * Creates a new item, where the new item represents a user of this datastore.
++ *
++ * @scope    public instance method
++ * @param    inName    A string, which will be assigned to the name attribute of the new item. 
++ * @param    inAuthentication    A string which will be used as the login password for the user. 
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created item representing a user.
++ */
++World.prototype.newUser = function (inName, inAuthentication, inObserver) {
++  this.beginTransaction();
++  var newUser = this.__myVirtualServer.newUser(inName, inAuthentication, inObserver);
++  this.endTransaction();
++  return newUser;
++};
++
++
++// -------------------------------------------------------------------
++// Methods for creating and changing items
++// -------------------------------------------------------------------
++
++/**
++ * Returns a newly created item.
++ *
++ * @scope    public instance method
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created item.
++ */
++World.prototype.newItem = function (inObserver) {
++  this.beginTransaction();
++  var item = this.__myVirtualServer.newItem(inObserver);
++  this.endTransaction();
++  return item;
++};
++
++
++/**
++ * Returns a newly created value.
++ *
++ * @scope    public instance method
++ * @param    inItemOrValue    The item that this is a value of, or the old value that this value is replacing. 
++ * @param    inAttribute    The attribute that this value is assigned to. May be null. 
++ * @param    inContentData    The content datat to initialize the value with. 
++ * @return   A newly created value.
++ */
++World.prototype._newValue = function (inItemOrValue, inAttribute, inContentData) {
++  this.beginTransaction();
++  var value = this.__myVirtualServer.newValue(inItemOrValue, inAttribute, inContentData);
++  this.endTransaction();
++  return value;
++};
++
++
++/**
++ * Returns a newly created ordinal.
++ *
++ * @scope    protected instance method
++ * @param    inEntry    The entry that this is an ordinal for. 
++ * @param    inOrdinalNumber    The ordinal number itself. 
++ * @return   A newly created ordinal.
++ */
++World.prototype._newOrdinal = function (inEntry, inOrdinalNumber) {
++  this.beginTransaction();
++  var ordinal = this.__myVirtualServer.newOrdinal(inEntry, inOrdinalNumber);
++  this.endTransaction();
++  return ordinal;
++};
++
++
++/**
++ * Returns a newly created vote.
++ *
++ * @scope    protected instance method
++ * @param    inEntry    The entry to attach this vote to. 
++ * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
++ * @return   A newly created vote.
++ */
++World.prototype._newVote = function (inEntry, inRetainFlag) {
++  this.beginTransaction();
++  var vote = this.__myVirtualServer.newVote(inEntry, inRetainFlag);
++  this.endTransaction();
++  return vote;
++};
++
++
++/**
++ * Given a UUID, returns the item identified by that UUID.
++ *
++ * @scope    public instance method
++ * @param    inUuid    The UUID of the item to be returned. 
++ * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @return   The item identified by the given UUID.
++ */
++World.prototype.getItemFromUuid = function (inUuid, inObserver) {
++  return (this.__myVirtualServer.getItemFromUuid(inUuid, inObserver));
++};
++
++
++// -------------------------------------------------------------------
++// Query methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a query item, this method returns a list of all the items that 
++ * match the query criteria.
++ *
++ * @scope    public instance method
++ * @param    inQuery    A query item. 
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A list of items.
++ */
++World.prototype.getListOfResultItemsForQuery = function (inQuery, inObserver) {
++  var listOfItems = this.__myVirtualServer.getListOfResultItemsForQuery(inQuery);
++  this.__addListObserver(listOfItems, inObserver);
++  return listOfItems;
++};
++
++
++/**
++ * Given an item and a query item, this method modifies the attributes 
++ * of the item so that when the query is next evaluated the item will be 
++ * included in query result list.
++ *
++ * @scope    public instance method
++ * @param    inItem    An item, which will be modified so that it matches the query. 
++ * @param    inQuery    A query item. 
++ */
++World.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
++  this.__myVirtualServer.setItemToBeIncludedInQueryResultList(inItem, inQuery);
++};
++
++
++/**
++ * Given a category, this method returns a list of all the items that have been 
++ * assigned to that category.
++ *
++ * @scope    public instance method
++ * @param    inCategory    A category item. 
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A list of items.
++ */
++World.prototype.getListOfItemsInCategory = function (inCategory, inObserver) {
++  var listOfItems = this.__myVirtualServer.getListOfItemsInCategory(inCategory);
++  this.__addListObserver(listOfItems, inObserver);
++  return listOfItems;
++};
++
++
++/**
++ * Registers an object or method as an observer of a list, so that
++ * the observer will be notified when items in the list change.
++ *
++ * PENDING: 
++ * Really we should observe queries, not lists of items.  If a change
++ * to an item causes it to fall into the query result set, the observers
++ * of the query should be notified.
++ *
++ * @scope    private instance method
++ * @param    inList    The list of items to be observed. 
++ * @param    inObserver    An object or method to be registered as an observer of the item. 
++ */
++World.prototype.__addListObserver = function (inList, inObserver) {
++  var weNeedToMakeANewTupleForThisList = true;
++  var observerWasAdded = false;
++  var listOfTuples = this.__myListOfListObserverTuples;
++  for (var key in listOfTuples) {
++    var tuple = listOfTuples[key];
++    if (tuple[World.__TUPLE_KEY_LIST] == inList) {
++      weNeedToMakeANewTupleForThisList = false;
++      var setOfObservers = tuple[World.__TUPLE_KEY_OBSERVERS];
++      observerWasAdded = Util.addObjectToSet(inObserver, setOfObservers);
++    }
++  }
++  if (weNeedToMakeANewTupleForThisList) {
++    var newTuple = {};
++    newTuple[World.__TUPLE_KEY_LIST] = inList;
++    newTuple[World.__TUPLE_KEY_OBSERVERS] = [inObserver];
++    listOfTuples.push(newTuple);
++    observerWasAdded = true;
++  }
++  return observerWasAdded;
++};
++
++
++/**
++ * Removes an object or method from the set of observers of a list, so that 
++ * the observer will no longer be notified when items in the list change.
++ *
++ * @scope    public instance method
++ * @param    inList    The list of items that was being observed. 
++ * @param    inObserver    The object or method to be removed from the set of observers. 
++ */
++World.prototype.removeListObserver = function (inList, inObserver) {
++  var observerWasRemoved = false;
++  var listOfTuples = this.__myListOfListObserverTuples;
++  for (var key in listOfTuples) {
++    var tuple = listOfTuples[key];
++    if (tuple[World.__TUPLE_KEY_LIST] == inList) {
++      var setOfObservers = tuple[World.__TUPLE_KEY_OBSERVERS];
++      observerWasRemoved = Util.removeObjectFromSet(inObserver, setOfObservers);
++    }
++  }
++  return observerWasRemoved;
++};
++
++
++/**
++ * Registers an object or method as an observer of an item, so that
++ * the observer will be notified when the item changes.
++ *
++ * @scope    public instance method
++ * @param    inItem    The item to be observed. 
++ * @param    inObserver    An object or method to be registered as an observer of the item. 
++ */
++World.prototype.addItemObserver = function (inItem, inObserver) {
++  var observerList = this.__myHashTableOfObserverListsKeyedByItemUuid[inItem._getUuid()];
++  if (!observerList) {
++    observerList = [];
++    this.__myHashTableOfObserverListsKeyedByItemUuid[inItem._getUuid()] = observerList;
++  }
++  var observerWasAdded = Util.addObjectToSet(inObserver, observerList);
++  return observerWasAdded;
++};
++
++
++/**
++ * Removes an object or method from the set of observers of an item, so 
++ * that the observer will no longer be notified when the item changes.
++ *
++ * @scope    public instance method
++ * @param    inItem    The item that was being observed. 
++ * @param    inObserver    The object or method to be removed from the set of observers. 
++ */
++World.prototype.removeItemObserver = function (inItem, inObserver) {
++  var observerWasRemoved = false;
++  var observerList = this.__myHashTableOfObserverListsKeyedByItemUuid[inItem._getUuid()];
++  if (observerList) {
++    observerWasRemoved = Util.removeObjectFromSet(inObserver, observerList);
++  } 
++  return observerWasRemoved;
++};
++
++
++// -------------------------------------------------------------------
++// Code that should move up into the view layer
++// -------------------------------------------------------------------
++
++World.UUID_FOR_ATTRIBUTE_SECTION = 108;
++World.UUID_FOR_ATTRIBUTE_PLUGIN_NAME = 112;
++
++World.UUID_FOR_CATEGORY_PAGE = 145;
++World.UUID_FOR_CATEGORY_SECTION = 146;
++
++World.UUID_FOR_HOME_PAGE = 2000;
++
++/**
++ * Returns the page item to be used as the home page.
++ *
++ * @scope    public instance method
++ * @return   A page item.
++ */
++// PENDING: 
++// We should move this method up into the view code.
++// It shouldn't be down here in the model layer.
++World.prototype.getHomePage = function () {
++  return this.getItemFromUuid(World.UUID_FOR_HOME_PAGE);
++};
++
++
++/**
++ * Returns true if the given value is a function.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a function.
++ */
++// PENDING: 
++// Need to move this up into Util.js.
++Util.isFunction = function (inValue) {
++  return ((typeof inValue) == &quot;function&quot;);
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000029.html">[openrecord-svn] r36 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000031.html">[openrecord-svn] r38 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#30">[ date ]</a>
+              <a href="thread.html#30">[ thread ]</a>
+              <a href="subject.html#30">[ subject ]</a>
+              <a href="author.html#30">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

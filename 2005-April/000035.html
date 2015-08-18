@@ -1,0 +1,778 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r42 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r42%20-%20trunk/source/model&In-Reply-To=%3C200504290341.j3T3f0I8021539%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000034.html">
+   <LINK REL="Next"  HREF="000036.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r42 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r42%20-%20trunk/source/model&In-Reply-To=%3C200504290341.j3T3f0I8021539%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r42 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 29 05:41:00 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000034.html">[openrecord-svn] r41 - in trunk/source: . model scrap_yard
+</A></li>
+        <LI>Next message: <A HREF="000036.html">[openrecord-svn] r43 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#35">[ date ]</a>
+              <a href="thread.html#35">[ thread ]</a>
+              <a href="subject.html#35">[ subject ]</a>
+              <a href="author.html#35">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-29 05:40:55 +0200 (Fri, 29 Apr 2005)
+New Revision: 42
+
+Added:
+   trunk/source/model/2005_item_centric_list.json
+Modified:
+   trunk/source/model/BigLumpVirtualServer.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+More work on the new data model -- more unit tests, and changes to the code to make it pass the tests.
+
+Added: trunk/source/model/2005_item_centric_list.json
+===================================================================
+--- trunk/source/model/2005_item_centric_list.json	2005-04-28 21:12:36 UTC (rev 41)
++++ trunk/source/model/2005_item_centric_list.json	2005-04-29 03:40:55 UTC (rev 42)
+@@ -0,0 +1,428 @@
++{ &quot;format&quot;: &quot;2005_MARCH_ITEM_CENTRIC_LIST&quot;, 
++  &quot;timestamp&quot;: &quot;Thu Apr 14 2005 13:52:41 GMT-0700 (Pacific Standard Time)&quot;, 
++  &quot;data&quot;: [
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 101 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Short Name&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 102 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Name&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 103 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Summary&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 104 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Body&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 105 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Category&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 106 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Userstamp&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 107 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Timestamp&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 108 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Section&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 109 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 110 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Matching Category&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 111 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Matching Item&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 112 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Plugin Name&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 143 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Attribute&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 144 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Category&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 145 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Page&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 146 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Section&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 147 },
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query&quot; }, ],
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 2000 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 145 }, ],
++    /* Short Name */   &quot;101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;1. Welcome!&quot; }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Welcome to the OpenRecord demo!&quot; }, ],
++    /* Summary    */   &quot;103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This web site is a demo of the OpenRecord prototype. OpenRecord is a collaborative content management system. OpenRecord is a lot like a wiki, but with twist. Most wikis are designed to let you view and edit pages of text, like a web-based word processor. OpenRecord is designed to let you view and edit items in a database, rather than pages of text. So if a wiki is a web-based collaborative word-processor, then OpenRecord is a web-based collaborative database, like Lotus Agenda. To see more of this demo site, go to the menu bar at the left side of the window and click on the menu item for page 2, 'Books'.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3000 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 145 }, ],
++    /* Short Name */   &quot;101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;2. Books&quot; }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; }, ],
++    /* Summary    */   &quot;103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; }, ],
++    /* Section    */   &quot;108&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3010 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3020 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3010 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Table&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3011 }, ],
++    /* Summary    */   &quot;103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a list of all the books in the repository.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3020 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;One Book&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Detail&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3021 }, ],
++    /* Summary    */   &quot;103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a just a single selected book. The section is populated using a query that asks for just a single book item.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3011 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all books&quot; }, ],
++    /* Matching C */   &quot;110&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3021 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for one book&quot; }, ],
++    /* Matching I */   &quot;111&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3205 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3104 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3205 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Gourley and Brian Totty&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;1565925092&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;O'Reilly&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3101 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Author&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3102 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Publisher&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3103 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;ISBN&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3201 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Transparent Society&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Brin&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Perseus Publishing&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0738201448&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3202 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Hobbit&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;J.R.R. Tolkien&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HarperCollins&quot; }, { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Houghton Mifflin&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0618002219&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3203 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Wisdom of Crowds&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;James Surowiecki&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0385503865&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Doubleday&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 3204 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Shrinking Violets and Caspar Milquetoasts&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Patricia A. McDaniel&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0814756778&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;NYU Press&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4000 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 145 }, ],
++    /* Short Name */   &quot;101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;3. Bug List&quot; }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Bugs and Features to Implement&quot; }, ],
++    /* Summary    */   &quot;103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This page is where I keep track of the programming work I need to do on the OpenRecord software project. I'm keeping track of bugs that need to be fixed, as well as some of the new features that I want to implement before too long.&quot; }, ],
++    /* Section    */   &quot;108&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4010 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4020 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4030 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4040 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4010 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Features&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Outline&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4011 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4020 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Bugs&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Outline&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4021 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4030 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All 'Closed' Bugs and Features&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Outline&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4031 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4040 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All 'Closed' Bugs&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Outline&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4041 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4011 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all features&quot; }, ],
++    /* Matching C */   &quot;110&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4021 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all bugs&quot; }, ],
++    /* Matching C */   &quot;110&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4031 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all closed items&quot; }, ],
++    /* Matching C */   &quot;110&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4103 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4041 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all closed bugs&quot; }, ],
++    /* Matching C */   &quot;110&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4103 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4102 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Feature&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4101 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Bug&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4103 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Closed Tasks&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4201 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The browser's back button doesn't work after you click from page to page in the navbar.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4202 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;When editing an item in a table view, everything you enter is treated as a string literal. If you enter 'Book' in the column for 'Category', that does not make your item into a Book.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4203 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;After editing an item in a table view, the section queries should be re-evalutated to see if membership has changed.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4204 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4103 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;If an item has an attribute value with some HTML in it, like '&lt;cite&gt;', we incorrectly render it like '&amp; lt;cite&amp; gt;' instead of '&lt;cite&gt;'&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4205 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4101 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4103 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Store only 'clean' text in the repository. Do cleaning on data entry, not on data display. Clean means no stuff like &lt; and &gt; and double-quotes&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4302 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, { &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4103 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Make it possible for a text string to contain a reference to an item&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4304 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Make it possible to assign items to categories -- allow for entering reference-values, not just string-values&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4305 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Allow for entering number-values, not just string-values&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4306 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Have table mode show multi-valued attributes&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4307 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;When you assign a value to an item, mark it with a timestamp&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4308 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Clean up all the code that assumes single-valued attributes -- search for '[0]'&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4309 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to create new pages&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4310 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to add a new section to a page&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4311 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Observable queries: all items, limited to a requested subset based on kind and category (e.g. 'All fiction books')&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4312 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Observable queries: limit results to just a requested subset of the attributes (e.g. just the names of the books)&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4313 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to edit the query of a section&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4314 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Make it possible to add new attributes to a table view&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4315 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Figure out how to declare dependencies more rigorously, and then have automatic unit tests that verify the dependencies.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4316 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;URLs with anchor-dot-notation: <A HREF="http://www.foo.org/item.html#573.654.765">http://www.foo.org/item.html#573.654.765</A>&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4317 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Support for reference-values as well as string-values&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4318 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Write unit tests using jsunit&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4319 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Try to write a unit test that calls jslint&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4320 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In 'Outline' plugin, have controls to optionally show more detail&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4321 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Add 'Table' plugin controls for row sorting, column re-arranging, column hiding, etc.&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4322 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In 'Outline' plugin, be able to group by category&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4323 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In 'Table' plugin, be able to group by category&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4324 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to edit in outline mode&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 4325 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Set up a subversion server and have the OpenRecord code publicly available&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5000 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 145 }, ],
++    /* Short Name */   &quot;101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;4. Charities&quot; }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Charities&quot; }, ],
++    /* Section    */   &quot;108&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 5010 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5010 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Charities&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Bar Chart&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 5011 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5011 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all charities&quot; }, ],
++    /* Matching C */   &quot;110&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 5101 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5101 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 144 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Charity&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5102 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 143 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;2003 Expenses (in $US million)&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5201 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 5101 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Global Fund for Women&quot; }, ],
++    /* 2003 Expen */   &quot;5102&quot;: [{ &quot;type&quot;: &quot;NumberValue&quot;, &quot;value&quot;: 8.2 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5202 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 5101 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Pathfinder International&quot; }, ],
++    /* 2003 Expen */   &quot;5102&quot;: [{ &quot;type&quot;: &quot;NumberValue&quot;, &quot;value&quot;: 44.9 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5203 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 5101 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Global Fund to Fight AIDS, TB, and Malaria&quot; }, ],
++    /* 2003 Expen */   &quot;5102&quot;: [{ &quot;type&quot;: &quot;NumberValue&quot;, &quot;value&quot;: 64.7 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5204 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Gumption Memo&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Brian Skinner&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Kinkos&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5205 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Gerald Markowitz and David Rosner&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;University of California&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0520240634&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5207 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Have a 'Find' UI that does keystroke-by-keystroke filtering&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5208 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to 'delete' items (or mark them as 'dead' or 'defunct' or something)&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 5209 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 4102 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Make view.display() *not* re-create all the HTML every time&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 6000 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 145 }, ],
++    /* Short Name */   &quot;101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;5. All Items&quot; }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Items&quot; }, ],
++    /* Section    */   &quot;108&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 6010 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 6010 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 146 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Items&quot; }, ],
++    /* Plugin Nam */   &quot;112&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Table&quot; }, ],
++    /* Query      */   &quot;109&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 6011 }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 6011 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 147 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all items&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 6012 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;JavaScript: The Definitive Guide&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Flanagan&quot; }, ],
++    /* Publisher  */   &quot;3102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;O'Reilly&quot; }, ],
++    /* ISBN       */   &quot;3103&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0596000480&quot; }, ],
++  },
++  { &quot;100&quot;: { &quot;type&quot;: &quot;Uuid&quot;, &quot;value&quot;: 6013 },
++    /* Category   */   &quot;105&quot;: [{ &quot;type&quot;: &quot;ForeignUuid&quot;, &quot;value&quot;: 3104 }, ],
++    /* Name       */   &quot;102&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Two Towers&quot; }, ],
++    /* Author     */   &quot;3101&quot;: [{ &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;J.R.R. Tolkien&quot; }, ],
++  }
++]}
+
+Modified: trunk/source/model/BigLumpVirtualServer.js
+===================================================================
+--- trunk/source/model/BigLumpVirtualServer.js	2005-04-28 21:12:36 UTC (rev 41)
++++ trunk/source/model/BigLumpVirtualServer.js	2005-04-29 03:40:55 UTC (rev 42)
+@@ -51,7 +51,7 @@
+ BigLumpVirtualServer.JSON_FORMAT_2005_APRIL = &quot;2005_APRIL_CHRONOLOGICAL_LIST&quot;;
+ 
+ BigLumpVirtualServer.JSON_MEMBER_TYPE = &quot;type&quot;;
+-BigLumpVirtualServer.JSON_MEMBER_DATA = &quot;value&quot;;
++BigLumpVirtualServer.JSON_MEMBER_VALUE = &quot;value&quot;;
+ BigLumpVirtualServer.JSON_TYPE_STRING_VALUE = &quot;StringValue&quot;;
+ BigLumpVirtualServer.JSON_TYPE_UUID = &quot;Uuid&quot;;
+ BigLumpVirtualServer.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
+@@ -80,28 +80,29 @@
+  * @scope    public instance constructor
+  * @param    inJsonString    A JSON string literal representing the world of items. 
+  */
+-BigLumpVirtualServer.prototype = new StubBackingStore();  // makes BigLumpVirtualServer be a subclass of StubBackingStore
++BigLumpVirtualServer.prototype = new StubVirtualServer();  // makes BigLumpVirtualServer be a subclass of StubVirtualServer
+ function BigLumpVirtualServer(inJsonString) {
+   this.__myDehydratedWorld = inJsonString;
+ }
+ 
+ 
+-// -------------------------------------------------------------------
+-// Private Methods
+-// -------------------------------------------------------------------
+-
+ /**
+- * Overrides the superclass method.  The BigLumpVirtualServer 
+- * does not create axiomatic items from scratch, but instead loads all
+- * the saved items, including the axiomatic items.
++ * Initializes the instance variables for a newly created BigLumpVirtualServer,
++ * and does the initial loading of at least the axiomatic items.
+  *
+- * @scope    private instance method
++ * @scope    public instance method
++ * @param    inWorld    The world that we provide data for. 
+  */
+-BigLumpVirtualServer.prototype.__loadAxiomaticItems = function () {
++BigLumpVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
++  this.__initialize(inWorld);
+   this.__loadWorldFromJsonString(this.__myDehydratedWorld);
+ };
+-  
+-  
++
++
++// -------------------------------------------------------------------
++// Private Methods
++// -------------------------------------------------------------------
++
+ /**
+  * Loads a world of items from a dehydrated JSON string.
+  *
+@@ -141,55 +142,69 @@
+  * @param    inListOfItems    A JSON list of dehydrated items. 
+  */
+ BigLumpVirtualServer.prototype.__loadWorldFromOld2005MarchFormatList = function (inListOfItems) {
+-  var listOfItems = inListOfItems;
++  var listOfDehydratedItems = inListOfItems;
+   var uuid;
+   var item;
+   
+   // Have the StubBackingStore load the axiomatic items, because it will
+   // correctly set the creator of those items to be the axiomatic user.
+-  this.__loadAxiomaticItems();
++  var listOfAxiomaticRecords = this.__loadAxiomaticItems();
+   
++  var hashTableOfAxiomaticItemsKeyedByUuid = {};
++  for (var key in listOfAxiomaticRecords) {
++    var record = listOfAxiomaticRecords[key];
++    if (record instanceof Item) {
++      hashTableOfAxiomaticItemsKeyedByUuid[record._getUuid()] = record;
++    }
++  }
++  
++  this.__myWorld.beginTransaction();
+   var guestUser = this.newUser(&quot;Guest&quot;, null);
+   this.__myCurrentUser = guestUser;
+-    
+-  for (var listKey in listOfItems) {
+-    var dehydratedItem = listOfItems[listKey];
++  
++  for (var listKey in listOfDehydratedItems) {
++    var dehydratedItem = listOfDehydratedItems[listKey];
+     var dehydratedUuid = dehydratedItem[World.UUID_FOR_ATTRIBUTE_UUID];
+-    uuid = dehydratedUuid[BigLumpVirtualServer.JSON_MEMBER_DATA];
+-    item = this.__getItemFromUuidOrCreateNewItem(uuid);
+-    for (var propertyKey in dehydratedItem) {
+-      if (propertyKey != World.UUID_FOR_ATTRIBUTE_UUID) { 
+-        var propertyValue = dehydratedItem[propertyKey];
+-        var attributeUuid = propertyKey;
+-        Util.assert(Util.isArray(propertyValue));
+-        for (var valueKey in propertyValue) {
+-          var valueObject = propertyValue[valueKey];
+-          var valueType = valueObject[BigLumpVirtualServer.JSON_MEMBER_TYPE];
+-          var valueValue = valueObject[BigLumpVirtualServer.JSON_MEMBER_DATA];
+-          var finalValue = null;
+-          switch (valueType) {
+-            case BigLumpVirtualServer.JSON_TYPE_FOREIGN_UUID:
+-              finalValue = this.__getItemFromUuidOrCreateNewItem(valueValue);
+-              break;
+-            case BigLumpVirtualServer.JSON_TYPE_STRING_VALUE:
+-              finalValue = valueValue;
+-              break;
+-            case BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE:
+-              finalValue = valueValue;
+-              break;
++    uuid = dehydratedUuid[BigLumpVirtualServer.JSON_MEMBER_VALUE];
++    var axiomaticItem = hashTableOfAxiomaticItemsKeyedByUuid[uuid];
++    if (!axiomaticItem) {
++      item = this.__getItemFromUuidOrCreateNewItem(uuid);
++      Util.assert(item instanceof Item);
++      for (var propertyKey in dehydratedItem) {
++        if (propertyKey != World.UUID_FOR_ATTRIBUTE_UUID) { 
++          var propertyValue = dehydratedItem[propertyKey];
++          var attributeUuid = parseInt(propertyKey);
++          Util.assert(Util.isArray(propertyValue));
++          for (var valueKey in propertyValue) {
++            var valueObject = propertyValue[valueKey];
++            var valueType = valueObject[BigLumpVirtualServer.JSON_MEMBER_TYPE];
++            var valueValue = valueObject[BigLumpVirtualServer.JSON_MEMBER_VALUE];
++            var finalValue = null;
++            switch (valueType) {
++              case BigLumpVirtualServer.JSON_TYPE_FOREIGN_UUID:
++                finalValue = this.__getItemFromUuidOrCreateNewItem(valueValue);
++                break;
++              case BigLumpVirtualServer.JSON_TYPE_STRING_VALUE:
++                finalValue = valueValue;
++                break;
++              case BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE:
++                finalValue = valueValue;
++                break;
++            }
++            var attribute = this.getItemFromUuid(attributeUuid);
++            item.addAttributeValue(attribute, finalValue);
+           }
+-          var attribute = this.__getItemFromUuidOrCreateNewItem(attributeUuid);
+-          item.addAttributeValue(attribute, finalValue);
+         }
+       }
+     }
+   }
+-  
++
+   for (var key in this.__myChronologicalListOfNewlyCreatedRecords) {
+     var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
+     this.__myChronologicalListOfRecords.push(newRecord);
+   }
+   this.__myChronologicalListOfNewlyCreatedRecords = [];
++  this.__myWorld.endTransaction();
+   this.__myCurrentUser = null;
+ };
+ 
+@@ -295,9 +310,9 @@
+       if (previousValueUuid) {
+         previousValue = this.__getValueFromUuidOrBootstrapValue(previousValueUuid);
+       }
+-      var pickledData = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_DATA];
++      var pickledData = dehydratedValue[BigLumpVirtualServer.JSON_MEMBER_VALUE];
+       var dataType = pickledData[BigLumpVirtualServer.JSON_MEMBER_TYPE];
+-      var rawData = pickledData[BigLumpVirtualServer.JSON_MEMBER_DATA];
++      var rawData = pickledData[BigLumpVirtualServer.JSON_MEMBER_VALUE];
+       var finalData = null;
+       switch (dataType) {
+         case BigLumpVirtualServer.JSON_TYPE_RELATED_UUID:
+@@ -397,7 +412,7 @@
+         valueString = contentData._getUuid();
+       }
+       pickleString = '{ &quot;' + BigLumpVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeString + '&quot;, &quot;' + BigLumpVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + ' }';
+-      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_DATA + '&quot;: ' + pickleString + ',\n');
++      listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + pickleString + ',\n');
+     }
+     listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().valueOf() + '&quot;,\n');
+     listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_USERSTAMP + '&quot;: &quot;' + record.getUserstamp()._getUuid() + '&quot;}\n');
+@@ -428,7 +443,13 @@
+  * @scope    public instance method
+  * @return   The list of changes made. 
+  */
+-BigLumpVirtualServer.saveChangesToServer = function () {
++BigLumpVirtualServer.prototype.saveChangesToServer = function () {
++  var listOfChangesMade;
++  if (this.__myChronologicalListOfNewlyCreatedRecords.length === 0) {
++    listOfChangesMade = [];
++    return listOfChangesMade;
++  }
++  
+   var saveChanges = false;
+   if (window.location) {
+     if (window.location.protocol == &quot;http:&quot;) {
+@@ -451,7 +472,7 @@
+     this.__myXMLHttpRequestObject.send(this.__getJsonStringRepresentingEntireWorld());
+   }
+   
+-  var listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
++  listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
+   this.__myChronologicalListOfNewlyCreatedRecords = [];
+   return listOfChangesMade;
+ };
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-04-28 21:12:36 UTC (rev 41)
++++ trunk/source/model/ModelTest.js	2005-04-29 03:40:55 UTC (rev 42)
+@@ -480,6 +480,15 @@
+   world.logout();
+ }
+ 
++function testBigLumpVirtualServer() {
++  var fileName = &quot;2005_item_centric_list.json&quot;;
++  var url = &quot;../../current/trunk/source/model/&quot; + fileName;
++  var fileContentString = Util.getStringContentsOfFileAtURL(url);
++  var bigLumpVirtualServer = new BigLumpVirtualServer(fileContentString);
++  var world = new World(bigLumpVirtualServer);
++}
++
++
+ function tearDown() {
+   ModelTestVars = null;
+ }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-04-28 21:12:36 UTC (rev 41)
++++ trunk/source/model/StubVirtualServer.js	2005-04-29 03:40:55 UTC (rev 42)
+@@ -511,6 +511,7 @@
+   var item;
+   var value;
+   
++  this.__myWorld.beginTransaction();
+   var axiomaticUser = this.newUser(&quot;Amy ex machina&quot;, &quot;null&quot;);
+   this.__myCurrentUser = axiomaticUser;
+   
+@@ -567,8 +568,16 @@
+     item.addAttributeValue(attributeCalledCategory, categoryCalledCategory);
+   }
+   
++  this.__myCurrentUser = null;
++
++  for (var key in this.__myChronologicalListOfNewlyCreatedRecords) {
++    var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
++    this.__myChronologicalListOfRecords.push(newRecord);
++  }
++  var listOfNewlyCreatedRecords = this.__myChronologicalListOfNewlyCreatedRecords;
+   this.__myChronologicalListOfNewlyCreatedRecords = [];
+-  this.__myCurrentUser = null;
++  this.__myWorld.endTransaction();
++  return listOfNewlyCreatedRecords;
+ };
+ 
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-04-28 21:12:36 UTC (rev 41)
++++ trunk/source/model/World.js	2005-04-29 03:40:55 UTC (rev 42)
+@@ -150,10 +150,6 @@
+   //   This is just a stub method for now.  Once we start implementing
+   //   support for transactions we'll have to put some real code here.
+   if (this.__myCountOfNestedTransactions === 0) {
+-    // PENDING: 
+-    // World.js should not depend on RootView.js like this.
+-    // Instead, the view code should hand the world a &quot;status display function&quot;
+-    // that the world can use to display status info.
+     var listOfChangesMade = this.__myVirtualServer.saveChangesToServer();
+     if (listOfChangesMade.length &gt; 0) {
+       Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000034.html">[openrecord-svn] r41 - in trunk/source: . model scrap_yard
+</A></li>
+	<LI>Next message: <A HREF="000036.html">[openrecord-svn] r43 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#35">[ date ]</a>
+              <a href="thread.html#35">[ thread ]</a>
+              <a href="subject.html#35">[ subject ]</a>
+              <a href="author.html#35">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

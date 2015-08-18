@@ -1,0 +1,332 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r81 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r81%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200505251749.j4PHnJrr018435%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000071.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r81 - in trunk: documentation source source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r81%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200505251749.j4PHnJrr018435%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r81 - in trunk: documentation source source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 25 19:49:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[openrecord-svn] r80 - in trunk: documentation source
+</A></li>
+        <LI>Next message: <A HREF="000071.html">[openrecord-svn] r82 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-25 19:49:17 +0200 (Wed, 25 May 2005)
+New Revision: 81
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/LoginView.js
+   trunk/source/TextView.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+Log:
+Minor bug fixes and clean-up work.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-25 06:44:06 UTC (rev 80)
++++ trunk/documentation/release_planning.txt	2005-05-25 17:49:17 UTC (rev 81)
+@@ -92,7 +92,7 @@
+        |   Low    |         | Convert UI code from DOM level 0 to DOM level 2
+        |   Low    |         | Write a plugin view that calculates and displays the measured project velocity
+        |   Low    |         | UI for creating a new page
+-       |   Low    |         | UI for creating a new user
++ Chao  |   done   |         | UI for creating a new user
+        |  High    | 0   ied | Fix bug that creates duplicate entries when no change was made
+  
+ 
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-05-25 06:44:06 UTC (rev 80)
++++ trunk/source/LoginView.js	2005-05-25 17:49:17 UTC (rev 81)
+@@ -94,6 +94,7 @@
+   
+   //get rid of all child nodes 
+   mySpan.innerHTML = '';
++  
+   var currentUser = this.getWorld().getCurrentUser();
+   if (!currentUser) {
+     // alert(&quot;displayControlSpan: !currentUser&quot;);
+@@ -112,19 +113,24 @@
+       }
+     }
+   }
++  
+   var welcomeText, welcomeNode;
+   if (this._isCreatingNewAccount) {
++    // The user wants to create a new account.
++    // Create a line that looks like this:
++    //   Please enter new name and password:  _username_  _password_  [Create New Account]
++    
+     welcomeText = &quot;Please enter new name and password:&quot;;
+     welcomeNode = document.createTextNode(welcomeText);
+     this.usernameInput = document.createElement(&quot;input&quot;);
+-    this.usernameInput.size=10;
+-    this.usernameInput.onkeypress = this.signinKeyPress.bindAsEventListener(this);
+-    this.usernameInput.value = &quot;Your name here&quot;;
+-
++    this.usernameInput.size = 20;
++    this.usernameInput.value = &quot;Albert Einstein&quot;;
++    
+     var passwordInput = document.createElement(&quot;input&quot;);
+     this.passwordInput.size = 10;
+     this.passwordInput.type = &quot;password&quot;;
+     this.passwordInput.value = &quot;randomdots&quot;;
++    this.passwordInput.onkeypress = this.createAccountPasswordKeyPress.bindAsEventListener(this);
+ 
+     var newAcctButton = document.createElement(&quot;input&quot;);
+     newAcctButton.value = &quot;Create New Account&quot;;
+@@ -132,20 +138,28 @@
+     newAcctButton.onclick = this._clickOnNewAcctButton.bindAsEventListener(this);
+     mySpan.appendChild(welcomeNode);
+     mySpan.appendChild(this.usernameInput);
++    mySpan.appendChild(document.createTextNode(&quot; &quot;));
+     mySpan.appendChild(this.passwordInput);
++    mySpan.appendChild(document.createTextNode(&quot; &quot;));
+     mySpan.appendChild(newAcctButton);
+     this.usernameInput.select();
+   }
+   else if (currentUser) { 
++    // The user is already logged in.
++    // Create a line that looks like this:
++    //   Hello Jane Doe.  _Sign out_  [Edit]
++    
+     welcomeText = &quot;Hello &quot; + currentUser.getDisplayName() + &quot;. &quot;;
+     welcomeNode = document.createTextNode(welcomeText);
+     mySpan.appendChild(welcomeNode);
++
+     var signoutLink = document.createElement(&quot;a&quot;);
+     signoutLink.appendChild(document.createTextNode(&quot;Sign out&quot;));
+     signoutLink.onclick = this._clickOnSignoutLink.bindAsEventListener(this);
+     mySpan.appendChild(signoutLink);
+-    var space = document.createTextNode(&quot; &quot;);
+-    mySpan.appendChild(space);
++
++    mySpan.appendChild(document.createTextNode(&quot; &quot;));
++
+     var editButton = document.createElement(&quot;input&quot;);
+     editButton.type = &quot;button&quot;;
+     editButton.value = (this.isInEditMode()) ? &quot;Lock out edits&quot; : &quot;Edit&quot;;
+@@ -153,20 +167,24 @@
+     mySpan.appendChild(editButton);
+   }
+   else {
++    // The user has not yet signed in.
++    // Create a line that looks like this:
++    //   _Create Account_  or sign in:  _username_  _password_  [Sign in]
++    
+     var createAcctLink = document.createElement(&quot;a&quot;);
+     createAcctLink.appendChild(document.createTextNode(&quot;Create Account&quot;));
+ 
+     welcomeText = &quot; or sign in: &quot;; 
+     welcomeNode = document.createTextNode(welcomeText);
+     this.usernameInput = document.createElement(&quot;input&quot;);
+-    this.usernameInput.size=10;
+-    this.usernameInput.onkeypress = this.signinKeyPress.bindAsEventListener(this);
+-    this.usernameInput.value = &quot;Your name here&quot;;
++    this.usernameInput.size = 20;
++    this.usernameInput.value = &quot;Albert Einstein&quot;;
+ 
+     this.passwordInput = document.createElement(&quot;input&quot;);
+     this.passwordInput.size = 10;
+     this.passwordInput.type = &quot;password&quot;;
+     this.passwordInput.value = &quot;randomdots&quot;;
++    this.passwordInput.onkeypress = this.signinPasswordKeyPress.bindAsEventListener(this);
+ 
+     var signinButton = document.createElement(&quot;input&quot;);
+     signinButton.value = &quot;Sign in&quot;;
+@@ -176,7 +194,9 @@
+     mySpan.appendChild(createAcctLink);
+     mySpan.appendChild(welcomeNode);
+     mySpan.appendChild(this.usernameInput);
++    mySpan.appendChild(document.createTextNode(&quot; &quot;));
+     mySpan.appendChild(this.passwordInput);
++    mySpan.appendChild(document.createTextNode(&quot; &quot;));
+     mySpan.appendChild(signinButton);
+   }
+ };
+@@ -197,18 +217,30 @@
+ 
+ 
+ /**
+- * Called when sign in input field is typed with keystroke.
++ * Called when sign in password input field is typed with keystroke.
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype.signinKeyPress = function(inEventObject) {
++LoginView.prototype.signinPasswordKeyPress = function(inEventObject) {
+   // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+   if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
+     this._clickOnSignInButton(inEventObject);
+   }
+ };
+ 
++/**
++ * Called when create account password input field is typed with keystroke.
++ *
++ * @scope    private instance method
++ */
++LoginView.prototype.createAccountPasswordKeyPress = function(inEventObject) {
++  // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
++  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++    this._clickOnNewAcctButton(inEventObject);
++  }
++};
+ 
++
+ /**
+  * Called when the user clicks on the &quot;Create Account&quot; link.
+  *
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-05-25 06:44:06 UTC (rev 80)
++++ trunk/source/TextView.js	2005-05-25 17:49:17 UTC (rev 81)
+@@ -211,7 +211,9 @@
+         var oldEntry = listOfEntries[0];
+         this._item.replaceEntry(oldEntry, newText);
+       } else {
+-        this._item.addEntryForAttribute(this._attribute, newText);
++        if (newText) {
++          this._item.addEntryForAttribute(this._attribute, newText);
++        }
+       }
+     }
+     
+@@ -288,5 +290,4 @@
+ 
+ // -------------------------------------------------------------------
+ // End of file
+-// -------------------------------------------------------------------
+-  
+\ No newline at end of file
++// -------------------------------------------------------------------
+\ No newline at end of file
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-25 06:44:06 UTC (rev 80)
++++ trunk/source/model/Item.js	2005-05-25 17:49:17 UTC (rev 81)
+@@ -179,6 +179,17 @@
+  * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.replaceEntryWithEntryForAttribute = function (inEntry, inAttribute, inValue) {
++
++  // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
++  // then don't even bother creating a new entry. 
++  if (inEntry) {
++    var oldValue = inEntry.getValue();
++    var oldAttribute = inEntry.getAttribute();
++    if ((oldValue == inValue) &amp;&amp; (oldAttribute == inAttribute)) {
++      return null;
++    }
++  }
++  
+   if (this.__myProvisionalFlag) {
+     this.__myProvisionalFlag = false;
+     this.getWorld()._provisionalItemJustBecameReal(this);
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-05-25 06:44:06 UTC (rev 80)
++++ trunk/source/model/ModelTest.js	2005-05-25 17:49:17 UTC (rev 81)
+@@ -211,7 +211,10 @@
+ 
+   r2d2 = starWars.replaceEntryWithEntryForAttribute(r2d2, characterAttribute, &quot;R2D2&quot;);
+   assertTrue('&quot;R2D2&quot; is now character', r2d2.getAttribute() == characterAttribute);
+-  
++
++  var failure = starWars.replaceEntry(r2d2, &quot;R2D2&quot;);
++  assertTrue(&quot;Can't replace a value with an identical value&quot;, failure === null);
++
+   listOfCharacters = starWars.getEntriesForAttribute(characterAttribute);
+   var hasR2d2 = Util.isObjectInSet(r2d2, listOfCharacters);
+   hasAll = Util.areObjectsInSet([luke, c3po, r2d2], listOfCharacters);
+@@ -367,9 +370,9 @@
+   assertTrue('tokyoObserverFunction does not observe Seattle', (changesObservedByFunction === null));
+ 
+   tokyo.voteToDelete();
+-  assertTrue('tokyoObserverObject does observe Tokyo', (changesObservedByObject != null));
++  assertTrue('tokyoObserverObject does observe Tokyo', (changesObservedByObject !== null));
+   assertTrue('tokyoObserverObject sees exactly one change', (changesObservedByObject.length == 1));
+-  assertTrue('tokyoObserverFunction does observe Tokyo', (changesObservedByFunction != null));
++  assertTrue('tokyoObserverFunction does observe Tokyo', (changesObservedByFunction !== null));
+   assertTrue('tokyoObserverFunction sees exactly one change', (changesObservedByFunction.length == 1));
+ 
+   changesObservedByObject = null;
+@@ -380,9 +383,9 @@
+   assertTrue('tokyoObserverObject does not yet see changes', (changesObservedByObject === null));
+   assertTrue('tokyoObserverFunction does not yet see changes', (changesObservedByFunction === null));
+   world.endTransaction();
+-  assertTrue('tokyoObserverObject now sees changes', (changesObservedByObject != null));
++  assertTrue('tokyoObserverObject now sees changes', (changesObservedByObject !== null));
+   assertTrue('tokyoObserverObject now sees two changes', (changesObservedByObject.length == 2));
+-  assertTrue('tokyoObserverFunction now sees changes', (changesObservedByFunction != null));
++  assertTrue('tokyoObserverFunction now sees changes', (changesObservedByFunction !== null));
+   assertTrue('tokyoObserverFunction now sees two changes', (changesObservedByFunction.length == 2));
+ 
+   changesObservedByObject = null;
+@@ -431,8 +434,8 @@
+   var alsoFoodItems = world.getItemsInCategory(categoryCalledFood, foodObserverFunction);
+   
+   apple.addEntry(&quot;Red&quot;);
+-  assertTrue('foodObserverObject sees a change to apple', (changesObservedByObject != null));
+-  assertTrue('foodObserverFunction sees a change to apple', (changesObservedByFunction != null));
++  assertTrue('foodObserverObject sees a change to apple', (changesObservedByObject !== null));
++  assertTrue('foodObserverFunction sees a change to apple', (changesObservedByFunction !== null));
+ 
+   changesObservedByObject = null;
+   changesObservedByFunction = null;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[openrecord-svn] r80 - in trunk: documentation source
+</A></li>
+	<LI>Next message: <A HREF="000071.html">[openrecord-svn] r82 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

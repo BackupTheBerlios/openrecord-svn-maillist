@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r296 - trunk/source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r296%20-%20trunk/source/view&In-Reply-To=%3C200508171923.j7HJNI6j017439%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000280.html">
+   <LINK REL="Next"  HREF="000282.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r296 - trunk/source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r296%20-%20trunk/source/view&In-Reply-To=%3C200508171923.j7HJNI6j017439%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r296 - trunk/source/view">skinner at berlios.de
+       </A><BR>
+    <I>Wed Aug 17 21:23:18 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000280.html">[openrecord-svn] r295 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000282.html">[openrecord-svn] r297 - in trunk/source: . model view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#281">[ date ]</a>
+              <a href="thread.html#281">[ thread ]</a>
+              <a href="subject.html#281">[ subject ]</a>
+              <a href="author.html#281">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-17 21:23:17 +0200 (Wed, 17 Aug 2005)
+New Revision: 296
+
+Modified:
+   trunk/source/view/PageView.js
+Log:
+Commented out the feature that provides a table-of-contents with links to the sections.  We can comment it back in again once we've sorted out the anchor tag bug, and once we've figured out what the UI layout should look like.
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-08-17 19:13:42 UTC (rev 295)
++++ trunk/source/view/PageView.js	2005-08-17 19:23:17 UTC (rev 296)
+@@ -164,18 +164,25 @@
+   var attributeCalledSectionsInPage = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTIONS_IN_PAGE);
+   var listOfEntriesForSections = this._pageItem.getEntriesForAttribute(attributeCalledSectionsInPage);
+   
+-  var sectionNavigatorDiv = null;
+-  if (listOfEntriesForSections.length &gt; 1 ) {
+-    sectionNavigatorDiv = View.appendNewElement(pageDivElement, &quot;div&quot;,null,null,&quot;Sections: &quot;);
++  // PENDING: 
++  // Turn off the links-to-sections table-of-contents feature until
++  // we have the bugs worked out.
++  var PENDING_include_links_to_sections = false; 
++  
++  if (PENDING_include_links_to_sections) {
++    var sectionNavigatorDiv = null;
++    if (listOfEntriesForSections.length &gt; 1 ) {
++      sectionNavigatorDiv = View.appendNewElement(pageDivElement, &quot;div&quot;, null, null, &quot;Sections: &quot;);
++    }
+   }
+-  
++   
+   for (var key in listOfEntriesForSections) {
+     var entryForSection = listOfEntriesForSections[key];
+     var section = entryForSection.getConnectedItem(this._pageItem);
+     if (section) {
+-      if (sectionNavigatorDiv) {
+-        View.appendNewElement(sectionNavigatorDiv, &quot;A&quot;,null , {'href' : '#' + section.getUniqueKeyString()},section.getDisplayName());
+-        View.appendNewTextNode(sectionNavigatorDiv,&quot; &quot;);
++      if (PENDING_include_links_to_sections &amp;&amp; sectionNavigatorDiv) {
++        View.appendNewElement(sectionNavigatorDiv, &quot;a&quot;, null, {'href' : '#' + section.getUniqueKeyString()}, section.getDisplayName());
++        View.appendNewTextNode(sectionNavigatorDiv, &quot; &quot;);
+       }
+       this._buildNewSection(section);
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000280.html">[openrecord-svn] r295 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000282.html">[openrecord-svn] r297 - in trunk/source: . model view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#281">[ date ]</a>
+              <a href="thread.html#281">[ thread ]</a>
+              <a href="subject.html#281">[ subject ]</a>
+              <a href="author.html#281">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

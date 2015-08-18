@@ -1,0 +1,2262 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r329%20-%20in%20trunk%3A%20source%20source/model%20source/util%20source/view%20tests%20tests/dojo%20tests/model%20tests/util%20tests/view&In-Reply-To=%3C200509160143.j8G1hUx2021174%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000312.html">
+   <LINK REL="Next"  HREF="000314.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r329%20-%20in%20trunk%3A%20source%20source/model%20source/util%20source/view%20tests%20tests/dojo%20tests/model%20tests/util%20tests/view&In-Reply-To=%3C200509160143.j8G1hUx2021174%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view">skinner at berlios.de
+       </A><BR>
+    <I>Fri Sep 16 03:43:30 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000312.html">[openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util
+</A></li>
+        <LI>Next message: <A HREF="000314.html">[openrecord-svn] r330 - in trunk/source: . model util view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#313">[ date ]</a>
+              <a href="thread.html#313">[ thread ]</a>
+              <a href="subject.html#313">[ subject ]</a>
+              <a href="author.html#313">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-16 03:43:17 +0200 (Fri, 16 Sep 2005)
+New Revision: 329
+
+Added:
+   trunk/tests/LintTest.html
+   trunk/tests/LintTest.js
+   trunk/tests/model/
+   trunk/tests/model/LintTest.html
+   trunk/tests/model/LintTest.js
+   trunk/tests/util/DateValueTest.html
+   trunk/tests/util/DateValueTest.js
+   trunk/tests/util/LintTest.html
+   trunk/tests/util/LintTest.js
+   trunk/tests/view/
+   trunk/tests/view/LintTest.html
+   trunk/tests/view/LintTest.js
+Removed:
+   trunk/source/LintTest.html
+   trunk/source/LintTest.js
+   trunk/source/model/LintTest.html
+   trunk/source/model/LintTest.js
+   trunk/source/util/DateValueTest.html
+   trunk/source/util/DateValueTest.js
+   trunk/source/util/LintTest.html
+   trunk/source/util/LintTest.js
+   trunk/source/view/LintTest.html
+   trunk/source/view/LintTest.js
+Modified:
+   trunk/source/TestSuite.html
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/TestSuite.html
+   trunk/source/util/DateValue.js
+   trunk/source/util/LintTool.js
+   trunk/source/util/TestSuite.html
+   trunk/source/view/EntryView.js
+   trunk/tests/SimpleTest.js
+   trunk/tests/dojo/SimpleDojoTest.js
+   trunk/tests/util/TestSuite.html
+Log:
+Converted the DateValue class to use the Dojo package system.  Converted the lint tests to use the Dojo package system.
+
+Deleted: trunk/source/LintTest.html
+===================================================================
+--- trunk/source/LintTest.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,86 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;util/LintTool.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,75 +0,0 @@
+-/*****************************************************************************
+- LintTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-
+-function setUp() {
+-}
+-
+-function testJsLintOnGoodCodeFragment() {
+-  var textToRunLintOn = &quot;function iggy() { var pop = 'no fun'; }&quot;;
+-  assertTrue(&quot;jslint says clean code is clean&quot;, !LintTool.getErrorReportForCodeInString(textToRunLintOn));
+-}
+-
+-function testJsLintOnBadCodeFragment() {
+-  // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
+-  var badFragmentOne = &quot;function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD&quot;;
+-
+-  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
+-  // method should catch
+-  var badFragmentTwo = &quot;function iggy()		{ var pop = 'no fun'; } &quot;;
+-  
+-  // badFragmentThree has a carriage return character in it, which our own 
+-  // isCodeCleanInString() method should catch
+-  var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
+-  
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, !LintTool.getErrorReportForCodeInString(badFragmentOne));
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, !LintTool.getErrorReportForCodeInString(badFragmentTwo));
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, !LintTool.getErrorReportForCodeInString(badFragmentThree));
+-}
+-
+-function testJsLintOnOpenRecordCode() {
+-  var listOfSourceCodeFiles = [
+-    &quot;OpenRecordLoader.js&quot;,
+-    &quot;TablePlugin.js&quot;,
+-    &quot;OutlinePlugin.js&quot;,
+-    &quot;DetailPlugin.js&quot;,
+-    &quot;BarChartPlugin.js&quot;];
+-  var prefix = &quot;../../../source/&quot;;
+-  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+-  var message = &quot;Lint check \n&quot; + errorReport;
+-  assertTrue(message, !errorReport);
+-}
+-
+-function tearDown() {
+-}
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/TestSuite.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -26,10 +26,11 @@
+         testSuite.addTestPage(&quot;../../../tests/SimpleTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/dojo/SimpleDojoTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/TestSuite.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/LintTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/model/LintTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/view/LintTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/util/TestSuite.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/view/LintTest.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/model/DeltaVirtualServer.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -236,7 +236,7 @@
+       if (generateComments) {
+         listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
+         listOfStrings.push(indent + '//           by (' + this._truncateString(item.getUserstamp().getDisplayString()) + ')');
+-        listOfStrings.push(' on (' + DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
++        listOfStrings.push(' on (' + orp.util.DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
+       }
+       if (!this._jsonFragmentForItemPrefix) {
+         this._jsonFragmentForItemPrefix = indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ';
+@@ -374,7 +374,7 @@
+       }
+       if (generateComments) {
+         commentString += indent + '//           by (' + this._truncateString(entry.getUserstamp().getDisplayString()) + ')';
+-        commentString += ' on (' + DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
++        commentString += ' on (' + orp.util.DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
+         listOfStrings.push(commentString);
+         for (var j in listOfStringsForEntry) {
+           listOfStrings.push(listOfStringsForEntry[j]);
+
+Deleted: trunk/source/model/LintTest.html
+===================================================================
+--- trunk/source/model/LintTest.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/model/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,86 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/LintTool.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/model/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,66 +0,0 @@
+-/*****************************************************************************
+- LintTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-// -------------------------------------------------------------------
+-// Dependencies, expressed in the syntax that JSLint understands:
+-// 
+-/*global LintTool, assertTrue, setUp, tearDown */
+-// -------------------------------------------------------------------
+-
+-function setUp() {
+-}
+-
+-function testJsLintOnOpenRecordCode() {
+-  var listOfSourceCodeFiles = [
+-    &quot;Ordinal.js&quot;,
+-    &quot;Vote.js&quot;,
+-    &quot;ContentRecord.js&quot;,
+-    &quot;Record.js&quot;,
+-    &quot;Item.js&quot;,
+-    &quot;Entry.js&quot;,
+-    &quot;Transaction.js&quot;,
+-    &quot;QueryRunner.js&quot;,
+-    &quot;World.js&quot;,
+-    &quot;StubVirtualServer.js&quot;,
+-    &quot;DeltaVirtualServer.js&quot;,
+-    &quot;HttpSaver.js&quot;];
+-  var prefix = &quot;../../../source/model/&quot;;
+-  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+-  var message = &quot;Lint check \n&quot; + errorReport;
+-  assertTrue(message, !errorReport);
+-}
+-
+-function tearDown() {
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/model/ModelTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -647,7 +647,7 @@
+   var aPerson = world.newItem(&quot;John Doe&quot;);
+   var subjectEntry = anEmail.addEntryForAttribute(subjectAttribute, &quot;Money saved for you at Nigerian Bank&quot;);
+   var fromEntry = anEmail.addEntryForAttribute(fromAttribute, aPerson);
+-  var receivedEntry = anEmail.addEntryForAttribute(dateReceivedAttribute, new DateValue(&quot;6/8/05&quot;));
++  var receivedEntry = anEmail.addEntryForAttribute(dateReceivedAttribute, new orp.util.DateValue(&quot;6/8/05&quot;));
+   var numAttachmentsEntry = anEmail.addEntryForAttribute(noOfAttachments, 4);
+ }
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/model/StubVirtualServer.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1032,7 +1032,7 @@
+               finalData = parseFloat(rawData);
+               break;
+             case World.UUID_FOR_TYPE_DATE:
+-              finalData = new DateValue(rawData);
++              finalData = new orp.util.DateValue(rawData);
+               // if (!finalData.isValid()) {
+               //   alert(rawData + &quot; &quot; + finalData);
+               // }
+
+Modified: trunk/source/model/TestSuite.html
+===================================================================
+--- trunk/source/model/TestSuite.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/model/TestSuite.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -27,7 +27,6 @@
+         testSuite.addTestPage(&quot;../../../source/model/RepositoryWritingTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestReorderingForTypicalOrdinals.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestReorderingForSpecialCases.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/model/LintTest.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/util/DateValue.js
+===================================================================
+--- trunk/source/util/DateValue.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/DateValue.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -30,28 +30,16 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Util public class constants
++// Provides and Requires
+ // -------------------------------------------------------------------
+-DateValue.MONTH_JAN = 0;
+-DateValue.MONTH_FEB = 1;
+-DateValue.MONTH_MAR = 2;
+-DateValue.MONTH_APR = 3;
+-DateValue.MONTH_MAY = 4;
+-DateValue.MONTH_JUN = 5;
+-DateValue.MONTH_JUL = 6;
+-DateValue.MONTH_AUG = 7;
+-DateValue.MONTH_SEP = 8;
+-DateValue.MONTH_OCT = 9;
+-DateValue.MONTH_NOV = 10;
+-DateValue.MONTH_DEC = 11;
++dojo.provide(&quot;orp.util.DateValue&quot;);
++dojo.require(&quot;dojo.lang.*&quot;);
+ 
+-DateValue.MILLISECS_IN_A_DAY = 86400000;
+-DateValue.TIMEZONE_OFFSET = new Date().getTimezoneOffset()*60*1000;
+ 
+-DateValue.ARRAY_OF_MONTH_SHORT_NAMES = new Array(&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;, &quot;Dec&quot;);
+-DateValue.ARRAY_OF_MONTH_NAMES = new Array(&quot;January&quot;, &quot;February&quot;, &quot;March&quot;, &quot;April&quot;, &quot;May&quot;, &quot;June&quot;, &quot;July&quot;, &quot;August&quot;, &quot;September&quot;, &quot;October&quot;, &quot;November&quot;, &quot;December&quot;);
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
+ 
+-
+ /**
+  * The DateValue class is similar to the JavaScript built-in Date class. 
+  * DateValue objects can be used to represent &quot;fuzzy&quot; dates, such as &quot;1999&quot;
+@@ -60,7 +48,8 @@
+  * @scope    public instance constructor
+  * @param    year-etc    Any of the same values that the Date class accepts. 
+  */
+-function DateValue(year, month, day, hours, minutes, seconds, ms) {
++orp.util.DateValue = function(year, month, day, hours, minutes, seconds, ms) {
++  var DateValue = orp.util.DateValue;
+   var date;
+ 
+   // Step 1: 
+@@ -168,7 +157,7 @@
+           var yearAsInt = parseInt(year);
+           if ((year.length == 4) &amp;&amp; !isNaN(yearAsInt) &amp;&amp; (year == yearAsInt)) {
+             // This code handles strings like &quot;1944&quot; and &quot;2340&quot;
+-            date = new Date(yearAsInt, DateValue.MONTH_JAN);
++            date = new Date(yearAsInt, DateValue.Month.JAN);
+             date._hasTime = false;
+             date._hasDay = false;
+             date._hasMonth = false;
+@@ -266,10 +255,35 @@
+   };
+ 
+   return date;
+-}
++};
+ 
+ 
+ // -------------------------------------------------------------------
++// Public class constants
++// -------------------------------------------------------------------
++orp.util.DateValue.Month = {
++  JAN: 0,
++  FEB: 1,
++  MAR: 2,
++  APR: 3,
++  MAY: 4,
++  JUN: 5,
++  JUL: 6,
++  AUG: 7,
++  SEP: 8,
++  OCT: 9,
++  NOV: 10,
++  DEC: 11 };
++
++orp.util.DateValue.MILLISECS_IN_A_DAY = 86400000;
++orp.util.DateValue.TIMEZONE_OFFSET = new Date().getTimezoneOffset()*60*1000;
++
++orp.util.DateValue.ARRAY_OF_MONTH_SHORT_NAMES = new Array(&quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;, &quot;Dec&quot;);
++orp.util.DateValue.ARRAY_OF_MONTH_NAMES = new Array(&quot;January&quot;, &quot;February&quot;, &quot;March&quot;, &quot;April&quot;, &quot;May&quot;, &quot;June&quot;, &quot;July&quot;, &quot;August&quot;, &quot;September&quot;, &quot;October&quot;, &quot;November&quot;, &quot;December&quot;);
++
++
++
++// -------------------------------------------------------------------
+ // Public class methods
+ // -------------------------------------------------------------------
+ 
+@@ -280,8 +294,8 @@
+  * @param    date    Either a Date or DateValue object. 
+  * @return   A string like &quot;Feb 14, 1944&quot;. 
+  */
+-DateValue.getStringMonthDayYear = function(date) {
+-  return DateValue.ARRAY_OF_MONTH_SHORT_NAMES[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
++orp.util.DateValue.getStringMonthDayYear = function(date) {
++  return orp.util.DateValue.ARRAY_OF_MONTH_SHORT_NAMES[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+ };
+ 
+ 
+
+Deleted: trunk/source/util/DateValueTest.html
+===================================================================
+--- trunk/source/util/DateValueTest.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/DateValueTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,85 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests for DateValue.js&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;DateValue.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;DateValueTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests for DateValue.js&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/util/DateValueTest.js
+===================================================================
+--- trunk/source/util/DateValueTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/DateValueTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,96 +0,0 @@
+-/*****************************************************************************
+- DateValueTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-var TestVars = null;
+-
+-function setUp() {
+-  // TestVars = {};
+-  // TestVars.theHobbit = &quot;The Hobbit&quot;;
+-}
+-
+-function testDateValueConstructor() {
+-  var year = 1944;
+-  var month = DateValue.MONTH_FEB;
+-  var day = 14;
+-  var hours = 9;
+-  var minutes = 30;
+-  var seconds = 15;
+-  var ms = 444;
+-  var dates = new Array();
+-  dates[0] = new DateValue(&quot;1944&quot;);
+-  dates[1] = new DateValue(&quot;2/14/1944&quot;);
+-  dates[2] = new DateValue(&quot;Feb 14 1944&quot;);
+-  dates[3] = new DateValue(-816710400000);
+-  dates[4] = new DateValue(year, month);
+-  dates[5] = new DateValue(year, month, day);
+-  dates[6] = new DateValue(year, month, day, hours);
+-  dates[7] = new DateValue(year, month, day, hours, minutes);
+-  dates[8] = new DateValue(year, month, day, hours, minutes, seconds);
+-  dates[9] = new DateValue(year, month, day, hours, minutes, seconds, ms);
+-  dates[10] = new DateValue(' today  ');
+-  dates[11] = new DateValue(Date.now());
+-  dates[12] = new DateValue('tomorrow');
+-  dates[13] = new DateValue('April 2006');
+-  dates[14] = new DateValue('7/2003');
+-  for (var i in dates) {
+-    var dateValue = dates[i];
+-    assertTrue('DateValue is valid', dateValue.isValid());
+-    assertTrue('Util.isDate() returns true', Util.isDate(dateValue));
+-  }
+-  assertTrue('Time display is right', dates[8].toShortLocaleDateString() == 'Feb 14, 1944 9:30 am');
+-  assertTrue('Today is parsed correctly', dates[10].toShortLocaleDateString() =='Today');
+-  assertTrue('Today displays correctly', dates[11].toShortLocaleDateString().indexOf('Today') === 0);
+-  assertTrue('Tomorrow is parsed correctly', dates[12].toShortLocaleDateString().toLowerCase() == 'tomorrow');
+-  assertTrue('today is correct in millisecs', Date.now() - dates[10].getTime() &lt; DateValue.MILLISECS_IN_A_DAY);
+-  assertTrue('Month/Year parsing is right', dates[13].getYear() == 106 &amp;&amp; dates[13].getMonth() == 3);
+-  assertTrue('Numeric month/year parsing correct', dates[14].getYear() == 103 &amp;&amp; dates[14].getMonth() == 6);
+-
+-  var notDates = new Array();
+-  notDates[0] = new DateValue(&quot;194z&quot;);
+-  notDates[1] = new DateValue(&quot;&quot;);
+-  notDates[2] = new DateValue(&quot;8979789&quot;);
+-  notDates[3] = new DateValue(&quot;April&quot;);
+-  for (var j in notDates) {
+-    var notDateValue = notDates[j];
+-    assertTrue('DateValue is not valid', !notDateValue.isValid());
+-  }
+-  
+-  // var alertString = dates.join('\n');
+-  // alert(alertString);
+-}
+-
+-
+-function tearDown() {
+-  // TestVars = null;
+-}
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Deleted: trunk/source/util/LintTest.html
+===================================================================
+--- trunk/source/util/LintTest.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,86 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/LintTool.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/util/LintTest.js
+===================================================================
+--- trunk/source/util/LintTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,63 +0,0 @@
+-/*****************************************************************************
+- LintTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-// -------------------------------------------------------------------
+-// Dependencies, expressed in the syntax that JSLint understands:
+-// 
+-/*global LintTool, assertTrue, setUp, tearDown */
+-// -------------------------------------------------------------------
+-
+-function setUp() {
+-}
+-
+-function testJsLintOnOpenRecordCode() {
+-  var listOfSourceCodeFiles = [
+-    &quot;XmlConverter.js&quot;,
+-    &quot;Util.js&quot;,
+-    &quot;UtilTest.js&quot;,
+-    &quot;DateValue.js&quot;,
+-    &quot;DateValueTest.js&quot;,
+-    &quot;Uuid.js&quot;,
+-    &quot;RandomUuid.js&quot;,
+-    &quot;TimeBasedUuid.js&quot;,
+-    &quot;LintTool.js&quot;];
+-  var prefix = &quot;../../../source/util/&quot;;
+-  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+-  var message = &quot;Lint check \n&quot; + errorReport;
+-  assertTrue(message, !errorReport);
+-}
+-
+-function tearDown() {
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/LintTool.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -30,10 +30,21 @@
+  
+ 
+ // -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.util.LintTool&quot;);
++dojo.require(&quot;dojo.lang.*&quot;);
++
++// -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ /*global Util, jslint */
+ // -------------------------------------------------------------------
+ 
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++
+ /**
+  * The LintTool class is just a thin wrapper around Douglas Crockford's
+  * JSLint utility.
+@@ -47,9 +58,9 @@
+  * @scope    public instance constructor
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+-function LintTool() {
++orp.util.LintTool = function() {
+   throw new Error(&quot;LintTool is a static class. You can't create instances of it.&quot;);
+-}
++};
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -64,7 +75,7 @@
+  * @param    codeString    A string containing JavaScript code. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportForCodeInString = function(codeString) {
++orp.util.LintTool.getErrorReportForCodeInString = function(codeString) {
+   var errorMessage = &quot;&quot;;
+ 
+   // Call jslint, and see if it reported errors.
+@@ -80,17 +91,17 @@
+   }
+   
+   // Check for tabs, backspaces, etc.
+-  errorMessage += LintTool.checkForString(codeString, '\t', &quot;There are tab characters in the file.&quot;);
+-  errorMessage += LintTool.checkForString(codeString, '\b', &quot;There are backspace characters in the file.&quot;);
+-  errorMessage += LintTool.checkForString(codeString, '\r', &quot;There are carriage return characters in the file.&quot;);
+-  errorMessage += LintTool.checkForString(codeString, '\f', &quot;There are form feed characters in the file.&quot;);
++  errorMessage += orp.util.LintTool.checkForString(codeString, '\t', &quot;There are tab characters in the file.&quot;);
++  errorMessage += orp.util.LintTool.checkForString(codeString, '\b', &quot;There are backspace characters in the file.&quot;);
++  errorMessage += orp.util.LintTool.checkForString(codeString, '\r', &quot;There are carriage return characters in the file.&quot;);
++  errorMessage += orp.util.LintTool.checkForString(codeString, '\f', &quot;There are form feed characters in the file.&quot;);
+   
+   // Check for discouraged code
+   // We have to break 'document' + '.write' into two parts, or else this LintTool.js
+   // file won't pass its own lint test.
+-  errorMessage += LintTool.checkForString(codeString, 'document' + '.write');
+-  errorMessage += LintTool.checkForString(codeString, 'document' + '.all');
+-  errorMessage += LintTool.checkForString(codeString, 'document' + '.layers');
++  errorMessage += orp.util.LintTool.checkForString(codeString, 'document' + '.write');
++  errorMessage += orp.util.LintTool.checkForString(codeString, 'document' + '.all');
++  errorMessage += orp.util.LintTool.checkForString(codeString, 'document' + '.layers');
+ 
+   return errorMessage;
+ }; 
+@@ -107,7 +118,7 @@
+  * @param    errorMessage    Optional. The error message to return if the memberString was found in codeString. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors.
+  */
+-LintTool.checkForString = function(codeString, memberString, errorMessage) {
++orp.util.LintTool.checkForString = function(codeString, memberString, errorMessage) {
+   var returnString = &quot;&quot;;
+   var clean = (codeString.indexOf(memberString) == -1);
+   if (!clean) {
+@@ -128,9 +139,9 @@
+  * @param    url    A string with the URL of a file containing JavaScript code. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportForCodeAtUrl = function(url) {
++orp.util.LintTool.getErrorReportForCodeAtUrl = function(url) {
+   var fileContents = Util.getStringContentsOfFileAtURL(url);
+-  return LintTool.getErrorReportForCodeInString(fileContents);
++  return orp.util.LintTool.getErrorReportForCodeInString(fileContents);
+ };
+ 
+         
+@@ -143,10 +154,10 @@
+  * @param    path    Optional.  A path prefix string to prepend to the filename strings. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportFromListOfFilesnames = function(listOfFilenames, path) {
++orp.util.LintTool.getErrorReportFromListOfFilesnames = function(listOfFilenames, path) {
+   Util.assert(Util.isArray(listOfFilenames));
+   if (path) {
+-    Util.assert(Util.isString(path));
++    Util.assert(dojo.lang.isString(path));
+   } else {
+     path = &quot;&quot;;
+   }
+@@ -156,7 +167,7 @@
+   for (var key in listOfFilenames) {
+     var filename = listOfFilenames[key];
+     var url = path + filename;
+-    var errorReportForFile = LintTool.getErrorReportForCodeAtUrl(url);
++    var errorReportForFile = orp.util.LintTool.getErrorReportForCodeAtUrl(url);
+     if (errorReportForFile) {
+       var message = separatorLine + filename + &quot;\n&quot; + errorReportForFile;
+       aggregateErrorReport += message;
+
+Modified: trunk/source/util/TestSuite.html
+===================================================================
+--- trunk/source/util/TestSuite.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/util/TestSuite.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -24,8 +24,6 @@
+       function utilTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
+         testSuite.addTestPage(&quot;../../../source/util/UtilTest.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/util/DateValueTest.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/util/LintTest.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/view/EntryView.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -469,7 +469,7 @@
+           if (!isNaN(floatVal)) {return floatVal;}
+           break;
+         case typeCalledDate:
+-          var dateValue = new DateValue(value);
++          var dateValue = new orp.util.DateValue(value);
+           if (dateValue.isValid()) {return dateValue;}
+           break;
+         default:
+
+Deleted: trunk/source/view/LintTest.html
+===================================================================
+--- trunk/source/view/LintTest.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/view/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,86 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/LintTool.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/view/LintTest.js
+===================================================================
+--- trunk/source/view/LintTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/source/view/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -1,64 +0,0 @@
+-/*****************************************************************************
+- LintTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-// -------------------------------------------------------------------
+-// Dependencies, expressed in the syntax that JSLint understands:
+-// 
+-/*global LintTool, assertTrue, setUp, tearDown */
+-// -------------------------------------------------------------------
+-
+-function setUp() {
+-}
+-
+-function testJsLintOnOpenRecordCode() {
+-  var listOfSourceCodeFiles = [
+-    &quot;View.js&quot;,
+-    &quot;RootView.js&quot;,
+-    &quot;ItemView.js&quot;,
+-    &quot;PageView.js&quot;,
+-    &quot;LoginView.js&quot;,
+-    &quot;NavbarView.js&quot;,
+-    &quot;SectionView.js&quot;,
+-    &quot;MultiEntriesView.js&quot;,
+-    &quot;EntryView.js&quot;,
+-    &quot;SuggestionBox.js&quot;];
+-  var prefix = &quot;../../../source/view/&quot;;
+-  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+-  var message = &quot;Lint check \n&quot; + errorReport;
+-  assertTrue(message, !errorReport);
+-}
+-
+-function tearDown() {
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Copied: trunk/tests/LintTest.html (from rev 323, trunk/source/LintTest.html)
+===================================================================
+--- trunk/source/LintTest.html	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,78 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/LintTest.js (from rev 323, trunk/source/LintTest.js)
+===================================================================
+--- trunk/source/LintTest.js	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,88 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../../source&quot;);
++  dojo.require(&quot;orp.util.LintTool&quot;);
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testJsLintOnGoodCodeFragment() {
++  var textToRunLintOn = &quot;function iggy() { var pop = 'no fun'; }&quot;;
++  assertTrue(&quot;jslint says clean code is clean&quot;, !orp.util.LintTool.getErrorReportForCodeInString(textToRunLintOn));
++}
++
++function testJsLintOnBadCodeFragment() {
++  // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
++  var badFragmentOne = &quot;function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD&quot;;
++
++  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
++  // method should catch
++  var badFragmentTwo = &quot;function iggy()		{ var pop = 'no fun'; } &quot;;
++  
++  // badFragmentThree has a carriage return character in it, which our own 
++  // isCodeCleanInString() method should catch
++  var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
++  
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, !orp.util.LintTool.getErrorReportForCodeInString(badFragmentOne));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, !orp.util.LintTool.getErrorReportForCodeInString(badFragmentTwo));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, !orp.util.LintTool.getErrorReportForCodeInString(badFragmentThree));
++}
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;OpenRecordLoader.js&quot;,
++    &quot;TablePlugin.js&quot;,
++    &quot;OutlinePlugin.js&quot;,
++    &quot;DetailPlugin.js&quot;,
++    &quot;BarChartPlugin.js&quot;];
++  var prefix = &quot;../../../source/&quot;;
++  var errorReport = orp.util.LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
++}
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/tests/SimpleTest.js
+===================================================================
+--- trunk/tests/SimpleTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/tests/SimpleTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -28,18 +28,27 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
+   // do nothing
+ }
+ 
+-function testSimplestCase() {
+-  assertTrue(&quot;Two and two is four&quot;, (2 + 2) == 4);
+-}
+-
+ function tearDown() {
+   // do nothing
+ }
+ 
++
+ // -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testSimplestCase() {
++  assertTrue(&quot;Two and two is four&quot;, (2 + 2) == 4);
++}
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/dojo/SimpleDojoTest.js
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.js	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/tests/dojo/SimpleDojoTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -28,10 +28,23 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
+   dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+ }
+ 
++function tearDown() {
++  // do nothing
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
+ function testDojoTextTrim() {
+   // alert(&quot;Dojo version: &quot; + dojo.version.toString()); 
+     // Dojo version: 0.1.0 (1321)
+@@ -51,10 +64,6 @@
+   assertTrue(&quot;'Iggy Pop' is a string.&quot;, dojo.lang.isString(&quot;Iggy Pop&quot;));
+ }
+ 
+-function tearDown() {
+-  // do nothing
+-}
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Copied: trunk/tests/model/LintTest.html (from rev 323, trunk/source/model/LintTest.html)
+===================================================================
+--- trunk/source/model/LintTest.html	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/model/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,78 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/model/LintTest.js (from rev 323, trunk/source/model/LintTest.js)
+===================================================================
+--- trunk/source/model/LintTest.js	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/model/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,79 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global LintTool, assertTrue, setUp, tearDown */
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.LintTool&quot;);
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;Ordinal.js&quot;,
++    &quot;Vote.js&quot;,
++    &quot;ContentRecord.js&quot;,
++    &quot;Record.js&quot;,
++    &quot;Item.js&quot;,
++    &quot;Entry.js&quot;,
++    &quot;Transaction.js&quot;,
++    &quot;QueryRunner.js&quot;,
++    &quot;World.js&quot;,
++    &quot;StubVirtualServer.js&quot;,
++    &quot;DeltaVirtualServer.js&quot;,
++    &quot;HttpSaver.js&quot;];
++  var prefix = &quot;../../../source/model/&quot;;
++  var errorReport = orp.util.LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
++}
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Copied: trunk/tests/util/DateValueTest.html (from rev 323, trunk/source/util/DateValueTest.html)
+===================================================================
+--- trunk/source/util/DateValueTest.html	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/util/DateValueTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,77 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for DateValue.js&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;DateValueTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for DateValue.js&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/util/DateValueTest.js (from rev 323, trunk/source/util/DateValueTest.js)
+===================================================================
+--- trunk/source/util/DateValueTest.js	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/util/DateValueTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,110 @@
++/*****************************************************************************
++ DateValueTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var TestVars = null;
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.DateValue&quot;);
++  // TestVars = {};
++}
++
++function tearDown() {
++  // TestVars = null;
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testDateValueConstructor() {
++  var DateValue = orp.util.DateValue;
++  
++  var year = 1944;
++  var month = DateValue.Month.FEB;
++  var day = 14;
++  var hours = 9;
++  var minutes = 30;
++  var seconds = 15;
++  var ms = 444;
++  var dates = new Array();
++  dates[0] = new DateValue(&quot;1944&quot;);
++  dates[1] = new DateValue(&quot;2/14/1944&quot;);
++  dates[2] = new DateValue(&quot;Feb 14 1944&quot;);
++  dates[3] = new DateValue(-816710400000);
++  dates[4] = new DateValue(year, month);
++  dates[5] = new DateValue(year, month, day);
++  dates[6] = new DateValue(year, month, day, hours);
++  dates[7] = new DateValue(year, month, day, hours, minutes);
++  dates[8] = new DateValue(year, month, day, hours, minutes, seconds);
++  dates[9] = new DateValue(year, month, day, hours, minutes, seconds, ms);
++  dates[10] = new DateValue(' today  ');
++  dates[11] = new DateValue(Date.now());
++  dates[12] = new DateValue('tomorrow');
++  dates[13] = new DateValue('April 2006');
++  dates[14] = new DateValue('7/2003');
++  for (var i in dates) {
++    var dateValue = dates[i];
++    assertTrue('DateValue is valid', dateValue.isValid());
++    assertTrue('Util.isDate() returns true', Util.isDate(dateValue));
++  }
++  assertTrue('Time display is right', dates[8].toShortLocaleDateString() == 'Feb 14, 1944 9:30 am');
++  assertTrue('Today is parsed correctly', dates[10].toShortLocaleDateString() =='Today');
++  assertTrue('Today displays correctly', dates[11].toShortLocaleDateString().indexOf('Today') === 0);
++  assertTrue('Tomorrow is parsed correctly', dates[12].toShortLocaleDateString().toLowerCase() == 'tomorrow');
++  assertTrue('today is correct in millisecs', Date.now() - dates[10].getTime() &lt; DateValue.MILLISECS_IN_A_DAY);
++  assertTrue('Month/Year parsing is right', dates[13].getYear() == 106 &amp;&amp; dates[13].getMonth() == 3);
++  assertTrue('Numeric month/year parsing correct', dates[14].getYear() == 103 &amp;&amp; dates[14].getMonth() == 6);
++
++  var notDates = new Array();
++  notDates[0] = new DateValue(&quot;194z&quot;);
++  notDates[1] = new DateValue(&quot;&quot;);
++  notDates[2] = new DateValue(&quot;8979789&quot;);
++  notDates[3] = new DateValue(&quot;April&quot;);
++  for (var j in notDates) {
++    var notDateValue = notDates[j];
++    assertTrue('DateValue is not valid', !notDateValue.isValid());
++  }
++  
++  // var alertString = dates.join('\n');
++  // alert(alertString);
++}
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Copied: trunk/tests/util/LintTest.html (from rev 323, trunk/source/util/LintTest.html)
+===================================================================
+--- trunk/source/util/LintTest.html	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/util/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,78 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/util/LintTest.js (from rev 323, trunk/source/util/LintTest.js)
+===================================================================
+--- trunk/source/util/LintTest.js	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/util/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,75 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global LintTool, assertTrue, setUp, tearDown */
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.LintTool&quot;);
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;XmlConverter.js&quot;,
++    &quot;Util.js&quot;,
++    &quot;DateValue.js&quot;,
++    &quot;Uuid.js&quot;,
++    &quot;RandomUuid.js&quot;,
++    &quot;TimeBasedUuid.js&quot;,
++    &quot;LintTool.js&quot;];
++  var prefix = &quot;../../../source/util/&quot;;
++  var errorReport = orp.util.LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
++}
++
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/tests/util/TestSuite.html
+===================================================================
+--- trunk/tests/util/TestSuite.html	2005-09-14 22:50:16 UTC (rev 328)
++++ trunk/tests/util/TestSuite.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -24,6 +24,8 @@
+       function utilTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
+         testSuite.addTestPage(&quot;../../../tests/util/CsvParserTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/util/DateValueTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/util/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/UuidTest.html&quot;);
+         return testSuite;
+       }
+
+Copied: trunk/tests/view/LintTest.html (from rev 323, trunk/source/view/LintTest.html)
+===================================================================
+--- trunk/source/view/LintTest.html	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/view/LintTest.html	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,78 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/view/LintTest.js (from rev 323, trunk/source/view/LintTest.js)
+===================================================================
+--- trunk/source/view/LintTest.js	2005-09-13 21:05:19 UTC (rev 323)
++++ trunk/tests/view/LintTest.js	2005-09-16 01:43:17 UTC (rev 329)
+@@ -0,0 +1,78 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global LintTool, assertTrue, setUp, tearDown */
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.LintTool&quot;);
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;View.js&quot;,
++    &quot;RootView.js&quot;,
++    &quot;ItemView.js&quot;,
++    &quot;PageView.js&quot;,
++    &quot;LoginView.js&quot;,
++    &quot;NavbarView.js&quot;,
++    &quot;SectionView.js&quot;,
++    &quot;MultiEntriesView.js&quot;,
++    &quot;EntryView.js&quot;,
++    &quot;SuggestionBox.js&quot;];
++  var prefix = &quot;../../../source/view/&quot;;
++  var errorReport = orp.util.LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
++}
++
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000312.html">[openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util
+</A></li>
+	<LI>Next message: <A HREF="000314.html">[openrecord-svn] r330 - in trunk/source: . model util view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#313">[ date ]</a>
+              <a href="thread.html#313">[ thread ]</a>
+              <a href="subject.html#313">[ subject ]</a>
+              <a href="author.html#313">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

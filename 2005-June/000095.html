@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r108 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r108%20-%20trunk/source&In-Reply-To=%3C200506020131.j521VpgI016275%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000094.html">
+   <LINK REL="Next"  HREF="000096.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r108 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r108%20-%20trunk/source&In-Reply-To=%3C200506020131.j521VpgI016275%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r108 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  2 03:31:51 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000094.html">[openrecord-svn] r107 - trunk/source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000096.html">[openrecord-svn] r109 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-02 03:31:39 +0200 (Thu, 02 Jun 2005)
+New Revision: 108
+
+Modified:
+   trunk/source/MultiEntriesView.js
+Log:
+Prevent textview from getting edited if not table row is not selected
+
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-02 01:20:23 UTC (rev 107)
++++ trunk/source/MultiEntriesView.js	2005-06-02 01:31:39 UTC (rev 108)
+@@ -133,7 +133,7 @@
+ MultiEntriesView.prototype._handleOwnClick = function(inEvent) {
+   var lastEntry = this._entryViews[this._entryViews.length-1];
+   if (this._handleClick(inEvent, lastEntry)) {return true;}
+-  lastEntry.startEditing();
++  if (inEvent.target == this.getHTMLElement()) {lastEntry.startEditing();}
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000094.html">[openrecord-svn] r107 - trunk/source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000096.html">[openrecord-svn] r109 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#95">[ date ]</a>
+              <a href="thread.html#95">[ thread ]</a>
+              <a href="subject.html#95">[ subject ]</a>
+              <a href="author.html#95">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

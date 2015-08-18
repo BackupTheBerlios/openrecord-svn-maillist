@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r121 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r121%20-%20trunk/source&In-Reply-To=%3C200506050001.j55016qk027757%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000107.html">
+   <LINK REL="Next"  HREF="000109.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r121 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r121%20-%20trunk/source&In-Reply-To=%3C200506050001.j55016qk027757%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r121 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun  5 02:01:06 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000107.html">[openrecord-svn] r120 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000109.html">[openrecord-svn] r122 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-05 02:00:43 +0200 (Sun, 05 Jun 2005)
+New Revision: 121
+
+Modified:
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+Log:
+1) Added experimental UI for adding/removing an attribute column from a TablePlugin
+
+2) When saving a TextView whose expected type of attribute is a Category, formerly plain text strings are instead saved as new items, whose category is the expected category specified by the attribute
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-03 19:31:56 UTC (rev 120)
++++ trunk/source/SectionView.js	2005-06-05 00:00:43 UTC (rev 121)
+@@ -361,9 +361,7 @@
+   var currentQueryMatchingCategory = listOfMatchingCategories.length &gt; 0? listOfMatchingCategories[0].getValue() : null;
+   var currentCategoryName = currentQueryMatchingCategory? currentQueryMatchingCategory.getDisplayName() : &quot;none&quot;;
+  
+-  if (currentCategoryName == newChoiceName) {
+-    return;
+-  } else {
++  if (currentCategoryName != newChoiceName) {
+     if (currentQueryMatchingCategory) {
+       this.getQuery().replaceEntry(currentQueryMatchingCategoryEntry, newQueryMatchingCategory);
+     } else {
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-03 19:31:56 UTC (rev 120)
++++ trunk/source/TablePlugin.js	2005-06-05 00:00:43 UTC (rev 121)
+@@ -203,6 +203,30 @@
+ 
+ 
+ /**
++ * Builds editor to add/remove attribute columns of table
++ *
++ * @scope    private instance method
++ */
++TablePlugin.prototype._buildAttributeEditor = function() {
++  var htmlElt = this.getHTMLElement();
++  View.createAndAppendElement(htmlElt,&quot;br&quot;);
++  var selectElt = View.createAndAppendElement(htmlElt,&quot;select&quot;);
++  var categoryCalledAttribute = this.getWorld().getCategoryCalledAttribute();
++  var listOfAttributes = this.getWorld().getItemsInCategory(categoryCalledAttribute);
++  var optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
++  optionElt.text = &quot;Add new attribute:&quot;;
++  for (var i = 0; i &lt; listOfAttributes.length; ++i) {
++    var optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
++    var attributeUuid = listOfAttributes[i].getUniqueKeyString();
++    if (this._hashTableOfAttributes[attributeUuid]) {optionElt.text = '*';}
++    optionElt.text += listOfAttributes[i].getDisplayName();
++    optionElt.value = attributeUuid;
++    optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
++  }
++  this._selectElement = selectElt;
++};
++
++/**
+  * Inserts a table row at rowNum given contentItem
+  *
+  * @scope    private instance method
+@@ -291,18 +315,18 @@
+ /**
+  * Re-creates all the HTML for the TablePlugin, and hands the HTML to the 
+  * browser to be re-drawn.
+- *
++ * @param inDontRebuildHas, if true does not refetch query and rebuild attribute hash table
+  * @scope    public instance method
+  */
+-TablePlugin.prototype._buildTable = function() {
++TablePlugin.prototype._buildTable = function(inDontRebuildHash) {
+   // get list of items and attributes
+-  this.fetchItems();
+-  this._buildAttributeHash();
++  if (!inDontRebuildHash) {
++    this.fetchItems();
++    this._buildAttributeHash();
++  }
+   
+   //create new table, remove old table if already exists
+-  if (this.myTable) {
+-    this._myHTMLElement.removeChild(this.myTable); 
+-  }
++  this._myHTMLElement.innerHTML = '';
+   this.myTable = document.createElement(&quot;table&quot;);
+   this.myTable.className = this.myClass;
+   
+@@ -316,6 +340,8 @@
+   this._buildTableBody();
+   
+   this._myHTMLElement.appendChild(this.myTable);
++  
++  if (this.isInEditMode()) {this._buildAttributeEditor();}
+ };
+ 
+ 
+@@ -384,6 +410,27 @@
+   this._buildTable();
+ };
+   
++/**
++ * Called when the user clicks on attribute editor item, either to add or remove attribute column
++ * 
++ * @scope    private class method
++ */
++TablePlugin.prototype._attributeEditorChanged = function (inEventObject) {
++  var attributeUuid = inEventObject.target.value;
++  if (attributeUuid) {
++    var toRemove = this._hashTableOfAttributes[attributeUuid] != null;
++    if (toRemove) {
++      delete this._hashTableOfAttributes[attributeUuid];
++      this._hashTableOfEntries[attributeUuid] = [];
++    }
++    else {
++      this._hashTableOfAttributes[attributeUuid] = this.getWorld().getItemFromUuid(attributeUuid);
++      this._hashTableOfEntries[attributeUuid] = []; //PENDING need to set this to right attribute
++    }
++    this._buildTable(true)
++  }
++};
++
+ TablePlugin.prototype._handleClick = function (inEventObject, aTextView) {
+   var rowElement = aTextView.getSuperview().getHTMLElement().parentNode; // textView -&gt; multiEntriesView -&gt; cellElment -&gt; rowElement
+   Util.assert(rowElement instanceof HTMLTableRowElement);
+@@ -395,6 +442,8 @@
+   }
+   return false;
+ };
++
++
+ /**
+  * Called when the user types a character when editing a table cell. 
+  *
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-03 19:31:56 UTC (rev 120)
++++ trunk/source/TextView.js	2005-06-05 00:00:43 UTC (rev 121)
+@@ -99,6 +99,7 @@
+  *
+  */
+ TextView.prototype.setSuggestions = function(suggestionList) {
++  if (suggestionList) {Util.assert(Util.isArray(suggestionList));}
+   this._suggestions = suggestionList;
+ };
+ 
+@@ -213,7 +214,7 @@
+     if (Util.isString(newValue)) {
+       newValueDisplayString = newValue;
+     }
+-    if (newValue instanceof Item) {
++    else if (newValue instanceof Item) {
+       newValueDisplayString = newValue.getDisplayName();
+     }
+     this._textNode.data = newValueDisplayString;
+@@ -225,14 +226,48 @@
+   }
+ };
+ 
+-
+ /**
++ * Given a value, this function uses hints form this item's attribute to transform
++ * the value to one more suitable for the model. 
++ * 
++ * For now, all this function does is check to see if expected type of attribute is a 
++ * type of category, and if it does not expect a plain text value then transform plain
++ * text to a new item belonging to expected category.
++ *
++ * @scope    private instance method
++ * @param    value    The new value to be saved. 
++ */
++TextView.prototype._transformToExpectedType = function(value) {
++if (value &amp;&amp; Util.isString(value)) {
++    var repository = this.getWorld();
++    var attributeCalledExpectedType = repository.getAttributeCalledExpectedType();
++    var listOfExpectedTypeEntries = this._attribute.getEntriesForAttribute(attributeCalledExpectedType);
++    var categoryCalledCategory = repository.getCategoryCalledCategory();
++    var typeCalledText = repository.getTypeCalledText();
++    if (listOfExpectedTypeEntries) {
++      var expectsText = false;
++      var expectedCategory = null;
++      for (i=0; i&lt;listOfExpectedTypeEntries.length; ++i) {
++        var aType = listOfExpectedTypeEntries[i].getValue();
++        if (aType.isInCategory(categoryCalledCategory)) {expectedCategory = aType;}
++        if (aType == typeCalledText) {expectsText = true;}
++      }
++      if ((expectedCategory) &amp;&amp; !expectsText) {
++        var value = repository.newItem(value);
++        value.addEntryForAttribute(repository.getAttributeCalledCategory(),expectedCategory);
++      }
++    }
++  }
++  return value;
++};
++/**
+  * Writes edited value back into item entry of repository.
+  *
+  * @scope    private instance method
+  * @param    value    The new value to be saved. 
+  */
+ TextView.prototype._writeValue = function(value) {
++  value = this._transformToExpectedType(value);
+   if (this._entry) {
+     var oldValue = this._entry.getValue();
+     if (oldValue != value) {
+@@ -448,6 +483,14 @@
+  *
+  */
+ AttributeSuggestionBox.prototype.getSelectedItem = function () {
++  if (!this._selectedItem) {
++    // check if typed item is identical to suggested item
++    var editValue = this._myInputField.value;
++    for (var i = 0; i &lt; this._listOfSuggestedItems.length; ++i) {
++      var item = this._listOfSuggestedItems[i];
++      if (editValue == item.getDisplayName()) {return item;}
++    }
++  }
+   return this._selectedItem;
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000107.html">[openrecord-svn] r120 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000109.html">[openrecord-svn] r122 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#108">[ date ]</a>
+              <a href="thread.html#108">[ thread ]</a>
+              <a href="subject.html#108">[ subject ]</a>
+              <a href="author.html#108">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

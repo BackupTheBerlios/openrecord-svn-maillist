@@ -1,0 +1,576 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r133 - in trunk: documentation source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r133%20-%20in%20trunk%3A%20documentation%20source/model&In-Reply-To=%3C200506110306.j5B36tYt017443%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000119.html">
+   <LINK REL="Next"  HREF="000121.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r133 - in trunk: documentation source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r133%20-%20in%20trunk%3A%20documentation%20source/model&In-Reply-To=%3C200506110306.j5B36tYt017443%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r133 - in trunk: documentation source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 11 05:06:55 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000119.html">[openrecord-svn] r132 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000121.html">[openrecord-svn] r135 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-11 05:06:53 +0200 (Sat, 11 Jun 2005)
+New Revision: 133
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+a few small changes
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-11 02:23:51 UTC (rev 132)
++++ trunk/documentation/release_planning.txt	2005-06-11 03:06:53 UTC (rev 133)
+@@ -160,7 +160,7 @@
+        |          |         |  3. Switch data model to use time-based UUIDs for timestamps &amp; userstamps
+ brian  | 0.5  IED |         |  4. Store transaction info in repository
+        |          |         |  5. UI for deleting a row from a table
+-brian  | 0    IED | 0       |  6. Create provisional item/entry pair in correct order
++brian  | 0.5  IED |         |  6. Save provisional item and then set the category, in that order, and in on transaction
+        |          |         |  7. Fix the bug that happens when you call the PHP server code with no POST data
+ chao   | 0.5  IED |         |  8. UI for entering a number literal (instead of a string literal) in a table
+ chao   | 1    IED |         |  9. UI for entering a date literal in a table (and data model support)
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-11 02:23:51 UTC (rev 132)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-11 03:06:53 UTC (rev 133)
+@@ -103,7 +103,7 @@
+  * @param    inWorld    The world that we provide data for. 
+  */
+ DeltaVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
+-  this.__initialize(inWorld);
++  this._initialize(inWorld);
+   this._loadWorldFromJsonStrings(this._myDehydratedWorld, this._myDehydratedUserList);
+ };
+ 
+@@ -145,129 +145,10 @@
+   Util.assert(Util.isArray(listOfUsers));
+ 
+   this.__loadWorldFromListOfRecordsAndUsers(listOfRecords, listOfUsers);
+-  
+-  /* DELETE_ME:
+-  var fileFormat = dehydratedWorld[DeltaVirtualServer.JSON_MEMBER_FORMAT];
+-  if (fileFormat == DeltaVirtualServer.JSON_FORMAT_2005_MARCH) {
+-    // this is an old file format, circa 2005-March-16
+-    var listOfItems = dehydratedWorld[DeltaVirtualServer.JSON_MEMBER_DATA];
+-    Util.assert(Util.isArray(listOfItems));
+-    this.__loadWorldFromOld2005MarchFormatList(listOfItems);
+-  } else {
+-    // this is newer file format, circa 2005-April-21
+-    Util.assert(fileFormat == DeltaVirtualServer.JSON_FORMAT_2005_APRIL);
+-    var listOfRecords = dehydratedWorld[DeltaVirtualServer.JSON_MEMBER_DATA];
+-    var listOfUsers = dehydratedWorld[DeltaVirtualServer.JSON_MEMBER_USERS];
+-    Util.assert(Util.isArray(listOfRecords));
+-    this.__loadWorldFromListOfRecordsAndUsers(listOfRecords, listOfUsers);
+-  }
+-  */
+ };
+   
+ 
+ /**
+- * Loads a world of items from a dehydrated list of items.
+- *
+- * @scope    private instance method
+- * @param    inListOfItems    A JSON list of dehydrated items. 
+- */
+-/*
+-DeltaVirtualServer.prototype.__loadWorldFromOld2005MarchFormatList = function (inListOfItems) {
+-
+-  var listOfDehydratedItems = inListOfItems;
+-
+-  var axiomaticItem;
+-  var dehydratedItem;
+-  var dehydratedUuid;
+-  var item;
+-  var uuid;
+-  var key;
+-  
+-  // Have the StubBackingStore load the axiomatic items, because it will
+-  // correctly set the creator of those items to be the axiomatic user.
+-  var listOfAxiomaticRecords = this.__loadAxiomaticItems();
+-  
+-  var hashTableOfAxiomaticItemsKeyedByUuid = {};
+-  for (key in listOfAxiomaticRecords) {
+-    var record = listOfAxiomaticRecords[key];
+-    if (record instanceof Item) {
+-      hashTableOfAxiomaticItemsKeyedByUuid[record._getUuid()] = record;
+-    }
+-  }
+-  
+-  this.__myWorld.beginTransaction();
+-  var guestUser = this.newUser(&quot;Guest&quot;, null);
+-  this.__myCurrentUser = guestUser;
+-  
+-  // First, go through the whole list of dehydrated items.  Find all 
+-  // the UUIDs for all the items, and make Item objects for all of them.
+-  // After we've done this step, we'll know the next available UUID,
+-  // so we can start assigning new UUIDs to the attribute entries.
+-  for (key in listOfDehydratedItems) {
+-    dehydratedItem = listOfDehydratedItems[key];
+-    dehydratedUuid = dehydratedItem[World.UUID_FOR_ATTRIBUTE_UUID];
+-    uuid = dehydratedUuid[DeltaVirtualServer.JSON_MEMBER_VALUE];
+-    axiomaticItem = hashTableOfAxiomaticItemsKeyedByUuid[uuid];
+-    if (!axiomaticItem) {
+-      // We only need to rehydrate the non-axiomatic items.
+-      // We rely on the StubBackingStore to have loaded the axiomatic items.
+-      item = this.__getItemFromUuidOrCreateNewItem(uuid);
+-      Util.assert(item instanceof Item);
+-    }
+-  }
+-  
+-  // We already have Item objects for all the items we're going to
+-  // rehydrate.  Now we can add attributes to them.
+-  for (key in listOfDehydratedItems) {
+-    dehydratedItem = listOfDehydratedItems[key];
+-    dehydratedUuid = dehydratedItem[World.UUID_FOR_ATTRIBUTE_UUID];
+-    uuid = dehydratedUuid[DeltaVirtualServer.JSON_MEMBER_VALUE];
+-    axiomaticItem = hashTableOfAxiomaticItemsKeyedByUuid[uuid];
+-    if (!axiomaticItem) {
+-      // We only need to rehydrate the non-axiomatic items.
+-      // We rely on the StubBackingStore to have loaded the axiomatic items.
+-      item = this.__getItemFromUuidOrCreateNewItem(uuid);
+-      Util.assert(item instanceof Item);
+-      for (var propertyKey in dehydratedItem) {
+-        if (propertyKey != World.UUID_FOR_ATTRIBUTE_UUID) { 
+-          var propertyValue = dehydratedItem[propertyKey];
+-          var attributeUuid = parseInt(propertyKey);
+-          Util.assert(Util.isArray(propertyValue));
+-          for (var entryKey in propertyValue) {
+-            var entryObject = propertyValue[entryKey];
+-            var valueType = entryObject[DeltaVirtualServer.JSON_MEMBER_TYPE];
+-            var valueValue = entryObject[DeltaVirtualServer.JSON_MEMBER_VALUE];
+-            var finalValue = null;
+-            switch (valueType) {
+-              case DeltaVirtualServer.JSON_TYPE_FOREIGN_UUID:
+-                finalValue = this.__getItemFromUuidOrCreateNewItem(valueValue);
+-                break;
+-              case DeltaVirtualServer.JSON_TYPE_STRING_VALUE:
+-                finalValue = valueValue;
+-                break;
+-              case DeltaVirtualServer.JSON_TYPE_NUMBER_VALUE:
+-                finalValue = valueValue;
+-                break;
+-            }
+-            var attribute = this.getItemFromUuid(attributeUuid);
+-            item.addEntryForAttribute(attribute, finalValue);
+-          }
+-        }
+-      }
+-    }
+-  }
+-
+-  for (key in this.__myChronologicalListOfNewlyCreatedRecords) {
+-    var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
+-    this.__myChronologicalListOfRecords.push(newRecord);
+-  }
+-  this.__myChronologicalListOfNewlyCreatedRecords = [];
+-  this.__myWorld.endTransaction();
+-  this.__myCurrentUser = null;
+-};
+-*/
+-
+-/**
+  * Given a UUID, either (a) returns the existing item identified by that UUID, 
+  * or (b) creates an new item object, set its UUID, and returns that object.
+  *
+@@ -369,14 +250,14 @@
+     if (dehydratedVote) {
+       var retainFlag = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG];
+       identifiedRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
+-      identifiedRecord = this.__getIdentifiedRecordFromUuid(identifiedRecordUuid);
++      identifiedRecord = this._getIdentifiedRecordFromUuid(identifiedRecordUuid);
+       var vote = new Vote(identifiedRecord, userstamp, retainFlag, timestamp);
+       this.__myChronologicalListOfRecords.push(vote);
+     }
+     if (dehydratedOrdinal) {
+       var ordinalNumber = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
+       identifiedRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
+-      identifiedRecord = this.__getIdentifiedRecordFromUuid(identifiedRecordUuid);
++      identifiedRecord = this._getIdentifiedRecordFromUuid(identifiedRecordUuid);
+       var ordinal = new Ordinal(identifiedRecord, userstamp, ordinalNumber, timestamp);
+       this.__myChronologicalListOfRecords.push(ordinal);
+     }
+@@ -508,7 +389,7 @@
+       listOfStrings.push('                // ' + itemDisplayNameSubstring + '\n');
+       var previousEntry = entry.getPreviousEntry();
+       if (previousEntry) {
+-        listOfStrings.push('   &quot;' + DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n');
++        listOfStrings.push('  &quot;' + DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n');
+       }
+       var contentData = entry.getValue();
+       var pickleString = &quot;&quot;;
+@@ -625,12 +506,12 @@
+  * changes.
+  *
+  * @scope    public instance method
+- * @param    inForceSave    Optional. Forces a save if set to true. 
++ * @param    forceSave    Optional. Forces a save if set to true. 
+  * @return   The list of changes made. 
+  */
+-DeltaVirtualServer.prototype.saveChangesToServer = function (inForceSave) {
++DeltaVirtualServer.prototype.saveChangesToServer = function (forceSave) {
+   var listOfChangesMade;
+-  if (!inForceSave &amp;&amp; this.__myChronologicalListOfNewlyCreatedRecords.length === 0) {
++  if (!forceSave &amp;&amp; this.__myChronologicalListOfNewlyCreatedRecords.length === 0) {
+     listOfChangesMade = [];
+     return listOfChangesMade;
+   }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-11 02:23:51 UTC (rev 132)
++++ trunk/source/model/StubVirtualServer.js	2005-06-11 03:06:53 UTC (rev 133)
+@@ -58,9 +58,12 @@
+  * @scope    private instance method
+  * @param    inWorld    The world that we provide data for. 
+  */
+-StubVirtualServer.prototype.__initialize = function (inWorld) {
++StubVirtualServer.prototype._initialize = function (inWorld) {
+   this.__myWorld = inWorld;
+   
++  this._countOfNestedTransactions = 0;
++  this._currentTransaction = null;
++
+   // this.__myNextAvailableUuid = 1;
+   this.__myHashTableOfItemsKeyedByUuid = {};
+   this.__myHashTableOfEntriesKeyedByUuid = {};
+@@ -81,29 +84,58 @@
+  * @param    inWorld    The world that we provide data for. 
+  */
+ StubVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
+-  this.__initialize(inWorld);
+-  this.__loadAxiomaticItems();
++  this._initialize(inWorld);
++  this._loadAxiomaticItems();
+ };
+ 
+ 
+ // -------------------------------------------------------------------
+-// Methods for creating and changing items
++// Transaction Methods
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Throws an Error if there is no user currently logged in.
++ * Marks the beginning of a transaction.
+  *
+- * @scope    private instance method
+- * @throws   Throws an Error if no user is logged in.
++ * Each time you call beginTransaction() you open a new transaction, 
++ * which you need to close later using endTransaction().  Transactions
++ * may be nested, but the beginTransaction and endTransaction calls
++ * always need to come in pairs. 
++ *
++ * @scope    public instance method
+  */
+-StubVirtualServer.prototype._throwErrorIfNoUserIsLoggedIn = function () {
+-  if (!this.__myCurrentUser) {
+-    var error = new Error(&quot;No user is logged in.  You can't write to the repository when nobody is logged in.&quot;);
+-    throw error;
++StubVirtualServer.prototype.beginTransaction = function() {
++  if (this._countOfNestedTransactions === 0) {
++    // PENDING: create a new transaction object
++    // this._currentTransaction = new Transaction();
+   }
++  this._countOfNestedTransactions += 1;
+ };
++ 
+ 
++/**
++ * Marks the end of a transaction.
++ *
++ * @scope    public instance method
++ */
++StubVirtualServer.prototype.endTransaction = function() {
++  this._countOfNestedTransactions -= 1;
++  Util.assert(this._countOfNestedTransactions &gt;= 0);
+ 
++  if (this._countOfNestedTransactions === 0) {
++    var listOfChangesMade = this.saveChangesToServer();
++    if (listOfChangesMade.length &gt; 0) {
++      // alert(listOfChangesMade.length + &quot; changes made&quot;);
++      // Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
++      this.__myWorld._notifyObserversOfChanges(listOfChangesMade);
++    }
++  }
++};
++
++
++// -------------------------------------------------------------------
++// Methods for creating and changing items
++// -------------------------------------------------------------------
++
+ /**
+  * Returns a newly created item.
+  *
+@@ -152,7 +184,7 @@
+  * @return   A newly created item.
+  */
+ StubVirtualServer.prototype._createNewItem = function (inObserver, inProvisionalFlag) {
+-  var uuid = this.__getNewUuid();
++  var uuid = this._getNewUuid();
+   var item = new Item(this.__myWorld, uuid);
+   item._initialize(inObserver, inProvisionalFlag);
+   this.__myHashTableOfItemsKeyedByUuid[uuid] = item;
+@@ -186,7 +218,7 @@
+  */
+ StubVirtualServer.prototype.newEntry = function (inItemOrEntry, inAttribute, inValue) {
+   this._throwErrorIfNoUserIsLoggedIn();
+-  var uuid = this.__getNewUuid();
++  var uuid = this._getNewUuid();
+   var entry = new Entry(this.__myWorld, uuid);
+   entry._initialize(inItemOrEntry, inAttribute, inValue);
+   var item = inItemOrEntry instanceof Item ? inItemOrEntry : inItemOrEntry.getItem();
+@@ -283,6 +315,10 @@
+   return this.__myListOfUsers;
+ };
+ 
++
++/**
++ *
++ */
+ StubVirtualServer.prototype.getCategories = function () {
+   var listOfCategories = [];
+   for (var key in this.__myHashTableOfItemsKeyedByUuid) {
+@@ -295,6 +331,7 @@
+   return listOfCategories;
+ };
+ 
++
+ /**
+  * Returns an item representing the user who is currently logged in.
+  *
+@@ -340,7 +377,7 @@
+   if (inPassword) {
+     md5hashOfPassword = Util.hex_md5(inPassword);
+   }
+-  var realAuthentication = this.__getAuthenticationInfoForUser(inUser);
++  var realAuthentication = this._getAuthenticationInfoForUser(inUser);
+   var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+   
+   // PENDING: temporary hack
+@@ -544,13 +581,27 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Throws an Error if there is no user currently logged in.
++ *
++ * @scope    private instance method
++ * @throws   Throws an Error if no user is logged in.
++ */
++StubVirtualServer.prototype._throwErrorIfNoUserIsLoggedIn = function () {
++  if (!this.__myCurrentUser) {
++    var error = new Error(&quot;No user is logged in.  You can't write to the repository when nobody is logged in.&quot;);
++    throw error;
++  }
++};
++
++
++/**
+  * Given a UUID, returns the item or entry identified by that UUID.
+  *
+  * @scope    private instance method
+  * @param    inUuid    The UUID of the item or entry to be returned. 
+  * @return   The item or entry identified by the given UUID.
+  */
+-StubVirtualServer.prototype.__getIdentifiedRecordFromUuid = function (inUuid) {
++StubVirtualServer.prototype._getIdentifiedRecordFromUuid = function (inUuid) {
+   var item = this.getItemFromUuid(inUuid);
+   if (item) {
+     return item;
+@@ -566,7 +617,7 @@
+  * @scope    private instance method
+  * @return   A newly created UUID.
+  */
+-StubVirtualServer.prototype.__getNewUuid = function () {
++StubVirtualServer.prototype._getNewUuid = function () {
+   // var newUuid = this.__myNextAvailableUuid;
+   // this.__myNextAvailableUuid += 1;
+   var newUuid = Util.generateRandomUuid();
+@@ -582,7 +633,7 @@
+  * @param    inUser    An item representing a user. 
+  * @return   The authentication info for the user.
+  */
+-StubVirtualServer.prototype.__getAuthenticationInfoForUser = function (inUser) {
++StubVirtualServer.prototype._getAuthenticationInfoForUser = function (inUser) {
+   return this.__myHashTableOfUserAuthenticationInfo[inUser.getUniqueKeyString()];
+ };
+ 
+@@ -595,7 +646,7 @@
+  * @param    inUuid    The UUID of the item to be returned. 
+  * @return   The item identified by the given UUID.
+  */
+-StubVirtualServer.prototype.__getItemFromUuidOrCreateNewItem = function (inUuid) {
++StubVirtualServer.prototype._getItemFromUuidOrCreateNewItem = function (inUuid) {
+   var item = this.getItemFromUuid(inUuid);
+   if (!item) {
+     /*
+@@ -628,7 +679,7 @@
+  *
+  * @scope    private instance method
+  */
+-StubVirtualServer.prototype.__loadAxiomaticItems = function () {
++StubVirtualServer.prototype._loadAxiomaticItems = function () {
+   var uuid;
+   var name;
+   var item;
+@@ -636,7 +687,7 @@
+   var key;
+   
+   this.__myWorld.beginTransaction();
+-  var axiomaticUser = this.__getItemFromUuidOrCreateNewItem(World.UUID_FOR_USER_AMY);
++  var axiomaticUser = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_USER_AMY);
+   axiomaticUser.__myCreationUserstamp = axiomaticUser;
+   this.__myListOfUsers.push(axiomaticUser);
+   this.__myHashTableOfUserAuthenticationInfo[axiomaticUser.getUniqueKeyString()] = null;
+@@ -657,7 +708,7 @@
+ 
+   // create all the Item objects for the attributes
+   for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
+-    this.__getItemFromUuidOrCreateNewItem(uuid);
++    this._getItemFromUuidOrCreateNewItem(uuid);
+   }
+   
+   // associate display names with the UUIDs of all the categories
+@@ -669,7 +720,7 @@
+ 
+   // create all the Item objects for the categories
+   for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
+-    this.__getItemFromUuidOrCreateNewItem(uuid);
++    this._getItemFromUuidOrCreateNewItem(uuid);
+   }
+  
+   // associate display names with the UUIDs of all the types
+@@ -684,7 +735,7 @@
+   
+   // create all the Item objects for the types
+   for (uuid in hashTableOfTypeNamesKeyedByUuid) {
+-    this.__getItemFromUuidOrCreateNewItem(uuid);
++    this._getItemFromUuidOrCreateNewItem(uuid);
+   }
+   
+   // associate expected data types with the UUIDs of some of the attributes
+@@ -725,7 +776,7 @@
+   }
+   
+   // set the names of all the categories, and put them in the category called &quot;Category&quot;
+-  var categoryCalledCategory = this.__getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_CATEGORY);
++  var categoryCalledCategory = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_CATEGORY);
+   for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
+     item = this.getItemFromUuid(uuid);
+     name = hashTableOfCategoryNamesKeyedByUuid[uuid];
+@@ -734,7 +785,7 @@
+   }
+ 
+   // set the names of all the types, and put them in the category called &quot;Type&quot;
+-  var categoryCalledType = this.__getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_TYPE);
++  var categoryCalledType = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_TYPE);
+   for (uuid in hashTableOfTypeNamesKeyedByUuid) {
+     item = this.getItemFromUuid(uuid);
+     name = hashTableOfTypeNamesKeyedByUuid[uuid];
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-11 02:23:51 UTC (rev 132)
++++ trunk/source/model/World.js	2005-06-11 03:06:53 UTC (rev 133)
+@@ -95,7 +95,6 @@
+  * @param    virtualServer    Optional. The datastore that this world gets its data from. 
+  */
+ function World(virtualServer) {
+-  this._countOfNestedTransactions = 0;
+   this._hashTableOfObserverListsKeyedByItemUuid = {};
+   this._listOfListObserverTuples = [];
+ 
+@@ -154,10 +153,7 @@
+  * @scope    public instance method
+  */
+ World.prototype.beginTransaction = function() {
+-  this._countOfNestedTransactions += 1;
+-  // PENDING:
+-  //   This is just a stub method for now.  Once we start implementing
+-  //   support for transactions we'll have to put some real code here.
++  this._virtualServer.beginTransaction();
+ };
+  
+ 
+@@ -167,23 +163,10 @@
+  * @scope    public instance method
+  */
+ World.prototype.endTransaction = function() {
+-  this._countOfNestedTransactions -= 1;
+-  Util.assert(this._countOfNestedTransactions &gt;= 0);
+-  // PENDING:
+-  //   This is just a stub method for now.  Once we start implementing
+-  //   support for transactions we'll have to put some real code here.
+-  if (this._countOfNestedTransactions === 0) {
+-    var listOfChangesMade = this._virtualServer.saveChangesToServer();
+-    if (listOfChangesMade.length &gt; 0) {
+-      Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
+-      this._notifyObserversOfChanges(listOfChangesMade);
+-    }
+-  }
++  this._virtualServer.endTransaction();
+ };
+ 
+ 
+-// ===================================================================
+-// PENDING: Line of Completion. Beyond there be dragons...
+ /**
+  * Sends notification messages to registered observers to let them know 
+  * about any new changes to items or lists that they're observers of.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000119.html">[openrecord-svn] r132 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000121.html">[openrecord-svn] r135 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#120">[ date ]</a>
+              <a href="thread.html#120">[ thread ]</a>
+              <a href="subject.html#120">[ subject ]</a>
+              <a href="author.html#120">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

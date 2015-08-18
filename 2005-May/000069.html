@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r80 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r80%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200505250644.j4P6i7Wn025170%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000068.html">
+   <LINK REL="Next"  HREF="000070.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r80 - in trunk: documentation source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r80%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200505250644.j4P6i7Wn025170%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r80 - in trunk: documentation source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 25 08:44:07 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000068.html">[openrecord-svn] r79 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000070.html">[openrecord-svn] r81 - in trunk: documentation source source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-25 08:44:06 +0200 (Wed, 25 May 2005)
+New Revision: 80
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/LoginView.js
+   trunk/source/RootView.js
+Log:
+Replaced the Edit/Save button with an Edit/Lock button.  We now automatically save changes as they happen.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-25 06:17:20 UTC (rev 79)
++++ trunk/documentation/release_planning.txt	2005-05-25 06:44:06 UTC (rev 80)
+@@ -87,13 +87,13 @@
+        | Medium   |         | UI for editing the query that a section uses
+        | Medium   |         | UI for editing the query that a section uses
+        | Medium   |         | Verify/fix the bug that happens when you call the PHP server code with no POST data
+-Brian  | Medium   | 0   ied | Replace the Edit/Save button with a Lock/Unlock UI; automatically save changes as they happen
++Brian  |   done   | 0   ied | Replace the Edit/Save button with a Lock/Unlock UI; automatically save changes as they happen
+ Brian  |   done   | 1   ied | Replace the BigLumpVirtualServer with an DeltaVirtualServer; Change PHP code to append to the data file
+        |   Low    |         | Convert UI code from DOM level 0 to DOM level 2
+        |   Low    |         | Write a plugin view that calculates and displays the measured project velocity
+        |   Low    |         | UI for creating a new page
+        |   Low    |         | UI for creating a new user
+-       |   Low    |         | Fix bug that creates duplicate entries when no change was made
++       |  High    | 0   ied | Fix bug that creates duplicate entries when no change was made
+  
+ 
+        
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-05-25 06:17:20 UTC (rev 79)
++++ trunk/source/LoginView.js	2005-05-25 06:44:06 UTC (rev 80)
+@@ -2,7 +2,9 @@
+  LoginView.js
+ 
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+ 
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -38,7 +40,12 @@
+ // -------------------------------------------------------------------
+ 
+ 
++// -------------------------------------------------------------------
++// LoginView public class constants
++// -------------------------------------------------------------------
+ LoginView.COOKIE_NAME = &quot;useruuid&quot;;
++
++
+ /**
+  * The LoginView uses an instance of a LoginView to display an Item in the
+  * browser window.
+@@ -57,10 +64,12 @@
+   this.setSuperview(inSuperView);
+   this.setHTMLElement(inHTMLElement);
+   this._isCreatingNewAccount = false;
+-  this.myCookie = new Cookie(document,LoginView.COOKIE_NAME,10*365*24);  // PENDING: hardcode expiration to 10yrs
++  var tenYearCookieExpiration = 10*365*24;   // PENDING: hardcode expiration to 10yrs
++  this.myCookie = new Cookie(document, LoginView.COOKIE_NAME, tenYearCookieExpiration);
+   this.myCookie.load();
+ }
+ 
++
+ /**
+  * Re-creates all the HTML for the LoginView, and hands the HTML to the 
+  * browser to be re-drawn.
+@@ -73,6 +82,7 @@
+   }
+ };
+ 
++
+ /**
+  * Re-creates the HTML for the chrome area containing the controls,
+  * and hands the HTML to the browser to be re-drawn.
+@@ -138,7 +148,7 @@
+     mySpan.appendChild(space);
+     var editButton = document.createElement(&quot;input&quot;);
+     editButton.type = &quot;button&quot;;
+-    editButton.value = (this.isInEditMode()) ? &quot;Save&quot; : &quot;Edit&quot;;
++    editButton.value = (this.isInEditMode()) ? &quot;Lock out edits&quot; : &quot;Edit&quot;;
+     editButton.onclick = this._clickOnEditButton.bindAsEventListener(this);
+     mySpan.appendChild(editButton);
+   }
+@@ -175,7 +185,7 @@
+ /**
+  * Called when sign out button is clicked.
+  *
+- * @scope    PENDING
++ * @scope    private instance method
+  */
+ LoginView.prototype._clickOnSignoutLink = function(inEventObject) {
+   if (this.isInEditMode()) {this.getRootView().setEditMode(false);}
+@@ -189,7 +199,7 @@
+ /**
+  * Called when sign in input field is typed with keystroke.
+  *
+- * @scope    PENDING
++ * @scope    private instance method
+  */
+ LoginView.prototype.signinKeyPress = function(inEventObject) {
+   // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+@@ -198,11 +208,23 @@
+   }
+ };
+ 
++
++/**
++ * Called when the user clicks on the &quot;Create Account&quot; link.
++ *
++ * @scope    private instance method
++ */
+ LoginView.prototype._clickOnCreateAccountLink = function(inEventObject) {
+   this._isCreatingNewAccount = true;
+   this._rebuildView();
+ };
+ 
++
++/**
++ * Called when the user clicks on the &quot;Create New Account&quot; button.
++ *
++ * @scope    private instance method
++ */
+ LoginView.prototype._clickOnNewAcctButton = function(inEventObject) {
+   var username = this.usernameInput.value;
+   var password = this.passwordInput.value;
+@@ -211,10 +233,11 @@
+   this._rebuildView();
+ };
+ 
++
+ /**
+- * Called when sign in button is clicked.
++ * Called when the user clicks on the &quot;Sign in&quot; button.
+  *
+- * @scope    PENDING
++ * @scope    private instance method
+  */
+ LoginView.prototype._clickOnSignInButton = function(inEventObject) {
+ 
+@@ -232,7 +255,7 @@
+       var shortUserName = lowerCaseUserName.substring(0, numberOfCharactersToCompare);
+       if (shortUserName == lowerCaseUserNameEntered) {
+         // we have a match!
+-        this._loginUser(user, this.passwordInput.value); // PENDING: user real password
++        this._loginUser(user, this.passwordInput.value);
+         return;
+       }
+     }
+@@ -240,6 +263,19 @@
+   this._reportError(&quot;Login failed. Unknown user.&quot;);
+ };
+ 
++
++/**
++ * Called when the user clicks on the &quot;Edit&quot; button.
++ *
++ * @scope    private instance method
++ * @param    inEventObject    An event object. 
++ */
++LoginView.prototype._clickOnEditButton = function (inEventObject) {
++  this.getRootView().setEditMode(!this.isInEditMode());
++  this._rebuildView();
++};
++
++
+ LoginView.prototype._loginUser = function(user, password) {
+   var loginSuccess = this.getWorld().login(user, password); 
+   if (loginSuccess) {
+@@ -253,6 +289,7 @@
+   }
+ };
+ 
++
+ LoginView.prototype._reportError = function (errorStr) {
+   var newErrorNode = document.createTextNode(errorStr);
+   var mySpan = this.getHTMLElement();
+@@ -264,6 +301,7 @@
+   this.errorNode = newErrorNode;
+ };
+ 
++
+ LoginView.prototype._createNewUser = function(username, password) {
+   function isValidUsername(username) {
+     // PENDING: hard coded to validate for alphanumeric usernames of 3 or more characters
+@@ -279,12 +317,7 @@
+   }
+ };
+ 
+-LoginView.prototype._clickOnEditButton = function (inEventObject) {
+-  this.getRootView().setEditMode(!this.isInEditMode());
+-  this._rebuildView();
+-};
+ 
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-25 06:17:20 UTC (rev 79)
++++ trunk/source/RootView.js	2005-05-25 06:44:06 UTC (rev 80)
+@@ -435,19 +435,26 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-RootView.prototype.clickOnEditButton = function (inEventObject) {
+-  this.setEditMode(!this.myEditMode);
+-};
++// RootView.prototype.clickOnEditButton = function (inEventObject) {
++//  this.setEditMode(!this.myEditMode);
++// };
+ 
+-RootView.prototype.setEditMode = function (newVal) {
+-  if (newVal != this.myEditMode) {
++
++/**
++ * Switches the UI into and out of edit mode.
++ *
++ * @scope    public instance method
++ * @param    inEditModeFlag    A boolean. True to switch into edit mode, false to switch out.
++ */
++RootView.prototype.setEditMode = function (inEditModeFlag) {
++  if (inEditModeFlag != this.myEditMode) {
+     var world = this.getWorld();
+     if (this.myEditMode) {
+-      world.endTransaction();
+-      //window.document.body.style.cursor = &quot;auto&quot;;
++      // world.endTransaction();
++      // window.document.body.style.cursor = &quot;auto&quot;;
+     } else {
+-      world.beginTransaction();
+-      //window.document.body.style.cursor = &quot;crosshair&quot;;
++      // world.beginTransaction();
++      // window.document.body.style.cursor = &quot;crosshair&quot;;
+     }
+     this.myEditMode = !this.myEditMode;
+     this.display();
+@@ -458,6 +465,13 @@
+   }
+ };
+ 
++
++/**
++ * Overrides the View method and returns this view.
++ *
++ * @scope    public instance method
++ * @return   This view.
++ */
+ RootView.prototype.getRootView = function () {
+   return this;
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000068.html">[openrecord-svn] r79 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000070.html">[openrecord-svn] r81 - in trunk: documentation source source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

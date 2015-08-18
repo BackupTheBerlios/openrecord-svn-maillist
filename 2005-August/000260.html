@@ -1,0 +1,576 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r275 - in trunk/source: . model util view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r275%20-%20in%20trunk/source%3A%20.%20model%20util%20view&In-Reply-To=%3C200508050350.j753ooit001932%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000259.html">
+   <LINK REL="Next"  HREF="000261.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r275 - in trunk/source: . model util view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r275%20-%20in%20trunk/source%3A%20.%20model%20util%20view&In-Reply-To=%3C200508050350.j753ooit001932%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r275 - in trunk/source: . model util view">skinner at berlios.de
+       </A><BR>
+    <I>Fri Aug  5 05:50:50 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000259.html">[openrecord-svn] r274 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000261.html">[openrecord-svn] r276 - in trunk/source: model util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#260">[ date ]</a>
+              <a href="thread.html#260">[ thread ]</a>
+              <a href="subject.html#260">[ subject ]</a>
+              <a href="author.html#260">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-05 05:50:46 +0200 (Fri, 05 Aug 2005)
+New Revision: 275
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Record.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/util/DateValue.js
+   trunk/source/util/DateValueTest.js
+   trunk/source/util/Uuid.js
+   trunk/source/view/EntryView.js
+Log:
+Bug fixes and performance improvements.
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/TablePlugin.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -186,7 +186,7 @@
+ 
+ 
+ /**
+- * Builds editor to add/remove attribute columns of table
++ * Builds editor to add/remove attribute columns of table.
+  *
+  * @scope    private instance method
+  */
+@@ -208,6 +208,15 @@
+   }
+   this._selectElement = selectElt;
+   
++};
++
++/**
++ * Builds UI widgets to let the user import a CSV data file into the table.
++ *
++ * @scope    private instance method
++ */
++TablePlugin.prototype._buildFileImportTool = function() {
++  var htmlElement = this.getHtmlElement();
+   if (window.location.protocol == &quot;file:&quot;) {
+     var importDiv = View.appendNewElement(htmlElement, &quot;div&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+     View.appendNewTextNode(importDiv, &quot; Import Data:&quot;);
+@@ -450,6 +459,8 @@
+   this._listOfItems.sort(function(a,b) {return staticThis.compareItemsBySortAttribute(a,b);}); // need to sort after header row added because default sort attribute is set there
+ 
+   this._buildTableBody();
++  
++  this._buildFileImportTool();
+ };
+ 
+ 
+@@ -542,22 +553,47 @@
+  * @scope    private instance method
+  */
+ TablePlugin.prototype._importData = function(eventObject, fileButton) {
++  var listOfAttributes = this._displayAttributes;
++  var startTime = new Date();
++  
+   var fileContents = Util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + fileButton.value);
+-
+   var csvParser = new CsvParser();
+   var listOfRecords = csvParser.getStringValuesFromCsvData(fileContents);
++  var listOfFields;
++  var i, j;
++
++  // First do some minimal error checking
++  for (i in listOfRecords) {
++    listOfFields = listOfRecords[i];
++    if (listOfFields.length != listOfAttributes.length) {
++      alert(&quot;CSV record #&quot; + (i+1) + &quot; has &quot; + listOfFields.length + &quot; fields, but the table has &quot; + listOfAttributes.length + &quot; columns.\n&quot; +
++            &quot;I'm giving up on importing any records.&quot;);
++      return;
++    }
++    var valueFound = false;
++    for (j in listOfFields) {
++      var field = listOfFields[j];
++      if (field !== &quot;&quot;) {
++        valueFound = true;
++      }
++    }
++    if (!valueFound) {
++      alert(&quot;CSV record #&quot; + (i+1) + &quot; has no fields.\n&quot; +
++            &quot;I'm giving up on importing any records.&quot;);
++      return;
++    }
++  }
+   
+-  var listOfAttributes = this._displayAttributes;
+   var world = this.getWorld();
+   var attributeCalledExpectedType = world.getAttributeCalledExpectedType();
+   var attributeCalledInverseAttribute = world.getAttributeCalledInverseAttribute();
+ 
+   var hashTableOfTypesKeyedByAttribute = {};
+-  for (var i in listOfAttributes) {
++  for (i in listOfAttributes) {
+     var attribute = listOfAttributes[i];
+     var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
+     var listOfTypes = [];
+-    for (var j in listOfExpectedTypeEntries) {
++    for (j in listOfExpectedTypeEntries) {
+       var entry = listOfExpectedTypeEntries[j];
+       listOfTypes.push(entry.getValue());
+     }
+@@ -566,13 +602,14 @@
+   }
+   world.beginTransaction();
+   for (i in listOfRecords) {
+-    var listOfFields = listOfRecords[i];
+-    if (listOfFields.length == listOfAttributes.length) {
+-      var newItem = world.newItem();
+-      world.setItemToBeIncludedInQueryResultList(newItem, this.getQuerySpec());
+-      for (j in listOfAttributes) {
+-        attribute = listOfAttributes[j];
+-        var value = listOfFields[j];
++    listOfFields = listOfRecords[i];
++    Util.assert(listOfFields.length == listOfAttributes.length);
++    var newItem = world.newItem();
++    world.setItemToBeIncludedInQueryResultList(newItem, this.getQuerySpec());
++    for (j in listOfAttributes) {
++      attribute = listOfAttributes[j];
++      var value = listOfFields[j];
++      if (value !== &quot;&quot;) {
+         listOfTypes = hashTableOfTypesKeyedByAttribute[attribute.getUniqueKeyString()];
+         value = EntryView._transformValueToExpectedType(world, value, listOfTypes);
+         var inverseAttributeEntry = attribute.getSingleEntryFromAttribute(attributeCalledInverseAttribute);
+@@ -583,11 +620,24 @@
+           newItem.addEntryForAttribute(attribute, value);
+         }
+       }
+-    } else {
+-      alert(&quot;CSV record does not have the right number of fields: &quot; + listOfFields[0]);
+     }
+   }
+   world.endTransaction();
++  var endTime = new Date();
++  var seconds = 0;
++  var milliseconds = endTime.valueOf() - startTime.valueOf();
++  if (milliseconds !== 0) {
++    seconds = milliseconds / 1000;
++  }
++  alert(&quot;Imported &quot; + listOfRecords.length + &quot; records\n&quot; +
++        &quot;in &quot; + seconds + &quot; seconds.&quot;);
++
++  // PENDING: This is a hack.
++  // When showToolsMode to false, EntryView will not make the lozenges
++  // be draggable.  Setting up the draggable stuff takes longer than all
++  // the other refresh code put together, so to make the screen redraw 
++  // faster, we just set the showToolsMode to false.
++  this.getRootView().setShowToolsMode(false);        
+   this.refresh();
+ };
+ 
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/model/ContentRecord.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -110,7 +110,11 @@
+  * @return   A number.
+  */
+ ContentRecord.prototype.getOrdinalNumberAtCreation = function() {
+-  return Uuid.getOriginalOrdinalFromUuid(this._uuid);
++  // PENDING: we should cache this value in the Uuid instance instead of in the ContentRecord instance
++  if (!this._ordinalNumberAtCreation) {
++    this._ordinalNumberAtCreation = Uuid.getOriginalOrdinalFromUuid(this._uuid);
++  }
++  return this._ordinalNumberAtCreation;
+ };
+ 
+ 
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/model/DeltaVirtualServer.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -208,31 +208,44 @@
+  */
+ DeltaVirtualServer.prototype._getJsonStringRepresentingRecords = function(listOfRecords, indent) {
+   indent = indent || &quot;&quot;;
+-  var key;
++  var i;
+   var listOfStrings = [];
+   var firstContentRecord = true;
+   var itemDisplayNameSubstring;
+   var entryDisplayNameSubstring;
+   var listOfUsers = null;
+   var commentString;
+-
+-  for (key in listOfRecords) {
+-    var record = listOfRecords[key];
++  var generateComments = false;
++  
++  if (!generateComments) {
++    indent = &quot;&quot;;
++  }
++  
++  for (i in listOfRecords) {
++    var record = listOfRecords[i];
+     if (firstContentRecord) {
+       firstContentRecord = false;
+     } else {
+       listOfStrings.push(',\n');
+     }
+-    listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
+-
++    if (generateComments) {
++      listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
++    }
++    
+     if (record instanceof Item) {
+       var item = record;
+-      listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
+-      listOfStrings.push(indent + '//           by (' + this.truncateString(item.getUserstamp().getDisplayString()) + ')');
+-      listOfStrings.push(' on (' + DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
+-      listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ');
+-      listOfStrings.push('{ &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + item._getUuid() + '&quot; }');
+-      listOfStrings.push(' }');
++      if (generateComments) {
++        listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
++        listOfStrings.push(indent + '//           by (' + this.truncateString(item.getUserstamp().getDisplayString()) + ')');
++        listOfStrings.push(' on (' + DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
++      }
++      if (!this._jsonFragmentForItemPrefix) {
++        this._jsonFragmentForItemPrefix = indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ';
++        this._jsonFragmentForItemPrefix += '{ &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: ';
++      }
++      listOfStrings.push(this._jsonFragmentForItemPrefix);
++      listOfStrings.push(item._getUuidInQuotes());
++      listOfStrings.push(' } }');
+       
+       if (!listOfUsers) {
+         listOfUsers = this.getUsers();
+@@ -245,8 +258,10 @@
+           passwordString = '&quot;' + password + '&quot;';
+         }
+         listOfStrings.push(',\n');
+-        listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
+-        listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(user) + '\n');
++        if (generateComments) {
++          listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
++          listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(user) + '\n');
++        }
+         listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_USER_CLASS + '&quot;: ' + '{\n');
+         listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_USER + '&quot;: &quot;' + user._getUuid() + '&quot;,\n');
+         listOfStrings.push(indent + '     &quot;' + StubVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }\n');
+@@ -258,7 +273,9 @@
+       var vote = record;
+       entryDisplayNameSubstring = this._getTypedDisplayStringForItem(vote.getContentRecord());
+       var deleteVsRetainString = vote.getRetainFlag() ? &quot;RETAIN&quot; : &quot;DELETE&quot;;
+-      listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
++      if (generateComments) {
++        listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
++      }
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + vote._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getContentRecord()._getUuid() + '&quot;,\n');
+@@ -270,7 +287,9 @@
+     if (record instanceof Ordinal) {
+       var ordinal = record;
+       entryDisplayNameSubstring = this._getTypedDisplayStringForItem(ordinal.getContentRecord());
+-      listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
++      if (generateComments) {
++        listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
++      }
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + ordinal._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
+@@ -283,34 +302,46 @@
+       var entry = record;
+       var entryType = entry.getType();
+       var typeUuid = entryType._getUuid();
+-      commentString = &quot;&quot;;
+-      var entryString = &quot;&quot;;
+-      entryString += indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{\n';
+-      entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + entry._getUuid() + '&quot;,\n';
++      // var entryString = &quot;&quot;;
++      if (generateComments) {
++        listOfStringsForEntry = [];
++      } else {
++        listOfStringsForEntry = listOfStrings;
++      }
++      listOfStringsForEntry.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{\n');
++      listOfStringsForEntry.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: ' + entry._getUuidInQuotes() + ',\n');
+       var previousEntry = entry.getPreviousEntry();
+       if (previousEntry) {
+-        entryString += indent + '&quot;' + StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n';
++        listOfStringsForEntry.push(indent + '&quot;' + StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: ' + previousEntry._getUuidInQuotes() + ',\n');
+       }
+-      entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid + '&quot;,\n';
++      listOfStringsForEntry.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid + '&quot;,\n');
++      if (generateComments) {
++        commentString = &quot;&quot;;
++      }
+       if (typeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+         var pairOfItems = entry.getItem();
+         var firstItem = pairOfItems[0];
+         var secondItem = pairOfItems[1];
+-        entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: [&quot;' + firstItem._getUuid() + '&quot;, &quot;' + secondItem._getUuid() + '&quot;],\n';
++        listOfStringsForEntry.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: [' + firstItem._getUuidInQuotes() + ', ' + secondItem._getUuidInQuotes() + '],\n');
+         var pairOfAttributes = entry.getAttribute();
+         var firstAttribute = pairOfAttributes[0];
+         var secondAttribute = pairOfAttributes[1];
+-        entryString += indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: [&quot;' + firstAttribute._getUuid() + '&quot;, &quot;' + secondAttribute._getUuid() + '&quot;]';
+-        commentString += indent + '// ' + this._getTypedDisplayStringForItem(firstItem);
+-        commentString += &quot;.(&quot; + this.truncateString(firstAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+-        commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(secondItem) + &quot;\n&quot;;
+-        commentString += indent + '// ' + this._getTypedDisplayStringForItem(secondItem);
+-        commentString += &quot;.(&quot; + this.truncateString(secondAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+-        commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(firstItem) + &quot;\n&quot;;
++        listOfStringsForEntry.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: [' + firstAttribute._getUuidInQuotes() + ', ' + secondAttribute._getUuidInQuotes() + ']');
++        if (generateComments) {
++          commentString += indent + '// ' + this._getTypedDisplayStringForItem(firstItem);
++          commentString += &quot;.(&quot; + this.truncateString(firstAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
++          commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(secondItem) + &quot;\n&quot;;
++          commentString += indent + '// ' + this._getTypedDisplayStringForItem(secondItem);
++          commentString += &quot;.(&quot; + this.truncateString(secondAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
++          commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(firstItem) + &quot;\n&quot;;
++        }
+       } else {
+         var attribute = entry.getAttribute();
+-        entryString += indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: &quot;' + attribute._getUuid() + '&quot;,\n';
+-        entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: &quot;' + entry.getItem()._getUuid() + '&quot;,\n';
++        // if (!(attribute instanceof Item)) {
++        //   alert(entry + &quot;\n&quot; + attribute);
++        // }
++        listOfStringsForEntry.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: ' + attribute._getUuidInQuotes() + ',\n');
++        listOfStringsForEntry.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: ' + entry.getItem()._getUuidInQuotes() + ',\n');
+         var contentData = entry.getValue();
+         
+         var valueString = null;
+@@ -318,32 +349,39 @@
+         switch (typeUuid) {
+           case World.UUID_FOR_TYPE_NUMBER: 
+             valueString = '&quot;' + contentData + '&quot;';
+-            valueComment = contentData;
++            if (generateComments) {valueComment = contentData;}
+             break;
+           case World.UUID_FOR_TYPE_TEXT: 
+             valueString = '&quot;' + this.encodeText(contentData) + '&quot;';
+-            valueComment = '&quot;' + this.truncateString(contentData) + '&quot;';
++            if (generateComments) {valueComment = '&quot;' + this.truncateString(contentData) + '&quot;';}
+             break;
+           case World.UUID_FOR_TYPE_DATE: 
+             valueString = '&quot;' + contentData.toString() + '&quot;';
+-            valueComment = valueString;
++            if (generateComments) {valueComment = valueString;}
+             break;
+           case World.UUID_FOR_TYPE_ITEM: 
+-            valueString = '&quot;' + contentData._getUuid() + '&quot;';
+-            valueComment = this._getTypedDisplayStringForItem(contentData);
++            valueString = contentData._getUuidInQuotes();
++            if (generateComments) {valueComment = this._getTypedDisplayStringForItem(contentData);}
+             break;
+           default:
+             Util.assert(false, &quot;no such type: &quot; + entryType.getDisplayString());
+         }
+-        entryString += indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString;
+-        commentString += indent + '// ' + this._getTypedDisplayStringForItem(entry.getItem());
+-        commentString += &quot;.(&quot; + this.truncateString(attribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+-        commentString += &quot; = &quot; + valueComment + &quot;\n&quot;;
++        listOfStringsForEntry.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString);
++        if (generateComments) {
++          commentString += indent + '// ' + this._getTypedDisplayStringForItem(entry.getItem());
++          commentString += &quot;.(&quot; + this.truncateString(attribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
++          commentString += &quot; = &quot; + valueComment + &quot;\n&quot;;
++        }
+       }
+-      commentString += indent + '//           by (' + this.truncateString(entry.getUserstamp().getDisplayString()) + ')';
+-      commentString += ' on (' + DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
+-      listOfStrings.push(commentString);
+-      listOfStrings.push(entryString);
++      if (generateComments) {
++        commentString += indent + '//           by (' + this.truncateString(entry.getUserstamp().getDisplayString()) + ')';
++        commentString += ' on (' + DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
++        listOfStrings.push(commentString);
++        for (var j in listOfStringsForEntry) {
++          listOfStrings.push(listOfStringsForEntry[j]);
++        }
++      }
++      // listOfStrings.push(entryString);
+       listOfStrings.push('  }\n');
+       listOfStrings.push(indent + '}');
+     }
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/model/Record.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -171,7 +171,15 @@
+ };
+ 
+ 
++// PENDING: this should be an instance method on Uuid
++Record.prototype._getUuidInQuotes = function() {
++  if (!this._uuidInQuotes) {
++    this._uuidInQuotes = '&quot;' + this._uuid + '&quot;';
++  }
++  return this._uuidInQuotes;
++};
+ 
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/model/StubVirtualServer.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -1009,6 +1009,9 @@
+               break;
+             case World.UUID_FOR_TYPE_DATE:
+               finalData = new DateValue(rawData);
++              if (!finalData.isValid()) {
++                alert(rawData + &quot; &quot; + finalData);
++              }
+               Util.assert(finalData.isValid());
+               break;
+             default:
+
+Modified: trunk/source/util/DateValue.js
+===================================================================
+--- trunk/source/util/DateValue.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/util/DateValue.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -166,13 +166,18 @@
+           // We should expand this to deal with strings like &quot;Feb 1944&quot;,
+           // &quot;February 1944&quot;, &quot;1944/02&quot;, etc.
+           var yearAsInt = parseInt(year);
+-          if ((year.length == 4) &amp;&amp; !isNaN(yearAsInt)) {
++          if ((year.length == 4) &amp;&amp; !isNaN(yearAsInt) &amp;&amp; (year == yearAsInt)) {
++            // This code handles strings like &quot;1944&quot; and &quot;2340&quot;
+             date = new Date(yearAsInt, DateValue.MONTH_JAN);
+             date._hasTime = false;
+             date._hasDay = false;
+             date._hasMonth = false;
+           }
+           else {
++            // This code handles strings like:
++            //   &quot;August 1944&quot;
++            //   &quot;Aug 1944&quot;
++            //   &quot;08/1944&quot;
+             var monthMatchStr = DateValue.ARRAY_OF_MONTH_SHORT_NAMES.concat(DateValue.ARRAY_OF_MONTH_NAMES).join('|');
+             var regExpr = new RegExp(&quot;^\\s*(&quot;+monthMatchStr+&quot;)\\s+(\\d{4})\\s*$&quot;,&quot;i&quot;);
+             var matchArray = year.match(regExpr);
+
+Modified: trunk/source/util/DateValueTest.js
+===================================================================
+--- trunk/source/util/DateValueTest.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/util/DateValueTest.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -71,6 +71,17 @@
+   assertTrue('today is correct in millisecs', Date.now() - dates[10].getTime() &lt; DateValue.MILLISECS_IN_A_DAY);
+   assertTrue('Month/Year parsing is right', dates[13].getYear() == 106 &amp;&amp; dates[13].getMonth() == 3);
+   assertTrue('Numeric month/year parsing correct', dates[14].getYear() == 103 &amp;&amp; dates[14].getMonth() == 6);
++
++  var notDates = new Array();
++  notDates[0] = new DateValue(&quot;194z&quot;);
++  notDates[1] = new DateValue(&quot;&quot;);
++  notDates[2] = new DateValue(&quot;8979789&quot;);
++  notDates[3] = new DateValue(&quot;April&quot;);
++  for (var j in notDates) {
++    var notDateValue = notDates[j];
++    assertTrue('DateValue is not valid', !notDateValue.isValid());
++  }
++  
+   // var alertString = dates.join('\n');
+   // alert(alertString);
+ }
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/util/Uuid.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -291,9 +291,10 @@
+ 
+ 
+ Uuid.getOriginalOrdinalFromUuid = function(uuid) {
+-  var hexTimeLow = uuid.split('-')[0];
+-  var hexTimeMid = uuid.split('-')[1];
+-  var hexTimeHigh = uuid.split('-')[2];
++  var arrayOfParts = uuid.split('-');
++  var hexTimeLow = arrayOfParts[0];
++  var hexTimeMid = arrayOfParts[1];
++  var hexTimeHigh = arrayOfParts[2];
+   return hexTimeHigh + hexTimeMid + hexTimeLow;
+ };
+ 
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-08-03 20:45:36 UTC (rev 274)
++++ trunk/source/view/EntryView.js	2005-08-05 03:50:46 UTC (rev 275)
+@@ -253,8 +253,16 @@
+     if (dataType == itemType || dataType == connectionType) {
+       if (this._isLozenge()) {
+         if (this.isInEditMode() &amp;&amp; !this._draggable) {
+-          this._textSpan.or_entryView = this; 
+-          this._draggable = new Draggable(this._textSpan, {revert:true});
++          var PENDING_temporaryHackToDecreaseLayoutTime = true;
++          if (PENDING_temporaryHackToDecreaseLayoutTime) {
++            if (this.getRootView().isInShowToolsMode()) {
++              this._textSpan.or_entryView = this; 
++              this._draggable = new Draggable(this._textSpan, {revert:true});
++            }
++          } else {
++            this._textSpan.or_entryView = this; 
++            this._draggable = new Draggable(this._textSpan, {revert:true});
++          }
+         }
+       }
+       else {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000259.html">[openrecord-svn] r274 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000261.html">[openrecord-svn] r276 - in trunk/source: model util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#260">[ date ]</a>
+              <a href="thread.html#260">[ thread ]</a>
+              <a href="subject.html#260">[ subject ]</a>
+              <a href="author.html#260">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

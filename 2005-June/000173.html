@@ -1,0 +1,2148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r187 - in trunk/source: . model repositories
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r187%20-%20in%20trunk/source%3A%20.%20model%20repositories&In-Reply-To=%3C200506272129.j5RLTsHx011217%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000172.html">
+   <LINK REL="Next"  HREF="000174.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r187 - in trunk/source: . model repositories</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r187%20-%20in%20trunk/source%3A%20.%20model%20repositories&In-Reply-To=%3C200506272129.j5RLTsHx011217%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r187 - in trunk/source: . model repositories">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jun 27 23:29:54 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000172.html">[openrecord-svn] r186 - in trunk: . source source/model source/repositories
+</A></li>
+        <LI>Next message: <A HREF="000174.html">[openrecord-svn] r188 - in trunk/source: . model repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-27 23:29:52 +0200 (Mon, 27 Jun 2005)
+New Revision: 187
+
+Modified:
+   trunk/source/PageView.js
+   trunk/source/SectionView.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+   trunk/source/repositories/dashboard.json
+   trunk/source/repositories/demo_page.json
+   trunk/source/repositories/dogfood.json
+Log:
+Did a lot of work on the JSON repository files.  Created some new axiomatic categories (Tag, Person) and attributes.  Set inverse attributes for existing axiomatic attributes.  Replaced most old-style item references with bi-directional connections.
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/PageView.js	2005-06-27 21:29:52 UTC (rev 187)
+@@ -55,7 +55,7 @@
+  * @param    inPage    The Page Item to insert the new section into
+  */
+ PageView.newSection = function (repository, inPage) {
+-  var attributeCalledQuery = repository.getAttributeCalledQuery();
++  var attributeCalledQuerySpec = repository.getAttributeCalledQuerySpec();
+   var categoryCalledQuery = repository.getCategoryCalledQuery();
+   var attributeCalledPluginView = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+   var attributeCalledSectionsInPage = repository.getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTIONS_IN_PAGE);
+@@ -72,7 +72,7 @@
+ 
+   var newQuery = repository.newItem(&quot;New Query&quot;);
+   newQuery.assignToCategory(categoryCalledQuery);
+-  newSection.addConnectionEntry(attributeCalledQuery, newQuery, attributeCalledSectionThisQueryBelongsTo);
++  newSection.addConnectionEntry(attributeCalledQuerySpec, newQuery, attributeCalledSectionThisQueryBelongsTo);
+   repository.endTransaction();
+   return newSection;
+ };
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/SectionView.js	2005-06-27 21:29:52 UTC (rev 187)
+@@ -68,7 +68,7 @@
+ SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER = &quot;section_number&quot;;
+ // SectionView.ELEMENT_ATTRIBUTE_CELL_NUMBER = &quot;cell_number&quot;;
+ 
+-SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME       = &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++// SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME       = &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW       = &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA       = &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN = &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+@@ -183,8 +183,8 @@
+  * @return   query associated to this section.
+  */
+ SectionView.prototype.getQuery = function () {
+-  var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
+-  var queryEntry = this.mySection.getSingleEntryFromAttribute(attributeCalledQuery);
++  var attributeCalledQuerySpec = this.getWorld().getAttributeCalledQuerySpec();
++  var queryEntry = this.mySection.getSingleEntryFromAttribute(attributeCalledQuerySpec);
+   if (queryEntry) {
+     return queryEntry.getConnectedItem(this.mySection);
+   }
+@@ -229,10 +229,7 @@
+     selectedPluginItem = selectedPluginViewEntry.getValue();
+     selectedPluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[selectedPluginItem._getUuid()];
+   } else {
+-    // code to support legacy repository files
+-    var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+-    selectedPluginItem = this.mySection.getSingleStringValueFromAttribute(attributeCalledPluginName);
+-    selectedPluginClass = TablePlugin; // PENDING: Hack!
++    selectedPluginClass = TablePlugin; 
+   }
+   
+   var sectionDiv = this.getHTMLElement();
+@@ -430,8 +427,6 @@
+   // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
+   
+   var selectElement = optionElement.parentNode;
+-  // var newChoiceName = optionElement.value;
+-  // var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+   var newChoiceUuid = optionElement.value;
+   var attributeCalledPluginView = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+   var newPluginViewItem = this.getWorld().getItemFromUuid(newChoiceUuid);
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-27 21:29:52 UTC (rev 187)
+@@ -3,158 +3,176 @@
+   &quot;records&quot;: [
+   // =======================================================================
+   { &quot;Transaction&quot;: [  // Axiomatic items
+-    { &quot;Item&quot;: {                                               // Amy ex machina
++    { &quot;Item&quot;: {                                               // User: Amy ex machina
+              &quot;uuid&quot;: &quot;00001000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Name
++    { &quot;Item&quot;: {                                               // Attribute: Name
+              &quot;uuid&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Short Name
++    { &quot;Item&quot;: {                                               // Attribute: Short Name
+              &quot;uuid&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Summary
++    { &quot;Item&quot;: {                                               // Attribute: Summary
+              &quot;uuid&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Body
++    { &quot;Item&quot;: {                                               // Attribute: Body
+              &quot;uuid&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Category
++    { &quot;Item&quot;: {                                               // Attribute: Category
+              &quot;uuid&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Query
++    { &quot;Item&quot;: {                                               // Attribute: Query Spec.
+              &quot;uuid&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Matching Value
++    { &quot;Item&quot;: {                                               // Attribute: Matching Value
+              &quot;uuid&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Matching Attribute
++    { &quot;Item&quot;: {                                               // Attribute: Matching Attribute
+              &quot;uuid&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Unfiled Entry
++    { &quot;Item&quot;: {                                               // Attribute: Unfiled Entry
+              &quot;uuid&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Expected Type
++    { &quot;Item&quot;: {                                               // Attribute: Expected Type
+              &quot;uuid&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Inverse Attribute
++    { &quot;Item&quot;: {                                               // Attribute: Inverse Attribute
+              &quot;uuid&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Items in Category
++    { &quot;Item&quot;: {                                               // Attribute: Items in Category
+              &quot;uuid&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Attribute
+-             &quot;uuid&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    { &quot;Item&quot;: {                                               // Attribute: Tag
++             &quot;uuid&quot;: &quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Category
+-             &quot;uuid&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    { &quot;Item&quot;: {                                               // Attribute: Tagged Items
++             &quot;uuid&quot;: &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Query
+-             &quot;uuid&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Type
+-             &quot;uuid&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Text
++    { &quot;Item&quot;: {                                               // Type: Text
+              &quot;uuid&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Number
++    { &quot;Item&quot;: {                                               // Type: Number
+              &quot;uuid&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Date
++    { &quot;Item&quot;: {                                               // Type: Date
+              &quot;uuid&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Check Mark
++    { &quot;Item&quot;: {                                               // Type: Check Mark
+              &quot;uuid&quot;: &quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // URL
++    { &quot;Item&quot;: {                                               // Type: URL
+              &quot;uuid&quot;: &quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Item
++    { &quot;Item&quot;: {                                               // Type: Item
+              &quot;uuid&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Anything
++    { &quot;Item&quot;: {                                               // Type: Anything
+              &quot;uuid&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Connection
++    { &quot;Item&quot;: {                                               // Type: Connection
+              &quot;uuid&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Amy ex machina
++    { &quot;Item&quot;: {                                               // Category: Person
++             &quot;uuid&quot;: &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Category: Attribute
++             &quot;uuid&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Category: Category
++             &quot;uuid&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Category: Query Spec.
++             &quot;uuid&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Category: Type
++             &quot;uuid&quot;: &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Category: Tag
++             &quot;uuid&quot;: &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Amy ex machina&quot;
+              &quot;uuid&quot;: &quot;0001000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Amy ex machina
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Name)
++             &quot;item&quot;: &quot;00001000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // User: Amy ex machina
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Amy ex machina&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Name
++    { &quot;Entry&quot;: {                                              // &quot;Name&quot;
+              &quot;uuid&quot;: &quot;0001001a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Name)
++             &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Name
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Name&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Name) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Name)
+              &quot;uuid&quot;: &quot;0001001b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Text
++    { &quot;Entry&quot;: {                                              // (Text)
+              &quot;uuid&quot;: &quot;0001001c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Expected Type)
++             &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Name
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Short Name
++    { &quot;Entry&quot;: {                                              // &quot;Short Name&quot;
+              &quot;uuid&quot;: &quot;0001002a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Short Name
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Short Name&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Short Name) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Short Name)
+              &quot;uuid&quot;: &quot;0001002b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Text
+              &quot;uuid&quot;: &quot;0001002c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Short Name
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -162,23 +180,24 @@
+     { &quot;Entry&quot;: {                                              // Summary
+              &quot;uuid&quot;: &quot;0001003a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
++             &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Summary
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Summary&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Summary) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Summary)
+              &quot;uuid&quot;: &quot;0001003b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Text
+              &quot;uuid&quot;: &quot;0001003c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
++             &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Summary
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -186,23 +205,24 @@
+     { &quot;Entry&quot;: {                                              // Body
+              &quot;uuid&quot;: &quot;0001004a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Body
++             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Body
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Body&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Body) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Body)
+              &quot;uuid&quot;: &quot;0001004b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Body
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Text
+              &quot;uuid&quot;: &quot;0001004c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Body
++             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Body
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -210,111 +230,116 @@
+     { &quot;Entry&quot;: {                                              // Category
+              &quot;uuid&quot;: &quot;0001005a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++             &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Category
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Category&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Category) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Category)
+              &quot;uuid&quot;: &quot;0001005b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Category
+              &quot;uuid&quot;: &quot;0001005c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++             &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Category
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Query
++    { &quot;Entry&quot;: {                                              // Query Spec.
+              &quot;uuid&quot;: &quot;0001006a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
++             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Query Spec.
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Query&quot; }
++            &quot;value&quot;: &quot;Query Spec.&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Query Spec.) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Query Spec.)
+              &quot;uuid&quot;: &quot;0001006b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Query
++    { &quot;Entry&quot;: {                                              // Query Spec.
+              &quot;uuid&quot;: &quot;0001006c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
++             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Query Spec.
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Matching Value
+              &quot;uuid&quot;: &quot;0001007a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Value
++             &quot;item&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Matching Value
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Matching Value&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Matching Value) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Matching Value)
+              &quot;uuid&quot;: &quot;0001007b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Value
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Matching Attribute
+              &quot;uuid&quot;: &quot;0001008a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Attribute
++             &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Matching Attribute
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Matching Attribute&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Matching Attribute) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Matching Attribute)
+              &quot;uuid&quot;: &quot;0001008b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Attribute
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Attribute
+              &quot;uuid&quot;: &quot;0001008c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Attribute
++             &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Matching Attribute
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Unfiled Entry
+              &quot;uuid&quot;: &quot;0001009a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Unfiled Entry
++             &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Unfiled Entry
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Unfiled Entry&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Unfiled Entry) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Unfiled Entry)
+              &quot;uuid&quot;: &quot;0001009b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Unfiled Entry
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Anything
+              &quot;uuid&quot;: &quot;0001009c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Unfiled Entry
++             &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Unfiled Entry
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -322,298 +347,419 @@
+     { &quot;Entry&quot;: {                                              // Expected Type
+              &quot;uuid&quot;: &quot;000100aa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Expected Type
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Expected Type&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Expected Type) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Expected Type)
+              &quot;uuid&quot;: &quot;000100ab-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Category
+              &quot;uuid&quot;: &quot;000100ac-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Expected Type
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Type
+              &quot;uuid&quot;: &quot;000100ad-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Expected Type
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Inverse Attribute
+              &quot;uuid&quot;: &quot;000100ba-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Inverse Attribute
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Inverse Attribute&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Inverse Attribute) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Inverse Attribute)
+              &quot;uuid&quot;: &quot;000100bb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // (Attribute: Inverse Attribute)
++             &quot;uuid&quot;: &quot;000100bc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Inverse Attribute
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
+-             &quot;uuid&quot;: &quot;000100bc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++    { &quot;Entry&quot;: {                                              // (Type: Attribute)
++             &quot;uuid&quot;: &quot;000100bd-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Inverse Attribute
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Items in Category
++    { &quot;Entry&quot;: {                                              // &quot;Items in Category&quot;
+              &quot;uuid&quot;: &quot;000100ca-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Items in Category
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Name)
++             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Items in Category
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Items in Category&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Items in Category) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Items in Category)
+              &quot;uuid&quot;: &quot;000100cb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Items in Category
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Text
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Category) assign (Attribute: Inverse Attribute) = (Attribute: Items in Category)
++             // in item (Attribute: Items in Category) assign (Attribute: Inverse Attribute) = (Attribute: Category)
+              &quot;uuid&quot;: &quot;000100cc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Items in Category
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // (Type: Item)
++             &quot;uuid&quot;: &quot;000100cd-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Expected Type)
++             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Items in Category
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
+-             &quot;uuid&quot;: &quot;0001010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++    { &quot;Entry&quot;: {                                              // &quot;Tag&quot;
++             &quot;uuid&quot;: &quot;000100da-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute
++             &quot;item&quot;: &quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Tag
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Attribute&quot; }
++            &quot;value&quot;: &quot;Tag&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
+-             &quot;uuid&quot;: &quot;0001010b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Tag) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Tag)
++             &quot;uuid&quot;: &quot;000100db-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
+-             &quot;uuid&quot;: &quot;0001011a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Category&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
+-             &quot;uuid&quot;: &quot;0001011b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++    { &quot;Entry&quot;: {                                              // (Category: Tag)
++             &quot;uuid&quot;: &quot;000100dc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Tag
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Query
+-             &quot;uuid&quot;: &quot;0001012a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++    { &quot;Entry&quot;: {                                              // &quot;Tagged Items&quot;
++             &quot;uuid&quot;: &quot;000100ea-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
++             &quot;item&quot;: &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Tagged Items
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Query&quot; }
++            &quot;value&quot;: &quot;Tagged Items&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
+-             &quot;uuid&quot;: &quot;0001012b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Tagged Items) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Tagged Items)
++             &quot;uuid&quot;: &quot;000100eb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
+-             &quot;uuid&quot;: &quot;0001013a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type
+-             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Type&quot; }
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Tag) assign (Attribute: Inverse Attribute) = (Attribute: Tagged Items)
++             // in item (Attribute: Tagged Items) assign (Attribute: Inverse Attribute) = (Attribute: Tag)
++             &quot;uuid&quot;: &quot;000100ec-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
+-             &quot;uuid&quot;: &quot;0001013b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type
++    { &quot;Entry&quot;: {                                              // Item
++             &quot;uuid&quot;: &quot;000100ed-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Tagged Items
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Text
++    { &quot;Entry&quot;: {                                              // &quot;Text&quot;
+              &quot;uuid&quot;: &quot;0001020a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Text
++             &quot;item&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Text
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Text&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Text) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Text)
+              &quot;uuid&quot;: &quot;0001020b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Text
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Number
++    { &quot;Entry&quot;: {                                              // &quot;Number&quot;
+              &quot;uuid&quot;: &quot;0001021a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Number
++             &quot;item&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Number
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Number&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Number) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Number)
+              &quot;uuid&quot;: &quot;0001021b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Number
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Date
++    { &quot;Entry&quot;: {                                              // &quot;Date&quot;
+              &quot;uuid&quot;: &quot;0001022a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Date
++             &quot;item&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Date
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Date&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Date) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Date)
+              &quot;uuid&quot;: &quot;0001022b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Date
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Check Mark
++    { &quot;Entry&quot;: {                                              // &quot;Check Mark&quot;
+              &quot;uuid&quot;: &quot;0001023a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Check Mark
++             &quot;item&quot;: &quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Check Mark
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Check Mark&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Check Mark) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Check Mark)
+              &quot;uuid&quot;: &quot;0001023b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Check Mark
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // URL
++    { &quot;Entry&quot;: {                                              // &quot;URL&quot;
+              &quot;uuid&quot;: &quot;0001024a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // URL
++             &quot;item&quot;: &quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: URL
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;URL&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: URL) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: URL)
+              &quot;uuid&quot;: &quot;0001024b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // URL
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Item
++    { &quot;Entry&quot;: {                                              // &quot;Item&quot;
+              &quot;uuid&quot;: &quot;0001030a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Item
++             &quot;item&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Item
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Item&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Item) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Item)
+              &quot;uuid&quot;: &quot;0001030b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Item
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Anything
++    { &quot;Entry&quot;: {                                              // &quot;Anything&quot;
+              &quot;uuid&quot;: &quot;0001040a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Anything
++             &quot;item&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Anything
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Anything&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Anything) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Anything)
+              &quot;uuid&quot;: &quot;0001040b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Anything
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Connection
++    { &quot;Entry&quot;: {                                              // &quot;Connection&quot;
+              &quot;uuid&quot;: &quot;0001050a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Connection
++             &quot;item&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type: Connection
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Connection&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Type
++    { &quot;Entry&quot;: {                                              
++             // in item (Type: Connection) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Connection)
+              &quot;uuid&quot;: &quot;0001050b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Connection
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    } ]
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Person&quot;
++             &quot;uuid&quot;: &quot;0001201a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Person
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Person&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Person) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Person)
++             &quot;uuid&quot;: &quot;0001201b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Attribute&quot;
++             &quot;uuid&quot;: &quot;0001210a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Attribute
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Attribute&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Attribute) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Attribute)
++             &quot;uuid&quot;: &quot;0001210b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Category&quot;
++             &quot;uuid&quot;: &quot;0001211a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Category
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Category&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Category) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Category)
++             &quot;uuid&quot;: &quot;0001211b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Query Spec.&quot;
++             &quot;uuid&quot;: &quot;0001212a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Query Spec.
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Query Spec.&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Query Spec.) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Query Spec.)
++             &quot;uuid&quot;: &quot;0001212b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Type&quot;
++             &quot;uuid&quot;: &quot;0001213a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Type
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Type&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Type) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Type)
++             &quot;uuid&quot;: &quot;0001213b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Tag&quot;
++             &quot;uuid&quot;: &quot;0001214a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Tag
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Tag&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Tag) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Tag)
++             &quot;uuid&quot;: &quot;0001214b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
+   },
+   // =======================================================================
+   { &quot;Transaction&quot;: [  // Fundamental view-level items
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Page
++    { &quot;Item&quot;: {                                               // Category: Page
+              &quot;uuid&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Section
++    { &quot;Item&quot;: {                                               // Category: Section
+              &quot;uuid&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Sections In Page
++    { &quot;Item&quot;: {                                               // Attribute: Sections In Page
+              &quot;uuid&quot;: &quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Page this section appears on
++    { &quot;Item&quot;: {                                               // Attribute: Page this section appears on
+              &quot;uuid&quot;: &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Plugin Name (Attribute)
+-             &quot;uuid&quot;: &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Plugin View (Attribute)
+              &quot;uuid&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -626,6 +772,14 @@
+              &quot;uuid&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Section this layout data belongs to (Attribute)
++             &quot;uuid&quot;: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Section this query spec belongs to (Attribute)
++             &quot;uuid&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Table Columns (Attribute)
+              &quot;uuid&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -657,34 +811,36 @@
+     { &quot;Entry&quot;: {                                              // Page
+              &quot;uuid&quot;: &quot;0020000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Page
++             &quot;item&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Page
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Page&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Page) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Page)
+              &quot;uuid&quot;: &quot;0020000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Page
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Section
+              &quot;uuid&quot;: &quot;0020100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section
++             &quot;item&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Section
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Section&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Section) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Section)
+              &quot;uuid&quot;: &quot;0020100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Sections In Page
+              &quot;uuid&quot;: &quot;0030000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -694,14 +850,32 @@
+             &quot;value&quot;: &quot;Sections In Page&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Sections In Page) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Sections In Page)
+              &quot;uuid&quot;: &quot;0030000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Sections In Page
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Section
++             &quot;uuid&quot;: &quot;0030000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Sections In Page (Attribute)
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Sections In Page) assign (Attribute: Inverse Attribute) = (Attribute: Page this section appears on)
++             // in item (Attribute: Page this section appears on) assign (Attribute: Inverse Attribute) = (Attribute: Sections In Page)
++             &quot;uuid&quot;: &quot;0030000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Page this section appears on
+              &quot;uuid&quot;: &quot;0030001a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -710,28 +884,21 @@
+             &quot;value&quot;: &quot;Page this section appears on&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Page this section appears on) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Page this section appears on)
+              &quot;uuid&quot;: &quot;0030001b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Page this section appears on
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Plugin Name
+-             &quot;uuid&quot;: &quot;0040000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin Name (Attribute)
+-             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Plugin Name&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
+-             &quot;uuid&quot;: &quot;0040000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin Name (Attribute)
++    { &quot;Entry&quot;: {                                              // Section
++             &quot;uuid&quot;: &quot;0030001c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Page this section appears on (Attribute)
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Plugin View
+@@ -742,13 +909,14 @@
+             &quot;value&quot;: &quot;Plugin View&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Plugin View) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Plugin View)
+              &quot;uuid&quot;: &quot;0040101b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Attribute)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Plugin View (Category)
+              &quot;uuid&quot;: &quot;0040101c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -766,13 +934,14 @@
+             &quot;value&quot;: &quot;Layout Data&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Layout Data) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Layout Data)
+              &quot;uuid&quot;: &quot;0040102b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Attribute)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Layout Data (Category)
+              &quot;uuid&quot;: &quot;0040102c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -790,13 +959,14 @@
+             &quot;value&quot;: &quot;Applies To Plugin&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Applies To Plugin) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Applies To Plugin)
+              &quot;uuid&quot;: &quot;0040103b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Applies To Plugin (Attribute)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Plugin View (Category)
+              &quot;uuid&quot;: &quot;0040103c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -814,42 +984,62 @@
+             &quot;value&quot;: &quot;Section this layout data belongs to&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Section this layout data belongs to) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Section this layout data belongs to)
+              &quot;uuid&quot;: &quot;0040104b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this layout data belongs to (Attribute)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Layout Data) assign (Attribute: Inverse Attribute) = (Attribute: Section this layout data belongs to)
++             // in item (Attribute: Section this layout data belongs to) assign (Attribute: Inverse Attribute) = (Attribute: Layout Data)
++             &quot;uuid&quot;: &quot;0040104c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Section
+-             &quot;uuid&quot;: &quot;0040104c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;0040104d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this layout data belongs to (Attribute)
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Section this query belongs to 
++    { &quot;Entry&quot;: {                                              // Section this query spec belongs to 
+              &quot;uuid&quot;: &quot;0040105a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this query belongs to (Attribute)
++             &quot;item&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this query spec belongs to (Attribute)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Section this query belongs to&quot; }
++            &quot;value&quot;: &quot;Section this query spec belongs to&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Section this query spec belongs to) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Section this query spec belongs to)
+              &quot;uuid&quot;: &quot;0040105b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this query belongs to (Attribute)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Query Spec.) assign (Attribute: Inverse Attribute) = (Attribute: Section this query spec belongs to)
++             // in item (Attribute: Section this query spec belongs to) assign (Attribute: Inverse Attribute) = (Attribute: Query Spec.)
++             &quot;uuid&quot;: &quot;0040105c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Section
+-             &quot;uuid&quot;: &quot;0040105c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;0040105d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this query belongs to (Attribute)
++             &quot;item&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section this query spec belongs to (Attribute)
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -862,20 +1052,21 @@
+             &quot;value&quot;: &quot;Table Columns&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Attribute
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Table Columns) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Table Columns)
+              &quot;uuid&quot;: &quot;004010ab-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table Columns (Attribute)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Attribute
+              &quot;uuid&quot;: &quot;004010ac-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table Columns (Attribute)
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++            &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Plugin View
+@@ -886,13 +1077,14 @@
+             &quot;value&quot;: &quot;Plugin View&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Plugin View) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Plugin View)
+              &quot;uuid&quot;: &quot;0040201b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Category)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Layout Data
+              &quot;uuid&quot;: &quot;0040202a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -902,13 +1094,14 @@
+             &quot;value&quot;: &quot;Layout Data&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Category
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Layout Data) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Layout Data)
+              &quot;uuid&quot;: &quot;0040202b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Category)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Table View
+              &quot;uuid&quot;: &quot;0040301a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -918,13 +1111,14 @@
+             &quot;value&quot;: &quot;Table View&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Plugin View (Category)
++    { &quot;Entry&quot;: {                                              
++             // in item (Plugin View: Table View) assign (Attribute: Category) = (Category: Plugin View)
++             // in item (Category: Plugin View) assign (Attribute: Items in Category) = (Plugin View: Table View)
+              &quot;uuid&quot;: &quot;0040301b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table View (Plugin View)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Table
+              &quot;uuid&quot;: &quot;0040301c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -942,13 +1136,14 @@
+             &quot;value&quot;: &quot;Outline View&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Plugin View (Category)
++    { &quot;Entry&quot;: {                                              
++             // in item (Plugin View: Outline View) assign (Attribute: Category) = (Category: Plugin View)
++             // in item (Category: Plugin View) assign (Attribute: Items in Category) = (Plugin View: Outline View)
+              &quot;uuid&quot;: &quot;0040302b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Outline View (Plugin View)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Outline
+              &quot;uuid&quot;: &quot;0040302c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -966,13 +1161,14 @@
+             &quot;value&quot;: &quot;Detail View&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Plugin View (Category)
++    { &quot;Entry&quot;: {                                              
++             // in item (Plugin View: Detail View) assign (Attribute: Category) = (Category: Plugin View)
++             // in item (Category: Plugin View) assign (Attribute: Items in Category) = (Plugin View: Detail View)
+              &quot;uuid&quot;: &quot;0040303b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040303-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Detail View (Plugin View)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040303-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Outline
+              &quot;uuid&quot;: &quot;0040303c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -990,13 +1186,14 @@
+             &quot;value&quot;: &quot;Bar Chart View&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Plugin View (Category)
++    { &quot;Entry&quot;: {                                              
++             // in item (Plugin View: Bar Chart View) assign (Attribute: Category) = (Category: Plugin View)
++             // in item (Category: Plugin View) assign (Attribute: Items in Category) = (Plugin View: Bar Chart View)
+              &quot;uuid&quot;: &quot;0040304b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00040304-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Bar Chart View (Plugin View)
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040304-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Bar Chart
+              &quot;uuid&quot;: &quot;0040304c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -1018,8 +1215,25 @@
+          &quot;password&quot;: &quot;92eb5ffee6ae2fec3ad71c777531578f&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Person: Brian Douglas Skinner) assign (Attribute: Category) = (Category: Person)
++             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Brian Douglas Skinner)
++             &quot;uuid&quot;: &quot;2c4fa781-dde4-11d9-9c71-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;, &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Brian&quot;
++             &quot;uuid&quot;: &quot;2c4fa782-dde4-11d9-9c71-000c414ce854&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;,  // Brian Douglas Skinner
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Brian&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Brian Douglas Skinner
+-             &quot;uuid&quot;: &quot;2c4fa781-dde4-11d9-9c71-000c414ce854&quot;,
++             &quot;uuid&quot;: &quot;2c4fa783-dde4-11d9-9c71-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;,  // Brian Douglas Skinner
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+@@ -1038,8 +1252,25 @@
+          &quot;password&quot;: null }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Person: Chih-Chao Lam) assign (Attribute: Category) = (Category: Person)
++             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Chih-Chao Lam)
++             &quot;uuid&quot;: &quot;90e02171-dde4-11d9-9c71-e24829d2f59b&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot;, &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Chao&quot;
++             &quot;uuid&quot;: &quot;90e02172-dde4-11d9-9c71-e24829d2f59b&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot;,  // Chih-Chao Lam
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Chao&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Chih-Chao Lam
+-             &quot;uuid&quot;: &quot;90e02171-dde4-11d9-9c71-e24829d2f59b&quot;,
++             &quot;uuid&quot;: &quot;90e02173-dde4-11d9-9c71-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot;,  // Chih-Chao Lam
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+@@ -1058,8 +1289,25 @@
+          &quot;password&quot;: null }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Person: Mignon Belongie) assign (Attribute: Category) = (Category: Person)
++             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Mignon Belongie)
++             &quot;uuid&quot;: &quot;97d040f1-dde4-11d9-9c71-c103016080e1&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot;, &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Mignon&quot;
++             &quot;uuid&quot;: &quot;97d040f2-dde4-11d9-9c71-c103016080e1&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot;,  // Mignon Belongie
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Mignon&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Mignon Belongie
+-             &quot;uuid&quot;: &quot;97d040f1-dde4-11d9-9c71-c103016080e1&quot;,
++             &quot;uuid&quot;: &quot;97d040f3-dde4-11d9-9c71-c103016080e1&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot;,  // Mignon Belongie
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+@@ -1078,8 +1326,25 @@
+          &quot;password&quot;: null }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Person: Mimi Yin) assign (Attribute: Category) = (Category: Person)
++             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Mimi Yin)
++             &quot;uuid&quot;: &quot;9c3596e1-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot;, &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Mimi&quot;
++             &quot;uuid&quot;: &quot;9c3596e2-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot;,  // Mimi Yin
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Mimi&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Mimi Yin
+-             &quot;uuid&quot;: &quot;9c3596e1-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
++             &quot;uuid&quot;: &quot;9c3596e3-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot;,  // Mimi Yin
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+@@ -1098,8 +1363,25 @@
+          &quot;password&quot;: null }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Person: Marty Betz) assign (Attribute: Category) = (Category: Person)
++             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Marty Betz)
++             &quot;uuid&quot;: &quot;a00bf341-dde4-11d9-9c71-dae11c269bc7&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot;, &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Marty&quot;
++             &quot;uuid&quot;: &quot;a00bf342-dde4-11d9-9c71-dae11c269bc7&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot;,  // Marty Betz
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Marty&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Marty Betz
+-             &quot;uuid&quot;: &quot;a00bf341-dde4-11d9-9c71-dae11c269bc7&quot;,
++             &quot;uuid&quot;: &quot;a00bf343-dde4-11d9-9c71-dae11c269bc7&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot;,  // Marty Betz
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/model/StubVirtualServer.js	2005-06-27 21:29:52 UTC (rev 187)
+@@ -45,23 +45,14 @@
+ // DeltaVirtualServer public class constants
+ // -------------------------------------------------------------------
+ StubVirtualServer.JSON_MEMBER_FORMAT = &quot;format&quot;;
+-// StubVirtualServer.JSON_MEMBER_TIMESTAMP = &quot;timestamp&quot;;
+-// StubVirtualServer.JSON_MEMBER_DATA = &quot;data&quot;;
+ StubVirtualServer.JSON_MEMBER_RECORDS = &quot;records&quot;;
+-// StubVirtualServer.JSON_MEMBER_USERS = &quot;users&quot;;
+ 
+-// StubVirtualServer.JSON_FORMAT_2005_MARCH = &quot;2005_MARCH_ITEM_CENTRIC_LIST&quot;;
+-// StubVirtualServer.JSON_FORMAT_2005_APRIL = &quot;2005_APRIL_CHRONOLOGICAL_LIST&quot;;
+-// StubVirtualServer.JSON_FORMAT_2005_MAY_RECORDS = &quot;2005_MAY_CHRONOLOGICAL_LIST&quot;;
+-// StubVirtualServer.JSON_FORMAT_2005_MAY_USERS = &quot;2005_MAY_USER_LIST&quot;;
+ StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS = &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot;;
+ 
+ StubVirtualServer.JSON_MEMBER_TYPE = &quot;type&quot;;
+ StubVirtualServer.JSON_MEMBER_VALUE = &quot;value&quot;;
+ 
+ StubVirtualServer.JSON_TYPE_TEXT_VALUE = &quot;TextValue&quot;;
+-// StubVirtualServer.JSON_TYPE_UUID = &quot;Uuid&quot;;
+-// StubVirtualServer.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
+ StubVirtualServer.JSON_TYPE_RELATED_UUID = &quot;RelatedUuid&quot;;
+ StubVirtualServer.JSON_TYPE_NUMBER_VALUE = &quot;NumberValue&quot;;
+ StubVirtualServer.JSON_TYPE_DATE_VALUE = &quot;DateValue&quot;;
+@@ -82,7 +73,6 @@
+ 
+ StubVirtualServer.JSON_MEMBER_ATTRIBUTE = &quot;attribute&quot;;
+ StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE = &quot;previousEntry&quot;;
+-// StubVirtualServer.JSON_MEMBER_USERSTAMP = &quot;userstamp&quot;;
+ StubVirtualServer.JSON_MEMBER_RECORD = &quot;record&quot;;
+ StubVirtualServer.JSON_MEMBER_ITEM = &quot;item&quot;;
+ StubVirtualServer.JSON_MEMBER_RETAIN_FLAG = &quot;retainFlag&quot;;
+@@ -400,12 +390,15 @@
+   }
+   this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = md5Authentication;
+ 
++  this.__myCurrentUser = newUser;
++  var categoryCalledPerson = this.getWorld().getCategoryCalledPerson();
++  newUser.assignToCategory(categoryCalledPerson); 
+   if (inName) { 
+-    this.__myCurrentUser = newUser;
+     var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+     var entry = newUser.addEntryForAttribute(attributeCalledName, inName);
+-    this.__myCurrentUser = null;
+   }
++  this.__myCurrentUser = null;
++  
+   return newUser;
+ };
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/model/World.js	2005-06-27 21:29:52 UTC (rev 187)
+@@ -56,21 +56,16 @@
+ World.UUID_FOR_ATTRIBUTE_SUMMARY                  = &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_BODY                     = &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_CATEGORY                 = &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_QUERY                    = &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_QUERY_SPEC               = &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE     = &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE = &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_UNFILED                  = &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE            = &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE        = &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_ITEMS_IN_CATEGORY        = &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_TAG                      = &quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_TAGGED_ITEMS             = &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-World.UUID_FOR_CATEGORY_BOOK           = &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+-World.UUID_FOR_CATEGORY_MOVIE          = &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+-World.UUID_FOR_CATEGORY_ATTRIBUTE      = &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_CATEGORY_CATEGORY       = &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_CATEGORY_QUERY          = &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_CATEGORY_TYPE           = &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-
+ World.UUID_FOR_TYPE_TEXT               = &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_TYPE_NUMBER             = &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_TYPE_DATE               = &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+@@ -80,6 +75,14 @@
+ World.UUID_FOR_TYPE_ANYTHING           = &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_TYPE_CONNECTION         = &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
++World.UUID_FOR_CATEGORY_PERSON         = &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_ATTRIBUTE      = &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_CATEGORY       = &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_QUERY          = &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_TYPE           = &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_TAG            = &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++
++
+ // -------------------------------------------------------------------
+ // World private class constants
+ // -------------------------------------------------------------------
+@@ -125,20 +128,16 @@
+   this._attributeCalledShortName              = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SHORT_NAME);
+   this._attributeCalledSummary                = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
+   this._attributeCalledCategory               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
+-  this._attributeCalledQuery                  = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
++  this._attributeCalledQuerySpec              = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_SPEC);
+   this._attributeCalledQueryMatchingValue     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE);
+   this._attributeCalledQueryMatchingAttribute = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE);
+   this._attributeCalledUnfiled                = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
+   this._attributeCalledExpectedType           = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
+   this._attributeCalledInverseAttribute       = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE);
+   this._attributeCalledItemsInCategory        = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_ITEMS_IN_CATEGORY);
++  this._attributeCalledTag                    = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_TAG);
++  this._attributeCalledTaggedItems            = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_TAGGED_ITEMS);
+ 
+-  // load the axiomatic categories
+-  this._categoryCalledAttribute   = server.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+-  this._categoryCalledCategory    = server.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
+-  this._categoryCalledQuery       = server.getItemFromUuid(World.UUID_FOR_CATEGORY_QUERY);
+-  this._categoryCalledType        = server.getItemFromUuid(World.UUID_FOR_CATEGORY_TYPE);
+-
+   // load the axiomatic types
+   this._typeCalledText       = server.getItemFromUuid(World.UUID_FOR_TYPE_TEXT);
+   this._typeCalledNumber     = server.getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
+@@ -148,6 +147,14 @@
+   this._typeCalledItem       = server.getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
+   this._typeCalledAnything   = server.getItemFromUuid(World.UUID_FOR_TYPE_ANYTHING);
+   this._typeCalledConnection = server.getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
++
++  // load the axiomatic categories 
++  this._categoryCalledPerson      = server.getItemFromUuid(World.UUID_FOR_CATEGORY_PERSON);
++  this._categoryCalledAttribute   = server.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
++  this._categoryCalledCategory    = server.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
++  this._categoryCalledQuery       = server.getItemFromUuid(World.UUID_FOR_CATEGORY_QUERY);
++  this._categoryCalledType        = server.getItemFromUuid(World.UUID_FOR_CATEGORY_TYPE);
++  this._categoryCalledTag         = server.getItemFromUuid(World.UUID_FOR_CATEGORY_TAG);
+ }
+ 
+ 
+@@ -390,8 +397,8 @@
+   return this._attributeCalledCategory;
+ };
+ 
+-World.prototype.getAttributeCalledQuery = function() {
+-  return this._attributeCalledQuery;
++World.prototype.getAttributeCalledQuerySpec = function() {
++  return this._attributeCalledQuerySpec;
+ };
+ 
+ World.prototype.getAttributeCalledQueryMatchingValue = function() {
+@@ -418,27 +425,15 @@
+   return this._attributeCalledItemsInCategory;
+ };
+ 
+-
+-// -------------------------------------------------------------------
+-// Accessor methods for axiomatic categories
+-// -------------------------------------------------------------------
+-World.prototype.getCategoryCalledAttribute = function() {
+-  return this._categoryCalledAttribute;
++World.prototype.getAttributeCalledTag = function() {
++  return this._attributeCalledTag;
+ };
+ 
+-World.prototype.getCategoryCalledCategory = function() {
+-  return this._categoryCalledCategory;
++World.prototype.getAttributeCalledTaggedItems = function() {
++  return this._attributeCalledTaggedItems;
+ };
+ 
+-World.prototype.getCategoryCalledQuery = function() {
+-  return this._categoryCalledQuery;
+-};
+ 
+-World.prototype.getCategoryCalledType = function() {
+-  return this._categoryCalledType;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic categories
+ // -------------------------------------------------------------------
+@@ -475,7 +470,34 @@
+ };
+ 
+ 
++// -------------------------------------------------------------------
++// Accessor methods for axiomatic categories
++// -------------------------------------------------------------------
++World.prototype.getCategoryCalledPerson = function() {
++  return this._categoryCalledPerson;
++};
+ 
++World.prototype.getCategoryCalledAttribute = function() {
++  return this._categoryCalledAttribute;
++};
++
++World.prototype.getCategoryCalledCategory = function() {
++  return this._categoryCalledCategory;
++};
++
++World.prototype.getCategoryCalledQuery = function() {
++  return this._categoryCalledQuery;
++};
++
++World.prototype.getCategoryCalledType = function() {
++  return this._categoryCalledType;
++};
++
++World.prototype.getCategoryCalledType = function() {
++  return this._categoryCalledTag;
++};
++
++
+ // -------------------------------------------------------------------
+ // Login and logout methods
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/repositories/dashboard.json
+===================================================================
+--- trunk/source/repositories/dashboard.json	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/repositories/dashboard.json	2005-06-27 21:29:52 UTC (rev 187)
+@@ -8,34 +8,35 @@
+              &quot;uuid&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Page
++    { &quot;Entry&quot;: {                                              
++             // in item (Page: Dashboard Demo Page) assign (Attribute: Category) = (Category: Page)
++             // in item (Category: Page) assign (Attribute: Items in Category) = (Page: Dashboard Demo Page)
+              &quot;uuid&quot;: &quot;8a3c6b5a-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // Dashboard Demo Page
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Dashboard
++    { &quot;Entry&quot;: {                                              // &quot;Dashboard&quot;
+              &quot;uuid&quot;: &quot;8a3c6b5b-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // Dashboard Demo Page
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // (Page: Dashboard Demo Page)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dashboard&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Dashboard Demo Page
++    { &quot;Entry&quot;: {                                              // &quot;Dashboard Demo Page&quot;
+              &quot;uuid&quot;: &quot;8a3c6b5c-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // Dashboard Demo Page
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // (Page: Dashboard Demo Page)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dashboard Demo Page&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // This is a UI prototype of t...
++    { &quot;Entry&quot;: {                                              // &quot;This is a UI prototype of t...&quot;
+              &quot;uuid&quot;: &quot;8a3c6b5d-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // (Page: Dashboard Demo Page)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This is a UI prototype of the dashboard view, built using OpenRecord.&quot; }
+     } ]
+
+Modified: trunk/source/repositories/demo_page.json
+===================================================================
+--- trunk/source/repositories/demo_page.json	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/repositories/demo_page.json	2005-06-27 21:29:52 UTC (rev 187)
+@@ -4,38 +4,39 @@
+   // =======================================================================
+   { &quot;Transaction&quot;: [  // Home Page  
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Welcome to the OpenRecord d...
++    { &quot;Item&quot;: {                                               // (Page: Welcome to the OpenRecord d...)
+              &quot;uuid&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Page
++    { &quot;Entry&quot;: {                                              
++             // in item (Page: Welcome to the OpenRecord d...) assign (Attribute: Category) = (Category: Page)
++             // in item (Category: Page) assign (Attribute: Items in Category) = (Page: Welcome to the OpenRecord d...)
+              &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // 1. Welcome!
++    { &quot;Entry&quot;: {                                              // &quot;Welcome!&quot;
+              &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Page: Welcome to the OpenRecord d...)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;1. Welcome!&quot; }
++            &quot;value&quot;: &quot;Welcome!&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Welcome to the OpenRecord d...
++    { &quot;Entry&quot;: {                                              // &quot;Welcome to the OpenRecord d...&quot;
+              &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Page: Welcome to the OpenRecord d...)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Welcome to the OpenRecord demo!&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // This web site is a demo of ...
++    { &quot;Entry&quot;: {                                              // &quot;This web site is a demo of ...&quot;
+              &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Page: Welcome to the OpenRecord d...)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This web site is a demo of the OpenRecord prototype. OpenRecord is a collaborative content management system. OpenRecord is a lot like a wiki, but with twist. Most wikis are designed to let you view and edit pages of text, like a web-based word processor. OpenRecord is designed to let you view and edit items in a database, rather than pages of text. So if a wiki is a web-based collaborative word-processor, then OpenRecord is a web-based collaborative database, like Lotus Agenda.&quot; }
+     } ]
+
+Modified: trunk/source/repositories/dogfood.json
+===================================================================
+--- trunk/source/repositories/dogfood.json	2005-06-27 06:40:51 UTC (rev 186)
++++ trunk/source/repositories/dogfood.json	2005-06-27 21:29:52 UTC (rev 187)
+@@ -4,38 +4,39 @@
+   // =======================================================================
+   { &quot;Transaction&quot;: [  // Home Page  
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // The OpenRecord Dogfood Site
++    { &quot;Item&quot;: {                                               // (Page: The OpenRecord Dogfood Site)
+              &quot;uuid&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Page
++    { &quot;Entry&quot;: {                                              
++             // in item (Page: The OpenRecord Dogfood Site) assign (Attribute: Category) = (Category: Page)
++             // in item (Category: Page) assign (Attribute: Items in Category) = (Page: The OpenRecord Dogfood Site)
+              &quot;uuid&quot;: &quot;246ec32a-ce7f-11d9-8cd5-000c414ce854&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
+-             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+-            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Dogfood
++    { &quot;Entry&quot;: {                                              // &quot;Dogfood&quot;
+              &quot;uuid&quot;: &quot;246ec32b-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // (Page: The OpenRecord Dogfood Site)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dogfood&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // The OpenRecord Dogfood Site
++    { &quot;Entry&quot;: {                                              // &quot;The OpenRecord Dogfood Site&quot;
+              &quot;uuid&quot;: &quot;246ec32c-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // (Page: The OpenRecord Dogfood Site)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;The OpenRecord Dogfood Site&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // This web site is a demo of ...
++    { &quot;Entry&quot;: {                                              // &quot;This web site is a demo of ...&quot;
+              &quot;uuid&quot;: &quot;246ec32d-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // (Page: The OpenRecord Dogfood Site)
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This web site is where people working on OpenRecord keep track of the work being done.&quot; }
+     } ]
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000172.html">[openrecord-svn] r186 - in trunk: . source source/model source/repositories
+</A></li>
+	<LI>Next message: <A HREF="000174.html">[openrecord-svn] r188 - in trunk/source: . model repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#173">[ date ]</a>
+              <a href="thread.html#173">[ thread ]</a>
+              <a href="subject.html#173">[ subject ]</a>
+              <a href="author.html#173">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

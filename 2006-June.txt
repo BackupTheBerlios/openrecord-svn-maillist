@@ -1,0 +1,706 @@
+From skinner at berlios.de  Tue Jun  6 00:18:02 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 6 Jun 2006 00:18:02 +0200
+Subject: [openrecord-svn] r475 - in trunk/source: . model view
+Message-ID: <200606052218.k55MI2V6006272@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-06-06 00:18:01 +0200 (Tue, 06 Jun 2006)
+New Revision: 475
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/World.js
+   trunk/source/view/SectionView.js
+Log:
+Took the TablePlugin attriubte orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS -- moved it to SectionView and renamed it to be orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES, so as to make it available for use across a variety of plugins.
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-05-30 23:56:41 UTC (rev 474)
++++ trunk/source/TablePlugin.js	2006-06-05 22:18:01 UTC (rev 475)
+@@ -91,8 +91,7 @@
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+ orp.TablePlugin.UUID = {
+-	PLUGIN_VIEW_TABLE: "00040301-ce7f-11d9-8cd5-0011113ae5d6",
+-	ATTRIBUTE_TABLE_COLUMNS: "0004010a-ce7f-11d9-8cd5-0011113ae5d6" };
++	PLUGIN_VIEW_TABLE: "00040301-ce7f-11d9-8cd5-0011113ae5d6" };
+ 
+ // FIXME:
+ // orp.view.SectionView.registerPlugin(orp.TablePlugin);
+@@ -168,8 +167,8 @@
+ 
+ 	var layoutItem = this.getLayoutItem();
+ 	if (layoutItem) {
+-		var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+-		var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeTableColumns);
++		var attributeCalledSelectedAttributes = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++		var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttributes);
+ 		if (listOfTableColumnEntries.length > 0) {
+ 			useSavedListOfColumns = true;
+ 		}
+@@ -415,11 +414,11 @@
+ 	}
+ 
+ 	// Now we need to save the new column order to the repository.
+-	var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
++	var attributeCalledSelectedAttributes = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
+ 	world.beginTransaction();
+ 	var createNewLayoutItemIfNecessary;
+ 	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
+-	var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeTableColumns);
++	var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttributes);
+ 
+ 	// alert("this._displayAttributes.length == " + this._displayAttributes.length);
+ 	// alert("listOfTableColumnEntries.length == " + listOfTableColumnEntries.length);
+@@ -453,7 +452,7 @@
+ 		this._displayAttributes.splice(newIndexOfDraggedColumn, 0, draggedAttribute);
+ 		for (i in this._displayAttributes) {
+ 			var attribute = this._displayAttributes[i];
+-			layoutItem.addEntry({attribute:attributeTableColumns, value:attribute});
++			layoutItem.addEntry({attribute:attributeCalledSelectedAttributes, value:attribute});
+ 		}
+ 	}
+ 	world.endTransaction();
+@@ -817,16 +816,16 @@
+ 	var createNewLayoutItemIfNecessary;
+ 	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
+ 
+-	var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+-	var entriesTableColumns = layoutItem.getEntriesForAttribute(attributeTableColumns);
+-	var noStoredColumns = (entriesTableColumns.length === 0);
++	var attributeCalledSelectedAttributes = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++	var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttributes);
++	var noStoredColumns = (listOfTableColumnEntries.length === 0);
+ 	// var changedAttribute = this.getWorld().getItemFromUuid(attributeUuid);
+ 	var removeAttribute = orp.util.removeObjectFromSet(changedAttribute, this._displayAttributes);
+ 	var typeCalledItem = world.getTypeCalledItem();
+ 	if (removeAttribute) {
+-		for (var i in entriesTableColumns) {
+-			if (changedAttribute == entriesTableColumns[i].getValue()) {
+-				entriesTableColumns[i].voteToDelete();
++		for (var i in listOfTableColumnEntries) {
++			if (changedAttribute == listOfTableColumnEntries[i].getValue()) {
++				listOfTableColumnEntries[i].voteToDelete();
+ 				break;
+ 			}
+ 		}
+@@ -836,11 +835,11 @@
+ 	if (noStoredColumns) {
+ 		for (i in this._displayAttributes) {
+ 			var anAttribute = this._displayAttributes[i];
+-			layoutItem.addEntry({attribute:attributeTableColumns, value:anAttribute, type:typeCalledItem});
++			layoutItem.addEntry({attribute:attributeCalledSelectedAttributes, value:anAttribute, type:typeCalledItem});
+ 		}
+ 	} else {
+ 		if (!removeAttribute) {
+-			layoutItem.addEntry({attribute:attributeTableColumns, value:changedAttribute, type:typeCalledItem});
++			layoutItem.addEntry({attribute:attributeCalledSelectedAttributes, value:changedAttribute, type:typeCalledItem});
+ 		}
+ 	}
+ 	world.endTransaction();
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2006-05-30 23:56:41 UTC (rev 474)
++++ trunk/source/model/2005_june_axiomatic_items.json	2006-06-05 22:18:01 UTC (rev 475)
+@@ -1024,7 +1024,7 @@
+              "uuid": "00040105-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
+-    { "Item": {                                               // Table Columns (Attribute)
++    { "Item": {                                               // Selected Attributes (Attribute)
+              "uuid": "0004010a-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
+@@ -1373,17 +1373,17 @@
+         "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
+     }, 
+     // -----------------------------------------------------------------------
+-    { "Entry": {                                              // Table Columns 
++    { "Entry": {                                              // Selected Attributes 
+              "uuid": "004010aa-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
+-             "item": "0004010a-ce7f-11d9-8cd5-0011113ae5d6",  // Table Columns (Attribute)
++             "item": "0004010a-ce7f-11d9-8cd5-0011113ae5d6",  // Selected Attributes (Attribute)
+              "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
+-            "value": "Table Columns" }
++            "value": "Selected Attributes" }
+     },
+     // -----------------------------------------------------------------------
+     { "Entry": {                                              
+-             // in item (Attribute: Table Columns) assign (Attribute: Category) = (Category: Attribute)
+-             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Table Columns)
++             // in item (Attribute: Selected Attributes) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Selected Attributes)
+              "uuid": "004010ab-ce7f-11d9-8cd5-0011113ae5d6",
+              "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
+              "item": ["0004010a-ce7f-11d9-8cd5-0011113ae5d6", "00001210-ce7f-11d9-8cd5-0011113ae5d6"],
+@@ -1393,14 +1393,14 @@
+     { "Entry": {                                              // Attribute
+              "uuid": "004010ac-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "0000100a-ce7f-11d9-8cd5-0011113ae5d6",  // Expected Type
+-             "item": "0004010a-ce7f-11d9-8cd5-0011113ae5d6",  // Table Columns (Attribute)
++             "item": "0004010a-ce7f-11d9-8cd5-0011113ae5d6",  // Selected Attributes (Attribute)
+              "type": "00001030-ce7f-11d9-8cd5-0011113ae5d6",  // RelatedUuid
+             "value": "00001210-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
+     { "Entry": {                                              
+-             // in item (Attribute: Table Columns) assign (Attribute: Category) = (Category: Not General Purpose)
+-             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Table Columns)
++             // in item (Attribute: Selected Attributes) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Selected Attributes)
+              "uuid": "004010ad-ce7f-11d9-8cd5-0011113ae5d6",
+              "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
+              "item": ["0004010a-ce7f-11d9-8cd5-0011113ae5d6", "00001215-ce7f-11d9-8cd5-0011113ae5d6"],
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2006-05-30 23:56:41 UTC (rev 474)
++++ trunk/source/model/World.js	2006-06-05 22:18:01 UTC (rev 475)
+@@ -127,7 +127,6 @@
+ 	ATTRIBUTE_DEVELOPER_MODE:           "00001025-ce7f-11d9-8cd5-0011113ae5d6", // not general purpose
+ 
+ 	// see also:
+-	//   orp.TablePlugin.UUID = {ATTRIBUTE_TABLE_COLUMNS: "0004010a-ce7f-11d9-8cd5-0011113ae5d6" };
+ 	//   orp.view.EntryView.UUID = {ATTRIBUTE_NOT_LOZENGE: "0004010f-ce7f-11d9-8cd5-0011113ae5d6" };
+ 	//   orp.view.PageView.UUID = {
+ 	//     ATTRIBUTE_SECTIONS_IN_PAGE:             "00030000-ce7f-11d9-8cd5-0011113ae5d6",
+@@ -138,6 +137,7 @@
+ 	//     ATTRIBUTE_APPLIES_TO_PLUGIN: "00040103-ce7f-11d9-8cd5-0011113ae5d6",
+ 	//     ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO: "00040104-ce7f-11d9-8cd5-0011113ae5d6",
+ 	//     ATTRIBUTE_SECTION_THIS_QUERY_BELONGS_TO: "00040105-ce7f-11d9-8cd5-0011113ae5d6",
++	//     ATTRIBUTE_SELECTED_ATTRIBUTES: "0004010a-ce7f-11d9-8cd5-0011113ae5d6",
+ 
+ 	//   orp.view.SectionView.UUID = {
+ 	//     CATEGORY_PLUGIN_VIEW:        "00040201-ce7f-11d9-8cd5-0011113ae5d6",
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2006-05-30 23:56:41 UTC (rev 474)
++++ trunk/source/view/SectionView.js	2006-06-05 22:18:01 UTC (rev 475)
+@@ -171,15 +171,15 @@
+ 	SELECTED: "selected",
+ 	MORE_LINK: "more" };
+ 
+-// TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS  = "0004010a-ce7f-11d9-8cd5-0011113ae5d6";
+ // orp.view.EntryView.UUID.ATTRIBUTE_NOT_LOZENGE      = "0004010f-ce7f-11d9-8cd5-0011113ae5d6";
+ orp.view.SectionView.UUID = {
+-	ATTRIBUTE_PLUGIN_VIEW:       "00040101-ce7f-11d9-8cd5-0011113ae5d6",
+-	ATTRIBUTE_LAYOUT_DATA:       "00040102-ce7f-11d9-8cd5-0011113ae5d6",
+-	ATTRIBUTE_APPLIES_TO_PLUGIN: "00040103-ce7f-11d9-8cd5-0011113ae5d6",
++	ATTRIBUTE_PLUGIN_VIEW:         "00040101-ce7f-11d9-8cd5-0011113ae5d6",
++	ATTRIBUTE_LAYOUT_DATA:         "00040102-ce7f-11d9-8cd5-0011113ae5d6",
++	ATTRIBUTE_APPLIES_TO_PLUGIN:   "00040103-ce7f-11d9-8cd5-0011113ae5d6",
+ 
+ 	ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO: "00040104-ce7f-11d9-8cd5-0011113ae5d6",
+ 	ATTRIBUTE_SECTION_THIS_QUERY_BELONGS_TO: "00040105-ce7f-11d9-8cd5-0011113ae5d6",
++	ATTRIBUTE_SELECTED_ATTRIBUTES: "0004010a-ce7f-11d9-8cd5-0011113ae5d6",
+ 
+ 	CATEGORY_PLUGIN_VIEW:        "00040201-ce7f-11d9-8cd5-0011113ae5d6",
+ 	CATEGORY_LAYOUT_DATA:        "00040202-ce7f-11d9-8cd5-0011113ae5d6" };
+
+
+
+From skinner at berlios.de  Mon Jun 19 06:49:53 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 19 Jun 2006 06:49:53 +0200
+Subject: [openrecord-svn] r476 - trunk/source
+Message-ID: <200606190449.k5J4nrsP023118@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-06-19 06:49:20 +0200 (Mon, 19 Jun 2006)
+New Revision: 476
+
+Modified:
+   trunk/source/CodingConventions.js
+Log:
+minor updates to CodingConventions.js
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2006-06-05 22:18:01 UTC (rev 475)
++++ trunk/source/CodingConventions.js	2006-06-19 04:49:20 UTC (rev 476)
+@@ -45,10 +45,6 @@
+ 			        Expression2,
+ 			        Expression3);
+ 
+-	5) for loops
+-		+ Dojo tends to use this style:  for (var i=0; i < bar.length; i++)
+-		+ OpenRecord tends to do this:   for (var i in bar)
+-
+ Additional OpenRecord Conventions
+ 
+ + jslint approved (see http://jslint.com)
+@@ -106,9 +102,7 @@
+ + file header and footer conventions
+ 	+ file name is given
+ 	+ copyright and license statements are included
+-	+ file dependencies are listed
+ 	+ sections for: class constants, class properties, constructor, instance methods
+-	+ "End of file" ending
+ 
+ + scoping
+ 	+ locally scoped variables are declared before being used: "var foo", not "foo"
+
+
+
+From skinner at berlios.de  Mon Jun 19 07:38:55 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 19 Jun 2006 07:38:55 +0200
+Subject: [openrecord-svn] r477 - in trunk: source/plugins tests tests/plugins
+Message-ID: <200606190538.k5J5ctE7003372@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-06-19 07:38:27 +0200 (Mon, 19 Jun 2006)
+New Revision: 477
+
+Added:
+   trunk/tests/plugins/
+   trunk/tests/plugins/LintTest.html
+   trunk/tests/plugins/LintTest.js
+Modified:
+   trunk/source/plugins/DetailWithAttributionView.js
+   trunk/tests/TestSuite.html
+Log:
+Added a LintTest page for the plugins directory, and fixed the DetailWithAttributeView plugin to pass the lint test.
+
+Modified: trunk/source/plugins/DetailWithAttributionView.js
+===================================================================
+--- trunk/source/plugins/DetailWithAttributionView.js	2006-06-19 04:49:20 UTC (rev 476)
++++ trunk/source/plugins/DetailWithAttributionView.js	2006-06-19 05:38:27 UTC (rev 477)
+@@ -137,7 +137,7 @@
+ 		}
+ 	}
+ 
+-	var tableRow = orp.view.View.appendNewElement(itemTable, "tr");
++	tableRow = orp.view.View.appendNewElement(itemTable, "tr");
+ 	orp.view.View.appendNewElement(tableRow, "td", null, {colspan: "2"}, "<this item>");
+ 	orp.view.View.appendNewElement(tableRow, "td", orp.view.SectionView.cssClass.TITLE, null, inItem.getUserstamp().getDisplayString());
+ 	orp.view.View.appendNewElement(tableRow, "td", orp.view.SectionView.cssClass.TITLE, null, inItem.getCreationDate().toLocaleString());
+@@ -148,23 +148,24 @@
+ 	var cssLine = orp.view.SectionView.cssClass.LABEL + " " + orp.view.SectionView.cssClass.PLAIN;
+ 	var listOfEntries = item.getEntriesForAttribute(attribute);
+ 	var i;
++	var entry;
+ 
+ 	var columnOneCell = orp.view.View.appendNewElement(tableRow, "td", cssLine, null, attribute.getDisplayName());
+ 	var columnTwoCell = orp.view.View.appendNewElement(tableRow, "td", cssClass, null);
+ 	for (i in listOfEntries) {
+-		var entry = listOfEntries[i];
++		entry = listOfEntries[i];
+ 		orp.view.View.appendNewTextNode(columnTwoCell, entry.getDisplayString());
+ 		orp.view.View.appendNewElement(columnTwoCell, "br");
+ 	}
+ 	var columnThreeCell = orp.view.View.appendNewElement(tableRow, "td", cssClass, null);
+ 	for (i in listOfEntries) {
+-		var entry = listOfEntries[i];
++		entry = listOfEntries[i];
+ 		orp.view.View.appendNewTextNode(columnThreeCell, entry.getUserstamp().getDisplayString());
+ 		orp.view.View.appendNewElement(columnThreeCell, "br");
+ 	}
+ 	var columnFourCell = orp.view.View.appendNewElement(tableRow, "td", cssClass, null);
+ 	for (i in listOfEntries) {
+-		var entry = listOfEntries[i];
++		entry = listOfEntries[i];
+ 		orp.view.View.appendNewTextNode(columnFourCell, entry.getCreationDate().toLocaleString());
+ 		orp.view.View.appendNewElement(columnFourCell, "br");
+ 	}
+
+Modified: trunk/tests/TestSuite.html
+===================================================================
+--- trunk/tests/TestSuite.html	2006-06-19 04:49:20 UTC (rev 476)
++++ trunk/tests/TestSuite.html	2006-06-19 05:38:27 UTC (rev 477)
+@@ -29,6 +29,7 @@
+         testSuite.addTestPage("../../../tests/lang/LangTest.html");
+         testSuite.addTestPage("../../../tests/util/TestSuite.html");
+         testSuite.addTestPage("../../../tests/model/TestSuite.html");
++        testSuite.addTestPage("../../../tests/plugins/LintTest.html");
+         testSuite.addTestPage("../../../tests/transcribers/TestSuite.html");
+         testSuite.addTestPage("../../../tests/archive/TestSuite.html");
+         testSuite.addTestPage("../../../tests/storage/TestSuite.html");
+
+Added: trunk/tests/plugins/LintTest.html
+===================================================================
+--- trunk/tests/plugins/LintTest.html	2006-06-19 04:49:20 UTC (rev 476)
++++ trunk/tests/plugins/LintTest.html	2006-06-19 05:38:27 UTC (rev 477)
+@@ -0,0 +1,77 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
++<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
++
++<!-- 
++ Written in 2005 by Brian Douglas Skinner <brian.skinner at gumption.org>
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    http://creativecommons.org/licenses/publicdomain/
++-->
++
++  <head>
++    <title>Unit tests using jslint</title>
++
++    <script type="text/javascript" src="../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js"></script>
++    <script type="text/javascript" src="../../third_party/dojo/dojo.js"></script>
++    <script type="text/javascript" src="../../third_party/jslint/fulljslint.js"></script>
++    <script type="text/javascript" src="LintTest.js"></script>
++  </head>
++  
++  <body>
++    <h1>Unit tests using jslint</h1>
++
++    <p>This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.</p>
++    
++    <p>&nbsp;</p>
++    <hr/>
++    <p>You should be able to run these unit tests by going to
++    <a href="../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=" 
++    onclick="href+=window.location.href;" rel="external">the local testRunner 
++    page</a>, and hitting the <b>Run</b> button.</p>
++
++    <p>To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like <b>View</b> followed by <b>Page Source</b>. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.</p>
++ 
++    <p>The unit tests are set up to run in the
++    <a href="http://www.edwardh.com/jsunit/" rel="external">JsUnit framework</a>
++    written by 
++    <a href="http://www.edwardh.com/" rel="external">Edward Hieatt</a>. </p>
++
++    <p>&nbsp;</p>
++    <hr/>
++    <p class="copyright">You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    <a rel="license external" 
++    href="http://creativecommons.org/licenses/publicdomain/">Public Domain 
++    Dedication</a>.</p>
++
++<!-- Creative Commons metadata for Public Domain License 
++
++<rdf:RDF xmlns="http://web.resource.org/cc/"
++    xmlns:dc="http://purl.org/dc/elements/1.1/"
++    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
++<Work rdf:about="">
++   <dc:title>openrecord.org</dc:title>
++   <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
++   <license rdf:resource="http://web.resource.org/cc/PublicDomain" />
++</Work>
++
++<License rdf:about="http://web.resource.org/cc/PublicDomain">
++   <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
++   <permits rdf:resource="http://web.resource.org/cc/Distribution" />
++   <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
++</License>
++
++</rdf:RDF>
++
++-->
++  </body>
++</html>
++
+
+
+Property changes on: trunk/tests/plugins/LintTest.html
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+Added: trunk/tests/plugins/LintTest.js
+===================================================================
+--- trunk/tests/plugins/LintTest.js	2006-06-19 04:49:20 UTC (rev 476)
++++ trunk/tests/plugins/LintTest.js	2006-06-19 05:38:27 UTC (rev 477)
+@@ -0,0 +1,69 @@
++/*****************************************************************************
++ LintTest.js
++
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner <brian.skinner at gumption.org>
++
++ Copyright rights relinquished under the Creative Commons
++ Public Domain Dedication:
++		http://creativecommons.org/licenses/publicdomain/
++
++ You can copy freely from this file.  This work may be freely reproduced,
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++
++ This work is provided on an "AS IS" basis, without warranties or conditions
++ of any kind, either express or implied, including, without limitation, any
++ warranties or conditions of title, non-infringement, merchantability, or
++ fitness for a particular purpose. You are solely responsible for determining
++ the appropriateness of using or distributing the work and assume all risks
++ associated with use of this work, including but not limited to the risks and
++ costs of errors, compliance with applicable laws, damage to or loss of data
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict
++ liability, or tort (including negligence), arising in any way out of or in
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++//
++/*global LintTool, assertTrue, setUp, tearDown */
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++	dojo.setModulePrefix("dojo", "../../dojo/src"); // relative to testRunner.html
++	dojo.setModulePrefix("orp", "../../../source"); // relative to dojo.js
++	dojo.require("orp.util.LintTool");
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testJsLintOnOpenRecordCode() {
++	var listOfSourceCodeFiles = [
++		"HelloWorld.js",
++		"DetailWithAttributionView.js"];
++	var prefix = "../../../source/plugins/";
++	var errorReport = orp.util.LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++	var message = "Lint check \n" + errorReport;
++	assertTrue(message, !errorReport);
++}
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+Property changes on: trunk/tests/plugins/LintTest.js
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+
+
+From skinner at berlios.de  Wed Jun 21 00:44:52 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Wed, 21 Jun 2006 00:44:52 +0200
+Subject: [openrecord-svn] r478 - in trunk/source: archive model view
+Message-ID: <200606202244.k5KMiqhF012271@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-06-21 00:44:47 +0200 (Wed, 21 Jun 2006)
+New Revision: 478
+
+Modified:
+   trunk/source/archive/JsonDeserializer.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/World.js
+   trunk/source/view/SectionView.js
+Log:
+Added a few new axiomatic items -- the data type Color, and attributes for BackgroundColor and ForegroundColor:
+orp.model.World.UUID.TYPE_COLOR
+orp.view.SectionView.UUID.ATTRIBUTE_BACKGROUND_COLOR
+orp.view.SectionView.UUID.ATTRIBUTE_FOREGROUND_COLOR
+
+Modified: trunk/source/archive/JsonDeserializer.js
+===================================================================
+--- trunk/source/archive/JsonDeserializer.js	2006-06-19 05:38:27 UTC (rev 477)
++++ trunk/source/archive/JsonDeserializer.js	2006-06-20 22:44:47 UTC (rev 478)
+@@ -244,6 +244,7 @@
+ 							orp.lang.assert(finalData.isValid());
+ 							break;
+ 						default:
++						    // orp.lang.assert(false, 'Unknown data type while _rehydrating() entry with UUID ' + entryUuid);
+ 							orp.lang.assert(false, 'Unknown data type while _rehydrating()');
+ 					}
+ 					entry._revive(item, attribute, finalData, previousEntry, dataType);
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2006-06-19 05:38:27 UTC (rev 477)
++++ trunk/source/model/2005_june_axiomatic_items.json	2006-06-20 22:44:47 UTC (rev 478)
+@@ -95,6 +95,10 @@
+              "uuid": "00001024-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
++    { "Item": {                                               // Type: Color
++             "uuid": "00001026-ce7f-11d9-8cd5-0011113ae5d6" }
++    },
++    // -----------------------------------------------------------------------
+     { "Item": {                                               // Type: Item
+              "uuid": "00001030-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+@@ -218,7 +222,7 @@
+         "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
+     },  
+     // -----------------------------------------------------------------------
+-    { "Entry": {                                              // Text
++    { "Entry": {                                              // Summary
+              "uuid": "0001003c-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "0000100a-ce7f-11d9-8cd5-0011113ae5d6",  // Expected Type
+              "item": "00001003-ce7f-11d9-8cd5-0011113ae5d6",  // Attribute: Summary
+@@ -761,6 +765,23 @@
+         "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
+     },  
+     // -----------------------------------------------------------------------
++    { "Entry": {                                              // "Color"
++             "uuid": "0001026a-ce7f-11d9-8cd5-0011113ae5d6",
++        "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
++             "item": "00001026-ce7f-11d9-8cd5-0011113ae5d6",  // Type: Color
++             "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
++            "value": "Color" }
++    },
++    // -----------------------------------------------------------------------
++    { "Entry": {                                              
++             // in item (Type: Color) assign (Attribute: Category) = (Category: Type)
++             // in item (Category: Type) assign (Attribute: Items in Category) = (Type: Color)
++             "uuid": "0001026b-ce7f-11d9-8cd5-0011113ae5d6",
++             "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
++             "item": ["00001026-ce7f-11d9-8cd5-0011113ae5d6", "00001213-ce7f-11d9-8cd5-0011113ae5d6"],
++        "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
++    },  
++    // -----------------------------------------------------------------------
+     { "Entry": {                                              // "Item"
+              "uuid": "0001030a-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
+@@ -1028,6 +1049,14 @@
+              "uuid": "0004010a-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
++    { "Item": {                                               // Background Color (Attribute)
++             "uuid": "0004010b-ce7f-11d9-8cd5-0011113ae5d6" }
++    },
++    // -----------------------------------------------------------------------
++    { "Item": {                                               // Foreground Color (Attribute)
++             "uuid": "0004010c-ce7f-11d9-8cd5-0011113ae5d6" }
++    },
++    // -----------------------------------------------------------------------
+     { "Item": {                                               // Not Lozenge (Attribute)
+              "uuid": "0004010f-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+@@ -1405,8 +1434,58 @@
+              "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
+              "item": ["0004010a-ce7f-11d9-8cd5-0011113ae5d6", "00001215-ce7f-11d9-8cd5-0011113ae5d6"],
+         "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
+-    }, 
++    },
+     // -----------------------------------------------------------------------
++    { "Entry": {                                              // Background Color 
++             "uuid": "004010ba-ce7f-11d9-8cd5-0011113ae5d6",
++        "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
++             "item": "0004010b-ce7f-11d9-8cd5-0011113ae5d6",  // Background Color (Attribute)
++             "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
++            "value": "Background Color" }
++    },
++    // -----------------------------------------------------------------------
++    { "Entry": {                                              
++             // in item (Attribute: Background Color) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Background Color)
++             "uuid": "004010bb-ce7f-11d9-8cd5-0011113ae5d6",
++             "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
++             "item": ["0004010b-ce7f-11d9-8cd5-0011113ae5d6", "00001210-ce7f-11d9-8cd5-0011113ae5d6"],
++        "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
++    },  
++    // -----------------------------------------------------------------------
++    { "Entry": {                                              // Attribute
++             "uuid": "004010bc-ce7f-11d9-8cd5-0011113ae5d6",
++        "attribute": "0000100a-ce7f-11d9-8cd5-0011113ae5d6",  // Expected Type
++             "item": "0004010b-ce7f-11d9-8cd5-0011113ae5d6",  // Background Color (Attribute)
++             "type": "00001030-ce7f-11d9-8cd5-0011113ae5d6",  // RelatedUuid
++            "value": "00001026-ce7f-11d9-8cd5-0011113ae5d6" }
++    },
++    // -----------------------------------------------------------------------
++    { "Entry": {                                              // Foreground Color 
++             "uuid": "004010ca-ce7f-11d9-8cd5-0011113ae5d6",
++        "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
++             "item": "0004010c-ce7f-11d9-8cd5-0011113ae5d6",  // Foreground Color (Attribute)
++             "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
++            "value": "Foreground Color" }
++    },
++    // -----------------------------------------------------------------------
++    { "Entry": {                                              
++             // in item (Attribute: Foreground Color) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Foreground Color)
++             "uuid": "004010cb-ce7f-11d9-8cd5-0011113ae5d6",
++             "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
++             "item": ["0004010c-ce7f-11d9-8cd5-0011113ae5d6", "00001210-ce7f-11d9-8cd5-0011113ae5d6"],
++        "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
++    },  
++    // -----------------------------------------------------------------------
++    { "Entry": {                                              // Attribute
++             "uuid": "004010cc-ce7f-11d9-8cd5-0011113ae5d6",
++        "attribute": "0000100a-ce7f-11d9-8cd5-0011113ae5d6",  // Expected Type
++             "item": "0004010c-ce7f-11d9-8cd5-0011113ae5d6",  // Foreground Color (Attribute)
++             "type": "00001030-ce7f-11d9-8cd5-0011113ae5d6",  // RelatedUuid
++            "value": "00001026-ce7f-11d9-8cd5-0011113ae5d6" }
++    },
++    // -----------------------------------------------------------------------
+     { "Entry": {                                              // Not Lozenge
+              "uuid": "004010fa-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2006-06-19 05:38:27 UTC (rev 477)
++++ trunk/source/model/World.js	2006-06-20 22:44:47 UTC (rev 478)
+@@ -155,6 +155,8 @@
+ 	TYPE_DATE:               "00001022-ce7f-11d9-8cd5-0011113ae5d6",
+ 	TYPE_CHECK_MARK:         "00001023-ce7f-11d9-8cd5-0011113ae5d6",
+ 	TYPE_URL:                "00001024-ce7f-11d9-8cd5-0011113ae5d6",
++	//                       "00001025-ce7f-11d9-8cd5-0011113ae5d6" // ATTRIBUTE_DEVELOPER_MODE (see above)
++	TYPE_COLOR:              "00001026-ce7f-11d9-8cd5-0011113ae5d6",
+ 	TYPE_ITEM:               "00001030-ce7f-11d9-8cd5-0011113ae5d6",
+ 	TYPE_ANYTHING:           "00001040-ce7f-11d9-8cd5-0011113ae5d6",
+ 	TYPE_CONNECTION:         "00001050-ce7f-11d9-8cd5-0011113ae5d6",
+@@ -208,6 +210,7 @@
+ 	this._typeCalledDate       = server.getItemFromUuid(UUID.TYPE_DATE);
+ 	this._typeCalledCheckMark  = server.getItemFromUuid(UUID.TYPE_CHECK_MARK);
+ 	this._typeCalledUrl        = server.getItemFromUuid(UUID.TYPE_URL);
++	this._typeCalledColor      = server.getItemFromUuid(UUID.TYPE_COLOR);
+ 	this._typeCalledItem       = server.getItemFromUuid(UUID.TYPE_ITEM);
+ 	this._typeCalledAnything   = server.getItemFromUuid(UUID.TYPE_ANYTHING);
+ 	this._typeCalledConnection = server.getItemFromUuid(UUID.TYPE_CONNECTION);
+@@ -565,6 +568,10 @@
+ 	return this._typeCalledUrl;
+ };
+ 
++orp.model.World.prototype.getTypeCalledColor = function() {
++	return this._typeCalledColor;
++};
++
+ orp.model.World.prototype.getTypeCalledItem = function() {
+ 	return this._typeCalledItem;
+ };
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2006-06-19 05:38:27 UTC (rev 477)
++++ trunk/source/view/SectionView.js	2006-06-20 22:44:47 UTC (rev 478)
+@@ -180,7 +180,9 @@
+ 	ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO: "00040104-ce7f-11d9-8cd5-0011113ae5d6",
+ 	ATTRIBUTE_SECTION_THIS_QUERY_BELONGS_TO: "00040105-ce7f-11d9-8cd5-0011113ae5d6",
+ 	ATTRIBUTE_SELECTED_ATTRIBUTES: "0004010a-ce7f-11d9-8cd5-0011113ae5d6",
+-
++	ATTRIBUTE_BACKGROUND_COLOR: "0004010b-ce7f-11d9-8cd5-0011113ae5d6",
++	ATTRIBUTE_FOREGROUND_COLOR: "0004010c-ce7f-11d9-8cd5-0011113ae5d6",
++	
+ 	CATEGORY_PLUGIN_VIEW:        "00040201-ce7f-11d9-8cd5-0011113ae5d6",
+ 	CATEGORY_LAYOUT_DATA:        "00040202-ce7f-11d9-8cd5-0011113ae5d6" };
+ 
+
+
+

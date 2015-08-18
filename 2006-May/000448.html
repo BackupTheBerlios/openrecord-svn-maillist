@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r467 - in trunk: source/util tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r467%20-%20in%20trunk%3A%20source/util%20tests&In-Reply-To=%3C200605230339.k4N3dH8a031546%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000447.html">
+   <LINK REL="Next"  HREF="000449.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r467 - in trunk: source/util tests</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r467%20-%20in%20trunk%3A%20source/util%20tests&In-Reply-To=%3C200605230339.k4N3dH8a031546%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r467 - in trunk: source/util tests">skinner at berlios.de
+       </A><BR>
+    <I>Tue May 23 05:39:17 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000447.html">[openrecord-svn] r466 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000449.html">[openrecord-svn] r468 - in trunk: source/util tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#448">[ date ]</a>
+              <a href="thread.html#448">[ thread ]</a>
+              <a href="subject.html#448">[ subject ]</a>
+              <a href="author.html#448">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-05-23 05:39:11 +0200 (Tue, 23 May 2006)
+New Revision: 467
+
+Modified:
+   trunk/source/util/LintTool.js
+   trunk/tests/LintTest.js
+Log:
+Relaxed LintTool.js to allow code with tab characters and carriage return characters.  Updated unit tests accordingly.
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2006-05-23 03:19:25 UTC (rev 466)
++++ trunk/source/util/LintTool.js	2006-05-23 03:39:11 UTC (rev 467)
+@@ -92,12 +92,14 @@
+     errorMessage = report + '\n';
+   }
+   
+-  // Check for tabs, backspaces, etc.
+-  errorMessage += orp.util.LintTool.checkForString(codeString, '\t', &quot;There are tab characters in the file.&quot;);
++  // Check for backspaces and form feed characaters
+   errorMessage += orp.util.LintTool.checkForString(codeString, '\b', &quot;There are backspace characters in the file.&quot;);
+-  errorMessage += orp.util.LintTool.checkForString(codeString, '\r', &quot;There are carriage return characters in the file.&quot;);
+   errorMessage += orp.util.LintTool.checkForString(codeString, '\f', &quot;There are form feed characters in the file.&quot;);
+   
++  // Check for tabs and carriage return characters
++  // errorMessage += orp.util.LintTool.checkForString(codeString, '\t', &quot;There are tab characters in the file.&quot;);
++  // errorMessage += orp.util.LintTool.checkForString(codeString, '\r', &quot;There are carriage return characters in the file.&quot;);
++  
+   // Check for discouraged code
+   // We have to break 'document' + '.write' into two parts, or else this LintTool.js
+   // file won't pass its own lint test.
+
+Modified: trunk/tests/LintTest.js
+===================================================================
+--- trunk/tests/LintTest.js	2006-05-23 03:19:25 UTC (rev 466)
++++ trunk/tests/LintTest.js	2006-05-23 03:39:11 UTC (rev 467)
+@@ -56,13 +56,13 @@
+   // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
+   var badFragmentOne = &quot;function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD&quot;;
+ 
+-  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
++  // badFragmentTwo has a backspace character in it, which our own isCodeCleanInString()
+   // method should catch
+-  var badFragmentTwo = &quot;function iggy()		{ var pop = 'no fun'; } &quot;;
++  var badFragmentTwo = &quot;function iggy()	\b { var pop = 'no fun'; } &quot;;
+   
+-  // badFragmentThree has a carriage return character in it, which our own 
++  // badFragmentThree has a form feed character in it, which our own 
+   // isCodeCleanInString() method should catch
+-  var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
++  var badFragmentThree = &quot;function iggy() \f { var pop = 'no fun'; } &quot;;
+   
+   assertFalse(&quot;jslint says dirty code is dirty&quot;, !orp.util.LintTool.getErrorReportForCodeInString(badFragmentOne));
+   assertFalse(&quot;jslint says dirty code is dirty&quot;, !orp.util.LintTool.getErrorReportForCodeInString(badFragmentTwo));
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000447.html">[openrecord-svn] r466 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000449.html">[openrecord-svn] r468 - in trunk: source/util tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#448">[ date ]</a>
+              <a href="thread.html#448">[ thread ]</a>
+              <a href="subject.html#448">[ subject ]</a>
+              <a href="author.html#448">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

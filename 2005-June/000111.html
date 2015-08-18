@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r124 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r124%20-%20trunk/source&In-Reply-To=%3C200506060700.j5670oLu027037%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000110.html">
+   <LINK REL="Next"  HREF="000112.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r124 - trunk/source</H1>
+    <B>Mignon Belongie at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r124%20-%20trunk/source&In-Reply-To=%3C200506060700.j5670oLu027037%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r124 - trunk/source">mignon at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jun  6 09:00:50 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000110.html">[openrecord-svn] r123 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000112.html">[openrecord-svn] r125 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#111">[ date ]</a>
+              <a href="thread.html#111">[ thread ]</a>
+              <a href="subject.html#111">[ subject ]</a>
+              <a href="author.html#111">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-06-06 09:00:46 +0200 (Mon, 06 Jun 2005)
+New Revision: 124
+
+Modified:
+   trunk/source/Util.js
+   trunk/source/UtilTest.js
+Log:
+Got Util.generateTimeBasedUuid working and added lots of related tests.
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-05 01:27:22 UTC (rev 123)
++++ trunk/source/Util.js	2005-06-06 07:00:46 UTC (rev 124)
+@@ -69,12 +69,15 @@
+ // Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
+ Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
+ 
++Util.HEX_RADIX = 16;
+ 
+ // -------------------------------------------------------------------
+ // Util global class variables
+ // -------------------------------------------------------------------
+-Util._ourUuidPsuedoNodeString = null;
++Util._ourUuidPseudoNodeString = null;
+ Util._ourUuidClockSeqString = null;
++Util._ourDateValueOfPreviousUuid = null;
++Util._ourNextIntraMillisecondIncrement = 0;
+ 
+ // -------------------------------------------------------------------
+ // String manipulation methods
+@@ -307,7 +310,10 @@
+  * @return   A boolean value. True if inValue is an array.
+  */
+ Util.isArray = function (inValue) {
+-  return (inValue &amp;&amp; ((typeof inValue) == &quot;object&quot;) &amp;&amp; (inValue.constructor == Array));
++  if (!inValue) {
++    return false;
++  }
++  return (((typeof inValue) == &quot;object&quot;) &amp;&amp; (inValue.constructor == Array));
+ };
+ 
+ 
+@@ -486,8 +492,7 @@
+   // PENDING: 
+   // This isn't really random.  We should find some source of real 
+   // randomness, and feed it to an MD5 hash algorithm.     
+-  var hexRadix = 16;
+-  var eightCharacterString = Util.getRandom32bitNumber().toString(hexRadix);
++  var eightCharacterString = Util.getRandom32bitNumber().toString(Util.HEX_RADIX);
+   while (eightCharacterString.length &lt; 8) {
+     eightCharacterString = &quot;0&quot; + eightCharacterString;
+   }
+@@ -519,7 +524,90 @@
+   return result;
+ };
+ 
++Util.carry = function(a) {
++  a[2] += a[3] &gt;&gt;&gt; 16;
++  a[3] &amp;= 0xFFFF;
++  a[1] += a[2] &gt;&gt;&gt; 16;
++  a[2] &amp;= 0xFFFF;
++  a[0] += a[1] &gt;&gt;&gt; 16;
++  a[1] &amp;= 0xFFFF;
++  Util.assert((a[0] &gt;&gt;&gt; 16) === 0);
++};
+ 
++Util.get64bitArrayFromFloat = function(x) {
++  var result = new Array(0, 0, 0, 0);
++  result[3] = x % 0x10000;
++  x -= result[3];
++  x /= 0x10000;
++  result[2] = x % 0x10000;
++  x -= result[2];
++  x /= 0x10000;
++  result[1] = x % 0x10000;
++  x -= result[1];
++  x /= 0x10000;
++  result[0] = x;
++  return result;
++};
++
++Util.addTwo64bitArrays = function(a, b) {
++  Util.assert(Util.isArray(a));
++  Util.assert(a.length == 4);
++  Util.assert(Util.isArray(b));
++  Util.assert(b.length == 4);
++  var result = new Array(0, 0, 0, 0);
++  result[3] = a[3] + b[3];
++  result[2] = a[2] + b[2];
++  result[1] = a[1] + b[1];
++  result[0] = a[0] + b[0];
++  Util.carry(result);
++  return result;
++};
++
++Util.multiplyTwo64bitArrays = function(a, b) {
++  Util.assert(Util.isArray(a));
++  Util.assert(a.length == 4);
++  Util.assert(Util.isArray(b));
++  Util.assert(b.length == 4);
++  var overflow = false;
++  if (a[0] * b[0] !== 0) { overflow = true; }
++  if (a[0] * b[1] !== 0) { overflow = true; }
++  if (a[0] * b[2] !== 0) { overflow = true; }
++  if (a[1] * b[0] !== 0) { overflow = true; }
++  if (a[1] * b[1] !== 0) { overflow = true; }
++  if (a[2] * b[0] !== 0) { overflow = true; }
++  Util.assert(!overflow);
++  
++  var result = new Array(0, 0, 0, 0);
++  result[0] += a[0] * b[3];
++  Util.carry(result);
++  result[0] += a[1] * b[2];
++  Util.carry(result);
++  result[0] += a[2] * b[1];
++  Util.carry(result);
++  result[0] += a[3] * b[0];
++  Util.carry(result);
++  result[1] += a[1] * b[3];
++  Util.carry(result);
++  result[1] += a[2] * b[2];
++  Util.carry(result);
++  result[1] += a[3] * b[1];
++  Util.carry(result);
++  result[2] += a[2] * b[3];
++  Util.carry(result);
++  result[2] += a[3] * b[2];
++  Util.carry(result);
++  result[3] += a[3] * b[3];
++  Util.carry(result);
++  return result;
++};
++
++Util.padWithLeadingZeros = function(string, desiredLength) {
++  while (string.length &lt; desiredLength) {
++    string = &quot;0&quot; + string;
++  }
++  return string;
++};
++
+ /**
+  * Generates a time-based UUID, meaning a &quot;version 1&quot; UUID.  JavaScript
+  * code running in a browser doesn't have access to the IEEE 802.3 address
+@@ -537,72 +625,69 @@
+  * @scope    public class method
+  * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
+  */
+-Util.generateTimeBasedUuid = function () {
+-  if (!Util._ourUuidPsuedoNodeString) {
+-    var partOne = Util.getRandomEightCharacterHexString();
+-    var partTwo = Util.getRandomEightCharacterHexString();
+-    var sixteenCharacterHexString = partOne + partTwo;
+-    var pseudonodeIndicatorBit = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
+-    Util._ourUuidPsuedoNodeString = pseudonodeIndicatorBit + sixteenCharacterHexString.substring(0, 11);
++Util.generateTimeBasedUuid = function(pseudoNode) {
++  Util.assert(!pseudoNode || Util.isString(pseudoNode));  
++  if (pseudoNode) {
++    Util.assert(pseudoNode.length == 12);  
+   }
+-  
++  else {
++    if (!Util._ourUuidPseudoNodeString) {
++      var pseudoNodeIndicatorBit = 0x8000;
++      var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
++      var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Util.HEX_RADIX);
++      Util._ourUuidPseudoNodeString = leftmost4HexCharacters + Util.getRandomEightCharacterHexString();
++    }
++    pseudoNode = Util._ourUuidPseudoNodeString;
++  }
+   if (!Util._ourUuidClockSeqString) {
+-    var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
+-    var eightCharacterHexString = Util.getRandomEightCharacterHexString();
+-    Util._ourUuidClockSeqString = variantCodeForDCEUuids + eightCharacterHexString.substring(0, 3);
++    var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
++    var random14bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 14) );
++    Util._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(Util.HEX_RADIX);
+   }
++
++  var now = new Date();
++  var nowArray = Util.get64bitArrayFromFloat(now.valueOf());
++  var arraySecondsPerHour = Util.get64bitArrayFromFloat(60 * 60);
++  var arrayHoursBetween1582and1970 = Util.get64bitArrayFromFloat(Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS);
++  var arraySecondsBetween1582and1970 = Util.multiplyTwo64bitArrays(arrayHoursBetween1582and1970, arraySecondsPerHour);
++  var arrayMillisecondsPerSecond = Util.get64bitArrayFromFloat(1000);
++  var arrayMillisecondsBetween1582and1970 = Util.multiplyTwo64bitArrays(arraySecondsBetween1582and1970, arrayMillisecondsPerSecond);
++  var arrayMillisecondsSince1970 = nowArray;
++  var arrayMillisecondsSince1582 = Util.addTwo64bitArrays(arrayMillisecondsBetween1582and1970, arrayMillisecondsSince1970);
++  var arrayMicrosecondsPerMillisecond = Util.get64bitArrayFromFloat(1000);
++  var arrayMicrosecondsSince1582 = Util.multiplyTwo64bitArrays(arrayMillisecondsSince1582, arrayMicrosecondsPerMillisecond);
++  var arrayHundredNanosecondIntervalsPerMicrosecond = Util.get64bitArrayFromFloat(10);
++  var arrayHundredNanosecondIntervalsSince1582 = Util.multiplyTwo64bitArrays(arrayMicrosecondsSince1582, arrayHundredNanosecondIntervalsPerMicrosecond);
+   
+-  // Ideally, what we would like to do is just say:
+-  //   var now = new Date();
+-  //   var millisecondsPerSecond = 1000;
+-  //
+-  //   var millisecondsSince1970 = now.valueOf();
+-  //   var secondsBetween1852and1970 = Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS;
+-  //   var millisecondsBetween1852and1970 = secondsBetween1852and1970 * millisecondsPerSecond;
+-  //   var millisecondsSince1852 = millisecondsBetween1852and1970 + millisecondsSince1970;
+-  // 
+-  //   var microsecondsPerMilliseconds = 1000;
+-  //   var microsecondsSince1852 = millisecondsSince1852 * microsecondsPerMilliseconds;
+-  //   var hundredNanosecondIntervalsPerMicroseconds = 10;
+-  //   var hundredNanosecondIntervalsSince1852 = microsecondsSince1852 * hundredNanosecondIntervalsPerMicroseconds;
+-  // 
+-  //   var hexRadix = 16;
+-  //   var hexTimeString = hundredNanosecondIntervalsSince1852.toString(hexRadix);
+-  //   Util.assert(hexTimeString.length == 15);
+-  //   var hexTimeHigh = hexTimeString.substring(0, 3);
+-  //   var hexTimeMid = hexTimeString.substring(3, 7);
+-  //   var hexTimeLow = hexTimeString.substring(7, 15);
+-  // 
+-  // However, that won't work, because JavaScript only has 32-bit ints and
+-  // 64-bit floats, so it's only good at doing math with numbers that are
+-  // roughly on the order of 10^10, or 10^15.  The number that we're trying
+-  // to arrive at, hundredNanosecondIntervalsSince1852, will be about 10^17.
+-  // So, to do the math, we'll have to break big numbers down into parts,
+-  // and do the operations piecemeal.  For a good example of this, see
+-  // the safe_add() method on line 182 of .../trunk/third_party/md5/md5.js
+-  var hexTimeHigh = &quot;NOT&quot;;
+-  var hexTimeMid = &quot;OKAY&quot;;
+-  var hexTimeLow = &quot;PENDING:&quot;;
++  if (now.valueOf() == Util._ourDateValueOfPreviousUuid) {
++    arrayHundredNanosecondIntervalsSince1582[3] += Util._ourNextIntraMillisecondIncrement;
++    Util.carry(arrayHundredNanosecondIntervalsSince1582);
++    Util._ourNextIntraMillisecondIncrement += 1;
++    if (Util._ourNextIntraMillisecondIncrement == 10000) {
++      while (now.valueOf() == Util._ourDateValueOfPreviousUuid) {
++        now = new Date();
++      }
++    }
++  }
++  else {
++    Util._ourDateValueOfPreviousUuid = now.valueOf();
++    Util._ourNextIntraMillisecondIncrement = 1;
++  }
+   
++  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(Util.HEX_RADIX);
++  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(Util.HEX_RADIX);
++  var hexTimeLow = Util.padWithLeadingZeros(hexTimeLowLeftHalf, 4) + Util.padWithLeadingZeros(hexTimeLowRightHalf, 4);
++  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(Util.HEX_RADIX);
++  hexTimeMid = Util.padWithLeadingZeros(hexTimeMid, 4);
++  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(Util.HEX_RADIX);
++  hexTimeHigh = Util.padWithLeadingZeros(hexTimeHigh, 3);
+   var hyphen = &quot;-&quot;;
+-  var versionCodeForTimeBasedUuids = &quot;1&quot;; // 8 == binary2hex(&quot;0001&quot;)
++  var versionCodeForTimeBasedUuids = &quot;1&quot;; // binary2hex(&quot;0001&quot;)
+   var resultUuid = hexTimeLow + hyphen + hexTimeMid + hyphen +
+         versionCodeForTimeBasedUuids + hexTimeHigh + hyphen +
+-        Util._ourUuidClockSeqString + hyphen + Util._ourUuidPsuedoNodeString;
+-        
+-  /*
+-  var now = new Date();
+-  var millisecondsSince1970 = now.valueOf();
+-  var millisecondsPerHour = 3600000; 
+-  var hoursSince1970 = millisecondsSince1970 / millisecondsPerHour;
+-  var wholeHoursSince1970 = Math.floor(hoursSince1970);
+-  var partialHoursSince1970inMS = millisecondsSince1970 - (wholeHoursSince1970 * millisecondsPerHour);
+-  var foo = partialHoursSince1970inMS / millisecondsPerHour;
+-  alert(hoursSince1970 + &quot;\n&quot; + wholeHoursSince1970 + &quot;\n&quot; + foo);
+-  var hoursSince1582 = Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS + wholeHoursSince1970;
+-  */
+-  
+-  return null;
++        Util._ourUuidClockSeqString + hyphen + pseudoNode;
++//alert(resultUuid);
++  return resultUuid;
+ };
+ 
+ 
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-06-05 01:27:22 UTC (rev 123)
++++ trunk/source/UtilTest.js	2005-06-06 07:00:46 UTC (rev 124)
+@@ -74,38 +74,146 @@
+   assertTrue('md5 of longString is correct', (Util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
+ }
+ 
+-function testMethodsForWorkingWithUuids() {
++function testGet64bitArrayFromFloat() {
++  var x = Math.pow(2, 63) + Math.pow(2, 15);
++  var result = Util.get64bitArrayFromFloat(x);
++  assertTrue(&quot;result[0] == 0x8000&quot;, result[0] === 0x8000);
++  assertTrue(&quot;result[1] == 0x0000&quot;, result[1] === 0x0000);
++  assertTrue(&quot;result[2] == 0x0000&quot;, result[2] === 0x0000);
++  assertTrue(&quot;result[3] == 0x8000&quot;, result[3] === 0x8000);
+   
+-  var uuidString = Util.generateRandomUuid();
+-  assertTrue('UUIDs have 36 characters', (uuidString.length == 36));
++  var date = new Date();
++  x = date.valueOf();
++  result = Util.get64bitArrayFromFloat(x);
++  var reconstructedFloat = result[0];
++  reconstructedFloat *= 0x10000;
++  reconstructedFloat += result[1];
++  reconstructedFloat *= 0x10000;
++  reconstructedFloat += result[2];
++  reconstructedFloat *= 0x10000;
++  reconstructedFloat += result[3];
++  
++  assertTrue(&quot;reconstructedFloat === x&quot;, reconstructedFloat === x);
++}
+ 
++function testAddTwo64bitArrays() {
++  var a = [0x0000, 0x0000, 0x0000, 0x0001];
++  var b = [0x0FFF, 0xFFFF, 0xFFFF, 0xFFFF];
++  var result = Util.addTwo64bitArrays(a, b);
++  assert(result[0] === 0x1000);
++  assert(result[1] === 0x0000);
++  assert(result[2] === 0x0000);
++  assert(result[3] === 0x0000);
++  
++  a = [0x4000, 0x8000, 0x8000, 0x8000];
++  b = [0x8000, 0x8000, 0x8000, 0x8000];
++  result = Util.addTwo64bitArrays(a, b);
++  assert(result[0] === 0xC001);
++  assert(result[1] === 0x0001);
++  assert(result[2] === 0x0001);
++  assert(result[3] === 0x0000);
++  
++  a = [7, 6, 2, 5];
++  b = [1, 0, 3, 4];
++  result = Util.addTwo64bitArrays(a, b);
++  assert(result[0] === 8);
++  assert(result[1] === 6);
++  assert(result[2] === 5);
++  assert(result[3] === 9);  
++}  
++
++function testMultiplyTwo64bitArrays() {
++  var a = [     0, 0x0000, 0x0000, 0x0003];
++  var b = [0x1111, 0x1234, 0x0000, 0xFFFF];
++  var result = Util.multiplyTwo64bitArrays(a, b);
++  assert(result[0] === 0x3333);
++  assert(result[1] === 0x369C);
++  assert(result[2] === 0x0002);
++  assert(result[3] === 0xFFFD);
++  
++  a = [0, 0, 0, 5];
++  b = [0, 0, 0, 4];
++  result = Util.multiplyTwo64bitArrays(a, b);
++  assert(result[0] === 0);
++  assert(result[1] === 0);
++  assert(result[2] === 0);
++  assert(result[3] === 20);  
++  
++  a = [0, 0, 2, 5];
++  b = [0, 0, 3, 4];
++  result = Util.multiplyTwo64bitArrays(a, b);
++  assert(result[0] === 0);
++  assert(result[1] === 6);
++  assert(result[2] === 23);
++  assert(result[3] === 20);  
++}  
++
++function subtestOnUuid(uuid) {
++  assertTrue('UUIDs have 36 characters', (uuid.length == 36));
++
+   var validCharacters = &quot;0123456789abcedfABCDEF-&quot;;
+   var character;
+   var position;
+   for (var i = 0; i &lt; 36; ++i) {
+-    character = uuidString.charAt(i);
++    character = uuid.charAt(i);
+     position = validCharacters.indexOf(character);
+     assertTrue('UUIDs have only valid characters', (position != -1));
+   }
+   
+-  var arrayOfParts = uuidString.split(&quot;-&quot;);
+-  assertTrue('UUIDs have 5 sections separated by 4 hypens', (arrayOfParts.length == 5));
++  var arrayOfParts = uuid.split(&quot;-&quot;);
++  assertTrue('UUIDs have 5 sections separated by 4 hyphens', (arrayOfParts.length == 5));
+   assertTrue('Section 0 has 8 characters', (arrayOfParts[0].length == 8));
+   assertTrue('Section 1 has 4 characters', (arrayOfParts[1].length == 4));
+   assertTrue('Section 2 has 4 characters', (arrayOfParts[2].length == 4));
+   assertTrue('Section 3 has 4 characters', (arrayOfParts[3].length == 4));
+   assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+   
++  var section3 = arrayOfParts[3];
++  var hex3 = parseInt(section3, Util.HEX_RADIX);
++  var binaryString = hex3.toString(2);
++  assertTrue(&quot;first bit of section 3 is 1&quot;, binaryString.charAt(0) == '1');
++  assertTrue(&quot;second bit of section 3 is 0&quot;, binaryString.charAt(1) == '0');
++  
++  var section4 = arrayOfParts[4];
++  var firstChar = section4.charAt(0);
++  var hexFirstChar = parseInt(firstChar, Util.HEX_RADIX);
++  binaryString = hexFirstChar.toString(2);
++  assertTrue(&quot;first bit of section 4 is 1&quot;, binaryString.charAt(0) == '1');
++}
++
++function testMethodsForWorkingWithRandomUuids() {
++  var uuid1 = Util.generateRandomUuid();
++  subtestOnUuid(uuid1);
++  var uuid2 = Util.generateRandomUuid();
++  subtestOnUuid(uuid2);
++  
++  var arrayOfParts = uuid1.split(&quot;-&quot;);
+   var section2 = arrayOfParts[2];
+   assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
+   
+-  var section3 = arrayOfParts[3];
+-  var validCharactersForStartOfSection3 = &quot;89abAB&quot;;
+-  character = section3.charAt(0);
+-  position = validCharactersForStartOfSection3.indexOf(character);
+-  assertTrue('Section 3 starts with 8, 9, A, or B', (position != -1));
++  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
++}
++
++function testMethodsForWorkingWithTimeBasedUuids() {
++  var uuid1 = Util.generateTimeBasedUuid();
++  subtestOnUuid(uuid1);
++  var uuid2 = Util.generateTimeBasedUuid();
++  subtestOnUuid(uuid2);
++  var uuid3 = Util.generateTimeBasedUuid();
++  subtestOnUuid(uuid3);
++
++  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
++  assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
+   
+-  // var uuidString = Util.generateTimeBasedUuid();
++  var arrayOfParts = uuid1.split(&quot;-&quot;);
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
++
++  var uuid4 = Util.generateTimeBasedUuid(&quot;123456789ABC&quot;);
++  subtestOnUuid(uuid4);
++  arrayOfParts = uuid4.split(&quot;-&quot;);
++  var section4 = arrayOfParts[4];
++  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
+ }
+ 
+ function tearDown() {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000110.html">[openrecord-svn] r123 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000112.html">[openrecord-svn] r125 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#111">[ date ]</a>
+              <a href="thread.html#111">[ thread ]</a>
+              <a href="subject.html#111">[ subject ]</a>
+              <a href="author.html#111">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

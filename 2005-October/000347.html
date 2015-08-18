@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r365 - in trunk/source: . view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r365%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200510180328.j9I3S4TT019024%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000346.html">
+   <LINK REL="Next"  HREF="000348.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r365 - in trunk/source: . view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r365%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200510180328.j9I3S4TT019024%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r365 - in trunk/source: . view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Oct 18 05:28:04 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000346.html">[openrecord-svn] r364 - in trunk: documentation source source/lang source/util source/view tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view
+</A></li>
+        <LI>Next message: <A HREF="000348.html">[openrecord-svn] r366 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#347">[ date ]</a>
+              <a href="thread.html#347">[ thread ]</a>
+              <a href="subject.html#347">[ subject ]</a>
+              <a href="author.html#347">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-18 05:27:59 +0200 (Tue, 18 Oct 2005)
+New Revision: 365
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/ItemView.js
+   trunk/source/view/MultiEntriesView.js
+Log:
+Updated ItemView from DOM level 0 to DOM level 2.  In places where we add properties to DOM nodes, change our prefix from .or_ to .orp_
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-10-18 02:15:08 UTC (rev 364)
++++ trunk/source/TablePlugin.js	2005-10-18 03:27:59 UTC (rev 365)
+@@ -332,7 +332,7 @@
+   var oldProvisionalRow = this._table.rows[this._listOfItems.length];
+   for (var i=0; i &lt; oldProvisionalRow.cells.length; ++i) {
+     var aCell = oldProvisionalRow.cells[i];
+-    aCell.or_entriesView.noLongerProvisional();
++    aCell.orp_entriesView.noLongerProvisional();
+   }
+ 
+   // create new provisional item now that old one has become real
+@@ -365,7 +365,7 @@
+   // object in the script.aculo.us dragdrop.js library.
+   // We set &quot;revert&quot; to false to prevent the UI animation where the dragged 
+   // column header goes &quot;flying&quot; home again
+-  var draggable = elementThatWasDragged.or_draggable;
++  var draggable = elementThatWasDragged.orp_draggable;
+   draggable.options.revert = false;
+ 
+   // Now we need to save the new column order to the repository.
+@@ -444,7 +444,7 @@
+     if (this.isInEditMode()) {
+       var listener = this;
+       var draggable = new Draggable(headerCellContentSpan, {revert:true});
+-      headerCellContentSpan.or_draggable = draggable;
++      headerCellContentSpan.orp_draggable = draggable;
+       Droppables.add(headerCell, {
+         accept: &quot;headerCellContentSpan&quot;,
+         hoverclass: 'drophover',
+@@ -528,7 +528,7 @@
+ /**
+  * Inserts a table cell into table's row &amp; col, with data from a given item and
+  * attribute. Each table cell is displayed with a EntryView object.  The HTML 
+- * table cell links to the EntryView object with the attribute &quot;or_entryView&quot;
++ * table cell links to the EntryView object with the attribute &quot;orp_entryView&quot;
+  *
+  * @scope    private instance method
+  * @return   An HTML image element
+@@ -545,7 +545,7 @@
+   
+   var aCell = row.insertCell(col);
+   var multiEntriesView = new orp.view.MultiEntriesView(this, aCell, item, attribute);
+-  aCell.or_entriesView = multiEntriesView;
++  aCell.orp_entriesView = multiEntriesView;
+   multiEntriesView.refresh();
+   if (this.isInEditMode()) {
+     var listener = this;
+@@ -845,7 +845,7 @@
+       nextCell = nextRow.cells[cellElement.cellIndex];
+     }
+     
+-    var nextMultiEntryView = nextCell.or_entriesView;
++    var nextMultiEntryView = nextCell.orp_entriesView;
+     nextMultiEntryView.select(move != MOVE_LEFT);
+   }
+   return move;
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-10-18 02:15:08 UTC (rev 364)
++++ trunk/source/view/EntryView.js	2005-10-18 03:27:59 UTC (rev 365)
+@@ -283,11 +283,11 @@
+           if (orp.view.EntryView._PENDING_temporaryHackToDecreaseLayoutTime) {
+             // if (this.getRootView().isInShowToolsMode()) {
+             if (orp.view.EntryView._PENDING_enableDragging) {
+-              this._textSpan.or_entryView = this; 
++              this._textSpan.orp_entryView = this; 
+               this._draggable = new Draggable(this._textSpan, {revert:true});
+             }
+           } else {
+-            this._textSpan.or_entryView = this; 
++            this._textSpan.orp_entryView = this; 
+             this._draggable = new Draggable(this._textSpan, {revert:true});
+           }
+         }
+
+Modified: trunk/source/view/ItemView.js
+===================================================================
+--- trunk/source/view/ItemView.js	2005-10-18 02:15:08 UTC (rev 364)
++++ trunk/source/view/ItemView.js	2005-10-18 03:27:59 UTC (rev 365)
+@@ -79,12 +79,6 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Public constants
+-// -------------------------------------------------------------------
+-orp.view.ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX = &quot;detail_plugin_div_for_item_&quot;;
+-
+-
+-// -------------------------------------------------------------------
+ // Public methods
+ // -------------------------------------------------------------------
+ 
+@@ -108,23 +102,14 @@
+  */
+ orp.view.ItemView.prototype.refresh = function() {
+   orp.lang.assert(this._item instanceof orp.model.Item);
+-  
+-  // PENDING: this needs to be changed from DOM level 0 to DOM level 2.
+-  var listOfStrings = [];
++  orp.lang.assert(this.getHtmlElement() instanceof HTMLElement);
+ 
+-  // add an &lt;h1&gt; heading with the name of the page
+-  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + orp.view.RootView.URL_ITEM_PREFIX + this._item.getUuidString() + &quot;\&quot;&gt;&quot; + this._item.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+-
+-  // add a &lt;div&gt; element for the detail plugin
+-  var detailDivId = orp.view.ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this._item.getUuidString();
+-  listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + detailDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+-
+-  // write out all the new content 
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  this.getHtmlElement().innerHTML = finalString;
+-
+-  // let the detailPlugin add its own content
+-  var detailPluginElement = document.getElementById(detailDivId);
++  
++  var itemDivElement = this.getHtmlElement();
++  orp.view.View.removeChildrenOfElement(itemDivElement);
++  var headerElement = orp.view.View.appendNewElement(itemDivElement, &quot;h1&quot;, null, null, this._item.getDisplayName());
++  var detailPluginElement = orp.view.View.appendNewElement(itemDivElement, &quot;div&quot;);
++  
+   this._pluginView = new orp.DetailPlugin(this, detailPluginElement, [this._item]);
+   this._pluginView.refresh();
+ };
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-10-18 02:15:08 UTC (rev 364)
++++ trunk/source/view/MultiEntriesView.js	2005-10-18 03:27:59 UTC (rev 365)
+@@ -233,7 +233,7 @@
+  *
+  */
+ orp.view.MultiEntriesView.prototype._handleDrop = function(element) {
+-  var draggedEntryView = element.or_entryView;
++  var draggedEntryView = element.orp_entryView;
+   if (!draggedEntryView) {orp.lang.assert(false);}
+   var droppedEntry = draggedEntryView._entry;
+   if (!droppedEntry) {orp.lang.assert(false);}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000346.html">[openrecord-svn] r364 - in trunk: documentation source source/lang source/util source/view tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view
+</A></li>
+	<LI>Next message: <A HREF="000348.html">[openrecord-svn] r366 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#347">[ date ]</a>
+              <a href="thread.html#347">[ thread ]</a>
+              <a href="subject.html#347">[ subject ]</a>
+              <a href="author.html#347">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

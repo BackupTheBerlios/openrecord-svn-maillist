@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r177 - trunk/source/repositories
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r177%20-%20trunk/source/repositories&In-Reply-To=%3C200506240200.j5O20GuU024943%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000162.html">
+   <LINK REL="Next"  HREF="000164.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r177 - trunk/source/repositories</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r177%20-%20trunk/source/repositories&In-Reply-To=%3C200506240200.j5O20GuU024943%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r177 - trunk/source/repositories">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 24 04:00:16 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000162.html">[openrecord-svn] r176 - in trunk/source: . model repositories
+</A></li>
+        <LI>Next message: <A HREF="000164.html">[openrecord-svn] r178 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#163">[ date ]</a>
+              <a href="thread.html#163">[ thread ]</a>
+              <a href="subject.html#163">[ subject ]</a>
+              <a href="author.html#163">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-24 04:00:10 +0200 (Fri, 24 Jun 2005)
+New Revision: 177
+
+Modified:
+   trunk/source/repositories/dogfood.json
+Log:
+More clean-up work on the repository format, including some clean-up of how datatypes are referenced.
+
+Modified: trunk/source/repositories/dogfood.json
+===================================================================
+--- trunk/source/repositories/dogfood.json	2005-06-24 01:58:07 UTC (rev 176)
++++ trunk/source/repositories/dogfood.json	2005-06-24 02:00:10 UTC (rev 177)
+@@ -12,7 +12,7 @@
+              &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -20,7 +20,7 @@
+              &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dogfood&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -28,7 +28,7 @@
+              &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;The OpenRecord Dogfood Site&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -36,7 +36,7 @@
+              &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This web site is where people working on OpenRecord keep track of the work being done.&quot; }
+     } ]
+   }
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000162.html">[openrecord-svn] r176 - in trunk/source: . model repositories
+</A></li>
+	<LI>Next message: <A HREF="000164.html">[openrecord-svn] r178 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#163">[ date ]</a>
+              <a href="thread.html#163">[ thread ]</a>
+              <a href="subject.html#163">[ subject ]</a>
+              <a href="author.html#163">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

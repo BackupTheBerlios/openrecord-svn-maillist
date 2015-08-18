@@ -1,0 +1,541 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r267 - in trunk: documentation source source/model source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r267%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/view&In-Reply-To=%3C200507290504.j6T5446M003215%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000251.html">
+   <LINK REL="Next"  HREF="000253.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r267 - in trunk: documentation source source/model source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r267%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/view&In-Reply-To=%3C200507290504.j6T5446M003215%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r267 - in trunk: documentation source source/model source/view">skinner at berlios.de
+       </A><BR>
+    <I>Fri Jul 29 07:04:04 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000251.html">[openrecord-svn] r266 - trunk/source/view
+</A></li>
+        <LI>Next message: <A HREF="000253.html">[openrecord-svn] r268 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#252">[ date ]</a>
+              <a href="thread.html#252">[ thread ]</a>
+              <a href="subject.html#252">[ subject ]</a>
+              <a href="author.html#252">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-29 07:03:56 +0200 (Fri, 29 Jul 2005)
+New Revision: 267
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/view/NavbarView.js
+   trunk/source/view/RootView.js
+Log:
+Added drag-and-drop to re-order table columns.  Plus some minor bug fixing in RootView and NavbarView.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-28 17:35:41 UTC (rev 266)
++++ trunk/documentation/release_planning.txt	2005-07-29 05:03:56 UTC (rev 267)
+@@ -262,7 +262,7 @@
+        |          |copy/move? 16. drag-and-drop lozenges
+ brian  |          | 0.5     | 17. drag-and-drop to re-order navbar menu items
+        |          |         | 18. drag-and-drop to re-order table rows
+-       |          |       &gt;&gt;| 19. drag-and-drop to re-order table columns
++brian  |          | 0.5     | 19. drag-and-drop to re-order table columns
+        |          |         | 20. improve UI for &quot;add new attribute&quot; in Table View 
+ brian  | 1    IED |         | 21. Rationalize our CSS style sheet approach
+        |          |         | 22. Reach consensus on (colors, padding, and borders) and then implement
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-28 17:35:41 UTC (rev 266)
++++ trunk/source/TablePlugin.js	2005-07-29 05:03:56 UTC (rev 267)
+@@ -35,9 +35,11 @@
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+ /*global window, document, HTMLTableRowElement  */
++/*global Draggable, Droppables,  */
+ /*global Util  */
+ /*global Item  */
+-/*global View, MultiEntriesView  */
++/*global CsvParser  */
++/*global View, MultiEntriesView, EntryView, RootView  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -117,7 +119,7 @@
+  * @param    itemB    One of the two items to be compared. 
+  * @return   This method returns 0 if the items are comparable. If _ascendingOrder is true, itemA is less than itemB, this method returns -1, otherwise it returns +1. 
+  */
+-TablePlugin.prototype.compareItemByAttribute = function(itemA, itemB) {
++TablePlugin.prototype.compareItemsBySortAttribute = function(itemA, itemB) {
+   Util.assert(this._sortAttribute !== null);
+   var strA = itemA.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+   var strB = itemB.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+@@ -129,63 +131,61 @@
+ 
+ 
+ /**
+- * Creates an array containing all the attributes of the content items 
+- * in this table.  Populates list of suggested items for relevant attributes
++ * Returns a list of all the attributes that this table should have columns for.
+  *
+  * @scope    private instance method
+  */
+-TablePlugin.prototype._buildAttributes = function() {
+-  var repository = this.getWorld();
+-  var attrTableColumns = repository.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
+-  var entriesTableColumns = this._layout.getEntriesForAttribute(attrTableColumns);
+-  var displayAttrs = [];
++TablePlugin.prototype._getListOfColumns = function() {
++  var world = this.getWorld();
++  var attributeTableColumns = world.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
++  var listOfTableColumnEntries = this._layout.getEntriesForAttribute(attributeTableColumns);
++  var displayAttributes = [];
+   var anAttribute;
+-  if (entriesTableColumns.length &gt; 0) {
+-    for (var i=0;i&lt;entriesTableColumns.length;++i) {
+-      anAttribute = entriesTableColumns[i].getValue();
++  if (listOfTableColumnEntries.length &gt; 0) {
++    // If we get here, it means this table has a saved list of user-selected
++    // columns, and we just want to use that list.
++    for (var i in listOfTableColumnEntries) {
++      anAttribute = listOfTableColumnEntries[i].getValue();
+       Util.assert(anAttribute instanceof Item);
+-      displayAttrs.push(anAttribute);
++      displayAttributes.push(anAttribute);
+     }
+-  }
+-  else {
+-    var hashTableOfAttributes = this._buildAttributeHashFromScratch();
++  } else {
++    // If we get here, it means this table did not have a saved list of 
++    // user-selected columns, so we need to come up with a list.
++    // We will build a list of display attributes by looking at all the items in 
++    // the table and finding the union of all the attributes of those items.
++    var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++    var hashTableOfAttributes = {};
++    for (var j in this._listOfItems) {
++      var contentItem = this._listOfItems[j];
++      var listOfAttributesForItem = contentItem.getAttributes();
++      for (var k in listOfAttributesForItem) {
++        var attribute = listOfAttributesForItem[k];
++        if (attribute != attributeCalledCategory) {
++          var attributeKeyString = attribute.getUniqueKeyString();
++          hashTableOfAttributes[attributeKeyString] = attribute;
++        }
++      }
++    }
++    
++    if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
++      // If we have not yet identified any display attributes to use as
++      // column headers, then we'll just use the &quot;Name&quot; attribute so that
++      // our table will have at least one column.
++      var attributeCalledName = this.getWorld().getAttributeCalledName();
++      var keyString = attributeCalledName.getUniqueKeyString();
++      hashTableOfAttributes[keyString] = attributeCalledName;
++    }
+     for (var key in hashTableOfAttributes) {
+       anAttribute = hashTableOfAttributes[key];
+-      displayAttrs.push(anAttribute);
++      displayAttributes.push(anAttribute);
+     }
+   }
+-  this._displayAttributes = displayAttrs;
++  return displayAttributes;
+ };
+ 
+ 
+ /**
+- *
+- */
+-TablePlugin.prototype._buildAttributeHashFromScratch = function() {
+-  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+-  var hashTableOfAttributes = {};
+-  for (var iKey in this._listOfItems) {
+-    var contentItem = this._listOfItems[iKey];
+-    var listOfAttributesForItem = contentItem.getAttributes();
+-    for (var attributeKey in listOfAttributesForItem) {
+-      var attribute = listOfAttributesForItem[attributeKey];
+-      if (attribute != attributeCalledCategory) {
+-        var attributeKeyString = attribute.getUniqueKeyString();
+-        hashTableOfAttributes[attributeKeyString] = attribute;
+-      }
+-    }
+-  }
+-  
+-  if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
+-    var attributeCalledName = this.getWorld().getAttributeCalledName();
+-    var key = attributeCalledName.getUniqueKeyString();
+-    hashTableOfAttributes[key] = attributeCalledName;
+-  }
+-  return hashTableOfAttributes;
+-};
+-
+-
+-/**
+  * Builds editor to add/remove attribute columns of table
+  *
+  * @scope    private instance method
+@@ -312,10 +312,81 @@
+ /**
+  *
+  */
+-TablePlugin.prototype._handleDrop = function(element) {
+-  alert('table plugin: ' + element + ' was dropped on ' + this);
++TablePlugin.prototype._handleDrop = function(elementThatWasDragged, droppableObject) {
++  // First figure out what column header was dropped where
++  var world = this.getWorld();
++  var draggedUuid = elementThatWasDragged.getAttribute('uuid');
++  var draggedAttribute = world.getItemFromUuid(draggedUuid);
++  var headerCellElement = droppableObject.element;
++  var headerCellUuid = headerCellElement.getAttribute('uuid');
++  var droppedOnAttribute = world.getItemFromUuid(headerCellUuid);
++  var indexOfDraggedAttribute = Util.getArrayIndex(this._displayAttributes, draggedAttribute);
++  var indexOfDroppedOnAttribute = Util.getArrayIndex(this._displayAttributes, droppedOnAttribute);
++
++  // If the user dragged a column header and dropped it on the same column 
++  // header, then we don't need to change the column order.
++  if (indexOfDraggedAttribute == indexOfDroppedOnAttribute) {
++    return;
++  }
++
++  // This is a little hack that accesses instance variables of the &quot;Draggable&quot;
++  // object in the script.aculo.us dragdrop.js library.
++  // We set &quot;revert&quot; to false to prevent the UI animation where the dragged 
++  // column header goes &quot;flying&quot; home again
++  var draggable = elementThatWasDragged.or_draggable;
++  draggable.options.revert = false;
++
++  // Now we need to save the new column order to the repository.
++  var attributeTableColumns = world.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
++  var listOfTableColumnEntries = this._layout.getEntriesForAttribute(attributeTableColumns);
++  if (listOfTableColumnEntries.length &gt; 0) {
++    // If we get here, it means this table has a saved list of user-selected
++    // columns, and we just want to re-order that list.
++    Util.assert(this._displayAttributes.length == listOfTableColumnEntries.length);
++    var draggedEntry = listOfTableColumnEntries[indexOfDraggedAttribute];
++    var droppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute];
++    if (indexOfDraggedAttribute &gt; indexOfDroppedOnAttribute) {
++      // the user dragged the column to the left
++      var entryBeforeDroppedOnEntry = null;
++      if (indexOfDroppedOnAttribute &gt; 0) {
++        entryBeforeDroppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute-1];
++      }
++      draggedEntry.reorderBetween(entryBeforeDroppedOnEntry, droppedOnEntry);
++    }
++    if (indexOfDraggedAttribute &lt; indexOfDroppedOnAttribute) {
++      // the user dragged the column to the right
++      var entryAfterDroppedOnEntry = null;
++      if (indexOfDroppedOnAttribute &lt; (listOfTableColumnEntries.length - 1)) {
++        entryAfterDroppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute+1];
++      }
++      draggedEntry.reorderBetween(droppedOnEntry, entryAfterDroppedOnEntry);
++    }
++  } else {
++    // If we get here, it means we need to save a newly created list of
++    // user-selected columns.
++    this._displayAttributes.splice(indexOfDraggedAttribute, 1);
++    if (indexOfDraggedAttribute &gt; indexOfDroppedOnAttribute) {
++      // the user dragged the column to the left
++      this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
++    }
++    if (indexOfDraggedAttribute &lt; indexOfDroppedOnAttribute) {
++      // the user dragged the column to the right
++      this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
++    }
++    world.beginTransaction();
++    // alertString = &quot;&quot;;
++    for (var i in this._displayAttributes) {
++      var attribute = this._displayAttributes[i];
++      this._layout.addEntryForAttribute(attributeTableColumns, attribute);
++      // alertString += attribute.getDisplayString() + '\n';
++    }
++    // alert(alertString);
++    world.endTransaction();
++  }
++  this.refresh();
+ };
+ 
++
+ /**
+  * Constructs the table header 
+  *
+@@ -325,24 +396,28 @@
+   // add header row
+   var headerRow = this._table.insertRow(0);
+   var numCols = 0;
+-  for (var i=0; i&lt;this._displayAttributes.length; ++i) {
++  for (var i in this._displayAttributes) {
+     var attribute = this._displayAttributes[i];
+     if (!this._sortAttribute) {this._sortAttribute = attribute;}
+-    var headerElt = View.appendNewElement(headerRow,&quot;th&quot;);
+-    var aCell = View.appendNewElement(headerElt,&quot;span&quot;,null,null,attribute.getDisplayString());
+-    //aCell.style.background = &quot;rgb(90%, 90%, 90%)&quot;;
++    var headerCell = View.appendNewElement(headerRow, &quot;th&quot;, null, {uuid: attribute._getUuid()});
++    var headerCellContentSpan = View.appendNewElement(headerCell, &quot;span&quot;, &quot;headerCellContentSpan&quot;, {uuid: attribute._getUuid()});
++    var textSpan = View.appendNewElement(headerCellContentSpan, &quot;span&quot;, null, null, attribute.getDisplayString());
+     if (this._sortAttribute == attribute) {
+-      headerElt.appendChild(this.getSortIcon());
++      headerCellContentSpan.appendChild(this.getSortIcon());
+     }
+-    aCell.onclick = this.clickOnHeader.bindAsEventListener(this, attribute);
++    Event.observe(headerCell, &quot;click&quot;, this.clickOnHeader.bindAsEventListener(this, attribute));
+     if (this.isInEditMode()) {
+-      //new Draggable(aCell, {revert:true});
++      var listener = this;
++      var draggable = new Draggable(headerCellContentSpan, {revert:true});
++      headerCellContentSpan.or_draggable = draggable;
++      Droppables.add(headerCell, {
++        accept: &quot;headerCellContentSpan&quot;,
++        hoverclass: 'drophover',
++        onDrop: function(element, droppableObject) {listener._handleDrop(element, droppableObject);}});   
+     }
+     ++numCols;
+   }
+   this._numberOfColumns = numCols;
+-  var listener = this;
+-  //Droppables.add(headerRow, {onDrop: function(element) {listener._handleDrop(element);}});   
+ };
+ 
+ 
+@@ -357,13 +432,14 @@
+   // get list of items and attributes
+   if (!doNotRebuildHash) {
+     this.fetchItems();
+-    this._buildAttributes();
++    this._displayAttributes = this._getListOfColumns();
+   }
+  
+   //create new table, remove old table if already exists
+   var viewDivElement = this.getHtmlElement();
+   View.removeChildrenOfElement(viewDivElement);
+   this._buildAttributeEditor();
++  
+   this._table = View.appendNewElement(viewDivElement, &quot;table&quot;, this._cssClassForTable);
+   
+   this._buildHeader();
+@@ -371,7 +447,7 @@
+   // sort the list of items. SIDE EFFECT, table header needs to be built before items are sorted
+   // because default _sortAttribute is specified there if not previously specificed
+   var staticThis = this;
+-  this._listOfItems.sort(function(a,b) {return staticThis.compareItemByAttribute(a,b);}); // need to sort after header row added because default sort attribute is set there
++  this._listOfItems.sort(function(a,b) {return staticThis.compareItemsBySortAttribute(a,b);}); // need to sort after header row added because default sort attribute is set there
+ 
+   this._buildTableBody();
+ };
+@@ -418,10 +494,8 @@
+   aCell.or_entriesView = multiEntriesView;
+   multiEntriesView.refresh();
+   if (this.isInEditMode()) {
+-    //multiEntriesView.setSuggestions(this._hashTableOfEntries[attribute.getUniqueKeyString()]);
+     var listener = this;
+     multiEntriesView.setKeyPressFunction(function (evt, entryView) {return listener.keyPressOnEditField(evt, entryView);});
+-    //multiEntriesView.setClickFunction(function (evt, entryView) {return listener._handleClick(evt, entryView);});
+   }
+ };
+ 
+@@ -451,11 +525,9 @@
+   Util.assert(rowElement instanceof HTMLTableRowElement);
+   if (rowElement != this._lastSelectedRow) {
+     if (this._lastSelectedRow) {
+-      //this._lastSelectedRow.style.background = &quot;&quot;;
+       this._lastSelectedRow.className = &quot;&quot;;
+     }
+     this._lastSelectedRow = rowElement;
+-    //rowElement.style.background = &quot;rgb(100%,100%,0%)&quot;; // PENDING: need to css-ify this selection
+     rowElement.className = &quot;selected&quot;; 
+     return true;
+   }
+@@ -517,8 +589,6 @@
+   }
+   world.endTransaction();
+   this.refresh();
+-  // fileContents = listOfStrings.join('');
+-  // alert(fileContents);
+ };
+ 
+ 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-28 17:35:41 UTC (rev 266)
++++ trunk/source/base_style.css	2005-07-29 05:03:56 UTC (rev 267)
+@@ -486,13 +486,21 @@
+ .simple_table img {
+   vertical-align: middle;
+ }
++
+ .simple_table th {
++  padding: 0.1em;
++  text-align: left;
++  background: #BBCEF1;
++  border: 1pt solid rgb(70%, 70%, 70%);
++}
++
++.simple_table .headerCellContentSpan {
+   padding: 0.3em;
+   color: #000000;
+   background: #BBCEF1;
+   font-size: 0.8em;
+   text-align: left;
+-  border: 1pt solid rgb(70%, 70%, 70%);
++  width: 100%;
+ }
+ 
+ .simple_table tr {
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-07-28 17:35:41 UTC (rev 266)
++++ trunk/source/model/DeltaVirtualServer.js	2005-07-29 05:03:56 UTC (rev 267)
+@@ -181,12 +181,16 @@
+ DeltaVirtualServer.prototype._getTypedDisplayStringForItem = function(item) {
+   var returnString = &quot;(&quot;;
+   if (item) {
+-    Util.assert(item instanceof Item);
+-    var category = item.getFirstCategory();
+-    if (category) {
+-      returnString += this.truncateString(category.getDisplayString(&quot;???&quot;)) + &quot;: &quot;;
++    if (item instanceof Item) {
++      var category = item.getFirstCategory();
++      if (category) {
++        returnString += this.truncateString(category.getDisplayString(&quot;???&quot;)) + &quot;: &quot;;
++      }
++      returnString += this.truncateString(item.getDisplayString(&quot;???&quot;));
+     }
+-    returnString += this.truncateString(item.getDisplayString(&quot;???&quot;));
++    if (item instanceof Entry) {
++      returnString += &quot;Entry&quot;;
++    }
+   }
+   returnString += &quot;)&quot;;
+   return returnString;
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-07-28 17:35:41 UTC (rev 266)
++++ trunk/source/view/NavbarView.js	2005-07-29 05:03:56 UTC (rev 267)
+@@ -66,7 +66,7 @@
+   View.call(this, superview, htmlElement, &quot;NavbarView&quot;);
+   this._htmlElementForAnchors = htmlElementForAnchors;
+   this._liElementBeingTouched = null;
+-  // this._listOfPages = null;
++  this._builtForEditMode = false;
+ }
+ 
+ 
+@@ -80,6 +80,10 @@
+   if (!this.hasEverBeenDisplayed()) {
+     this._rebuildView();
+     this._myHasEverBeenDisplayedFlag = true;
++  } else {
++    if (this._builtForEditMode != this.isInEditMode()) {
++      this._rebuildView();
++    }
+   }
+ };
+ 
+@@ -196,9 +200,12 @@
+     Event.observe(liElement, &quot;mousedown&quot;, this._mouseDownOnMenuItem.bindAsEventListener(this, liElement));
+   }
+   var listener = this;
+-  Sortable.create(NavbarView.ELEMENT_ID_MENU, {
+-    onUpdate: function(element){ listener._sortOrderUpdate(element);}
+-  });
++  this._builtForEditMode = this.isInEditMode();
++  if (this._builtForEditMode) {
++    Sortable.create(NavbarView.ELEMENT_ID_MENU, {
++      onUpdate: function(element){ listener._sortOrderUpdate(element);}
++    });
++  }
+   
+   var newPageButton = View.appendNewElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   newPageButton.type = &quot;button&quot;;
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-07-28 17:35:41 UTC (rev 266)
++++ trunk/source/view/RootView.js	2005-07-29 05:03:56 UTC (rev 267)
+@@ -97,6 +97,9 @@
+   this._currentContentView = null;
+   this._homePage = null;
+   this._selections = [];
++  
++  this._currentlyInDisplayMethod = false;
++  
+   document.addEventListener(&quot;keypress&quot;,this._onKeyPress.bindAsEventListener(this),false);
+   
+   // window.document.body.innerHTML = &quot;&quot;;
+@@ -356,16 +359,20 @@
+  * @scope    public instance method
+  */
+ RootView.prototype.display = function() {
+-  this._rootDiv.className = (this.isInShowToolsMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
+-  this._displayLoginSpan();
+-  this._displayNavbar();
+-  this._displayDebugArea();
+-  if (this._currentContentView) {
+-    Util.assert(this._currentContentView instanceof Object);
+-    document.title = this._currentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
+-    this._currentContentView.includeOnScreen(true);
++  if (!this._currentlyInDisplayMethod) {
++    this._currentlyInDisplayMethod = true;
++    this._rootDiv.className = (this.isInShowToolsMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
++    this._displayLoginSpan();
++    this._displayNavbar();
++    this._displayDebugArea();
++    if (this._currentContentView) {
++      Util.assert(this._currentContentView instanceof Object);
++      document.title = this._currentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
++      this._currentContentView.includeOnScreen(true);
++    }
++    window.focus();
++    this._currentlyInDisplayMethod = false;
+   }
+-  window.focus();
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000251.html">[openrecord-svn] r266 - trunk/source/view
+</A></li>
+	<LI>Next message: <A HREF="000253.html">[openrecord-svn] r268 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#252">[ date ]</a>
+              <a href="thread.html#252">[ thread ]</a>
+              <a href="subject.html#252">[ subject ]</a>
+              <a href="author.html#252">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

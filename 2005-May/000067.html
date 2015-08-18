@@ -1,0 +1,383 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r78 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r78%20-%20trunk/source&In-Reply-To=%3C200505250443.j4P4hwig020650%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000066.html">
+   <LINK REL="Next"  HREF="000068.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r78 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r78%20-%20trunk/source&In-Reply-To=%3C200505250443.j4P4hwig020650%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r78 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 25 06:43:58 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000066.html">[openrecord-svn] r77 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000068.html">[openrecord-svn] r79 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-05-25 06:43:51 +0200 (Wed, 25 May 2005)
+New Revision: 78
+
+Added:
+   trunk/source/LoginView.js
+Modified:
+   trunk/source/TextView.js
+Log:
+Adding LoginView.js
+
+
+Added: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-05-25 02:01:00 UTC (rev 77)
++++ trunk/source/LoginView.js	2005-05-25 04:43:51 UTC (rev 78)
+@@ -0,0 +1,290 @@
++/*****************************************************************************
++ LoginView.js
++
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   World.js
++//   Util.js
++//   LoginView.js
++//   DetailPlugin.js
++// -------------------------------------------------------------------
++
++
++LoginView.COOKIE_NAME = &quot;useruuid&quot;;
++/**
++ * The LoginView uses an instance of a LoginView to display an Item in the
++ * browser window.
++ *
++ * @scope    public instance constructor
++ * @extends  View
++ * @param    inLoginView    The LoginView that this LoginView is nested in. 
++ * @param    inHTMLElement    The HTMLElement to display the HTML in. 
++ * @param    inItem    The item to be displayed by this view. 
++ */
++LoginView.prototype = new View();  // makes LoginView be a subclass of View
++function LoginView(inSuperView, inHTMLElement) {
++  Util.assert(inHTMLElement instanceof HTMLElement);
++
++  // instance properties
++  this.setSuperview(inSuperView);
++  this.setHTMLElement(inHTMLElement);
++  this._isCreatingNewAccount = false;
++  this.myCookie = new Cookie(document,LoginView.COOKIE_NAME,10*365*24);  // PENDING: hardcode expiration to 10yrs
++  this.myCookie.load();
++}
++
++/**
++ * Re-creates all the HTML for the LoginView, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++LoginView.prototype.refresh = function () {
++  if (!this._myHasEverBeenDisplayedFlag) {
++    this._rebuildView();
++  }
++};
++
++/**
++ * Re-creates the HTML for the chrome area containing the controls,
++ * and hands the HTML to the browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++LoginView.prototype._rebuildView = function () {
++  var mySpan = this.getHTMLElement();
++  
++  //get rid of all child nodes 
++  mySpan.innerHTML = '';
++  var currentUser = this.getWorld().getCurrentUser();
++  if (!currentUser) {
++    // alert(&quot;displayControlSpan: !currentUser&quot;);
++    var userUuid = this.myCookie.userUuid;
++    var password = this.myCookie.password;
++    // alert(&quot;displayControlSpan: userUuid = &quot; + userUuid);
++    if (userUuid) {
++      var userToLoginAs = this.getWorld().getItemFromUuid(userUuid);
++      if (userToLoginAs) { 
++        this.getWorld().login(userToLoginAs, password);
++        currentUser = this.getWorld().getCurrentUser();
++      }
++      if (!currentUser) {
++        this.myCookie.userUuid = null;
++        this.myCookie.store();
++      }
++    }
++  }
++  var welcomeText, welcomeNode;
++  if (this._isCreatingNewAccount) {
++    welcomeText = &quot;Please enter new name and password:&quot;;
++    welcomeNode = document.createTextNode(welcomeText);
++    this.usernameInput = document.createElement(&quot;input&quot;);
++    this.usernameInput.size=10;
++    this.usernameInput.onkeypress = this.signinKeyPress.bindAsEventListener(this);
++    this.usernameInput.value = &quot;Your name here&quot;;
++
++    var passwordInput = document.createElement(&quot;input&quot;);
++    this.passwordInput.size = 10;
++    this.passwordInput.type = &quot;password&quot;;
++    this.passwordInput.value = &quot;randomdots&quot;;
++
++    var newAcctButton = document.createElement(&quot;input&quot;);
++    newAcctButton.value = &quot;Create New Account&quot;;
++    newAcctButton.type = &quot;button&quot;;
++    newAcctButton.onclick = this._clickOnNewAcctButton.bindAsEventListener(this);
++    mySpan.appendChild(welcomeNode);
++    mySpan.appendChild(this.usernameInput);
++    mySpan.appendChild(this.passwordInput);
++    mySpan.appendChild(newAcctButton);
++    this.usernameInput.select();
++  }
++  else if (currentUser) { 
++    welcomeText = &quot;Hello &quot; + currentUser.getDisplayName() + &quot;. &quot;;
++    welcomeNode = document.createTextNode(welcomeText);
++    mySpan.appendChild(welcomeNode);
++    var signoutLink = document.createElement(&quot;a&quot;);
++    signoutLink.appendChild(document.createTextNode(&quot;Sign out&quot;));
++    signoutLink.onclick = this._clickOnSignoutLink.bindAsEventListener(this);
++    mySpan.appendChild(signoutLink);
++    var space = document.createTextNode(&quot; &quot;);
++    mySpan.appendChild(space);
++    var editButton = document.createElement(&quot;input&quot;);
++    editButton.type = &quot;button&quot;;
++    editButton.value = (this.isInEditMode()) ? &quot;Save&quot; : &quot;Edit&quot;;
++    editButton.onclick = this._clickOnEditButton.bindAsEventListener(this);
++    mySpan.appendChild(editButton);
++  }
++  else {
++    var createAcctLink = document.createElement(&quot;a&quot;);
++    createAcctLink.appendChild(document.createTextNode(&quot;Create Account&quot;));
++
++    welcomeText = &quot; or sign in: &quot;; 
++    welcomeNode = document.createTextNode(welcomeText);
++    this.usernameInput = document.createElement(&quot;input&quot;);
++    this.usernameInput.size=10;
++    this.usernameInput.onkeypress = this.signinKeyPress.bindAsEventListener(this);
++    this.usernameInput.value = &quot;Your name here&quot;;
++
++    this.passwordInput = document.createElement(&quot;input&quot;);
++    this.passwordInput.size = 10;
++    this.passwordInput.type = &quot;password&quot;;
++    this.passwordInput.value = &quot;randomdots&quot;;
++
++    var signinButton = document.createElement(&quot;input&quot;);
++    signinButton.value = &quot;Sign in&quot;;
++    signinButton.type = &quot;button&quot;;
++    signinButton.onclick = this._clickOnSignInButton.bindAsEventListener(this);
++    createAcctLink.onclick = this._clickOnCreateAccountLink.bindAsEventListener(this,signinButton);
++    mySpan.appendChild(createAcctLink);
++    mySpan.appendChild(welcomeNode);
++    mySpan.appendChild(this.usernameInput);
++    mySpan.appendChild(this.passwordInput);
++    mySpan.appendChild(signinButton);
++  }
++};
++
++
++/**
++ * Called when sign out button is clicked.
++ *
++ * @scope    PENDING
++ */
++LoginView.prototype._clickOnSignoutLink = function(inEventObject) {
++  if (this.isInEditMode()) {this.getRootView().setEditMode(false);}
++  this.myCookie.userUuid = null;
++  this.myCookie.store();
++  this.getWorld().logout();
++  this._rebuildView();
++};
++
++
++/**
++ * Called when sign in input field is typed with keystroke.
++ *
++ * @scope    PENDING
++ */
++LoginView.prototype.signinKeyPress = function(inEventObject) {
++  // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
++  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++    this._clickOnSignInButton(inEventObject);
++  }
++};
++
++LoginView.prototype._clickOnCreateAccountLink = function(inEventObject) {
++  this._isCreatingNewAccount = true;
++  this._rebuildView();
++};
++
++LoginView.prototype._clickOnNewAcctButton = function(inEventObject) {
++  var username = this.usernameInput.value;
++  var password = this.passwordInput.value;
++  this._createNewUser(username, password);
++  this._isCreatingNewAccount = false;
++  this._rebuildView();
++};
++
++/**
++ * Called when sign in button is clicked.
++ *
++ * @scope    PENDING
++ */
++LoginView.prototype._clickOnSignInButton = function(inEventObject) {
++
++  var listOfUsers = this.getWorld().getUsers();
++  var userNameEntered = this.usernameInput.value;
++  var key;
++  var currentUser = null;
++
++  for (key in listOfUsers) {
++    if (!currentUser) {
++      var user = listOfUsers[key];
++      var lowerCaseUserName = user.getDisplayName().toLowerCase();
++      var lowerCaseUserNameEntered = userNameEntered.toLowerCase();
++      var numberOfCharactersToCompare = lowerCaseUserNameEntered.length;
++      var shortUserName = lowerCaseUserName.substring(0, numberOfCharactersToCompare);
++      if (shortUserName == lowerCaseUserNameEntered) {
++        // we have a match!
++        this._loginUser(user, this.passwordInput.value); // PENDING: user real password
++        return;
++      }
++    }
++  }
++  this._reportError(&quot;Login failed. Unknown user.&quot;);
++};
++
++LoginView.prototype._loginUser = function(user, password) {
++  var loginSuccess = this.getWorld().login(user, password); 
++  if (loginSuccess) {
++    var userUuid = user._getUuid();
++    this.myCookie.userUuid = userUuid;
++    this.myCookie.password = password;
++    this.myCookie.store();
++    this._rebuildView();
++  } else {
++    this._reportError(&quot;Login failed. Incorrect password.&quot;);
++  }
++};
++
++LoginView.prototype._reportError = function (errorStr) {
++  var newErrorNode = document.createTextNode(errorStr);
++  var mySpan = this.getHTMLElement();
++  if (this.errorNode) {
++    mySpan.replaceChild(newErrorNode,this.errorNode);
++  } else {
++    mySpan.appendChild(newErrorNode); 
++  }
++  this.errorNode = newErrorNode;
++};
++
++LoginView.prototype._createNewUser = function(username, password) {
++  function isValidUsername(username) {
++    // PENDING: hard coded to validate for alphanumeric usernames of 3 or more characters
++    if (!username) {return false;}
++    return username.search(/\w{3,}/) &gt;= 0;
++  }
++
++  if (isValidUsername(username)) {
++    var newUser = this.getWorld().newUser(username, password); 
++    this._loginUser(newUser,password);
++  } else {
++    this._reportError(&quot;\n Your username must be 3 or more alphanumeric characters!&quot;);
++  }
++};
++
++LoginView.prototype._clickOnEditButton = function (inEventObject) {
++  this.getRootView().setEditMode(!this.isInEditMode());
++  this._rebuildView();
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-05-25 02:01:00 UTC (rev 77)
++++ trunk/source/TextView.js	2005-05-25 04:43:51 UTC (rev 78)
+@@ -41,7 +41,7 @@
+ // -------------------------------------------------------------------
+ // TextView public class constants
+ // -------------------------------------------------------------------
+-TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;;
++TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;; 
+ TextView.PROVISIOINAL_COLOR = '#999999';
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000066.html">[openrecord-svn] r77 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000068.html">[openrecord-svn] r79 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#67">[ date ]</a>
+              <a href="thread.html#67">[ thread ]</a>
+              <a href="subject.html#67">[ subject ]</a>
+              <a href="author.html#67">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r106 - in trunk/source: . model repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r106%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506020051.j520prkJ025111%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000092.html">
+   <LINK REL="Next"  HREF="000094.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r106 - in trunk/source: . model repositories/demo_page</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r106%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506020051.j520prkJ025111%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r106 - in trunk/source: . model repositories/demo_page">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  2 02:51:53 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000092.html">[openrecord-svn] r105 - trunk/source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000094.html">[openrecord-svn] r107 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-02 02:51:46 +0200 (Thu, 02 Jun 2005)
+New Revision: 106
+
+Added:
+   trunk/source/MultiEntriesView.js
+Modified:
+   trunk/source/PageView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/Util.js
+   trunk/source/base_style.css
+   trunk/source/demo_page.html
+   trunk/source/model/Item.js
+   trunk/source/repositories/demo_page/2005_may_chronological_list.json
+Log:
+1) Added multi-entry support, primarily for TablePlugin, but hopefully usable in other plugins too
+2) Added concept of selecting a row (currently only in edit mode)
+3) Use &quot;alt-return&quot; to add new entry
+
+Lots of subtle new issues need to resolved
+Also, need to add ability to delete entries (and items)
+
+Added: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/MultiEntriesView.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -0,0 +1,227 @@
++/*****************************************************************************
++ MultiEntries.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   repository.js
++//   util.js
++//   TextView.js
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// MultiEntriesView public class constants
++// -------------------------------------------------------------------
++MultiEntriesView.SEPARATOR = &quot; &#8226; &quot;;
++MultiEntriesView.SEPARATOR_COLOR = '#999999';
++
++/**
++ * An instance of MultiEntriesView can be placed in any parent container View
++ * to display and (if in edit mode) edit multi-lines of text
++ *
++ * @scope    public instance constructor
++ * @extends  View
++ * @param    theSuperview    The view that this view is nested in. 
++ * @param    theItem         The Item to be displayed and edited by this view. 
++ * @param    theAttribute    The attribute of the item to be displayed.
++ * @param    theElement      The HTMLElement to display the HTML in. 
++ * @param    theClassType    A string that gives a class name to assign to the HTML element. 
++ * @param    isMultiLine     a boolean indicating if text view is single line or multi-line
++ */
++MultiEntriesView.prototype = new View();  // makes MultiEntriesView be a subclass of View
++function MultiEntriesView(theSuperview, theElement, theItem, theAttribute, theClassType) {
++  Util.assert(theItem instanceof Item);
++  //Util.assert(theAttribute instanceof Attribute); PENDING need to check that attribute is an attribute
++  
++  this.setSuperview(theSuperview);
++  this.setHTMLElement(theElement);
++  this._item = theItem;
++  this._attribute = theAttribute;
++  this._className = theClassType;
++}
++
++
++/**
++ * Updates the HTML elements in this view to reflect any changes in 
++ * the item's attribute values.
++ *
++ * @scope    public instance method
++ */
++MultiEntriesView.prototype.refresh = function() {
++  if (!this._myHasEverBeenDisplayedFlag) {
++    this._buildView();
++  } else {
++  // if (weHaveBeenNotifiedOfChangesTo(this._item)) {
++  //   var newText = getNewValueFrom(this._item);
++  //   this.textNode.data = newText;
++  // }
++  }
++};
++
++
++MultiEntriesView.prototype.noLongerProvisional = function() {
++  Util.assert(this._entryViews.length == 1); // provisional item should only have one entry
++  for (var i=0; i &lt; this._entryViews.length; ++i) {
++    this._entryViews[i].noLongerProvisional();
++  }
++};
++
++MultiEntriesView.prototype.select = function(inSelectFirst) {
++  var index = inSelectFirst ? 0 : this._entryViews.length - 1;
++  this._entryViews[index].startEditing();
++};
++
++MultiEntriesView.prototype.setSuggestions = function(suggestionList) {
++  for (var i=0; i &lt; this._entryViews.length; ++i) {
++    this._entryViews[i].setSuggestions(suggestionList);
++  }
++};
++
++MultiEntriesView.prototype.setKeyPressFunction = function(keyPressFunction) {
++  Util.assert(keyPressFunction instanceof Function);
++  this._keyPressFunction = keyPressFunction;
++};
++
++/**
++ * Sets a function to be used when onclick is called to the TextView
++ *
++ * @scope    public instance method
++ * @param    inEventObject    An event object. 
++ */
++MultiEntriesView.prototype.setClickFunction = function(inClickFunction) {
++  Util.assert(inClickFunction instanceof Function);
++  this._clickFunction = inClickFunction;
++};
++
++MultiEntriesView.prototype._handleClick = function(inEvent, inTextView) {
++  if (this._clickFunction &amp;&amp; this._clickFunction(inEvent, inTextView)) {
++    return true;
++  }
++  return false;
++};
++
++MultiEntriesView.prototype._handleOwnClick = function(inEvent) {
++  var lastEntry = this._entryViews[this._entryViews.length-1];
++  if (this._handleClick(inEvent, lastEntry)) {return true;}
++  lastEntry.startEditing();
++};
++
++
++MultiEntriesView.prototype._keyPressOnEditField = function(inEvent, inTextView) {
++  Util.assert(inTextView instanceof TextView);
++  var asciiValueOfKey = inEvent.keyCode;
++  var move, doCreateNewEntry;
++  switch (asciiValueOfKey) {
++    case Util.ASCII_VALUE_FOR_LEFT_ARROW: move = -1; break;
++    case Util.ASCII_VALUE_FOR_RIGHT_ARROW: move = 1; break;
++    case Util.ASCII_VALUE_FOR_RETURN: doCreateNewEntry = inEvent.altKey; break;
++    default: move = 0; break;
++  }
++  if (doCreateNewEntry) {
++    inTextView.stopEditing();
++    this._addSeparator();
++    this._addEntryView(null).startEditing();
++    return true;
++  }
++  if (move != 0) {
++    var index = Util.getArrayIndex(this._entryViews, inTextView);
++    Util.assert(index != -1);
++    index += move;
++    if (index &gt;= 0 &amp;&amp; index &lt; this._entryViews.length) {
++      inTextView.stopEditing();
++      this._entryViews[index].startEditing();
++      return true;
++    }
++  }
++  if (this._keyPressFunction &amp;&amp; this._keyPressFunction(inEvent, inTextView)) {
++    return true;
++  }
++  return false;
++};
++
++
++MultiEntriesView.prototype._addEntryView = function(inEntry) {
++  var spanElt = document.createElement(&quot;span&quot;);
++  var aTextView = new TextView(this, spanElt, this._item, this._attribute, inEntry, this._className);
++  this._entryViews.push(aTextView);
++  aTextView.refresh();
++  this.getHTMLElement().appendChild(spanElt);
++  if (this.isInEditMode()) {
++    var listener = this;
++    aTextView.setKeyPressFunction(function (evt, aTxtView) {return listener._keyPressOnEditField(evt, aTxtView);});
++    aTextView.setClickFunction(function (evt, aTxtView) {return listener._handleClick(evt, aTxtView);});
++  }
++  return aTextView;
++};
++
++MultiEntriesView.prototype._addSeparator = function() {
++  var spanElt = document.createElement(&quot;span&quot;);
++  spanElt.appendChild(document.createTextNode(MultiEntriesView.SEPARATOR));
++  spanElt.style.color = MultiEntriesView.SEPARATOR_COLOR;
++  this.getHTMLElement().appendChild(spanElt);
++  return spanElt;
++};
++
++/**
++ * Re-creates all the HTML for the MultiEntriesView, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++MultiEntriesView.prototype._buildView = function() {
++  var htmlElement = this.getHTMLElement();
++  htmlElement.innerHTML = '';
++  this._entryViews = [];
++  
++  var entries = this._item.getEntriesForAttribute(this._attribute);
++  if (this._item.isProvisional() || entries.length == 0) {
++    this._addEntryView(null);
++  }
++  else {
++    for (var i=0; i&lt;entries.length; ++i) {
++      var anEntry = entries[i];
++      this._addEntryView(anEntry);
++      if (i &lt; (entries.length-1)) { this._addSeparator();}
++    }
++  }
++  
++  if (this.isInEditMode()) {
++    htmlElement.onclick = this._handleOwnClick.bindAsEventListener(this);
++  } 
++  this._myHasEverBeenDisplayedFlag = true;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+\ No newline at end of file
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/PageView.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -123,12 +123,12 @@
+   var pageDivElement = this.getHTMLElement();
+   
+   var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
+-  this._myHeaderText = new TextView(this, headerElement, this.myPage,
+-    attributeCalledName, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
++  this._myHeaderText = new TextView(this, headerElement, this.myPage, attributeCalledName,
++    this.myPage.getSingleEntryFromAttribute(attributeCalledName), SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+ 
+   var summaryViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+-  this._myPageSummaryView = new TextView(this, summaryViewDiv, this.myPage,
+-    attributeCalledSummary, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
++  this._myPageSummaryView = new TextView(this, summaryViewDiv, this.myPage, attributeCalledSummary,
++    this.myPage.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+ 
+   // add &lt;div&gt; elements for each of the sections on the page
+   // and create a new SectionView for each section
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/SectionView.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -241,11 +241,12 @@
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+-  this._myHeaderView = new TextView(this, headerH2, this.mySection,
+-    attributeCalledName, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++  this._myHeaderView = new TextView(this, headerH2, this.mySection, attributeCalledName,
++    this.mySection.getSingleEntryFromAttribute(attributeCalledName),
++    SectionView.ELEMENT_CLASS_TEXT_VIEW);
+   var summaryDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+-  this._mySectionSummaryView = new TextView(this, summaryDiv, this.mySection,
+-    attributeCalledSummary, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
++  this._mySectionSummaryView = new TextView(this, summaryDiv, this.mySection, attributeCalledSummary,
++    this.mySection.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+   // create the plugin editing controls, if we're in edit mode
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/TablePlugin.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -208,7 +208,7 @@
+   var oldProvisionalRow = this.myTable.rows[this._listOfItems.length];
+   for (var i=0; i &lt; oldProvisionalRow.cells.length; ++i) {
+     var aCell = oldProvisionalRow.cells[i];
+-    aCell.or_textView.noLongerProvisional();
++    aCell.or_entriesView.noLongerProvisional();
+   }
+ 
+   // create new provisional item now that old one has become real
+@@ -314,14 +314,14 @@
+ TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
+   var aCell = row.insertCell(col);
+   aCell.className = this.myCellClass;
+-  var aTextView = new TextView(this, aCell, item, attribute, this.myCellClass);
+-  aCell.or_textView = aTextView;
+-  aTextView.refresh();
++  var multiEntriesView = new MultiEntriesView(this, aCell, item,attribute, this.myCellClass);
++  aCell.or_entriesView = multiEntriesView;
++  multiEntriesView.refresh();
+   if (this.isInEditMode()) {
+-    //aCell.onkeypress = this.keyPressOnEditField.bindAsEventListener(this, aTextView);
++    multiEntriesView.setSuggestions(this._hashTableOfEntries[attribute.getUniqueKeyString()]);
+     var listener = this;
+-    aTextView.setSuggestions(this._hashTableOfEntries[attribute.getUniqueKeyString()]);
+-    aTextView.setKeyPressFunction(function (evt, aTxtView) {listener.keyPressOnEditField(evt, aTxtView);});
++    multiEntriesView.setKeyPressFunction(function (evt, aTxtView) {return listener.keyPressOnEditField(evt, aTxtView);});
++    multiEntriesView.setClickFunction(function (evt, aTxtView) {return listener._handleClick(evt, aTxtView);});
+   }
+ };
+ 
+@@ -351,7 +351,17 @@
+   this._buildTable();
+ };
+   
+-
++TablePlugin.prototype._handleClick = function (inEventObject, aTextView) {
++  var rowElement = aTextView.getSuperview().getHTMLElement().parentNode; // textView -&gt; multiEntriesView -&gt; cellElment -&gt; rowElement
++  Util.assert(rowElement instanceof HTMLTableRowElement);
++  if (rowElement != this._lastSelectedRow) {
++    if (this._lastSelectedRow) {this._lastSelectedRow.style.background = &quot;rgb(100%,100%,100%)&quot;;}
++    this._lastSelectedRow = rowElement;
++    rowElement.style.background = &quot;rgb(100%,100%,0%)&quot;;
++    return true;
++  }
++  return false;
++};
+ /**
+  * Called when the user types a character when editing a table cell. 
+  *
+@@ -402,10 +412,10 @@
+     Util.isArray(this._listOfItems);
+     
+     // line below needs to be called here i.e. early because stopping an edit may change a provisional item
+-    // to become a &quot;real&quot; one thereby  creating new row for the next provisional item
++    // to become a &quot;real&quot; one thereby  creating new row for the next provisional item, e.g. this._listOfItems changes
+     aTextView.stopEditing();
+ 
+-    var cellElement = aTextView.getHTMLElement();
++    var cellElement = aTextView.getSuperview().getHTMLElement(); // textView's multiEntriesView's
+     var userHitReturnInLastRow = false;
+     var shiftBy;
+     var numCols = this._numberOfColumns;
+@@ -442,17 +452,8 @@
+       nextCell = nextRow.cells[cellElement.cellIndex];
+     }
+     
+-    var nextTextView = nextCell.or_textView;
+-    nextTextView.startEditing();
+-/*    if (userHitReturnInLastRow &amp;&amp; tablePlugin.myNewItemCreatedFlag) {
+-      tablePlugin.myNewItemCreatedFlag = false;
+-      tablePlugin.refresh();
+-      tablePlugin.startEditingInCellForNewItemAtColumn(cellDelegate.myColumnNumber);
+-    } else {
+-      if (nextCell) {
+-        TablePlugin.startEditingInCell(nextCell);
+-      }
+-    } */
++    var nextMultiEntryView = nextCell.or_entriesView;
++    nextMultiEntryView.select(move != MOVE_LEFT);
+   }
+   return !move;
+ };
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/TextView.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -59,22 +59,26 @@
+  * @param    isMultiLine     a boolean indicating if text view is single line or multi-line
+  */
+ TextView.prototype = new View();  // makes TextView be a subclass of View
+-function TextView(theSuperview, theElement, theItem, theAttribute, theClassType, isMultiLine) {
+-  Util.assert(theItem instanceof Item);
++function TextView(theSuperview, inElement, inItem, inAttribute, inEntry, inClassName, isMultiLine) {
++  Util.assert((!inEntry) || inEntry instanceof Entry);
++  Util.assert(inItem instanceof Item);
++  Util.assert(inAttribute instanceof Item);
+   //Util.assert(theAttribute instanceof Attribute); PENDING need to check that attribute is an attribute
+   
+   this.setSuperview(theSuperview);
+-  this.setHTMLElement(theElement);
+-  this._item = theItem;
+-  this._attribute = theAttribute;
++  this.setHTMLElement(inElement);
++  inElement.style.width = inElement.style.height = &quot;100%&quot;; // make this element expand to fill parent element where possible
++  this._item = inItem;
++  this._attribute = inAttribute;
++  this._entry = inEntry;
+   this._editField = null;
+-  this._classType = theClassType;
++  this._className = inClassName;
+   this._isMultiLine = isMultiLine;
+   this._isEditing = false;
+   this._proxyOnKeyFunction = null;
+   
+-  this._isProvisional = this._item.isProvisional();
+-  if (this._isProvisional) {this._provisionalText = this._attribute.getDisplayName();}
++  this._isProvisional = inItem.isProvisional();
++  if (this._isProvisional) {this._provisionalText = inAttribute.getDisplayName();}
+   
+ }
+ 
+@@ -112,18 +116,13 @@
+  * Re-creates all the HTML for the TextView, and hands the HTML to the 
+  * browser to be re-drawn.
+  *
+- * @scope    public instance method
++ * @scope    private instance method
+  */
+ TextView.prototype._buildView = function() {
+   var htmlElement = this.getHTMLElement();
+   htmlElement.innerHTML = '';
+   
+-  var textString = this._isProvisional ? this._provisionalText :
+-    this._item.getSingleStringValueFromAttribute(this._attribute);
+-  // PENDING: need to deal with multi valued attrs
+-  // for (var i in textList) {
+-  //   textString = textList[i] + &quot;\n&quot; + textString;
+-  // };
++  var textString = this._getText();
+   
+   if (this._isProvisional) {
+     this._oldColor = htmlElement.style.color;
+@@ -155,7 +154,7 @@
+         editField.type = 'text';
+       }
+       this._editField = editField;
+-      editField.className = this._classType;
++      editField.className = this._className;
+       var listener = this; 
+       editField.onblur = this.onBlur.bindAsEventListener(this);
+       editField.onkeypress = this.onKeyPress.bindAsEventListener(this);
+@@ -163,8 +162,8 @@
+       editField.onfocus = this.onFocus.bindAsEventListener(this);
+       editField.defaultValue = this._isProvisional ? '' : this.textNode.data;
+     }
+-    editField.style.width = this.getHTMLElement().offsetWidth + &quot;px&quot;;    
+-    editField.style.height = (this.getHTMLElement().offsetHeight) + &quot;px&quot;;
++    //editField.style.width = this.getHTMLElement().offsetWidth + &quot;px&quot;;    
++    //editField.style.height = (this.getHTMLElement().offsetHeight) + &quot;px&quot;;
+     
+     this._setupSuggestionBox();
+     this.getHTMLElement().replaceChild(editField, this.textNode);
+@@ -175,11 +174,90 @@
+ };
+ 
+ 
++/**
++ * Called when it's time to stop editing and save the changes.
++ *
++ * @scope    public instance method
++ */
++TextView.prototype.stopEditing = function() {
++  if (this._isEditing) {
++    var newText = this._editField.value;
++    var stillProvisional = this._isProvisional &amp;&amp; newText === '';
++    var htmlElement = this.getHTMLElement();
++
++    this._isEditing = false;
++
++    if (this._suggestionBox) {this._suggestionBox._blurOnInputField();}
++    if (stillProvisional) {
++      newText = this._provisionalText;
++    }
++    this.textNode.data = newText;
++    this._suggestionBox = null;
++    this.getHTMLElement().replaceChild(this.textNode, this._editField);
++
++    // we need this _writeText() to be after all display related code, because this may trigger an observer call
++    if (!stillProvisional) { this._writeText(newText); }
++  }
++};
++
++
++/**
++ * Writes edited text back into item entry of repository
++ *
++ * @scope    private instance method
++ * @param    inText    text to be written. 
++ */
++TextView.prototype._writeText = function(inText) {
++  if (this._entry) {
++    var oldText = this._entry.getDisplayString();
++    if (oldText != inText) {
++      this._entry = this._item.replaceEntry(this._entry,inText);
++    }
++  }
++  else if (inText !== '') {
++    this._entry = this._item.addEntryForAttribute(this._attribute, inText);
++  }
++};
++
++/**
++ * Returns text string for TextView to be displaying and editing
++ *
++ * @scope    private instance method
++ */
++TextView.prototype._getText = function() {
++  if (this._isProvisional) {return this._provisionalText;}
++  if (this._entry) {return this._entry.getDisplayString();}
++  return '';
++};
++
++/**
++ * Restores the original text before this editing session
++ *
++ * @scope    private instance method
++ */
++TextView.prototype._restoreText = function() {
++  Util.assert(this._isEditing);
++  var oldText = (this._entry) ?  this._entry.getDisplayString() : '';
++  this._editField.value = oldText;
++  this._editField.select();
++};
++
+ // -------------------------------------------------------------------
+ // Event handler methods
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Sets a function to be used when onclick is called to the TextView
++ *
++ * @scope    public instance method
++ * @param    inEventObject    An event object. 
++ */
++TextView.prototype.setClickFunction = function(inClickFunction) {
++  Util.assert(inClickFunction instanceof Function);
++  this._clickFunction = inClickFunction;
++};
++
++/**
+  * Called when the user clicks on the text.
+  *
+  * Handles the mouse click event on text view. Called by listener.
+@@ -188,6 +266,9 @@
+  * @param    inEventObject    An event object. 
+  */
+ TextView.prototype.onClick = function(inEventObject) {
++  if (this._clickFunction &amp;&amp; this._clickFunction(inEventObject, this)) {
++    return true;
++  }
+   if (this.isInEditMode()) {
+     this.startEditing();
+   }
+@@ -212,45 +293,6 @@
+ 
+ 
+ /**
+- * Called when it's time to stop editing and save the changes.
+- *
+- * @scope    public instance method
+- */
+-TextView.prototype.stopEditing = function() {
+-  if (this._isEditing) {
+-    var newText = this._editField.value;
+-    var stillProvisional = this._isProvisional &amp;&amp; newText === '';
+-    var htmlElement = this.getHTMLElement();
+-    
+-    this._isEditing = false;
+-  
+-    if (this._suggestionBox) {this._suggestionBox._blurOnInputField();}
+-    if (stillProvisional) {
+-      newText = this._provisionalText;
+-    }
+-    this.textNode.data = newText;
+-    this._suggestionBox = null;
+-    this.getHTMLElement().replaceChild(this.textNode, this._editField);
+-    
+-    // we need this block to be after all display related code, because this may trigger an observer call
+-    if (!stillProvisional) {
+-      // write out new entry for attribute
+-      // PENDING: need to properly handle multi-valued attributes
+-      var listOfEntries = this._item.getEntriesForAttribute(this._attribute);
+-      if (listOfEntries &amp;&amp; listOfEntries[0]) {
+-        var oldEntry = listOfEntries[0];
+-        this._item.replaceEntry(oldEntry, newText);
+-      } else {
+-        if (newText) {
+-          this._item.addEntryForAttribute(this._attribute, newText);
+-        }
+-      }
+-    }
+-  }
+-};
+-
+-
+-/**
+  * Sets a function to be used when onkeypress is called to the TextView
+  *
+  * @scope    public instance method
+@@ -271,6 +313,10 @@
+  * @param    inEventObject    An event object. 
+  */
+ TextView.prototype.onKeyPress = function(inEventObject) {
++  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_ESCAPE) {
++    this._restoreText();
++    return true;
++  }
+   if (this._keyPressFunction &amp;&amp; this._keyPressFunction(inEventObject, this)) {
+     return true;
+   }
+@@ -321,6 +367,8 @@
+   if (this._isProvisional) {
+     this._isProvisional = false;
+     this.getHTMLElement().style.color = this._oldColor;
++    // need to set line below because _writeText() hasn't returned an entry yet
++    this._entry = this._item.getSingleEntryFromAttribute(this._attribute); 
+     this._buildView();
+   }
+ };
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/Util.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -324,6 +324,17 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Methods that operate on Arrays
++// -------------------------------------------------------------------
++
++Util.getArrayIndex = function(inArray, inElt) {
++  for (i=0; i&lt;inArray.length; ++i) {
++    if (inArray[i] == inElt) {return i;}
++  }
++  return -1;
++};
++
++// -------------------------------------------------------------------
+ // Methods that operate on Sets
+ // -------------------------------------------------------------------
+ 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/base_style.css	2005-06-02 00:51:46 UTC (rev 106)
+@@ -466,9 +466,9 @@
+   background: rgb(100%, 100%, 40%);
+ }
+ 
+-.editmode .simple_table td:hover {
++/*.editmode .simple_table td:hover {
+   background: rgb(100%, 100%, 70%);
+-}
++}*/
+ 
+ td.newitem {
+   /* background: rgb(100%,100%,50%); */
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/demo_page.html	2005-06-02 00:51:46 UTC (rev 106)
+@@ -23,6 +23,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;SectionView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LoginView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;MultiEntriesView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;NavbarView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/model/Item.js	2005-06-02 00:51:46 UTC (rev 106)
+@@ -358,25 +358,33 @@
+ 
+ 
+ /**
+- * Returns just the first value of an item's attribute.
++ * Returns just the first entry of an item's attribute.
+  *
+  * @scope    public instance method
+  * @return   A string with a description of the item.
+  */
+-Item.prototype.getSingleStringValueFromAttribute = function (inAttribute) {
++Item.prototype.getSingleEntryFromAttribute = function (inAttribute) {
+   var listOfEntries = this.getEntriesForAttribute(inAttribute);
+-  var singleStringValue = &quot;&quot;;
+   if (listOfEntries) {
+-    firstEntry = listOfEntries[0];
+-    if (firstEntry) {
+-      singleStringValue = firstEntry.getDisplayString();
+-    }
++    return listOfEntries[0];
+   }
+-  return singleStringValue;
++  return null;
+ };
+ 
+ 
+ /**
++ * Returns just the first entry's display string of an item's attribute.
++ *
++ * @scope    public instance method
++ * @return   A string with a description of the item.
++ */
++Item.prototype.getSingleStringValueFromAttribute = function (inAttribute) {
++  var singleEntry = this.getSingleEntryFromAttribute(inAttribute);
++  if (singleEntry) {return singleEntry.getDisplayString();}
++  return &quot;&quot;;
++};
++
++/**
+  * Returns a string describing the item.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/repositories/demo_page/2005_may_chronological_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-02 00:23:38 UTC (rev 105)
++++ trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-02 00:51:46 UTC (rev 106)
+@@ -2914,4 +2914,226 @@
+           &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Brian Totty&quot; },
+       &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
+       &quot;timestamp&quot;: &quot;1117671612418&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // guessing it's Harper Collins
++           &quot;uuid&quot;: &quot;3cd67e90-d29f-4ec7-8312-66d22733f0a0&quot;,
++      &quot;attribute&quot;: &quot;3102&quot;,                // Publisher
++           &quot;item&quot;: &quot;6013&quot;,                // The Two Towers
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;guessing it's Harper Collins&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672001627&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // don't know
++           &quot;uuid&quot;: &quot;9bc86406-fc95-447d-8a23-22944b1b20da&quot;,
++      &quot;attribute&quot;: &quot;3103&quot;,                // ISBN
++           &quot;item&quot;: &quot;6013&quot;,                // The Two Towers
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;don't know&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672009181&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;b47b1562-97a6-496e-8a89-402eb91d9b88&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;d384d951-40d7-4678-87c3-5ddd7cd4828e&quot;,                // demonstration
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;3104&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672018323&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // demonstration
++           &quot;uuid&quot;: &quot;d384d951-40d7-4678-87c3-5ddd7cd4828e&quot;,
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117671979087&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // demonstration
++           &quot;uuid&quot;: &quot;8958b17a-4da1-44b0-8f1c-8ef78c28616b&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;d384d951-40d7-4678-87c3-5ddd7cd4828e&quot;,                // demonstration
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;demonstration&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672018314&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Section
++           &quot;uuid&quot;: &quot;86dc0f87-0bb1-4c9d-8a41-9a35ff7fe320&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;3011&quot;,                // Query for all books
++   &quot;previousEntry&quot;: &quot;6040&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672026735&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096166&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;3d083924-ae60-4a08-8c18-98c6fa8b7fed&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Page&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096167&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;fecffd1c-eccd-40c0-8418-2487e42b948f&quot;,
++      &quot;attribute&quot;: &quot;00000102-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Short Name
++           &quot;item&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Page&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096168&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Page
++           &quot;uuid&quot;: &quot;949c7430-57f7-4b7b-8b2b-e11c4f1d03f1&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000200-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096169&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This is a new page.
++           &quot;uuid&quot;: &quot;f94cf799-52f6-4e00-8e6d-9e2d20a369d4&quot;,
++      &quot;attribute&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
++           &quot;item&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This is a new page.&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096170&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;4b58b203-f336-494c-86db-5c26803d8f09&quot;,
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096170&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;bbc43d46-a772-41c2-83a6-7b0c659980dc&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;4b58b203-f336-494c-86db-5c26803d8f09&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Section&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096171&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Section
++           &quot;uuid&quot;: &quot;650aa423-d1e0-40eb-86f7-33c9cc3d3850&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;4b58b203-f336-494c-86db-5c26803d8f09&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096172&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;eefb08d5-8a9a-4bac-8a23-c76c61e2829c&quot;,
++      &quot;attribute&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
++           &quot;item&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4b58b203-f336-494c-86db-5c26803d8f09&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096172&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Table
++           &quot;uuid&quot;: &quot;2489beba-ff2a-4ba3-8e5b-de77c487a99f&quot;,
++      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++           &quot;item&quot;: &quot;4b58b203-f336-494c-86db-5c26803d8f09&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Table&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096173&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;e09578c6-245e-46f9-8ec7-c25ba5338ade&quot;,
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096174&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;f6a102de-af42-4ef2-891b-e4f4646df91d&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;e09578c6-245e-46f9-8ec7-c25ba5338ade&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Query&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096174&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Query
++           &quot;uuid&quot;: &quot;fc803064-8a4f-4a5d-819f-e022fd6c1a0f&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;e09578c6-245e-46f9-8ec7-c25ba5338ade&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096175&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;19f95d46-3bdb-43ae-87aa-1d8754f0a90e&quot;,
++      &quot;attribute&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++           &quot;item&quot;: &quot;4b58b203-f336-494c-86db-5c26803d8f09&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;e09578c6-245e-46f9-8ec7-c25ba5338ade&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672096176&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // 8. This a my new page
++           &quot;uuid&quot;: &quot;3de0f489-3453-4438-88f6-5ecf05a27acb&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;cbfca6bc-4328-4f0f-851c-36be71f3cd5d&quot;,                // 8. This a my new page
++   &quot;previousEntry&quot;: &quot;3d083924-ae60-4a08-8c18-98c6fa8b7fed&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;8. This a my new page&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672110813&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;82e0fc45-d336-4355-85d9-508801f6a05f&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;e09578c6-245e-46f9-8ec7-c25ba5338ade&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;3104&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672117647&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;299531b0-b0b8-44c4-8f40-1d5fc84ee138&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;e09578c6-245e-46f9-8ec7-c25ba5338ade&quot;,                // New Query
++   &quot;previousEntry&quot;: &quot;82e0fc45-d336-4355-85d9-508801f6a05f&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672181749&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;ba7f9419-c1b0-420b-8c84-873df262cfd0&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;5834a624-cdfa-4289-8a39-a1a569b0b8d2&quot;,                // Triage Status
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672195133&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Triage Status
++           &quot;uuid&quot;: &quot;5834a624-cdfa-4289-8a39-a1a569b0b8d2&quot;,
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672181859&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Triage Status
++           &quot;uuid&quot;: &quot;3062af7e-624a-4135-8432-7361a1206a8a&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;5834a624-cdfa-4289-8a39-a1a569b0b8d2&quot;,                // Triage Status
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Triage Status&quot; },
++      &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1117672195124&quot; }
+   }
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000092.html">[openrecord-svn] r105 - trunk/source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000094.html">[openrecord-svn] r107 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#93">[ date ]</a>
+              <a href="thread.html#93">[ thread ]</a>
+              <a href="subject.html#93">[ subject ]</a>
+              <a href="author.html#93">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

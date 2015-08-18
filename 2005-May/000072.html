@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r83 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r83%20-%20trunk/source&In-Reply-To=%3C200505270632.j4R6Wa5n005773%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000071.html">
+   <LINK REL="Next"  HREF="000073.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r83 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r83%20-%20trunk/source&In-Reply-To=%3C200505270632.j4R6Wa5n005773%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r83 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 27 08:32:36 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000071.html">[openrecord-svn] r82 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000073.html">[openrecord-svn] r84 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-27 08:32:35 +0200 (Fri, 27 May 2005)
+New Revision: 83
+
+Modified:
+   trunk/source/Util.js
+   trunk/source/UtilTest.js
+Log:
+Added code to generate random UUIDs (&quot;version 4&quot; UUIDs), and unit tests.
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-05-25 21:49:56 UTC (rev 82)
++++ trunk/source/Util.js	2005-05-27 06:32:35 UTC (rev 83)
+@@ -408,6 +408,47 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Methods for working with UUIDs
++// -------------------------------------------------------------------
++
++/**
++ * Generates a random UUID.  Hopefully this conforms to the existing
++ * standards for UUIDs and GUIDs.  For more info, see 
++ * <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
++ * 
++ * @scope    public class method
++ * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-4804-997E-917BF397618A&quot;.
++ */
++Util.generateRandomUuid = function () {
++  
++  function getRandom32bitNumber() {
++    return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
++  }
++  
++  function getEightCharacterHexString() {
++    var hexRadix = 16;
++    var eightCharacterString = getRandom32bitNumber().toString(hexRadix);
++    while (eightCharacterString.length &lt; 8) {
++      eightCharacterString = &quot;0&quot; + eightCharacterString;
++    }
++    return eightCharacterString;
++  }
++  
++  var hyphen = &quot;-&quot;;
++  var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;;
++  var variantCodeForStandardUuids = &quot;8&quot;;
++  var a = getEightCharacterHexString();
++  var b = getEightCharacterHexString();
++  b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
++  var c = getEightCharacterHexString();
++  c = variantCodeForStandardUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
++  var d = getEightCharacterHexString();
++  var result = a + hyphen + b + hyphen + c + d;
++  
++  return result;
++}
++
++// -------------------------------------------------------------------
+ // Methods that deal with event handling
+ // -------------------------------------------------------------------
+ 
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-05-25 21:49:56 UTC (rev 82)
++++ trunk/source/UtilTest.js	2005-05-27 06:32:35 UTC (rev 83)
+@@ -67,6 +67,38 @@
+   
+ }
+ 
++function testMethodsForWorkingWithUuids() {
++  
++  var uuidString = Util.generateRandomUuid();
++  assertTrue('UUIDs have 36 characters', (uuidString.length == 36));
++
++  var validCharacters = &quot;0123456789abcedfABCDEF-&quot;;
++  var character;
++  var position;
++  for (var i = 0; i &lt; 36; ++i) {
++    character = uuidString.charAt(i);
++    position = validCharacters.indexOf(character);
++    assertTrue('UUIDs have only valid characters', (position != -1));
++  }
++  
++  var arrayOfParts = uuidString.split(&quot;-&quot;);
++  assertTrue('UUIDs have 5 sections separated by 4 hypens', (arrayOfParts.length == 5));
++  assertTrue('Section 0 has 8 characters', (arrayOfParts[0].length == 8));
++  assertTrue('Section 1 has 4 characters', (arrayOfParts[1].length == 4));
++  assertTrue('Section 2 has 4 characters', (arrayOfParts[2].length == 4));
++  assertTrue('Section 3 has 4 characters', (arrayOfParts[3].length == 4));
++  assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
++  
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
++  
++  var section3 = arrayOfParts[3];
++  var validCharactersForStartOfSection3 = &quot;89abAB&quot;;
++  character = section3.charAt(0);
++  position = validCharactersForStartOfSection3.indexOf(character);
++  assertTrue('Section 3 starts with 8, 9, A, or B', (position != -1));
++}
++
+ function tearDown() {
+   test = null;
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000071.html">[openrecord-svn] r82 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000073.html">[openrecord-svn] r84 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

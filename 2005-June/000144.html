@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r158 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r158%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506172043.j5HKhJEl012174%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000143.html">
+   <LINK REL="Next"  HREF="000145.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r158 - in trunk: documentation source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r158%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506172043.j5HKhJEl012174%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r158 - in trunk: documentation source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 17 22:43:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000143.html">[openrecord-svn] r157 - in trunk: documentation source
+</A></li>
+        <LI>Next message: <A HREF="000145.html">[openrecord-svn] r159 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-17 22:43:18 +0200 (Fri, 17 Jun 2005)
+New Revision: 158
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/demo_page.html
+Log:
+1) Added support for layout data for plugins.
+2) Modified Section to support create layout data for plugins
+3) Lint fixes
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/documentation/release_planning.txt	2005-06-17 20:43:18 UTC (rev 158)
+@@ -452,4 +452,5 @@
+ + Should we get rid of semi-colon checking in JSLint?
+ + Should we work on making OpenRecord work within MediaWiki?
+ + BUG: need to convert HTML entity codes back at client-server layer
+++ Task: Rename ORlugin to PluginView
+ 
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/BarChartPlugin.js	2005-06-17 20:43:18 UTC (rev 158)
+@@ -53,9 +53,9 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  * @syntax   var barChart = new BarChartPlugin()
+  */
+-BarChartPlugin.prototype = new ORPlugin();  // makes BarChartPlugin be a subclass of View
+-function BarChartPlugin(inSuperview, inHTMLElement,inQuery) {
+-  ORPlugin.call(this,inSuperview,inHTMLElement,inQuery);
++BarChartPlugin.prototype = new PluginView();  // makes BarChartPlugin be a subclass of View
++function BarChartPlugin(inSuperview, inHTMLElement,inQuery,inLayout) {
++  PluginView.call(this,inSuperview,inHTMLElement,inQuery,inLayout);
+ }
+ 
+ 
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/DetailPlugin.js	2005-06-17 20:43:18 UTC (rev 158)
+@@ -52,9 +52,9 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  * @syntax   var detailPlugin = new DetailPlugin()
+  */
+-DetailPlugin.prototype = new ORPlugin();  // makes DetailPlugin be a subclass of View
+-function DetailPlugin(inSuperView, inHTMLElement,inQuery) {
+-  ORPlugin.call(this,inSuperView,inHTMLElement,inQuery);
++DetailPlugin.prototype = new PluginView();  // makes DetailPlugin be a subclass of View
++function DetailPlugin(inSuperView, inHTMLElement,inQuery,inLayout) {
++  PluginView.call(this,inSuperView,inHTMLElement,inQuery,inLayout);
+ }
+ 
+ 
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/OutlinePlugin.js	2005-06-17 20:43:18 UTC (rev 158)
+@@ -51,9 +51,9 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  * @syntax   var outline = new OutlinePlugin()
+  */
+-OutlinePlugin.prototype = new ORPlugin();  // makes OutlinePlugin be a subclass of View
+-function OutlinePlugin(inSectionView, inHTMLElement,inQuery) {
+-  ORPlugin.call(this,inSectionView,inHTMLElement,inQuery);
++OutlinePlugin.prototype = new PluginView();  // makes OutlinePlugin be a subclass of View
++function OutlinePlugin(inSectionView, inHTMLElement,inQuery,inLayout) {
++  PluginView.call(this,inSectionView,inHTMLElement,inQuery,inLayout);
+ }
+ 
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/SectionView.js	2005-06-17 20:43:18 UTC (rev 158)
+@@ -167,7 +167,8 @@
+   var newPlugin = null;
+   var pluginClass = SectionView.ourHashTableOfPluginClassesKeyedByPluginName[inPluginName];
+   if (pluginClass) {
+-    newPlugin = new pluginClass(this, inPluginDiv, this.getQuery());
++    var layoutData = this._getLayoutDataForPlugin(inPluginName);
++    newPlugin = new pluginClass(this, inPluginDiv, this.getQuery(), layoutData);
+   }
+   return newPlugin;
+ };
+@@ -266,6 +267,36 @@
+   this.refresh();
+ };
+ 
++/**
++ * Returns layout data of this section for a particular plugin
++ * Creates a the layout data item if doesn't exist
++ *
++ * @param inPluginName name of plugin
++ * @return layout data of this section for a particular plugin
++ */
++SectionView.prototype._getLayoutDataForPlugin = function (inPluginName) {
++  var repository = this.getWorld();
++  var attrLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA);
++  var entriesLayoutData = this.mySection.getEntriesForAttribute(attrLayoutData);
++  var attrAppliesToPlugin = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN);
++  if (entriesLayoutData) {
++    for (var i=0; i &lt; entriesLayoutData.length; ++i) {
++      var layoutItem = entriesLayoutData[i].getValue();
++      var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attrAppliesToPlugin);
++      Util.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
++      if (entriesAppliesToPlugin[0].getValue() == inPluginName) {
++        return layoutItem;
++      }
++    }
++  }
++  // layoutData not found, so create the item
++  repository.beginTransaction();
++  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginName + &quot; of &quot; + this.mySection.getDisplayName());
++  layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginName);
++  this.mySection.addEntryForAttribute(attrLayoutData,layoutItem,repository.getTypeCalledItem());
++  repository.endTransaction();
++  return layoutItem;
++};
+ 
+ /**
+  * Re-creates all the HTML for the SectionView, and hands the HTML to the 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/TablePlugin.js	2005-06-17 20:43:18 UTC (rev 158)
+@@ -62,9 +62,9 @@
+  * @param    inSectionView    The SectionView that this TablePlugin will appears in. 
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  */
+-TablePlugin.prototype = new ORPlugin();  // makes TablePlugin be a subclass of View
+-function TablePlugin(inSectionView, inHTMLElement, inQuery) {
+-  ORPlugin.call(this,inSectionView,inHTMLElement,inQuery);
++TablePlugin.prototype = new PluginView();  // makes TablePlugin be a subclass of View
++function TablePlugin(inSectionView, inHTMLElement, inQuery,inLayout) {
++  PluginView.call(this,inSectionView,inHTMLElement,inQuery,inLayout);
+ 
+   // PENDING should probably make this independent of sectionview
+   this.myClass = SectionView.ELEMENT_CLASS_SIMPLE_TABLE;
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/TextView.js	2005-06-17 20:43:18 UTC (rev 158)
+@@ -622,7 +622,7 @@
+       break;
+       case Util.ASCII_VALUE_FOR_TAB:
+       if (!this._selectedItem) {
+-        this._selectedItem = this._listOfMatchingItems[0]
++        this._selectedItem = this._listOfMatchingItems[0];
+         doSelectItem = true;
+       }
+       break;
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-06-17 19:07:19 UTC (rev 157)
++++ trunk/source/demo_page.html	2005-06-17 20:43:18 UTC (rev 158)
+@@ -26,7 +26,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MultiEntriesView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;NavbarView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;ORPlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;PluginView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DetailPlugin.js&quot;&gt;&lt;/script&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000143.html">[openrecord-svn] r157 - in trunk: documentation source
+</A></li>
+	<LI>Next message: <A HREF="000145.html">[openrecord-svn] r159 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#144">[ date ]</a>
+              <a href="thread.html#144">[ thread ]</a>
+              <a href="subject.html#144">[ subject ]</a>
+              <a href="author.html#144">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

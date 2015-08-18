@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r157 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r157%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506171907.j5HJ7L1E002446%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000142.html">
+   <LINK REL="Next"  HREF="000144.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r157 - in trunk: documentation source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r157%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506171907.j5HJ7L1E002446%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r157 - in trunk: documentation source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 17 21:07:21 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000142.html">[openrecord-svn] r156 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000144.html">[openrecord-svn] r158 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#143">[ date ]</a>
+              <a href="thread.html#143">[ thread ]</a>
+              <a href="subject.html#143">[ subject ]</a>
+              <a href="author.html#143">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-17 21:07:19 +0200 (Fri, 17 Jun 2005)
+New Revision: 157
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/MultiEntriesView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/base_style.css
+Log:
+1) Added keyboard support for AttributeSuggestionBox
+2) Fixed a few UI bugs
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-17 04:33:51 UTC (rev 156)
++++ trunk/documentation/release_planning.txt	2005-06-17 19:07:19 UTC (rev 157)
+@@ -164,10 +164,10 @@
+        |          |         |  5. UI for deleting a row from a table
+ brian  | 0.5  IED |         |  6. Save provisional item and then set the category, in that order, and in on transaction
+        |          |         |  7. Fix the bug that happens when you call the PHP server code with no POST data
+-chao   | 0.5  IED |         |  8. UI for entering a number literal (instead of a string literal) in a table
+-chao   | 1    IED |         |  9. UI for entering a date literal in a table (and data model support)
++chao   | 0.5  IED | 0.5 IED |  8. UI for entering a number literal (instead of a string literal) in a table [with Brian]
++chao   | 1    IED | 1   IED |  9. UI for entering a date literal in a table (and data model support) [with Brian]
+        |          |         | 10. Add data model support for bi-directional references
+-chao   | 2    IED |         | 11. Move to better persistent representation for queries
++chao   | 2    IED | 1.5 IED | 11. Move to better persistent representation for queries [with Brian]
+        |          |         | 12. Make sure view code uses transactions
+        |          |         | 13. Deal with \n in page name or summary fields
+        |          |         | 14. BUG: problems with newlines and HTML characters in text strings
+@@ -197,7 +197,7 @@
+        |          |         | 36. improve UI for creating a new page
+        |          |         | 37. improve UI for adding a new section to a page
+        |          |         | 38. improve UI for creating a new user
+-       |          |         | 39. improve UI for editing the query that a section uses
++chao   | 1.5 IED  | 1.5 IED | 39. improve UI for editing the query that a section uses
+        |          |         | 40. Have edit mode look like view mode, and remove the &quot;Edit&quot; button
+        |          |         | 41. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+        |          |         | 42. Rationalize the View api and document public api
+@@ -223,7 +223,9 @@
+        |          |         | 61. Write scalability tests 
+        |          |         | 62. Ensure that PHP scripts and file I/O works for concurrent multi-user access
+ -------+----------+---------+----------------------------------------------
+-
++chao   | 0.5 IED  | 0.5 IED | Improved UI for autocomplete
++c/b    | 0.5 IED  |         | Allow plugins to store layout data
++chao   | 0.5 IED  |         | Table plugin persists column order
+        
+ =======================================================
+ Categories and Attributes we might use for release 0.1
+@@ -449,5 +451,5 @@
+ + Should we adopt &quot;Globals&quot; convention for JSLint?
+ + Should we get rid of semi-colon checking in JSLint?
+ + Should we work on making OpenRecord work within MediaWiki?
+++ BUG: need to convert HTML entity codes back at client-server layer
+ 
+-
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-17 04:33:51 UTC (rev 156)
++++ trunk/source/MultiEntriesView.js	2005-06-17 19:07:19 UTC (rev 157)
+@@ -114,6 +114,7 @@
+  *
+  */
+ MultiEntriesView.prototype.setSuggestions = function(suggestionList) {
++  this._suggestions = suggestionList;
+   for (var i=0; i &lt; this._entryViews.length; ++i) {
+     this._entryViews[i].setSuggestions(suggestionList);
+   }
+@@ -215,6 +216,7 @@
+   aTextView.refresh();
+   if (this.isInEditMode()) {
+     var listener = this;
++    aTextView.setSuggestions(this._suggestions);
+     aTextView.setKeyPressFunction(function (evt, aTxtView) {return listener._keyPressOnEditField(evt, aTxtView);});
+     aTextView.setClickFunction(function (evt, aTxtView) {return listener._handleClick(evt, aTxtView);});
+   }
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-17 04:33:51 UTC (rev 156)
++++ trunk/source/SectionView.js	2005-06-17 19:07:19 UTC (rev 157)
+@@ -317,6 +317,8 @@
+   var listOfExpectedTypeEntries = matchingAttribute.getEntriesForAttribute(attributeCalledExpectedType);
+   entryTextView.setExpectedTypeEntries(listOfExpectedTypeEntries);
+   entryTextView.refresh();
++  var listener = this;
++  entryTextView.setKeyPressFunction(function (evt, aTxtView) {return listener.keyPressOnMatchingValueField(evt, aTxtView);});
+   myQuery.addObserver(this);
+ };
+ 
+@@ -326,6 +328,19 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Called when user is editing the matching value edit field
++ * We want to trap a &quot;return&quot; key 
++ * @scope public instance method
++ */
++SectionView.prototype.keyPressOnMatchingValueField = function(evt,aTxtView) {
++  if (evt.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++    aTxtView.stopEditing();
++    return true;
++  }
++  return false;
++};
++
++/**
+  * Called when the query belong to this section has changed
+  * @scope public instance method
+  */
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-17 04:33:51 UTC (rev 156)
++++ trunk/source/TablePlugin.js	2005-06-17 19:07:19 UTC (rev 157)
+@@ -374,9 +374,9 @@
+ TablePlugin.prototype.selectRow = function (rowElement) {
+   Util.assert(rowElement instanceof HTMLTableRowElement);
+   if (rowElement != this._lastSelectedRow) {
+-    if (this._lastSelectedRow) {this._lastSelectedRow.style.background = &quot;rgb(100%,100%,100%)&quot;;}
++    if (this._lastSelectedRow) {this._lastSelectedRow.style.background = &quot;&quot;;}
+     this._lastSelectedRow = rowElement;
+-    rowElement.style.background = &quot;rgb(100%,100%,0%)&quot;;
++    rowElement.style.background = &quot;rgb(0%,70%,100%)&quot;; // PENDING: need to css-ify this selection
+     return true;
+   }
+   return false;
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-17 04:33:51 UTC (rev 156)
++++ trunk/source/TextView.js	2005-06-17 19:07:19 UTC (rev 157)
+@@ -219,7 +219,6 @@
+     this._setupSuggestionBox();
+     this.getHTMLElement().replaceChild(editField, this._textNode);
+     if (!dontSelect) {editField.select();}
+-    //editField.focus();
+     this._isEditing = true;
+   }
+ };
+@@ -338,11 +337,11 @@
+     var oldValue = this._entry.getValue();
+     if (oldValue != value) {
+       this._entry = this._item.replaceEntry(this._entry, value);
+-      this._restoreText(true);
++      this._restoreText(true); // call restore text in case item is transformed (e.g. Dates will be normalized)
+     }
+   } else if (value) {
+     this._entry = this._item.addEntryForAttribute(this._attribute, value);
+-    this._restoreText(true);
++    this._restoreText(true); // call restore text in case item is transformed (e.g. Dates will be normalized
+   }
+ };
+ 
+@@ -450,7 +449,7 @@
+  */
+ TextView.prototype.onKeyUp = function(inEventObject) {
+   if (this._suggestionBox) {
+-    this._suggestionBox._keyPressOnInputField(inEventObject);
++    this._suggestionBox._keyUpOnInputField(inEventObject);
+   }
+ };
+ 
+@@ -466,6 +465,9 @@
+     this._restoreText();
+     return true;
+   }
++  if (this._suggestionBox &amp;&amp; this._suggestionBox._keyPressOnInputField(inEventObject)) {
++    return true;
++  }
+   if (this._keyPressFunction &amp;&amp; this._keyPressFunction(inEventObject, this)) {
+     return true;
+   }
+@@ -560,7 +562,7 @@
+     var editValue = this._myInputField.value;
+     for (var i = 0; i &lt; this._listOfSuggestedItems.length; ++i) {
+       var item = this._listOfSuggestedItems[i];
+-      if (editValue == item.getDisplayName()) {return item;}
++      if (editValue.toLowerCase() == item.getDisplayName().toLowerCase()) {return item;}
+     }
+   }
+   return this._selectedItem;
+@@ -594,6 +596,66 @@
+  *
+  */
+ AttributeSuggestionBox.prototype._keyPressOnInputField = function (inEventObject) {
++  var numberOfMatchingItems = this._listOfMatchingItems.length;
++  if (numberOfMatchingItems === 0) {return false;}
++
++  var asciiValueOfKey = inEventObject.keyCode;
++  var index = -1;
++  var doSelectItem = false;
++  switch (asciiValueOfKey) {
++    case Util.ASCII_VALUE_FOR_DOWN_ARROW:
++      if (this._selectedItem) {
++        index = (Util.getArrayIndex(this._listOfMatchingItems, this._selectedItem)+1) % numberOfMatchingItems;
++      }
++      else {
++        index = 0;
++      }
++      break;
++    case Util.ASCII_VALUE_FOR_UP_ARROW:
++      if (this._selectedItem) {
++        index = Util.getArrayIndex(this._listOfMatchingItems, this._selectedItem)-1;
++        if (index &lt; 0) {index = numberOfMatchingItems-1;}
++      }
++      else {
++        index = numberOfMatchingItems-1;
++      }
++      break;
++      case Util.ASCII_VALUE_FOR_TAB:
++      if (!this._selectedItem) {
++        this._selectedItem = this._listOfMatchingItems[0]
++        doSelectItem = true;
++      }
++      break;
++    case Util.ASCII_VALUE_FOR_RETURN:
++      if (this._selectedItem) {doSelectItem = true;}
++      break;
++    case Util.ASCII_VALUE_FOR_LEFT_ARROW:
++    case Util.ASCII_VALUE_FOR_RIGHT_ARROW:
++      // if left or right arrow keys, then hide suggestion box
++      this._setShouldHide(true);
++      return false;
++    default:
++      // show suggestion box if not already shown, then let editField process keystroke
++      this._setShouldHide(false);
++      return false;
++  }
++  if (index != -1) {
++    this._setShouldHide(false);
++    this._selectedItem = this._listOfMatchingItems[index];
++    this._redisplayAttributeSuggestionBox();
++    return true;
++  }
++  if (doSelectItem) {
++    this._myInputField.value = this._selectedItem.getDisplayName();
++    this._setShouldHide(true);
++  }
++  return false;
++};
++
++/**
++ *
++ */
++AttributeSuggestionBox.prototype._keyUpOnInputField = function (inEventObject) {
+   this._redisplayAttributeSuggestionBox();
+ };
+ 
+@@ -612,14 +674,32 @@
+  */
+ AttributeSuggestionBox.prototype._clickOnSelection = function (inEventObject, item) {
+   this._selectedItem = item;
+-  this._myInputField.value = item.getDisplayName();  // PENDING: need to pass back the item, not a string
++  //this._myInputField.value = item.getDisplayName();  // PENDING: need to pass back the item, not a string
+ };
+ 
++/**
++ *
++ */
++AttributeSuggestionBox.prototype._setShouldHide = function (shouldHide) {
++  // make the suggestion box disappear
++  this._shouldHide = shouldHide;
++  this._selectedItem = null;
++  if (shouldHide) {
++    this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++  }
++  else {
++    this._redisplayAttributeSuggestionBox();
++  }
++};
+ 
++
++
+ /**
+  *
+  */
+ AttributeSuggestionBox.prototype._redisplayAttributeSuggestionBox = function () {
++  if (this._shouldHide) {return;} // if SuggestionBox is in hide mode, don't show the box
++  
+   var partialInputString = this._myInputField.value;
+   var listOfMatchingItems = [];
+   var key;
+@@ -636,6 +716,7 @@
+       listOfMatchingItems.push(item);
+     }
+   }
++  this._listOfMatchingItems = listOfMatchingItems;
+ 
+   if (listOfMatchingItems.length === 0) {
+     // make the suggestion box disappear
+@@ -650,6 +731,7 @@
+       var textNode = document.createTextNode(item.getDisplayName());
+       var row = table.insertRow(rowNumber);
+       var cell = row.insertCell(columnNumber);
++      cell.style.background = (this._selectedItem == item) ? &quot;rgb(0%,70%,100%)&quot;:&quot;&quot;; //pending need to CSS-ify this
+       cell.appendChild(textNode);
+       cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, item);
+       rowNumber += 1;
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-17 04:33:51 UTC (rev 156)
++++ trunk/source/base_style.css	2005-06-17 19:07:19 UTC (rev 157)
+@@ -414,7 +414,7 @@
+   font-family: Arial, Verdana, sans-serif;
+   text-align: left;
+   border: none;
+-  padding: 0px;
++  padding: 2px;
+   margin: 0px;
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000142.html">[openrecord-svn] r156 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000144.html">[openrecord-svn] r158 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#143">[ date ]</a>
+              <a href="thread.html#143">[ thread ]</a>
+              <a href="subject.html#143">[ subject ]</a>
+              <a href="author.html#143">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

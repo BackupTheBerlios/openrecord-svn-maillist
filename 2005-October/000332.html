@@ -1,0 +1,1719 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r349 - in trunk: source/archive source/model source/storage tests/archive tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r349%20-%20in%20trunk%3A%20source/archive%20source/model%20source/storage%20tests/archive%20tests/util&In-Reply-To=%3C200510050323.j953NjMq025592%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000331.html">
+   <LINK REL="Next"  HREF="000333.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r349 - in trunk: source/archive source/model source/storage tests/archive tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r349%20-%20in%20trunk%3A%20source/archive%20source/model%20source/storage%20tests/archive%20tests/util&In-Reply-To=%3C200510050323.j953NjMq025592%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r349 - in trunk: source/archive source/model source/storage tests/archive tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Wed Oct  5 05:23:45 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000331.html">[openrecord-svn] r348 - in trunk: source/storage tests/storage
+</A></li>
+        <LI>Next message: <A HREF="000333.html">[openrecord-svn] r350 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#332">[ date ]</a>
+              <a href="thread.html#332">[ thread ]</a>
+              <a href="subject.html#332">[ subject ]</a>
+              <a href="author.html#332">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-05 05:23:29 +0200 (Wed, 05 Oct 2005)
+New Revision: 349
+
+Added:
+   trunk/source/archive/JsonDeserializer.js
+   trunk/source/archive/JsonSerializer.js
+   trunk/source/archive/TextEncoding.js
+Modified:
+   trunk/source/archive/DeltaArchive.js
+   trunk/source/archive/StubArchive.js
+   trunk/source/model/World.js
+   trunk/source/storage/HttpStorage.js
+   trunk/tests/archive/LintTest.js
+   trunk/tests/util/XmlConverterTest.js
+Log:
+Moved the Serialization and Deserialization code out of StubArchive and DeltaArchive and into their own classes.  Also fixed a bug in HttpStorage.js.
+
+Modified: trunk/source/archive/DeltaArchive.js
+===================================================================
+--- trunk/source/archive/DeltaArchive.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/archive/DeltaArchive.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -39,6 +39,9 @@
+ dojo.require(&quot;orp.storage.FileStorage&quot;);
+ dojo.require(&quot;orp.storage.HttpStorage&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;orp.archive.JsonSerializer&quot;);
++dojo.require(&quot;orp.archive.JsonDeserializer&quot;);
++dojo.require(&quot;orp.archive.Bootstrapper&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -122,7 +125,11 @@
+  * @param    jsonRepositoryString    A JSON string literal representing the world of items. 
+  */
+ orp.archive.DeltaArchive.prototype._loadWorldFromJsonString = function(jsonRepositoryString) {
+-
++  var bootstrapper = new orp.archive.Bootstrapper(this);
++  var deserializer = new orp.archive.JsonDeserializer(bootstrapper);
++  deserializer.deserializeFromString(jsonRepositoryString);
++  
++  /*
+   // load the list of records
+   orp.lang.assertType(jsonRepositoryString, String);
+   var dehydratedRecords = null;
+@@ -136,283 +143,12 @@
+   var listOfUsers = null;
+   
+   this._rehydrateRecords(listOfRecords);
++  */
+ };
+ 
+ 
+ /**
+- * Given a string, returns a copy of the string that is less than
+- * 80 characters long.
+- *
+  * @scope    private instance method
+- * @param    string    A string that may need truncating.
+- * @return   A string that is no longer than 80 characters long.
+- */
+-orp.archive.DeltaArchive.prototype._truncateString = function(string) {
+-  var maxLength = 80;
+-  var ellipsis = &quot;...&quot;;
+-  var returnString = &quot;&quot;;
+-  if (string.length &gt; maxLength) {
+-    returnString = (string.substring(0, (maxLength - ellipsis.length)) + ellipsis);
+-  } else {
+-    returnString = string;
+-  }
+-  return this.encodeText(returnString);
+-};
+-
+-
+-/**
+- * Returns a big string, containing JavaScript &quot;object literal&quot;
+- * representations of all of the records in a Transaction.
+- *
+- * @scope    private instance method
+- * @param    transaction    A transaction object.
+- * @return   A JSON string literal, representing the records in the transaction. 
+- */
+-orp.archive.DeltaArchive.prototype._getJsonStringRepresentingTransaction = function(transaction) {
+-  var indent = &quot;  &quot;;
+-  var listOfRecords = transaction.getRecords();
+-  if (!listOfRecords || listOfRecords.length === 0) {
+-    return &quot;&quot;;
+-  }
+-  
+-  if (listOfRecords.length == 1) {
+-    return this._getJsonStringRepresentingRecords(listOfRecords, indent);
+-  } else {
+-    indent = &quot;    &quot;;
+-    var listOfStrings = [];
+-    listOfStrings.push(&quot;  // =======================================================================\n&quot;);
+-    listOfStrings.push('  { &quot;' + orp.archive.StubArchive.JSON_MEMBER.TRANSACTION_CLASS + '&quot;: [\n');
+-    var content = this._getJsonStringRepresentingRecords(transaction.getRecords(), indent);
+-    listOfStrings.push(content);
+-    listOfStrings.push('  ]\n');
+-    listOfStrings.push('  }');
+-    
+-    var finalString = listOfStrings.join(&quot;&quot;);
+-    return finalString;
+-  }
+-};
+-
+-
+-/**
+- *
+- */
+-orp.archive.DeltaArchive.prototype._getTypedDisplayStringForItem = function(item) {
+-  var returnString = &quot;(&quot;;
+-  if (item) {
+-    if (item instanceof orp.model.Item) {
+-      var category = item.getFirstCategory();
+-      if (category) {
+-        returnString += this._truncateString(category.getDisplayString(&quot;???&quot;)) + &quot;: &quot;;
+-      }
+-      returnString += this._truncateString(item.getDisplayString(&quot;???&quot;));
+-    }
+-    if (item instanceof orp.model.Entry) {
+-      returnString += &quot;Entry&quot;;
+-    }
+-  }
+-  returnString += &quot;)&quot;;
+-  return returnString;
+-};
+-
+-  
+-/**
+- * Returns a big string, containing JavaScript &quot;object literal&quot;
+- * representations of the records.
+- *
+- * @scope    private instance method
+- * @param    listOfRecords    A list of the records to include in the JSON string.
+- * @param    indent    Optional. A string of spaces to prepend to each line.
+- * @return   A JSON string literal, representing the records. 
+- */
+-orp.archive.DeltaArchive.prototype._getJsonStringRepresentingRecords = function(listOfRecords, indent) {
+-  indent = indent || &quot;&quot;;
+-  var i;
+-  var listOfStrings = [];
+-  var firstContentRecord = true;
+-  var itemDisplayNameSubstring;
+-  var entryDisplayNameSubstring;
+-  var listOfUsers = null;
+-  var commentString;
+-  var generateComments = false;
+-  var JSON_MEMBER = orp.archive.StubArchive.JSON_MEMBER;
+-
+-  if (!generateComments) {
+-    indent = &quot;&quot;;
+-  }
+-  
+-  for (i in listOfRecords) {
+-    var record = listOfRecords[i];
+-    if (firstContentRecord) {
+-      firstContentRecord = false;
+-    } else {
+-      listOfStrings.push(',\n');
+-    }
+-    if (generateComments) {
+-      listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
+-    }
+-    
+-    if (record instanceof orp.model.Item) {
+-      var item = record;
+-      if (generateComments) {
+-        listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
+-        listOfStrings.push(indent + '//           by (' + this._truncateString(item.getUserstamp().getDisplayString()) + ')');
+-        listOfStrings.push(' on (' + orp.util.DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
+-      }
+-      if (!this._jsonFragmentForItemPrefix) {
+-        this._jsonFragmentForItemPrefix = indent + '{ &quot;' + JSON_MEMBER.ITEM_CLASS + '&quot;: ';
+-        this._jsonFragmentForItemPrefix += '{ &quot;' + JSON_MEMBER.UUID + '&quot;: ';
+-      }
+-      listOfStrings.push(this._jsonFragmentForItemPrefix);
+-      listOfStrings.push(item._getUuidInQuotes());
+-      listOfStrings.push(' } }');
+-      
+-      if (!listOfUsers) {
+-        listOfUsers = this.getUsers();
+-      }
+-      if (orp.util.isObjectInSet(item, listOfUsers)) {
+-        var user = item;
+-        var password = this._hashTableOfUserAuthenticationInfo[user.getUuid()];
+-        var passwordString = &quot;null&quot;;
+-        if (password) {
+-          passwordString = '&quot;' + password + '&quot;';
+-        }
+-        listOfStrings.push(',\n');
+-        if (generateComments) {
+-          listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
+-          listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(user) + '\n');
+-        }
+-        listOfStrings.push(indent + '{ &quot;' + JSON_MEMBER.USER_CLASS + '&quot;: ' + '{\n');
+-        listOfStrings.push(indent + '         &quot;' + JSON_MEMBER.USER + '&quot;: ' + user._getUuidInQuotes() + ',\n');
+-        listOfStrings.push(indent + '     &quot;' + JSON_MEMBER.PASSWORD + '&quot;: ' + passwordString + ' }\n');
+-        listOfStrings.push(indent + '}');
+-      }
+-    }
+-
+-    if (record instanceof orp.model.Vote) {
+-      var vote = record;
+-      entryDisplayNameSubstring = this._getTypedDisplayStringForItem(vote.getContentRecord());
+-      var deleteVsRetainString = vote.getRetainFlag() ? &quot;RETAIN&quot; : &quot;DELETE&quot;;
+-      if (generateComments) {
+-        listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
+-      }
+-      listOfStrings.push(indent + '{ &quot;' + JSON_MEMBER.VOTE_CLASS + '&quot;: ' + '{\n');
+-      listOfStrings.push(indent + '         &quot;' + JSON_MEMBER.UUID + '&quot;: ' + vote._getUuidInQuotes() + ',\n');
+-      listOfStrings.push(indent + '       &quot;' + JSON_MEMBER.RECORD + '&quot;: ' + vote.getContentRecord()._getUuidInQuotes() + ',\n');
+-      listOfStrings.push(indent + '   &quot;' + JSON_MEMBER.RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
+-      listOfStrings.push('  }\n');
+-      listOfStrings.push(indent + '}');
+-    }
+-
+-    if (record instanceof orp.model.Ordinal) {
+-      var ordinal = record;
+-      entryDisplayNameSubstring = this._getTypedDisplayStringForItem(ordinal.getContentRecord());
+-      if (generateComments) {
+-        listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
+-      }
+-      listOfStrings.push(indent + '{ &quot;' + JSON_MEMBER.ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+-      listOfStrings.push(indent + '         &quot;' + JSON_MEMBER.UUID + '&quot;: ' + ordinal._getUuidInQuotes() + ',\n');
+-      listOfStrings.push(indent + '       &quot;' + JSON_MEMBER.RECORD + '&quot;: ' + ordinal.getContentRecord()._getUuidInQuotes() + ',\n');
+-      listOfStrings.push(indent + '        &quot;' + JSON_MEMBER.ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
+-      listOfStrings.push('  }\n');
+-      listOfStrings.push(indent + '}');
+-    }
+-
+-    if (record instanceof orp.model.Entry) {
+-      var entry = record;
+-      var entryType = entry.getType();
+-      var typeUuid = entryType.getUuid();
+-      // var entryString = &quot;&quot;;
+-      if (generateComments) {
+-        listOfStringsForEntry = [];
+-      } else {
+-        listOfStringsForEntry = listOfStrings;
+-      }
+-      listOfStringsForEntry.push(indent + '{ &quot;' + JSON_MEMBER.ENTRY_CLASS + '&quot;: ' + '{\n');
+-      listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.UUID + '&quot;: ' + entry._getUuidInQuotes() + ',\n');
+-      var previousEntry = entry.getPreviousEntry();
+-      if (previousEntry) {
+-        listOfStringsForEntry.push(indent + '&quot;' + JSON_MEMBER.PREVIOUS_VALUE + '&quot;: ' + previousEntry._getUuidInQuotes() + ',\n');
+-      }
+-      listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.TYPE + '&quot;: &quot;' + typeUuid.toString() + '&quot;,\n');
+-      if (generateComments) {
+-        commentString = &quot;&quot;;
+-      }
+-      if (typeUuid.toString() == orp.model.World.UUID.TYPE_CONNECTION) {
+-        var pairOfItems = entry.getItem();
+-        var firstItem = pairOfItems[0];
+-        var secondItem = pairOfItems[1];
+-        listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.ITEM + '&quot;: [' + firstItem._getUuidInQuotes() + ', ' + secondItem._getUuidInQuotes() + '],\n');
+-        var pairOfAttributes = entry.getAttribute();
+-        var firstAttribute = pairOfAttributes[0];
+-        var secondAttribute = pairOfAttributes[1];
+-        listOfStringsForEntry.push(indent + '    &quot;' + JSON_MEMBER.ATTRIBUTE + '&quot;: [' + firstAttribute._getUuidInQuotes() + ', ' + secondAttribute._getUuidInQuotes() + ']');
+-        if (generateComments) {
+-          commentString += indent + '// ' + this._getTypedDisplayStringForItem(firstItem);
+-          commentString += &quot;.(&quot; + this._truncateString(firstAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+-          commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(secondItem) + &quot;\n&quot;;
+-          commentString += indent + '// ' + this._getTypedDisplayStringForItem(secondItem);
+-          commentString += &quot;.(&quot; + this._truncateString(secondAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+-          commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(firstItem) + &quot;\n&quot;;
+-        }
+-      } else {
+-        var attribute = entry.getAttribute();
+-        // if (!(attribute instanceof orp.model.Item)) {
+-        //   alert(entry + &quot;\n&quot; + attribute);
+-        // }
+-        listOfStringsForEntry.push(indent + '    &quot;' + JSON_MEMBER.ATTRIBUTE + '&quot;: ' + attribute._getUuidInQuotes() + ',\n');
+-        listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.ITEM + '&quot;: ' + entry.getItem()._getUuidInQuotes() + ',\n');
+-        var contentData = entry.getValue();
+-        
+-        var valueString = null;
+-        var valueComment = null;
+-        switch (typeUuid.toString()) {
+-          case orp.model.World.UUID.TYPE_NUMBER: 
+-            valueString = '&quot;' + contentData + '&quot;';
+-            if (generateComments) {valueComment = contentData;}
+-            break;
+-          case orp.model.World.UUID.TYPE_TEXT: 
+-            valueString = '&quot;' + this.encodeText(contentData) + '&quot;';
+-            if (generateComments) {valueComment = '&quot;' + this._truncateString(contentData) + '&quot;';}
+-            break;
+-          case orp.model.World.UUID.TYPE_DATE: 
+-            valueString = '&quot;' + contentData.toString() + '&quot;';
+-            if (generateComments) {valueComment = valueString;}
+-            break;
+-          case orp.model.World.UUID.TYPE_ITEM: 
+-            valueString = contentData._getUuidInQuotes();
+-            if (generateComments) {valueComment = this._getTypedDisplayStringForItem(contentData);}
+-            break;
+-          default:
+-            orp.lang.assert(false, &quot;no such type: &quot; + entryType.getDisplayString());
+-        }
+-        listOfStringsForEntry.push(indent + '        &quot;' + JSON_MEMBER.VALUE + '&quot;: ' + valueString);
+-        if (generateComments) {
+-          commentString += indent + '// ' + this._getTypedDisplayStringForItem(entry.getItem());
+-          commentString += &quot;.(&quot; + this._truncateString(attribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+-          commentString += &quot; = &quot; + valueComment + &quot;\n&quot;;
+-        }
+-      }
+-      if (generateComments) {
+-        commentString += indent + '//           by (' + this._truncateString(entry.getUserstamp().getDisplayString()) + ')';
+-        commentString += ' on (' + orp.util.DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
+-        listOfStrings.push(commentString);
+-        for (var j in listOfStringsForEntry) {
+-          listOfStrings.push(listOfStringsForEntry[j]);
+-        }
+-      }
+-      // listOfStrings.push(entryString);
+-      listOfStrings.push('  }\n');
+-      listOfStrings.push(indent + '}');
+-    }
+-  }
+-  
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  return finalString;
+-};
+-
+-
+-/**
+- * @scope    private instance method
+  * @param    overwriteIfExists    Optional
+  * @return   success
+  */
+@@ -479,7 +215,8 @@
+   }
+ 
+   if (this._saverObject) {
+-    var textToAppend = &quot;,\n&quot; + this._getJsonStringRepresentingTransaction(currentTransaction);
++    var jsonSerializer = new orp.archive.JsonSerializer(this);
++    var textToAppend = &quot;,\n&quot; + jsonSerializer.serializeToString(currentTransaction);
+     this._saverObject.appendText(textToAppend);
+   } else {
+     if (!this._hasEverFailedToSaveFlag) {
+
+Added: trunk/source/archive/JsonDeserializer.js
+===================================================================
+--- trunk/source/archive/JsonDeserializer.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/archive/JsonDeserializer.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -0,0 +1,242 @@
++/*****************************************************************************
++ JsonDeserializer.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.archive.JsonDeserializer&quot;);
++dojo.require(&quot;orp.archive.TextEncoding&quot;);
++dojo.require(&quot;orp.archive.StubArchive&quot;);      // FIXME: we should try to remove this dependency
++dojo.require(&quot;orp.archive.Bootstrapper&quot;);
++dojo.require(&quot;orp.util.DateValue&quot;);
++dojo.require(&quot;orp.lang.Lang&quot;);
++
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++/**
++ * The JsonDeserializer class knows how to take a JSON string 
++ * representing data model records and deserialize them back into 
++ * records in the in-memory model.  The service that the 
++ * JsonDeserializer class provides the inverse of what the 
++ * JsonSerializer class provides.
++ *
++ * @scope    public instance constructor
++ * @param    bootstrapper    The orp.archive.StubArchive instance that this serializer is working for.
++ */
++orp.archive.JsonDeserializer = function(bootstrapper) {
++  this._bootstrapper = bootstrapper;
++};
++
++
++// -------------------------------------------------------------------
++// Public methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a JSON string containing a serialized representation of data
++ * model records, this method reads the string and creates corresponding
++ * records.
++ *
++ * @scope    private instance method
++ * @param    jsonString    A JSON string containing serialized records. 
++ */
++orp.archive.JsonDeserializer.prototype.deserializeFromString = function(jsonString) {
++  var dehydratedRecords = null;
++  dehydratedRecords = eval(&quot;(&quot; + jsonString + &quot;)&quot;);
++  
++  orp.lang.assertType(dehydratedRecords, Object);
++  var recordFormat = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.FORMAT];
++  orp.lang.assert(recordFormat == orp.archive.StubArchive.JSON_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST);
++  var listOfRecords = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.RECORDS];
++  orp.lang.assertType(listOfRecords, Array);
++  
++  this._rehydrateRecords(listOfRecords);
++};
++
++
++// -------------------------------------------------------------------
++// Private methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the bootstrapper object we were provided with in our constructor.
++ *
++ * @scope    private instance method
++ * @return   The bootstrapper object we were given in our constructor.
++ */
++orp.archive.JsonDeserializer.prototype._getBootstrapper = function() {
++  return this._bootstrapper;
++};
++
++
++/**
++ * Given a dehydrated list of records, rehydrates each of the records.
++ *
++ * @scope    private instance method
++ * @param    listOfDehydratedRecords    A list of dehydrated records. 
++ */
++orp.archive.JsonDeserializer.prototype._rehydrateRecords = function(listOfDehydratedRecords) {
++  var key;
++  var itemUuid;
++  var item;
++  var contentRecordUuid;
++  var contentRecord;
++  var JSON_MEMBER = orp.archive.StubArchive.JSON_MEMBER;
++  var bootstrapper = this._getBootstrapper();
++  var world = bootstrapper.getWorld();
++
++  for (key in listOfDehydratedRecords) {
++    var dehydratedRecord = listOfDehydratedRecords[key];
++
++    var dehydratedTransaction = dehydratedRecord[JSON_MEMBER.TRANSACTION_CLASS];
++    if (dehydratedTransaction) {
++      var listOfRecordsInTransaction = dehydratedTransaction;
++      this._rehydrateRecords(listOfRecordsInTransaction);
++    } else {
++      var dehydratedItem = dehydratedRecord[JSON_MEMBER.ITEM_CLASS];
++      var dehydratedUser = dehydratedRecord[JSON_MEMBER.USER_CLASS];
++      var dehydratedVote = dehydratedRecord[JSON_MEMBER.VOTE_CLASS];
++      var dehydratedOrdinal = dehydratedRecord[JSON_MEMBER.ORDINAL_CLASS];
++      var dehydratedEntry = dehydratedRecord[JSON_MEMBER.ENTRY_CLASS];
++        
++      if (dehydratedItem) {
++        itemUuid = dehydratedItem[JSON_MEMBER.UUID];
++        item = bootstrapper.getItemFromUuidOrBootstrapItem(itemUuid);
++        bootstrapper.addRecordToChronologicalList(item);
++      }
++      
++      if (dehydratedUser) {
++        var userUuid = dehydratedUser[JSON_MEMBER.USER];
++        var userPasswordHash = dehydratedUser[JSON_MEMBER.PASSWORD];
++        var user = bootstrapper.getItemFromUuidOrBootstrapItem(userUuid);
++        bootstrapper.addUserToListOfUsers(user, userPasswordHash);
++      }
++      
++      if (dehydratedVote) {
++        var voteUuid = dehydratedVote[JSON_MEMBER.UUID];
++        var retainFlagString = dehydratedVote[JSON_MEMBER.RETAIN_FLAG];
++        var retainFlag = null;
++        if (retainFlagString == &quot;true&quot;) {
++          retainFlag = true;
++        }
++        if (retainFlagString == &quot;false&quot;) {
++          retainFlag = false;
++        }
++        orp.lang.assert(retainFlag !== null);
++        contentRecordUuid = dehydratedVote[JSON_MEMBER.RECORD];
++        contentRecord = bootstrapper.getContentRecordFromUuid(contentRecordUuid);
++        var vote = new orp.model.Vote(world, voteUuid, contentRecord, retainFlag);
++        bootstrapper.addRecordToChronologicalList(vote);
++      }
++      
++      if (dehydratedOrdinal) {
++        var ordinalUuid = dehydratedOrdinal[JSON_MEMBER.UUID];
++        var ordinalNumber = dehydratedOrdinal[JSON_MEMBER.ORDINAL_NUMBER];
++        contentRecordUuid = dehydratedOrdinal[JSON_MEMBER.RECORD];
++        contentRecord = bootstrapper.getContentRecordFromUuid(contentRecordUuid);
++        var ordinal = new orp.model.Ordinal(world, ordinalUuid, contentRecord, ordinalNumber);
++        bootstrapper.addRecordToChronologicalList(ordinal);
++      }
++      
++      if (dehydratedEntry) {
++        var entryUuid = dehydratedEntry[JSON_MEMBER.UUID];
++        var entry = bootstrapper.getEntryFromUuidOrBootstrapEntry(entryUuid);
++        var previousEntryUuid = dehydratedEntry[JSON_MEMBER.PREVIOUS_VALUE];
++        var previousEntry = null;
++        if (previousEntryUuid) {
++          previousEntry = bootstrapper.getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
++        }
++ 
++        var dataTypeUuid = dehydratedEntry[JSON_MEMBER.TYPE];
++        var dataType = bootstrapper.getItemFromUuidOrBootstrapItem(dataTypeUuid);
++        
++        if (dataTypeUuid == orp.model.World.UUID.TYPE_CONNECTION) {
++          var listOfItemUuids = dehydratedEntry[JSON_MEMBER.ITEM];
++          var firstItemUuid = listOfItemUuids[0];
++          var secondItemUuid = listOfItemUuids[1];
++          var firstItem = bootstrapper.getItemFromUuidOrBootstrapItem(firstItemUuid);
++          var secondItem = bootstrapper.getItemFromUuidOrBootstrapItem(secondItemUuid);
++
++          var listOfAttributeUuids = dehydratedEntry[JSON_MEMBER.ATTRIBUTE];
++          var firstAttributeUuid = listOfAttributeUuids[0];
++          var secondAttributeUuid = listOfAttributeUuids[1];
++          var firstAttribute = bootstrapper.getItemFromUuidOrBootstrapItem(firstAttributeUuid);
++          var secondAttribute = bootstrapper.getItemFromUuidOrBootstrapItem(secondAttributeUuid);
++          
++          var pairOfItems = [firstItem, secondItem];
++          var pairOfAttributes = [firstAttribute, secondAttribute];
++          entry._rehydrate(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
++        } else {
++          itemUuid = dehydratedEntry[JSON_MEMBER.ITEM];
++          item = bootstrapper.getItemFromUuidOrBootstrapItem(itemUuid);
++          var attributeUuid = dehydratedEntry[JSON_MEMBER.ATTRIBUTE];
++          var attribute = null;
++          if (attributeUuid) {
++            attribute = bootstrapper.getItemFromUuidOrBootstrapItem(attributeUuid);
++          } else {
++            orp.lang.assert(false); // the attributeUuid should always be there
++          }
++          var rawData = dehydratedEntry[JSON_MEMBER.VALUE];
++          var finalData = null;
++          switch (dataTypeUuid) {
++            case orp.model.World.UUID.TYPE_ITEM:
++              finalData = bootstrapper.getItemFromUuidOrBootstrapItem(rawData);
++              break;
++            case orp.model.World.UUID.TYPE_TEXT:
++              finalData = orp.archive.TextEncoding.decodeText(rawData);
++              break;
++            case orp.model.World.UUID.TYPE_NUMBER:
++              finalData = parseFloat(rawData);
++              break;
++            case orp.model.World.UUID.TYPE_DATE:
++              finalData = new orp.util.DateValue(rawData);
++              // if (!finalData.isValid()) {
++              //   alert(rawData + &quot; &quot; + finalData);
++              // }
++              orp.lang.assert(finalData.isValid());
++              break;
++            default:
++              orp.lang.assert(false, 'Unknown data type while _rehydrating()');
++          }
++          entry._rehydrate(item, attribute, finalData, previousEntry, dataType);
++        }
++        bootstrapper.addRecordToChronologicalList(entry);
++      }
++      
++    }
++  }
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/archive/JsonSerializer.js
+===================================================================
+--- trunk/source/archive/JsonSerializer.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/archive/JsonSerializer.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -0,0 +1,355 @@
++/*****************************************************************************
++ JsonSerializer.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++  
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.archive.JsonSerializer&quot;);
++dojo.require(&quot;orp.archive.TextEncoding&quot;);
++dojo.require(&quot;orp.archive.StubArchive&quot;);    // FIXME: we should try to remove this dependency
++dojo.require(&quot;orp.model.Transaction&quot;);
++dojo.require(&quot;orp.util.DateValue&quot;);
++
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++/**
++ * The JsonSerializer class knows how to take records in our 
++ * model and serialize them into a JSON string representation.
++ * The service that the JsonSerializer class provides the 
++ * inverse of what the JsonDeserializer class provides.
++ *
++ * @scope    public instance constructor
++ * @param    archive    The orp.archive.StubArchive instance that this serializer is working for.
++ */
++orp.archive.JsonSerializer = function(archive) {
++  this._archive = archive;  // FIXME: we should try to remove this dependency on orp.archive.StubArchive
++};
++
++
++// -------------------------------------------------------------------
++// Public methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a big string, containing JavaScript &quot;object literal&quot;
++ * representations of all of the records in a Transaction.
++ *
++ * @scope    public instance method
++ * @param    transaction    An orp.model.Transaction object. 
++ * @return   A JSON string literal, representing the records in the transaction. 
++ */
++orp.archive.JsonSerializer.prototype.serializeToString = function(transaction) {
++  orp.lang.assert(transaction instanceof orp.model.Transaction);
++  
++  var indent = &quot;  &quot;;
++  var listOfRecords = transaction.getRecords();
++  if (!listOfRecords || listOfRecords.length === 0) {
++    return &quot;&quot;;
++  }
++  
++  if (listOfRecords.length == 1) {
++    return this._getJsonStringRepresentingRecords(listOfRecords, indent);
++  } else {
++    indent = &quot;    &quot;;
++    var listOfStrings = [];
++    listOfStrings.push(&quot;  // =======================================================================\n&quot;);
++    listOfStrings.push('  { &quot;' + orp.archive.StubArchive.JSON_MEMBER.TRANSACTION_CLASS + '&quot;: [\n');
++    var content = this._getJsonStringRepresentingRecords(transaction.getRecords(), indent);
++    listOfStrings.push(content);
++    listOfStrings.push('  ]\n');
++    listOfStrings.push('  }');
++    
++    var finalString = listOfStrings.join(&quot;&quot;);
++    return finalString;
++  }
++};
++
++
++// -------------------------------------------------------------------
++// Private methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a big string, containing JavaScript &quot;object literal&quot;
++ * representations of the records.
++ *
++ * @scope    private instance method
++ * @param    listOfRecords    A list of the records to include in the JSON string.
++ * @param    indent    Optional. A string of spaces to prepend to each line.
++ * @return   A JSON string literal, representing the records. 
++ */
++orp.archive.JsonSerializer.prototype._getJsonStringRepresentingRecords = function(listOfRecords, indent) {
++  indent = indent || &quot;&quot;;
++  var i;
++  var listOfStrings = [];
++  var firstContentRecord = true;
++  var itemDisplayNameSubstring;
++  var entryDisplayNameSubstring;
++  var listOfUsers = null;
++  var commentString;
++  var generateComments = false;
++  var JSON_MEMBER = orp.archive.StubArchive.JSON_MEMBER;
++
++  if (!generateComments) {
++    indent = &quot;&quot;;
++  }
++  
++  for (i in listOfRecords) {
++    var record = listOfRecords[i];
++    if (firstContentRecord) {
++      firstContentRecord = false;
++    } else {
++      listOfStrings.push(',\n');
++    }
++    if (generateComments) {
++      listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
++    }
++    
++    if (record instanceof orp.model.Item) {
++      var item = record;
++      if (generateComments) {
++        listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
++        listOfStrings.push(indent + '//           by (' + this._truncateString(item.getUserstamp().getDisplayString()) + ')');
++        listOfStrings.push(' on (' + orp.util.DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
++      }
++      if (!this._jsonFragmentForItemPrefix) {
++        this._jsonFragmentForItemPrefix = indent + '{ &quot;' + JSON_MEMBER.ITEM_CLASS + '&quot;: ';
++        this._jsonFragmentForItemPrefix += '{ &quot;' + JSON_MEMBER.UUID + '&quot;: ';
++      }
++      listOfStrings.push(this._jsonFragmentForItemPrefix);
++      listOfStrings.push(item._getUuidInQuotes());
++      listOfStrings.push(' } }');
++      
++      if (!listOfUsers) {
++        listOfUsers = this._archive.getUsers();
++      }
++      if (orp.util.isObjectInSet(item, listOfUsers)) {
++        var user = item;
++        var password = this._archive.getAuthenticationInfoForUser(user);
++        var passwordString = &quot;null&quot;;
++        if (password) {
++          passwordString = '&quot;' + password + '&quot;';
++        }
++        listOfStrings.push(',\n');
++        if (generateComments) {
++          listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
++          listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(user) + '\n');
++        }
++        listOfStrings.push(indent + '{ &quot;' + JSON_MEMBER.USER_CLASS + '&quot;: ' + '{\n');
++        listOfStrings.push(indent + '         &quot;' + JSON_MEMBER.USER + '&quot;: ' + user._getUuidInQuotes() + ',\n');
++        listOfStrings.push(indent + '     &quot;' + JSON_MEMBER.PASSWORD + '&quot;: ' + passwordString + ' }\n');
++        listOfStrings.push(indent + '}');
++      }
++    }
++
++    if (record instanceof orp.model.Vote) {
++      var vote = record;
++      entryDisplayNameSubstring = this._getTypedDisplayStringForItem(vote.getContentRecord());
++      var deleteVsRetainString = vote.getRetainFlag() ? &quot;RETAIN&quot; : &quot;DELETE&quot;;
++      if (generateComments) {
++        listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
++      }
++      listOfStrings.push(indent + '{ &quot;' + JSON_MEMBER.VOTE_CLASS + '&quot;: ' + '{\n');
++      listOfStrings.push(indent + '         &quot;' + JSON_MEMBER.UUID + '&quot;: ' + vote._getUuidInQuotes() + ',\n');
++      listOfStrings.push(indent + '       &quot;' + JSON_MEMBER.RECORD + '&quot;: ' + vote.getContentRecord()._getUuidInQuotes() + ',\n');
++      listOfStrings.push(indent + '   &quot;' + JSON_MEMBER.RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
++    }
++
++    if (record instanceof orp.model.Ordinal) {
++      var ordinal = record;
++      entryDisplayNameSubstring = this._getTypedDisplayStringForItem(ordinal.getContentRecord());
++      if (generateComments) {
++        listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
++      }
++      listOfStrings.push(indent + '{ &quot;' + JSON_MEMBER.ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
++      listOfStrings.push(indent + '         &quot;' + JSON_MEMBER.UUID + '&quot;: ' + ordinal._getUuidInQuotes() + ',\n');
++      listOfStrings.push(indent + '       &quot;' + JSON_MEMBER.RECORD + '&quot;: ' + ordinal.getContentRecord()._getUuidInQuotes() + ',\n');
++      listOfStrings.push(indent + '        &quot;' + JSON_MEMBER.ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
++    }
++
++    if (record instanceof orp.model.Entry) {
++      var entry = record;
++      var entryType = entry.getType();
++      var typeUuid = entryType.getUuid();
++      // var entryString = &quot;&quot;;
++      if (generateComments) {
++        listOfStringsForEntry = [];
++      } else {
++        listOfStringsForEntry = listOfStrings;
++      }
++      listOfStringsForEntry.push(indent + '{ &quot;' + JSON_MEMBER.ENTRY_CLASS + '&quot;: ' + '{\n');
++      listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.UUID + '&quot;: ' + entry._getUuidInQuotes() + ',\n');
++      var previousEntry = entry.getPreviousEntry();
++      if (previousEntry) {
++        listOfStringsForEntry.push(indent + '&quot;' + JSON_MEMBER.PREVIOUS_VALUE + '&quot;: ' + previousEntry._getUuidInQuotes() + ',\n');
++      }
++      listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.TYPE + '&quot;: &quot;' + typeUuid.toString() + '&quot;,\n');
++      if (generateComments) {
++        commentString = &quot;&quot;;
++      }
++      if (typeUuid.toString() == orp.model.World.UUID.TYPE_CONNECTION) {
++        var pairOfItems = entry.getItem();
++        var firstItem = pairOfItems[0];
++        var secondItem = pairOfItems[1];
++        listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.ITEM + '&quot;: [' + firstItem._getUuidInQuotes() + ', ' + secondItem._getUuidInQuotes() + '],\n');
++        var pairOfAttributes = entry.getAttribute();
++        var firstAttribute = pairOfAttributes[0];
++        var secondAttribute = pairOfAttributes[1];
++        listOfStringsForEntry.push(indent + '    &quot;' + JSON_MEMBER.ATTRIBUTE + '&quot;: [' + firstAttribute._getUuidInQuotes() + ', ' + secondAttribute._getUuidInQuotes() + ']');
++        if (generateComments) {
++          commentString += indent + '// ' + this._getTypedDisplayStringForItem(firstItem);
++          commentString += &quot;.(&quot; + this._truncateString(firstAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
++          commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(secondItem) + &quot;\n&quot;;
++          commentString += indent + '// ' + this._getTypedDisplayStringForItem(secondItem);
++          commentString += &quot;.(&quot; + this._truncateString(secondAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
++          commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(firstItem) + &quot;\n&quot;;
++        }
++      } else {
++        var attribute = entry.getAttribute();
++        // if (!(attribute instanceof orp.model.Item)) {
++        //   alert(entry + &quot;\n&quot; + attribute);
++        // }
++        listOfStringsForEntry.push(indent + '    &quot;' + JSON_MEMBER.ATTRIBUTE + '&quot;: ' + attribute._getUuidInQuotes() + ',\n');
++        listOfStringsForEntry.push(indent + '         &quot;' + JSON_MEMBER.ITEM + '&quot;: ' + entry.getItem()._getUuidInQuotes() + ',\n');
++        var contentData = entry.getValue();
++        
++        var valueString = null;
++        var valueComment = null;
++        switch (typeUuid.toString()) {
++          case orp.model.World.UUID.TYPE_NUMBER: 
++            valueString = '&quot;' + contentData + '&quot;';
++            if (generateComments) {valueComment = contentData;}
++            break;
++          case orp.model.World.UUID.TYPE_TEXT: 
++            valueString = '&quot;' + orp.archive.TextEncoding.encodeText(contentData) + '&quot;';
++            if (generateComments) {valueComment = '&quot;' + this._truncateString(contentData) + '&quot;';}
++            break;
++          case orp.model.World.UUID.TYPE_DATE: 
++            valueString = '&quot;' + contentData.toString() + '&quot;';
++            if (generateComments) {valueComment = valueString;}
++            break;
++          case orp.model.World.UUID.TYPE_ITEM: 
++            valueString = contentData._getUuidInQuotes();
++            if (generateComments) {valueComment = this._getTypedDisplayStringForItem(contentData);}
++            break;
++          default:
++            orp.lang.assert(false, &quot;no such type: &quot; + entryType.getDisplayString());
++        }
++        listOfStringsForEntry.push(indent + '        &quot;' + JSON_MEMBER.VALUE + '&quot;: ' + valueString);
++        if (generateComments) {
++          commentString += indent + '// ' + this._getTypedDisplayStringForItem(entry.getItem());
++          commentString += &quot;.(&quot; + this._truncateString(attribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
++          commentString += &quot; = &quot; + valueComment + &quot;\n&quot;;
++        }
++      }
++      if (generateComments) {
++        commentString += indent + '//           by (' + this._truncateString(entry.getUserstamp().getDisplayString()) + ')';
++        commentString += ' on (' + orp.util.DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
++        listOfStrings.push(commentString);
++        for (var j in listOfStringsForEntry) {
++          listOfStrings.push(listOfStringsForEntry[j]);
++        }
++      }
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
++    }
++  }
++  
++  var finalString = listOfStrings.join(&quot;&quot;);
++  return finalString;
++};
++
++
++/**
++ * Given an item, this method returns a string with a description of the item.
++ *
++ * Here are some example of what the returned strings look like:
++ * &lt;pre&gt;
++ *   &quot;(Food: Cupcake)&quot;
++ *   &quot;(Attribute: Height)&quot;
++ *   &quot;(Category: Food)&quot;
++ *   &quot;(Category: Things with names that have hundreds of let...)&quot;
++ *   &quot;(Banana)&quot;
++ *   &quot;()&quot;
++ * &lt;/pre&gt;
++ *
++ * @scope    private instance method
++ * @param    item    Any item (or entry).
++ * @return   A string with a description of the item. 
++ */
++orp.archive.JsonSerializer.prototype._getTypedDisplayStringForItem = function(item) {
++  var returnString = &quot;(&quot;;
++  if (item) {
++    if (item instanceof orp.model.Item) {
++      var category = item.getFirstCategory();
++      if (category) {
++        returnString += this._truncateString(category.getDisplayString(&quot;???&quot;)) + &quot;: &quot;;
++      }
++      returnString += this._truncateString(item.getDisplayString(&quot;???&quot;));
++    }
++    if (item instanceof orp.model.Entry) {
++      returnString += &quot;Entry&quot;;
++    }
++  }
++  returnString += &quot;)&quot;;
++  return returnString;
++};
++
++  
++/**
++ * Given a string, returns a copy of the string that is less than
++ * 80 characters long.
++ *
++ * @scope    private instance method
++ * @param    string    A string that may need truncating.
++ * @return   A string that is no longer than 80 characters long.
++ */
++orp.archive.JsonSerializer.prototype._truncateString = function(string) {
++  var maxLength = 80;
++  var ellipsis = &quot;...&quot;;
++  var returnString = &quot;&quot;;
++  if (string.length &gt; maxLength) {
++    returnString = (string.substring(0, (maxLength - ellipsis.length)) + ellipsis);
++  } else {
++    returnString = string;
++  }
++  return orp.archive.TextEncoding.encodeText(returnString);
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/archive/StubArchive.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -32,6 +32,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.archive.StubArchive&quot;);
++dojo.provide(&quot;orp.archive.Bootstrapper&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.model.Entry&quot;);
+@@ -39,6 +40,8 @@
+ dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ dojo.require(&quot;orp.util.DateValue&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;orp.archive.TextEncoding&quot;);
++dojo.require(&quot;orp.archive.JsonDeserializer&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -72,12 +75,6 @@
+     this._needCompletePath = false;
+     this._dehydratedAxiomFileURL = relUrlForAxiomaticFile;    
+   }
+-  
+-  /*
+-  if (optionalDefaultOverrides) {
+-    this._processOptionalDefaultOverrides(optionalDefaultOverrides, &quot;Stub&quot;);
+-  }
+-  */
+ };
+ 
+ 
+@@ -109,18 +106,6 @@
+   ORDINAL_NUMBER: &quot;value&quot; };
+ 
+ 
+-/*
+-OLD?
+-StubArchive.JSON_TYPE_TEXT_VALUE = &quot;TextValue&quot;;
+-StubArchive.JSON_TYPE_RELATED_UUID = &quot;RelatedUuid&quot;;
+-StubArchive.JSON_TYPE_NUMBER_VALUE = &quot;NumberValue&quot;;
+-StubArchive.JSON_TYPE_DATE_VALUE = &quot;DateValue&quot;;
+-StubArchive.JSON_TYPE_CHECKMARK_VALUE = &quot;CheckMarkValue&quot;;
+-StubArchive.JSON_TYPE_URL_VALUE = &quot;UrlValue&quot;;
+-StubArchive.JSON_TYPE_CONNECTION = &quot;Connection&quot;;
+-*/
+-
+-
+ // -------------------------------------------------------------------
+ // Private methods
+ // -------------------------------------------------------------------
+@@ -160,7 +145,6 @@
+  */
+ orp.archive.StubArchive.prototype.setWorldAndLoadAxiomaticItems = function(world) {
+   this._initialize(world);
+-  // this._buildTypeHashTable();
+   this._loadAxiomaticItemsFromFileAtURL(this._dehydratedAxiomFileURL);
+ };
+ 
+@@ -176,76 +160,8 @@
+ };
+ 
+ 
+-/**
+- * Given a text string, this method returns a copy of the text string, 
+- * with certain special characters replaced by escape sequences.
+- * 
+- * For example, given a string like this:
+- * &lt;pre&gt;
+- *    this.encodeText('The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.\n');
+- * &lt;/pre&gt;
+- * The return value will be:
+- * &lt;pre&gt;
+- *    'The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.&#10;'
+- * &lt;/pre&gt;
+- * 
+- * @scope    public instance method
+- * @param    rawText    A text string to encode. 
+- * @return   A copy of the rawText string, with the special characters escaped. 
+- */
+-orp.archive.StubArchive.prototype.encodeText = function(rawText) {
+-  // orp.util.assert(orp.util.isString(rawText));
+-  orp.lang.assertType(rawText, String);
+ 
+-  var returnString = rawText;
+-  // Note: it's important that we do '&amp;' first, otherwise we'll accidentally
+-  // replace all the &amp; characters that we add in the following lines.
+-  returnString = returnString.replace(new RegExp('&amp;','g'), &quot;&amp;&quot;);
+-  returnString = returnString.replace(new RegExp('&lt;','g'), &quot;&lt;&quot;);
+-  returnString = returnString.replace(new RegExp('&gt;','g'), &quot;&gt;&quot;);
+-  returnString = returnString.replace(new RegExp('&quot;','g'), &quot;&quot;&quot;);
+-  returnString = returnString.replace(new RegExp('\n','g'), &quot;&#10;&quot;);
+-  returnString = returnString.replace(new RegExp('\r','g'), &quot;&#13;&quot;);
+-  return returnString;
+-};
+ 
+-
+-/**
+- * Given a text string that was encoded using encodeText(), this method 
+- * returns a decoded copy of the text string, with the encoded escape 
+- * sequences now replaced by the original special characters.
+- *
+- * For example, given a string like this:
+- * &lt;pre&gt;
+- *    this.decodeText('The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.&#10;');
+- * &lt;/pre&gt;
+- * The return value will be:
+- * &lt;pre&gt;
+- *    'The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.\n'
+- * &lt;/pre&gt;
+- *
+- * @scope    public instance method
+- * @param    encodedText    A text string to decode. 
+- * @return   A copy of the encodedText string, with the escaped characters replaced by the original special characters. 
+- */
+-orp.archive.StubArchive.prototype.decodeText = function(encodedText) {
+-  // orp.util.assert(orp.util.isString(encodedText));
+-  orp.lang.assertType(encodedText, String);
+-  
+-  var returnString = encodedText;
+-  returnString = returnString.replace(new RegExp('&#13;','g'), &quot;\r&quot;);
+-  returnString = returnString.replace(new RegExp('&#10;','g'), &quot;\n&quot;);
+-  returnString = returnString.replace(new RegExp('&quot;','g'), '&quot;');
+-  returnString = returnString.replace(new RegExp('&gt;','g'), &quot;&gt;&quot;);
+-  returnString = returnString.replace(new RegExp('&lt;','g'), &quot;&lt;&quot;);
+-  returnString = returnString.replace(new RegExp('&amp;','g'), &quot;&amp;&quot;);
+-  // Note: it's important that we do '&amp;' last, otherwise we won't correctly
+-  // handle a case like this:
+-  //   text = this.decodeText(this.encodeText('&lt;'));
+-  return returnString;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // Transaction Methods
+ // -------------------------------------------------------------------
+@@ -318,7 +234,6 @@
+   var item = this._createNewItem(observer, false);
+   if (name) { 
+     var attributeCalledName = this._world.getAttributeCalledName();
+-    // item.addEntryForAttribute(attributeCalledName, name);
+     item.addEntry({attribute:attributeCalledName, value:name});
+   }
+   return item;
+@@ -561,7 +476,7 @@
+   if (password) {
+     md5hashOfPassword = orp.util.hex_md5(password);
+   }
+-  var realAuthentication = this._getAuthenticationInfoForUser(user);
++  var realAuthentication = this.getAuthenticationInfoForUser(user);
+   var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+   
+   // PENDING: temporary hack
+@@ -723,7 +638,6 @@
+       if ((matchingAttribute == attributeCalledCategory) &amp;&amp; (match instanceof orp.model.Item) &amp;&amp; (match.isInCategory(categoryCalledCategory))) {
+         item.assignToCategory(match);
+       } else {
+-        // item.addEntryForAttribute(matchingAttribute, match);
+         item.addEntry({attribute:matchingAttribute, value:match});
+       }
+     }
+@@ -774,23 +688,6 @@
+ 
+ 
+ /**
+- * Given a UUID, returns the item or entry identified by that UUID.
+- *
+- * @scope    private instance method
+- * @param    uuid    The UUID of the item or entry to be returned. 
+- * @return   The item or entry identified by the given UUID.
+- */
+-orp.archive.StubArchive.prototype._getContentRecordFromUuid = function(uuid) {
+-  var item = this.getItemFromUuid(uuid);
+-  if (item) {
+-    return item;
+-  } else {
+-    return this._hashTableOfEntriesKeyedByUuid[uuid];
+-  }
+-};
+-
+-
+-/**
+  * Returns a newly created UUID.
+  *
+  * @scope    private instance method
+@@ -828,11 +725,11 @@
+  * Given an item representing a user, return the authentication info
+  * associated with that user.
+  *
+- * @scope    private instance method
++ * @scope    public instance method
+  * @param    user    An item representing a user. 
+  * @return   The authentication info for the user.
+  */
+-orp.archive.StubArchive.prototype._getAuthenticationInfoForUser = function(user) {
++orp.archive.StubArchive.prototype.getAuthenticationInfoForUser = function(user) {
+   return this._hashTableOfUserAuthenticationInfo[user.getUuid()];
+ };
+ 
+@@ -864,206 +761,156 @@
+  * @scope    private instance method
+  */
+ orp.archive.StubArchive.prototype._loadAxiomaticItemsFromFileAtURL = function(url) {
+-  // var fileContentString = orp.util.getStringContentsOfFileAtURL(url);
+   var fileContentString = dojo.hostenv.getText(url);
+-  // orp.util.assert(orp.util.isString(fileContentString));
+   orp.lang.assertType(fileContentString, String);
+   fileContentString += &quot; ] }&quot;;
+-
+-  var dehydratedRecords = null;
+-  eval(&quot;dehydratedRecords = &quot; + fileContentString + &quot;;&quot;);
+-  // orp.util.assert(orp.util.isObject(dehydratedRecords));
+-  orp.lang.assertType(dehydratedRecords, Object);
+-  var recordFormat = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.FORMAT];
+-  orp.lang.assert(recordFormat == orp.archive.StubArchive.JSON_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST);
+-  var listOfRecords = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.RECORDS];
+-  // orp.util.assert(orp.util.isArray(listOfRecords));
+-  orp.lang.assertType(listOfRecords, Array);
+   
+-  this._rehydrateRecords(listOfRecords);
++  var bootstrapper = new orp.archive.Bootstrapper(this);
++  
++  var deserializer = new orp.archive.JsonDeserializer(bootstrapper);
++  deserializer.deserializeFromString(fileContentString);
+ };
+ 
+ 
+ /**
++ * Given a UUID, returns the existing entry identified by that UUID. 
++ * 
++ * @scope    private instance method
++ * @param    uuid    The UUID of the entry to be returned. 
++ * @return   The entry identified by the given UUID.
++ */
++orp.archive.StubArchive.prototype._getEntryFromUuid = function(uuid) {
++  return this._hashTableOfEntriesKeyedByUuid[uuid];
++};
++
++
++// -------------------------------------------------------------------
++// Bootstrapper helper class
++// -------------------------------------------------------------------
++
++/**
++ * The Bootstrapper class...
++ *
++ * @scope    public instance constructor
++ * @param    archive    The orp.archive.StubArchive instance that this bootstrapper is working for.
++ */
++orp.archive.Bootstrapper = function(archive) {
++  this._archive = archive;
++};
++
++
++// -------------------------------------------------------------------
++// Bootstrapper private methods 
++// -------------------------------------------------------------------
++
++/**
++ * Returns the instance of orp.archive.StubArchive that this Bootstrapper is working for.
++ *
++ * @scope    private instance method
++ * @return   An instance of orp.archive.StubArchive.
++ */
++orp.archive.Bootstrapper.prototype._getArchive = function() {
++  return this._archive;
++};
++
++
++// -------------------------------------------------------------------
++// Bootstrapper public methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the World instance that this virtual server is using.
++ *
++ * @scope    public instance method
++ * @return   A World object. 
++ */
++orp.archive.Bootstrapper.prototype.getWorld = function() {
++  return this._getArchive().getWorld();
++};
++
++
++
++/**
+  * Given a UUID, either (a) returns the existing item identified by that UUID, 
+  * or (b) creates an new item object, set its UUID, and returns that object.
+  *
+- * @scope    private instance method
++ * @scope    public instance method
+  * @param    inUuid    The UUID of the item to be returned. 
+  * @return   The item identified by the given UUID.
+  */
+-orp.archive.StubArchive.prototype._getItemFromUuidOrBootstrapItem = function(uuid) {
+-  var item = this.getItemFromUuid(uuid);
++orp.archive.Bootstrapper.prototype.getItemFromUuidOrBootstrapItem = function(uuid) {
++  var archive = this._getArchive();
++  
++  var item = archive.getItemFromUuid(uuid);
+   if (!item) {
+-    item = new orp.model.Item(this.getWorld(), uuid);
+-    this._hashTableOfItemsKeyedByUuid[uuid] = item;
++    item = new orp.model.Item(archive.getWorld(), uuid);
++    archive._hashTableOfItemsKeyedByUuid[uuid] = item;
+   }
+   return item;
+ };
+ 
+-/**
+- * Given a UUID, returns the existing entry identified by that UUID. 
+- * 
+- * @scope    private instance method
+- * @param    uuid    The UUID of the entry to be returned. 
+- * @return   The entry identified by the given UUID.
+- */
+-orp.archive.StubArchive.prototype._getEntryFromUuid = function(uuid) {
+-  return this._hashTableOfEntriesKeyedByUuid[uuid];
+-};
+ 
+ /**
+  * Given a UUID, either (a) returns the existing entry identified by that UUID, 
+  * or (b) creates an new entry object, set its UUID, and returns that object.
+  *
+- * @scope    private instance method
++ * @scope    public instance method
+  * @param    uuid    The UUID of the entry to be returned. 
+  * @return   The entry identified by the given UUID.
+  */
+-orp.archive.StubArchive.prototype._getEntryFromUuidOrBootstrapEntry = function(uuid) {
+-  var entry = this._hashTableOfEntriesKeyedByUuid[uuid];
++orp.archive.Bootstrapper.prototype.getEntryFromUuidOrBootstrapEntry = function(uuid) {
++  var archive = this._getArchive();
++
++  var entry = archive._hashTableOfEntriesKeyedByUuid[uuid];
+   if (!entry) {
+-    entry = new orp.model.Entry(this.getWorld(), uuid);
+-    this._hashTableOfEntriesKeyedByUuid[uuid] = entry;
++    entry = new orp.model.Entry(archive.getWorld(), uuid);
++    archive._hashTableOfEntriesKeyedByUuid[uuid] = entry;
+   }
+   return entry;
+ };
+ 
+ 
+ /**
+- * Given a dehydrated list of records, rehydrates each of the records.
++ * Adds a record to the archive's _chronologicalListOfRecords.
+  *
+- * @scope    private instance method
+- * @param    listOfDehydratedRecords    A list of dehydrated records. 
++ * @scope    public instance method
++ * @param    record    An orp.model.Record object. 
+  */
+-orp.archive.StubArchive.prototype._rehydrateRecords = function(listOfDehydratedRecords) {
+-  var key;
+-  var itemUuid;
+-  var item;
+-  var contentRecordUuid;
+-  var contentRecord;
+-  var JSON_MEMBER = orp.archive.StubArchive.JSON_MEMBER;
++orp.archive.Bootstrapper.prototype.addRecordToChronologicalList = function(record) {
++  var archive = this._getArchive();
++  archive._chronologicalListOfRecords.push(record);
++};
+ 
+-  for (key in listOfDehydratedRecords) {
+-    var dehydratedRecord = listOfDehydratedRecords[key];
+ 
+-    var dehydratedTransaction = dehydratedRecord[JSON_MEMBER.TRANSACTION_CLASS];
+-    if (dehydratedTransaction) {
+-      var listOfRecordsInTransaction = dehydratedTransaction;
+-      this._rehydrateRecords(listOfRecordsInTransaction);
+-    } else {
+-      var dehydratedItem = dehydratedRecord[JSON_MEMBER.ITEM_CLASS];
+-      var dehydratedUser = dehydratedRecord[JSON_MEMBER.USER_CLASS];
+-      var dehydratedVote = dehydratedRecord[JSON_MEMBER.VOTE_CLASS];
+-      var dehydratedOrdinal = dehydratedRecord[JSON_MEMBER.ORDINAL_CLASS];
+-      var dehydratedEntry = dehydratedRecord[JSON_MEMBER.ENTRY_CLASS];
+-        
+-      if (dehydratedItem) {
+-        itemUuid = dehydratedItem[JSON_MEMBER.UUID];
+-        item = this._getItemFromUuidOrBootstrapItem(itemUuid);
+-        this._chronologicalListOfRecords.push(item);
+-      }
+-      
+-      if (dehydratedUser) {
+-        var userUuid = dehydratedUser[JSON_MEMBER.USER];
+-        var userPasswordHash = dehydratedUser[JSON_MEMBER.PASSWORD];
+-        var user = this._getItemFromUuidOrBootstrapItem(userUuid);
+-        this._listOfUsers.push(user);
+-        this._hashTableOfUserAuthenticationInfo[user.getUuid()] = userPasswordHash;
+-      }
+-      
+-      if (dehydratedVote) {
+-        var voteUuid = dehydratedVote[JSON_MEMBER.UUID];
+-        var retainFlagString = dehydratedVote[JSON_MEMBER.RETAIN_FLAG];
+-        var retainFlag = null;
+-        if (retainFlagString == &quot;true&quot;) {
+-          retainFlag = true;
+-        }
+-        if (retainFlagString == &quot;false&quot;) {
+-          retainFlag = false;
+-        }
+-        orp.lang.assert(retainFlag !== null);
+-        contentRecordUuid = dehydratedVote[JSON_MEMBER.RECORD];
+-        contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+-        var vote = new orp.model.Vote(this.getWorld(), voteUuid, contentRecord, retainFlag);
+-        this._chronologicalListOfRecords.push(vote);
+-      }
+-      
+-      if (dehydratedOrdinal) {
+-        var ordinalUuid = dehydratedOrdinal[JSON_MEMBER.UUID];
+-        var ordinalNumber = dehydratedOrdinal[JSON_MEMBER.ORDINAL_NUMBER];
+-        contentRecordUuid = dehydratedOrdinal[JSON_MEMBER.RECORD];
+-        contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+-        var ordinal = new orp.model.Ordinal(this.getWorld(), ordinalUuid, contentRecord, ordinalNumber);
+-        this._chronologicalListOfRecords.push(ordinal);
+-      }
+-      
+-      if (dehydratedEntry) {
+-        var entryUuid = dehydratedEntry[JSON_MEMBER.UUID];
+-        var entry = this._getEntryFromUuidOrBootstrapEntry(entryUuid);
+-        var previousEntryUuid = dehydratedEntry[JSON_MEMBER.PREVIOUS_VALUE];
+-        var previousEntry = null;
+-        if (previousEntryUuid) {
+-          previousEntry = this._getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
+-        }
+- 
+-        var dataTypeUuid = dehydratedEntry[JSON_MEMBER.TYPE];
+-        var dataType = this._getItemFromUuidOrBootstrapItem(dataTypeUuid);
+-        
+-        if (dataTypeUuid == orp.model.World.UUID.TYPE_CONNECTION) {
+-          var listOfItemUuids = dehydratedEntry[JSON_MEMBER.ITEM];
+-          var firstItemUuid = listOfItemUuids[0];
+-          var secondItemUuid = listOfItemUuids[1];
+-          var firstItem = this._getItemFromUuidOrBootstrapItem(firstItemUuid);
+-          var secondItem = this._getItemFromUuidOrBootstrapItem(secondItemUuid);
++/**
++ * Adds a user to the archive's _listOfUsers.
++ *
++ * @scope    public instance method
++ * @param    user    An orp.model.Item object. 
++ * @param    userPasswordHash    A string with the user's password hash. 
++ */
++orp.archive.Bootstrapper.prototype.addUserToListOfUsers = function(user, userPasswordHash) {
++  var archive = this._getArchive();
++  archive._listOfUsers.push(user);
++  archive._hashTableOfUserAuthenticationInfo[user.getUuid()] = userPasswordHash;
++};
+ 
+-          var listOfAttributeUuids = dehydratedEntry[JSON_MEMBER.ATTRIBUTE];
+-          var firstAttributeUuid = listOfAttributeUuids[0];
+-          var secondAttributeUuid = listOfAttributeUuids[1];
+-          var firstAttribute = this._getItemFromUuidOrBootstrapItem(firstAttributeUuid);
+-          var secondAttribute = this._getItemFromUuidOrBootstrapItem(secondAttributeUuid);
+-          
+-          var pairOfItems = [firstItem, secondItem];
+-          var pairOfAttributes = [firstAttribute, secondAttribute];
+-          entry._rehydrate(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
+-        } else {
+-          itemUuid = dehydratedEntry[JSON_MEMBER.ITEM];
+-          item = this._getItemFromUuidOrBootstrapItem(itemUuid);
+-          var attributeUuid = dehydratedEntry[JSON_MEMBER.ATTRIBUTE];
+-          var attribute = null;
+-          if (attributeUuid) {
+-            attribute = this._getItemFromUuidOrBootstrapItem(attributeUuid);
+-          } else {
+-            orp.lang.assert(false); // the attributeUuid should always be there
+-          }
+-          var rawData = dehydratedEntry[JSON_MEMBER.VALUE];
+-          var finalData = null;
+-          switch (dataTypeUuid) {
+-            case orp.model.World.UUID.TYPE_ITEM:
+-              finalData = this._getItemFromUuidOrBootstrapItem(rawData);
+-              break;
+-            case orp.model.World.UUID.TYPE_TEXT:
+-              finalData = this.decodeText(rawData);
+-              break;
+-            case orp.model.World.UUID.TYPE_NUMBER:
+-              finalData = parseFloat(rawData);
+-              break;
+-            case orp.model.World.UUID.TYPE_DATE:
+-              finalData = new orp.util.DateValue(rawData);
+-              // if (!finalData.isValid()) {
+-              //   alert(rawData + &quot; &quot; + finalData);
+-              // }
+-              orp.lang.assert(finalData.isValid());
+-              break;
+-            default:
+-              orp.lang.assert(false, 'Unknown data type while _rehydrating()');
+-          }
+-          entry._rehydrate(item, attribute, finalData, previousEntry, dataType);
+-        }
+-        this._chronologicalListOfRecords.push(entry);
+-      }
+-      
+-    }
++
++/**
++ * Given a UUID, returns the item or entry identified by that UUID.
++ *
++ * @scope    public instance method
++ * @param    uuid    The UUID of the item or entry to be returned. 
++ * @return   The item or entry identified by the given UUID.
++ */
++orp.archive.Bootstrapper.prototype.getContentRecordFromUuid = function(uuid) {
++  var archive = this._getArchive();
++
++  var item = archive.getItemFromUuid(uuid);
++  if (item) {
++    return item;
++  } else {
++    return archive._hashTableOfEntriesKeyedByUuid[uuid];
+   }
+ };
+ 
+
+Added: trunk/source/archive/TextEncoding.js
+===================================================================
+--- trunk/source/archive/TextEncoding.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/archive/TextEncoding.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -0,0 +1,112 @@
++/*****************************************************************************
++ TextEncoding.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.archive.TextEncoding&quot;);
++dojo.require(&quot;orp.lang.Lang&quot;);
++
++
++// -------------------------------------------------------------------
++// Public functions
++// -------------------------------------------------------------------
++
++/**
++ * Given a text string, this method returns a copy of the text string, 
++ * with certain special characters replaced by escape sequences.
++ * 
++ * For example, given a string like this:
++ * &lt;pre&gt;
++ *    this.encodeText('The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.\n');
++ * &lt;/pre&gt;
++ * The return value will be:
++ * &lt;pre&gt;
++ *    'The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.&#10;'
++ * &lt;/pre&gt;
++ * 
++ * @scope    public instance method
++ * @param    rawText    A text string to encode. 
++ * @return   A copy of the rawText string, with the special characters escaped. 
++ */
++orp.archive.TextEncoding.encodeText = function(rawText) {
++  orp.lang.assertType(rawText, String);
++
++  var returnString = rawText;
++  // Note: it's important that we do '&amp;' first, otherwise we'll accidentally
++  // replace all the &amp; characters that we add in the following lines.
++  returnString = returnString.replace(new RegExp('&amp;','g'), &quot;&amp;&quot;);
++  returnString = returnString.replace(new RegExp('&lt;','g'), &quot;&lt;&quot;);
++  returnString = returnString.replace(new RegExp('&gt;','g'), &quot;&gt;&quot;);
++  returnString = returnString.replace(new RegExp('&quot;','g'), &quot;&quot;&quot;);
++  returnString = returnString.replace(new RegExp('\n','g'), &quot;&#10;&quot;);
++  returnString = returnString.replace(new RegExp('\r','g'), &quot;&#13;&quot;);
++  return returnString;
++};
++
++
++/**
++ * Given a text string that was encoded using encodeText(), this method 
++ * returns a decoded copy of the text string, with the encoded escape 
++ * sequences now replaced by the original special characters.
++ *
++ * For example, given a string like this:
++ * &lt;pre&gt;
++ *    this.decodeText('The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.&#10;');
++ * &lt;/pre&gt;
++ * The return value will be:
++ * &lt;pre&gt;
++ *    'The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.\n'
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    encodedText    A text string to decode. 
++ * @return   A copy of the encodedText string, with the escaped characters replaced by the original special characters. 
++ */
++orp.archive.TextEncoding.decodeText = function(encodedText) {
++  orp.lang.assertType(encodedText, String);
++  
++  var returnString = encodedText;
++  returnString = returnString.replace(new RegExp('&#13;','g'), &quot;\r&quot;);
++  returnString = returnString.replace(new RegExp('&#10;','g'), &quot;\n&quot;);
++  returnString = returnString.replace(new RegExp('&quot;','g'), '&quot;');
++  returnString = returnString.replace(new RegExp('&gt;','g'), &quot;&gt;&quot;);
++  returnString = returnString.replace(new RegExp('&lt;','g'), &quot;&lt;&quot;);
++  returnString = returnString.replace(new RegExp('&amp;','g'), &quot;&amp;&quot;);
++  // Note: it's important that we do '&amp;' last, otherwise we won't correctly
++  // handle a case like this:
++  //   text = this.decodeText(this.encodeText('&lt;'));
++  return returnString;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/model/World.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -84,6 +84,7 @@
+     server = new orp.archive.DeltaArchive(repositoryName);
+   }
+   this._virtualServer = server;
++
+   server.setWorldAndLoadAxiomaticItems(this);
+   this._loadAxiomaticItems();
+ };
+
+Modified: trunk/source/storage/HttpStorage.js
+===================================================================
+--- trunk/source/storage/HttpStorage.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/source/storage/HttpStorage.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -75,7 +75,7 @@
+  */
+ orp.storage.HttpStorage.prototype.appendText = function(textToAppend) {
+   var url = this._completePathToTrunkDirectory;
+-  url += &quot;/source/model/append_to_repository_file.php?file=&quot; + this.getRepositoryName();
++  url += &quot;/source/storage/append_to_repository_file.php?file=&quot; + this.getRepositoryName();
+   
+   // PENDING: 
+   // It might be more efficient to re-use the XMLHttpRequestObject,
+@@ -98,7 +98,7 @@
+  */
+ orp.storage.HttpStorage.prototype.writeText = function(textToWrite, overwriteIfExists) {
+   var url = this._completePathToTrunkDirectory;
+-  url += &quot;/source/model/write_to_repository_file.php?file=&quot; + this.getRepositoryName();
++  url += &quot;/source/storage/write_to_repository_file.php?file=&quot; + this.getRepositoryName();
+   if (overwriteIfExists) {
+     url += &quot;&amp;overwrite=T&quot;;
+   }
+
+Modified: trunk/tests/archive/LintTest.js
+===================================================================
+--- trunk/tests/archive/LintTest.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/tests/archive/LintTest.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -55,8 +55,11 @@
+ 
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
++    &quot;StubArchive.js&quot;,
+     &quot;DeltaArchive.js&quot;,
+-    &quot;StubArchive.js&quot;];
++    &quot;TextEncoding.js&quot;,
++    &quot;JsonSerializer.js&quot;,
++    &quot;JsonDeserializer.js&quot;];
+   var prefix = &quot;../../../source/archive/&quot;;
+   var errorReport = orp.util.LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+   var message = &quot;Lint check \n&quot; + errorReport;
+
+Modified: trunk/tests/util/XmlConverterTest.js
+===================================================================
+--- trunk/tests/util/XmlConverterTest.js	2005-10-04 02:13:10 UTC (rev 348)
++++ trunk/tests/util/XmlConverterTest.js	2005-10-05 03:23:29 UTC (rev 349)
+@@ -50,8 +50,8 @@
+   // var pathToTrunkDirectoryFromThisFile = &quot;../../../&quot;;
+   pathToTrunkDirectoryFromThisFile = &quot;../..&quot;;
+   
+-  var virtualServer = new orp.archive.StubArchive(pathToTrunkDirectoryFromThisFile);  
+-  world = new orp.model.World(virtualServer);
++  var archive = new orp.archive.StubArchive(pathToTrunkDirectoryFromThisFile);  
++  world = new orp.model.World(archive);
+   var annsPassword = &quot;Ann's password&quot;;
+   var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+   world.login(userAnn, annsPassword);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000331.html">[openrecord-svn] r348 - in trunk: source/storage tests/storage
+</A></li>
+	<LI>Next message: <A HREF="000333.html">[openrecord-svn] r350 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#332">[ date ]</a>
+              <a href="thread.html#332">[ thread ]</a>
+              <a href="subject.html#332">[ subject ]</a>
+              <a href="author.html#332">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

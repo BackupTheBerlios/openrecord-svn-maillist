@@ -1,0 +1,1404 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r76 - in trunk: documentation source source/model source/repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r76%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/repositories/demo_page&In-Reply-To=%3C200505250149.j4P1nHW8016597%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000064.html">
+   <LINK REL="Next"  HREF="000066.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r76 - in trunk: documentation source source/model source/repositories/demo_page</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r76%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/repositories/demo_page&In-Reply-To=%3C200505250149.j4P1nHW8016597%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r76 - in trunk: documentation source source/model source/repositories/demo_page">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 25 03:49:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000064.html">[openrecord-svn] r75 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000066.html">[openrecord-svn] r77 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-05-25 03:49:12 +0200 (Wed, 25 May 2005)
+New Revision: 76
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/LintTest.js
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/View.js
+   trunk/source/base_style.css
+   trunk/source/demo_page.html
+   trunk/source/model/Item.js
+   trunk/source/repositories/demo_page/2005_april_chronological_lump.json
+Log:
+1) Refactored LoginView from RootView
+2) Worked with Brian to allow account creation UI and better error reporting
+3) Added new row support for TablePlugin
+4) Added grayed &quot;ghost text&quot; for provisional item as a hint to users to enter new attributes
+
+
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/documentation/release_planning.txt	2005-05-25 01:49:12 UTC (rev 76)
+@@ -292,14 +292,16 @@
+     Figure out why swapping between editField and textNode is causing 
+     slight visual padding
+ ---------------------------------------------------
+- + Q: Should we consider subclassing from DOM objects? e.g. TablePlugin can be subclassed from HTMLTableElement?
+----------------------------------------------------
+- + Q: Should getListofContentItems() in superview be replaced by an argument into plugin's constructor
++ + Need to rationalize View api and document public api
++    - wire up superview/subview after creation of subview
++    - get rid of display()
++    - rename refersh()
++    - settle on standard constructor parameters
++ Q: Should getListofContentItems() in superview be replaced by an argument into plugin's constructor
+    Also, should plugin get a CSS class?
++ Q: Should we decouple plugins from SectionView? in general, should we make objects less tightly coupled?
++     Parent objects can know about children objects, but not vice versa.
+ ---------------------------------------------------
+- + Q: Should we decouple plugins from SectionView? in general, should we make objects less tightly coupled?
+-   Parent objects can know about children objects, but not vice versa.
+----------------------------------------------------
+  + Q: How exactly should entering new items UI work? Not clear when an item is saved
+ ---------------------------------------------------
+  + Escape key
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/LintTest.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -118,6 +118,7 @@
+     &quot;RootView.js&quot;,
+     &quot;ItemView.js&quot;,
+     &quot;PageView.js&quot;,
++    &quot;LoginView.js&quot;,
+     &quot;SectionView.js&quot;,
+     &quot;TextView.js&quot;,
+     &quot;TablePlugin.js&quot;,
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/PageView.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -123,7 +123,7 @@
+   
+   var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
+   this._myHeaderText = new TextView(this, headerElement, this.myPage,
+-    attributeCalledName, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++    attributeCalledName, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+ 
+   var summaryViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+   this._myPageSummaryView = new TextView(this, summaryViewDiv, this.myPage,
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/RootView.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -54,7 +54,6 @@
+ RootView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
+ RootView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+ 
+-RootView.COOKIE_NAME = &quot;user&quot;;
+ RootView.CONTROL_SPAN_CLASS = &quot;control_span&quot;;
+ 
+ RootView.UUID_FOR_HOME_PAGE = 2000;
+@@ -86,8 +85,6 @@
+   this.myEditMode = false;
+   this.myNumberOfCallsToDebug = 0;
+   this.myDebugTextarea = null;
+-  this.myCookie = new Cookie(document,RootView.COOKIE_NAME,10*365*24);
+-  this.myCookie.load();
+   
+   this._myHashTableOfItemViewsKeyedByUuid = {};
+   this._myHashTableOfPageViewsKeyedByUuid = {};
+@@ -260,7 +257,7 @@
+ 
+   document.title = this._myCurrentContentView.getPageTitle() + &quot; - openagenda.org&quot;;
+   this._myRootDiv.className = (this.isInEditMode()) ? RootView.ELEMENT_CLASS_EDIT_MODE : RootView.ELEMENT_CLASS_VIEW_MODE;
+-  this.displayControlSpan();
++  this._displayLoginSpan();
+   this.displayNavbar();
+   this.displayDebugArea();
+   this._myCurrentContentView.includeOnScreen(true);
+@@ -268,163 +265,13 @@
+ };
+ 
+ 
+-/**
+- * Re-creates the HTML for the chrome area containing the controls,
+- * and hands the HTML to the browser to be re-drawn.
+- *
+- * @scope    public instance method
+- */
+-RootView.prototype.displayControlSpan = function () {
+-  var mySpan = this.myMainControlSpanElement;
+-  Util.assert(mySpan instanceof HTMLSpanElement);
+-  for (var i = mySpan.childNodes.length-1;i &gt;= 0; --i) {
+-    mySpan.removeChild(mySpan.childNodes[i]);
++RootView.prototype._displayLoginSpan = function() {
++  if (!this.loginView) {
++    this.loginView = new LoginView(this,this.myMainControlSpanElement);
++    this.loginView.refresh();
+   }
+-
+-  var currentUser = this.getWorld().getCurrentUser();
+-  if (!currentUser) {
+-    // alert(&quot;displayControlSpan: !currentUser&quot;);
+-    var userUuid = this.myCookie.userUuid;
+-    // alert(&quot;displayControlSpan: userUuid = &quot; + userUuid);
+-    if (userUuid) {
+-      var userToLoginAs = this.getWorld().getItemFromUuid(userUuid);
+-      if (userToLoginAs) { 
+-        // PENDING: need to use a real password instead of &quot;abracadabra&quot;
+-        this.getWorld().login(userToLoginAs, &quot;abracadabra&quot;);
+-        currentUser = this.getWorld().getCurrentUser();
+-      }
+-      if (!currentUser) {
+-        this.myCookie.userUuid = null;
+-        this.myCookie.store();
+-      }
+-    }
+-  }
+-  var welcomeText = &quot;&quot;;
+-  if (currentUser) {
+-    welcomeText = &quot;Hello &quot; + currentUser.getDisplayName() + &quot;. &quot;;
+-  } else {
+-    welcomeText = &quot;Welcome. Please sign in: &quot;; 
+-  }
+-  var welcomeNode = document.createTextNode(welcomeText);
+-  mySpan.appendChild(welcomeNode);
+-  if (currentUser) { 
+-    var signoutLink = document.createElement(&quot;a&quot;);
+-    signoutLink.appendChild(document.createTextNode(&quot;Sign out&quot;));
+-    signoutLink.onclick = this.clickOnSignoutButton.bindAsEventListener(this);
+-    mySpan.appendChild(signoutLink);
+-    var space = document.createTextNode(&quot; &quot;);
+-    mySpan.appendChild(space);
+-    var editButton = document.createElement(&quot;input&quot;);
+-    editButton.type = &quot;button&quot;;
+-    editButton.value = (this.myEditMode) ? &quot;Save&quot; : &quot;Edit&quot;;
+-    editButton.onclick = this.clickOnEditButton.bindAsEventListener(this);
+-    mySpan.appendChild(editButton);
+-  }
+-  else {
+-    this.usernameInput = document.createElement(&quot;input&quot;);
+-    this.usernameInput.size=10;
+-    this.usernameInput.onkeypress = this.signinKeyPress.bindAsEventListener(this);
+-    var signinButton = document.createElement(&quot;input&quot;);
+-    signinButton.value = &quot;Sign in&quot;;
+-    signinButton.type = &quot;button&quot;;
+-    signinButton.onclick = this.clickOnSignInButton.bindAsEventListener(this);
+-    mySpan.appendChild(this.usernameInput);
+-    mySpan.appendChild(signinButton);
+-  }
+ };
+-
+-
+ /**
+- * Called when sign out button is clicked.
+- *
+- * @scope    PENDING
+- */
+-RootView.prototype.clickOnSignoutButton = function(inEventObject) {
+-  if (this.myEditMode) {this.setEditMode(false);}
+-  this.myCookie.userUuid = null;
+-  this.myCookie.store();
+-  this.getWorld().logout();
+-  this.displayControlSpan();
+-};
+-
+-
+-/**
+- * Called when sign in input field is typed with keystroke.
+- *
+- * @scope    PENDING
+- */
+-RootView.prototype.signinKeyPress = function(inEventObject) {
+-  // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+-  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
+-    this.clickOnSignInButton(inEventObject);
+-  }
+-};
+-
+-
+-/**
+- * Called when sign in button is clicked.
+- *
+- * @scope    PENDING
+- */
+-RootView.prototype.clickOnSignInButton = function(inEventObject) {
+-  
+-  function isValidUsername(username) {
+-    // PENDING: hard coded to validate for alphanumeric usernames of 3 or more characters
+-    if (!username) {return false;}
+-    return username.search(/\w{3,}/) &gt;= 0;
+-  }
+-  
+-  var listOfUsers = this.getWorld().getUsers();
+-  var userNameEntered = this.usernameInput.value;
+-  var key;
+-  var currentUser = null;
+-  
+-  for (key in listOfUsers) {
+-    if (!currentUser) {
+-      var user = listOfUsers[key];
+-      var lowerCaseUserName = user.getDisplayName().toLowerCase();
+-      var lowerCaseUserNameEntered = userNameEntered.toLowerCase();
+-      var numberOfCharactersToCompare = lowerCaseUserNameEntered.length;
+-      var shortUserName = lowerCaseUserName.substring(0, numberOfCharactersToCompare);
+-      if (shortUserName == lowerCaseUserNameEntered) {
+-        // we have a match!
+-        this.getWorld().login(user, &quot;abracadabra&quot;); // PENDING: user real password
+-        currentUser = this.getWorld().getCurrentUser(); 
+-      }
+-    }
+-  }
+-  
+-  if (currentUser) {
+-    this.myCookie.userUuid = currentUser._getUuid();
+-    this.myCookie.store();
+-    this.displayControlSpan();
+-  } else {
+-    if (isValidUsername(userNameEntered)) {
+-      var newUser = this.getWorld().newUser(userNameEntered, &quot;abracadabra&quot;); // PENDING: user real password
+-      var loginSuccess = this.getWorld().login(newUser, &quot;abracadabra&quot;); // PENDING: user real password
+-      var userUuid;
+-      if (loginSuccess) {
+-        userUuid = newUser._getUuid();
+-      } else {
+-        userUuid = null;
+-      }
+-      this.myCookie.userUuid = userUuid;
+-      this.myCookie.store();
+-      this.displayControlSpan();
+-    } else {
+-      var newErrorNode = document.createTextNode(&quot;\n Your username must be 3 or more alphanumeric characters!&quot;);
+-      if (this.errorNode) {
+-        this.myMainControlSpanElement.replaceChild(newErrorNode,this.errorNode);
+-      } else {
+-        this.myMainControlSpanElement.appendChild(newErrorNode); 
+-      }
+-      this.errorNode = newErrorNode;
+-    }
+-  }
+-};
+-
+-
+-/**
+  * Re-creates the HTML for the Navbar, and hands the HTML to the browser 
+  * to be re-drawn.
+  *
+@@ -597,10 +444,10 @@
+     var world = this.getWorld();
+     if (this.myEditMode) {
+       world.endTransaction();
+-      window.document.body.style.cursor = &quot;auto&quot;;
++      //window.document.body.style.cursor = &quot;auto&quot;;
+     } else {
+       world.beginTransaction();
+-      window.document.body.style.cursor = &quot;crosshair&quot;;
++      //window.document.body.style.cursor = &quot;crosshair&quot;;
+     }
+     this.myEditMode = !this.myEditMode;
+     this.display();
+@@ -610,6 +457,11 @@
+     // }
+   }
+ };
++
++RootView.prototype.getRootView = function () {
++  return this;
++};
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/TablePlugin.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -142,24 +142,37 @@
+ 
+ 
+ /**
++ * Inserts a table row at rowNum given contentItem
++ *
++ * @scope    private instance method
++ */
++TablePlugin.prototype._insertRow = function(contentItem, rowNum) {
++  var aRow = this.myTable.insertRow(rowNum); 
++  var columnCount = -1;
++  for (var lKey in this._hashTableOfAttributes) {
++    var attribute = this._hashTableOfAttributes[lKey];
++    this._insertCell(aRow, ++columnCount, contentItem, attribute);
++  }
++};
++
++/**
+  * Constructs the table body 
+  *
+  * @scope    private instance method
+  */
+ TablePlugin.prototype._buildTableBody = function() {  
+-  // add all the table body rows
+-  var numRows = 1; // start from 1 to account for header row
++  // add the table body rows from query
++  var numRows = 0; // start from 0 to account for header row
+   for (var kKey in this._listOfItems) {
+     var contentItem = this._listOfItems[kKey];
+-    var aRow = this.myTable.insertRow(numRows); 
+-    ++numRows;
+-    var columnCount = 0;
+-    for (var lKey in this._hashTableOfAttributes) {
+-      var attribute = this._hashTableOfAttributes[lKey];
+-      this._insertCell(aRow, columnCount, contentItem, attribute);
+-      columnCount += 1;
+-    }
++    this._insertRow(contentItem,++numRows);
+   }  
++  
++  if (this.isInEditMode()) {
++    // add one more row to allow users to add a new item to the table
++    var newItem = this.getWorld().newProvisionalItem();
++    this._insertRow(newItem,++numRows,true);
++  }
+ };
+ 
+ 
+@@ -261,10 +274,10 @@
+   var aCell = row.insertCell(col);
+   aCell.className = this.myCellClass;
+   var aTextView = new TextView(this, aCell, item, attribute, this.myCellClass);
++  aCell.or_textView = aTextView;
+   aTextView.refresh();
+-  aCell.or_textView = aTextView;
+   if (this.isInEditMode()) {
+-    aCell.onkeypress = this.keyPressOnEditField.bindAsEventListener(this, aTextView);
++    //aCell.onkeypress = this.keyPressOnEditField.bindAsEventListener(this, aTextView);
+     var listener = this;
+     aTextView.setKeyPressFunction(function (evt, aTxtView) {listener.keyPressOnEditField(evt, aTxtView);});
+   }
+@@ -350,6 +363,7 @@
+     var shiftBy;
+     var numCols = this._numberOfColumns;
+     var numRows = this._listOfItems.length;
++    if (this.isInEditMode()) {++numRows;} // to account for extra new provisional row
+     var nextCell;
+     var htmlRow = cellElement.parentNode;
+     
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/TextView.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -42,6 +42,7 @@
+ // TextView public class constants
+ // -------------------------------------------------------------------
+ TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;;
++TextView.PROVISIOINAL_COLOR = '#999999';
+ 
+ 
+ /**
+@@ -71,6 +72,8 @@
+   this._isMultiLine = isMultiLine;
+   this._isEditing = false;
+   this._proxyOnKeyFunction = null;
++  this._isProvisional = this._item.isProvisional();
++  if (this._isProvisional) {this._provisionalText = this._attribute.getDisplayName();}
+ }
+ 
+ 
+@@ -101,12 +104,17 @@
+ TextView.prototype.doInitialDisplay = function() {
+   var htmlElement = this.getHTMLElement();
+   
+-  var textString = this._item.getSingleStringValueFromAttribute(this._attribute);
++  var textString = this._isProvisional ? this._provisionalText :
++    this._item.getSingleStringValueFromAttribute(this._attribute);
+   // PENDING: need to deal with multi valued attrs
+   // for (var i in textList) {
+   //   textString = textList[i] + &quot;\n&quot; + textString;
+   // };
+   
++  if (this._isProvisional) {
++    this._oldColor = htmlElement.style.color;
++    htmlElement.style.color = TextView.PROVISIOINAL_COLOR;
++  }
+   this.textNode = document.createTextNode(textString);
+   htmlElement.appendChild(this.textNode);
+ 
+@@ -137,7 +145,7 @@
+       var listener = this; 
+       editField.onblur = this.onBlur.bindAsEventListener(this);
+       editField.onkeypress = this.onKeyPress.bindAsEventListener(this);
+-      editField.defaultValue = this.textNode.data;
++      editField.defaultValue = this._isProvisional ? '' : this.textNode.data;
+     }
+     editField.style.width = this.getHTMLElement().offsetWidth + &quot;px&quot;;    
+     editField.style.height = (this.getHTMLElement().offsetHeight) + &quot;px&quot;;
+@@ -190,15 +198,22 @@
+ TextView.prototype.stopEditing = function() {
+   if (this._isEditing) {
+     var newText = this._editField.value;
++    var htmlElement = this.getHTMLElement();
+     
+-    // PENDING: need to properly handle multi-valued attributes
+-    var listOfEntries = this._item.getEntriesForAttribute(this._attribute);
+-    if (listOfEntries &amp;&amp; listOfEntries[0]) {
+-      var oldEntry = listOfEntries[0];
+-      this._item.replaceEntry(oldEntry, newText);
+-    } else {
+-      this._item.addEntryForAttribute(this._attribute, newText);
++    if (this._isProvisional &amp;&amp; newText === '') {
++      newText = this._provisionalText;
+     }
++    else {
++      // PENDING: need to properly handle multi-valued attributes
++      if (this._isProvisional) {htmlElement.style.color = this._oldColor;}
++      var listOfEntries = this._item.getEntriesForAttribute(this._attribute);
++      if (listOfEntries &amp;&amp; listOfEntries[0]) {
++        var oldEntry = listOfEntries[0];
++        this._item.replaceEntry(oldEntry, newText);
++      } else {
++        this._item.addEntryForAttribute(this._attribute, newText);
++      }
++    }
+     
+     this.textNode.data = newText;
+     this.getHTMLElement().replaceChild(this.textNode, this._editField);
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/View.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -193,7 +193,12 @@
+   return newTextNode;
+ };
+ 
+-
++View.prototype.getRootView = function() {
++  if (!this.getSuperview()) {return null;}
++  else {
++    return this.getSuperview().getRootView();
++  }
++};
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/base_style.css	2005-05-25 01:49:12 UTC (rev 76)
+@@ -407,7 +407,11 @@
+ }
+ 
+ td.plain {
++  font-family: Arial, Verdana, sans-serif;
+   text-align: left;
++  border: none;
++  padding: 0px;
++  margin: 0px;
+ }
+ 
+ td.yup {
+@@ -449,6 +453,7 @@
+ }
+ 
+ input.plain {
++  font-family: Arial, Verdana, sans-serif;
+   border: 0px;
+   width: 100%;
+   background: rgb(100%, 100%, 40%);
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/demo_page.html	2005-05-25 01:49:12 UTC (rev 76)
+@@ -21,6 +21,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ItemView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;SectionView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LoginView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/model/Item.js	2005-05-25 01:49:12 UTC (rev 76)
+@@ -295,6 +295,16 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Returns whether item is provisional
++ *
++ * @scope    public instance method
++ * @return   Boolean whether item is provisional
++ */
++Item.prototype.isProvisional = function() {
++  return this.__myProvisionalFlag;
++};
++
++/**
+  * Returns a display name for the item.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/repositories/demo_page/2005_april_chronological_lump.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_april_chronological_lump.json	2005-05-24 20:45:00 UTC (rev 75)
++++ trunk/source/repositories/demo_page/2005_april_chronological_lump.json	2005-05-25 01:49:12 UTC (rev 76)
+@@ -2987,10 +2987,800 @@
+           &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;&quot; },
+       &quot;userstamp&quot;: &quot;623638&quot;,                // by (Chih-Chao Lam)
+       &quot;timestamp&quot;: &quot;1116525088906&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // chao
++           &quot;uuid&quot;: &quot;623641&quot;,
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116791469811&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // chao
++           &quot;uuid&quot;: &quot;623642&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623641&quot;,                // chao
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;chao&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116791469811&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623644&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;6209&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886357157&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;623645&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;6047&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886396810&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623646&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623644&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886484266&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Gerald Markowitz and David ...
++           &quot;uuid&quot;: &quot;623647&quot;,
++      &quot;attribute&quot;: &quot;3101&quot;,                // Author
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;6210&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Gerald Markowitz and David Rosner&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886484657&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // University of California
++           &quot;uuid&quot;: &quot;623648&quot;,
++      &quot;attribute&quot;: &quot;3102&quot;,                // Publisher
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;6211&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;University of California&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886485196&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // 0520240634
++           &quot;uuid&quot;: &quot;623649&quot;,
++      &quot;attribute&quot;: &quot;3103&quot;,                // ISBN
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;6212&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0520240634&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886506325&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623650&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;6024&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886508210&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623651&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623646&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886528668&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;623652&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;623645&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886888977&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Gourley and Brian Totty
++           &quot;uuid&quot;: &quot;623653&quot;,
++      &quot;attribute&quot;: &quot;3101&quot;,                // Author
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;6048&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Gourley and Brian Totty&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886889876&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;623654&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;623652&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886890636&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // JavaScript: The Definitive ...
++           &quot;uuid&quot;: &quot;623655&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;6012&quot;,                // JavaScript: The Definitive ...
++          &quot;previousEntry&quot;: &quot;6230&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;JavaScript: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886946993&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Two Towers
++           &quot;uuid&quot;: &quot;623656&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;6013&quot;,                // The Two Towers
++          &quot;previousEntry&quot;: &quot;6235&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Two Towers&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886948402&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Wisdom of Crowds
++           &quot;uuid&quot;: &quot;623657&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3203&quot;,                // The Wisdom of Crowds
++          &quot;previousEntry&quot;: &quot;6069&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Wisdom of Crowds&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886958164&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // jkjlk;j
++           &quot;uuid&quot;: &quot;623643&quot;,
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886353670&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // jkjlk;j
++           &quot;uuid&quot;: &quot;623658&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623643&quot;,                // jkjlk;j
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;jkjlk;j&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116886960304&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623659&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623651&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623641&quot;,                // by (chao)
++      &quot;timestamp&quot;: &quot;1116887514016&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // jjjj
++           &quot;uuid&quot;: &quot;623660&quot;,
++      &quot;userstamp&quot;: &quot;623660&quot;,                // by (jjjj)
++      &quot;timestamp&quot;: &quot;1116888431484&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // jjjj
++           &quot;uuid&quot;: &quot;623661&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623660&quot;,                // jjjj
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;jjjj&quot; },
++      &quot;userstamp&quot;: &quot;623660&quot;,                // by (jjjj)
++      &quot;timestamp&quot;: &quot;1116888431485&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Your name here
++           &quot;uuid&quot;: &quot;623662&quot;,
++      &quot;userstamp&quot;: &quot;623662&quot;,                // by (Your name here)
++      &quot;timestamp&quot;: &quot;1116899071728&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Your name here
++           &quot;uuid&quot;: &quot;623663&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623662&quot;,                // Your name here
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Your name here&quot; },
++      &quot;userstamp&quot;: &quot;623662&quot;,                // by (Your name here)
++      &quot;timestamp&quot;: &quot;1116899071728&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // mignon
++           &quot;uuid&quot;: &quot;623664&quot;,
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116901264550&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // mignon
++           &quot;uuid&quot;: &quot;623665&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623664&quot;,                // mignon
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;mignon&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116901264550&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Patty
++           &quot;uuid&quot;: &quot;623666&quot;,
++      &quot;userstamp&quot;: &quot;623666&quot;,                // by (Patty)
++      &quot;timestamp&quot;: &quot;1116901632995&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Patty
++           &quot;uuid&quot;: &quot;623667&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623666&quot;,                // Patty
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Patty&quot; },
++      &quot;userstamp&quot;: &quot;623666&quot;,                // by (Patty)
++      &quot;timestamp&quot;: &quot;1116901632995&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623669&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;6025&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116902977441&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623670&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623650&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116902986227&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623672&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623670&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903329848&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623673&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623669&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903330800&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623674&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623672&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903334088&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623675&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623673&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903336296&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623676&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623674&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903337112&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623677&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623675&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903339795&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623678&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623676&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903341729&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623679&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623678&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903343849&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Books
++           &quot;uuid&quot;: &quot;623680&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;6029&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903347649&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This section shows a list o...
++           &quot;uuid&quot;: &quot;623681&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;6032&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a list of all the books in the repository.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903348714&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Books
++           &quot;uuid&quot;: &quot;623682&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623680&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903351785&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623683&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623679&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903353009&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623684&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623677&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903353984&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Books
++           &quot;uuid&quot;: &quot;623685&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623682&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903355689&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This section shows a list o...
++           &quot;uuid&quot;: &quot;623686&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623681&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a list of all the books in the repository.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903357466&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623687&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623659&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903359121&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Books
++           &quot;uuid&quot;: &quot;623688&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623685&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903360690&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This section shows a list o...
++           &quot;uuid&quot;: &quot;623689&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623686&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a list of all the books in the repository.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903363257&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623690&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623684&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903411235&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623691&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623683&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903412210&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623692&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623690&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903415570&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623693&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623691&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903416692&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623694&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623692&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903417425&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623695&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623693&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903418434&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // In the lists on this page, ...
++           &quot;uuid&quot;: &quot;623696&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623694&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;In the lists on this page, each book is an item in the OpenRecord repository. If you edit the page, you can change how each list of books is displayed.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903421434&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Books
++           &quot;uuid&quot;: &quot;623697&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623688&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903423082&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This section shows a list o...
++           &quot;uuid&quot;: &quot;623698&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623689&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a list of all the books in the repository.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903424194&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book Lists
++           &quot;uuid&quot;: &quot;623699&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3000&quot;,                // Book Lists
++          &quot;previousEntry&quot;: &quot;623695&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book Lists&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903425834&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Books
++           &quot;uuid&quot;: &quot;623700&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623697&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Books&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903426914&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This section shows a list o...
++           &quot;uuid&quot;: &quot;623701&quot;,
++      &quot;attribute&quot;: &quot;103&quot;,                // Summary
++           &quot;item&quot;: &quot;3010&quot;,                // All Books
++          &quot;previousEntry&quot;: &quot;623698&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This section shows a list of all the books in the repository.&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903434698&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623702&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623687&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903435787&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;623703&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;623654&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903437427&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623704&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623702&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903515437&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;623705&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;623703&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903515862&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // JavaScript: The Definitive ...
++           &quot;uuid&quot;: &quot;623706&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;6012&quot;,                // JavaScript: The Definitive ...
++          &quot;previousEntry&quot;: &quot;623655&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;JavaScript: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903516662&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Shrinking Violets and Caspa...
++           &quot;uuid&quot;: &quot;623707&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3204&quot;,                // Shrinking Violets and Caspa...
++          &quot;previousEntry&quot;: &quot;6074&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Shrinking Violets and Caspar Milquetoasts&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903516953&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Gumption Memo
++           &quot;uuid&quot;: &quot;623708&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;6205&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Gumption Memo&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903517236&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Brian Skinner
++           &quot;uuid&quot;: &quot;623709&quot;,
++      &quot;attribute&quot;: &quot;3101&quot;,                // Author
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;6206&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Brian Skinner&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903517496&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Kinkos
++           &quot;uuid&quot;: &quot;623710&quot;,
++      &quot;attribute&quot;: &quot;3102&quot;,                // Publisher
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;6207&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Kinkos&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903517785&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // 
++           &quot;uuid&quot;: &quot;623711&quot;,
++      &quot;attribute&quot;: &quot;3103&quot;,                // ISBN
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;623640&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903518224&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Gumption Memo
++           &quot;uuid&quot;: &quot;623712&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;623708&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Gumption Memo&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903518643&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Hobbit
++           &quot;uuid&quot;: &quot;623713&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3202&quot;,                // The Hobbit
++          &quot;previousEntry&quot;: &quot;6063&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Hobbit&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903518960&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Transparent Society
++           &quot;uuid&quot;: &quot;623714&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3201&quot;,                // The Transparent Society
++          &quot;previousEntry&quot;: &quot;6058&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Transparent Society&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903519296&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Two Towers
++           &quot;uuid&quot;: &quot;623715&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;6013&quot;,                // The Two Towers
++          &quot;previousEntry&quot;: &quot;623656&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Two Towers&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903519320&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Wisdom of Crowds
++           &quot;uuid&quot;: &quot;623716&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3203&quot;,                // The Wisdom of Crowds
++          &quot;previousEntry&quot;: &quot;623657&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Wisdom of Crowds&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903519696&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // 
++           &quot;uuid&quot;: &quot;623671&quot;,
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903326076&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // 
++           &quot;uuid&quot;: &quot;623717&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623671&quot;,                // 
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903519780&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;623718&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
++          &quot;previousEntry&quot;: &quot;623704&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903520236&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;623719&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
++          &quot;previousEntry&quot;: &quot;623705&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903520332&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // JavaScript: The Definitive ...
++           &quot;uuid&quot;: &quot;623720&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;6012&quot;,                // JavaScript: The Definitive ...
++          &quot;previousEntry&quot;: &quot;623706&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;JavaScript: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903520865&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Shrinking Violets and Caspa...
++           &quot;uuid&quot;: &quot;623721&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3204&quot;,                // Shrinking Violets and Caspa...
++          &quot;previousEntry&quot;: &quot;623707&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Shrinking Violets and Caspar Milquetoasts&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903521262&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Gumption Memo
++           &quot;uuid&quot;: &quot;623722&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;623712&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Gumption Memo&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903521668&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Hobbit
++           &quot;uuid&quot;: &quot;623723&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;3202&quot;,                // The Hobbit
++          &quot;previousEntry&quot;: &quot;623713&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Hobbit&quot; },
++      &quot;userstamp&quot;: &quot;623664&quot;,                // by (mignon)
++      &quot;timestamp&quot;: &quot;1116903625287&quot; }
+   }  ], 
+   &quot;users&quot;: [
+     { &quot;uuid&quot;: &quot;100&quot;, &quot;password&quot;: null },
+     { &quot;uuid&quot;: &quot;1502&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
+     { &quot;uuid&quot;: &quot;62361&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
+-    { &quot;uuid&quot;: &quot;623638&quot;, &quot;password&quot;: &quot;abracadabra&quot; } ]
++    { &quot;uuid&quot;: &quot;623638&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
++    { &quot;uuid&quot;: &quot;623641&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
++    { &quot;uuid&quot;: &quot;623660&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
++    { &quot;uuid&quot;: &quot;623662&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
++    { &quot;uuid&quot;: &quot;623664&quot;, &quot;password&quot;: &quot;secret&quot; },
++    { &quot;uuid&quot;: &quot;623666&quot;, &quot;password&quot;: &quot;patty&quot; } ]
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000064.html">[openrecord-svn] r75 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000066.html">[openrecord-svn] r77 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#65">[ date ]</a>
+              <a href="thread.html#65">[ thread ]</a>
+              <a href="subject.html#65">[ subject ]</a>
+              <a href="author.html#65">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

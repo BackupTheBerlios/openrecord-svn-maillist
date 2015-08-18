@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r265 - in trunk: documentation source source/model source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r265%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/view&In-Reply-To=%3C200507271852.j6RIqkwg016666%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000249.html">
+   <LINK REL="Next"  HREF="000251.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r265 - in trunk: documentation source source/model source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r265%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/view&In-Reply-To=%3C200507271852.j6RIqkwg016666%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r265 - in trunk: documentation source source/model source/view">skinner at berlios.de
+       </A><BR>
+    <I>Wed Jul 27 20:52:46 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000249.html">[openrecord-svn] r264 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000251.html">[openrecord-svn] r266 - trunk/source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#250">[ date ]</a>
+              <a href="thread.html#250">[ thread ]</a>
+              <a href="subject.html#250">[ subject ]</a>
+              <a href="author.html#250">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-27 20:52:44 +0200 (Wed, 27 Jul 2005)
+New Revision: 265
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/base_style.css
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/NavbarView.js
+Log:
+Added ability to drag-and-drop menu items to re-order the navbar menu.  Uses the &quot;Sortable&quot; feature in the script.aculo.us dragdrop.js library, as well as our own new ordinal code.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/documentation/release_planning.txt	2005-07-27 18:52:44 UTC (rev 265)
+@@ -260,7 +260,7 @@
+ chao   | 0.5  IED | done    | 14. improve keyboard navigation: tab, arrow, and return keys
+ mignon |          | done?   | 15. Get data model to pass the ordinal unit tests again
+        |          |copy/move? 16. drag-and-drop lozenges
+-       |          |       &gt;&gt;| 17. drag-and-drop to re-order navbar menu items
++brian  |          | 0.5     | 17. drag-and-drop to re-order navbar menu items
+        |          |         | 18. drag-and-drop to re-order table rows
+        |          |       &gt;&gt;| 19. drag-and-drop to re-order table columns
+        |          |         | 20. improve UI for &quot;add new attribute&quot; in Table View 
+@@ -281,13 +281,13 @@
+        |          |         |     config option so that only logged-in users have read-access
+        |          |         |     have an &quot;icon&quot; attribute, and use icons in suggestion box and in EntryView
+        |          |         |     run in IE as well as Firefox
+-chao   |0.25 IED  |         |     Show start time for DateValues if time was entered
+-chao   |0.25 IED  |         |     Suppport for relative date entry e.g. &quot;today&quot;, &quot;end of day/week&quot;, &quot;tomorrow&quot;
+-chao   |0.25 IED  |         |     Display relative dates for entries e.g. &quot;today&quot;
+-chao   |0.25 IED  |         |     Support for Year/Month entry for DateValue, e.g. 2005/07, July 2005
+-chao   |0.25 IED  |         |     Support anchor links to each section on a PageView
+-chao   |0.25 IED  |         |     Make currently sorted column to have a special CSS class so that it can look different
+-chao   |0.25 IED  |         |     Resolve: How should table cells deal with &lt;enter&gt;, move down a cell or to the right?
++chao   | 0.25 IED |         |     Show start time for DateValues if time was entered
++chao   | 0.25 IED |         |     Suppport for relative date entry e.g. &quot;today&quot;, &quot;end of day/week&quot;, &quot;tomorrow&quot;
++chao   | 0.25 IED |         |     Display relative dates for entries e.g. &quot;today&quot;
++chao   | 0.25 IED |         |     Support for Year/Month entry for DateValue, e.g. 2005/07, July 2005
++chao   | 0.25 IED |         |     Support anchor links to each section on a PageView
++chao   | 0.25 IED |         |     Make currently sorted column to have a special CSS class so that it can look different
++chao   | 0.25 IED |         |     Resolve: How should table cells deal with &lt;enter&gt;, move down a cell or to the right?
+ -------+----------+---------+----------------------------------------------
+        |          |         | 26. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
+        |          |         | 27. Write one unit test that tests GUI code
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/source/base_style.css	2005-07-27 18:52:44 UTC (rev 265)
+@@ -264,6 +264,7 @@
+ .menu_item {
+   list-style: none;
+   margin: 0;
++  cursor: move;
+ }
+ 
+ .menu_item a {
+@@ -277,6 +278,32 @@
+   color: rgb(0%, 0%, 0%); 
+ }
+ 
++.class_fake_menu {    // PENDING: delete me
++  padding-left: 0;
++  padding-top: 0pt;
++  padding-bottom: 20pt;
++  margin-left: 0;
++  list-style-type: none;
++  width: 80pt;
++}
++
++.class_fake_menu_item {    // PENDING: delete me
++  list-style: none;
++  margin: 0;
++  cursor: move;
++}
++
++.class_fake_menu_item span {    // PENDING: delete me
++  display: block;
++  width: 100%;
++  padding: 5pt 0pt 5pt 5pt;
++  text-decoration: none; 
++  border-left: solid 1pt #CCCCCC;
++  border-top: solid 1pt #CCCCCC;
++  border-bottom: solid 1pt #CCCCCC;
++  color: rgb(0%, 0%, 0%); 
++}
++
+ .menu_item a:link {
+   color: #0066CC; 
+   background-color: rgb(100%, 100%, 100%);
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/source/model/DeltaVirtualServer.js	2005-07-27 18:52:44 UTC (rev 265)
+@@ -252,7 +252,7 @@
+ 
+     if (record instanceof Vote) {
+       var vote = record;
+-      entryDisplayNameSubstring = this.truncateString(vote.getContentRecord().getDisplayString());
++      entryDisplayNameSubstring = this._getTypedDisplayStringForItem(vote.getContentRecord());
+       var deleteVsRetainString = vote.getRetainFlag() ? &quot;RETAIN&quot; : &quot;DELETE&quot;;
+       listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{\n');
+@@ -265,12 +265,12 @@
+ 
+     if (record instanceof Ordinal) {
+       var ordinal = record;
+-      entryDisplayNameSubstring = this.truncateString(ordinal.getContentRecord().getDisplayString());
++      entryDisplayNameSubstring = this._getTypedDisplayStringForItem(ordinal.getContentRecord());
+       listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + ordinal._getUuid() + '&quot;,\n');
+-      listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
+-      listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
++      listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
+       listOfStrings.push('  }\n');
+       listOfStrings.push(indent + '}');
+     }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/source/model/StubVirtualServer.js	2005-07-27 18:52:44 UTC (rev 265)
+@@ -72,7 +72,7 @@
+ StubVirtualServer.JSON_MEMBER_RECORD = &quot;record&quot;;
+ StubVirtualServer.JSON_MEMBER_ITEM = &quot;item&quot;;
+ StubVirtualServer.JSON_MEMBER_RETAIN_FLAG = &quot;retainFlag&quot;;
+-StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER = &quot;ordinalNumber&quot;;
++StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER = &quot;value&quot;;
+ 
+ StubVirtualServer.prototype._generateUuid = function(arg1) {
+   return Uuid.generateTimeBasedUuid(arg1);
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/source/view/EntryView.js	2005-07-27 18:52:44 UTC (rev 265)
+@@ -252,9 +252,9 @@
+     var connectionType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
+     if (dataType == itemType || dataType == connectionType) {
+       if (this._isLozenge()) {
+-        if (this.isInEditMode() &amp;&amp; !this.draggable) {
++        if (this.isInEditMode() &amp;&amp; !this._draggable) {
+           this._textSpan.or_entryView = this; 
+-          this.draggable = new Draggable(this._textSpan, {revert:true});
++          this._draggable = new Draggable(this._textSpan, {revert:true});
+         }
+       }
+       else {
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/source/view/MultiEntriesView.js	2005-07-27 18:52:44 UTC (rev 265)
+@@ -329,7 +329,7 @@
+   if (this.isInEditMode()) {
+     htmlElement.onclick = this._handleOwnClick.bindAsEventListener(this);
+     var listener = this;
+-    Droppables.add(htmlElement, {accept: [EntryView.CSS_CLASS_CONNECTION_VALUE,EntryView.CSS_ITEM_VALUE,EntryView.CSS_CLASS_SELECTED],
++    Droppables.add(htmlElement, {accept: [EntryView.CSS_CLASS_CONNECTION_VALUE, EntryView.CSS_ITEM_VALUE, EntryView.CSS_CLASS_SELECTED],
+       hoverclass: &quot;test&quot;,
+       onDrop: function(element) {listener._handleDrop(element);}});
+   } 
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-07-26 23:36:26 UTC (rev 264)
++++ trunk/source/view/NavbarView.js	2005-07-27 18:52:44 UTC (rev 265)
+@@ -36,6 +36,7 @@
+ // 
+ /*global window */
+ /*global RootView */
++/*global Sortable */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -45,7 +46,12 @@
+ NavbarView.CSS_CLASS_MENU      = &quot;menu&quot;;
+ NavbarView.CSS_CLASS_MENU_ITEM = &quot;menu_item&quot;;
+ 
++// Caution: 
++// In order for us to use the &quot;Sortable&quot; feature in the script.aculo.us 
++// dragdrop.js library, this Id must *not* have an underscore in it.
++NavbarView.ELEMENT_ID_MENU     = &quot;MainMenu&quot;;  
+ 
++
+ /**
+  * The RootView uses an instance of a NavbarView to display a navigation
+  * bar, with links to pages.
+@@ -59,6 +65,8 @@
+ function NavbarView(superview, htmlElement, htmlElementForAnchors) {
+   View.call(this, superview, htmlElement, &quot;NavbarView&quot;);
+   this._htmlElementForAnchors = htmlElementForAnchors;
++  this._liElementBeingTouched = null;
++  // this._listOfPages = null;
+ }
+ 
+ 
+@@ -81,6 +89,73 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Called whenever there is a mousedown event on one of the menu item
++ * html &quot;li&quot; elements.  All we do here is record which element is 
++ * being touched, because we may need that info later on in the 
++ * _sortOrderUpdate() method. 
++ *
++ * @scope    public instance method
++ * @param    event    The mousedown event object. 
++ * @param    liElement    The HTMLElement for this menu item. 
++ */
++NavbarView.prototype._mouseDownOnMenuItem = function(event, liElement) {
++  this._liElementBeingTouched = liElement;
++};
++
++
++/**
++ * Called by the &quot;Sortable&quot; feature in the script.aculo.us dragdrop.js library.
++ * This method gets called when the user drags and drops a menu item in the
++ * Navbar.  We only get called if the new location of the menu item is 
++ * different from the old location.
++ *
++ * @scope    public instance method
++ * @param    ulElement    The &quot;ul&quot; HTMLElement for the menu of menu items. 
++ */
++NavbarView.prototype._sortOrderUpdate = function(ulElement) {
++  Util.assert(this._liElementBeingTouched !== null);
++  
++  var liElementPrefixString = NavbarView.ELEMENT_ID_MENU + '_';
++  var menuItemElementId = this._liElementBeingTouched.id;
++  var pageUuid = menuItemElementId.replace(liElementPrefixString, '');
++  var pageToReorder = this.getWorld().getItemFromUuid(pageUuid);
++  
++  var listOfPages = this._getNewOrderingForPageList(ulElement);
++  
++  var arrayIndex = Util.getArrayIndex(listOfPages, pageToReorder);
++  Util.assert(arrayIndex != -1);
++  var pageAbove = (arrayIndex === 0) ? null : listOfPages[arrayIndex-1];
++  var pageBelow = (arrayIndex &gt; listOfPages.length) ? null : listOfPages[arrayIndex+1];
++  pageToReorder.reorderBetween(pageAbove, pageBelow);
++};
++
++
++/**
++ * Returns a list of page items, arranged in the new order that resulted
++ * from the most recent drag-and-drop re-ordering.
++ *
++ * @scope    public instance method
++ * @param    ulElement    The &quot;ul&quot; HTMLElement for the menu of menu items. 
++ * @return   A list of items representing pages.
++ */
++NavbarView.prototype._getNewOrderingForPageList = function(ulElement) {
++  // The string '[]=' is used by the &quot;Sortable&quot; feature in the script.aculo.us 
++  // dragdrop.js library within each token in the serialization string.
++  var prefixString = NavbarView.ELEMENT_ID_MENU + '[]=';
++  
++  var serializationString = Sortable.serialize(ulElement);
++  var listOfTokens = serializationString.split('&amp;');
++  var listOfPages = [];
++  for (var i in listOfTokens) {
++    var uuidForPage = listOfTokens[i].replace(prefixString, '');
++    var page = this.getWorld().getItemFromUuid(uuidForPage);
++    listOfPages.push(page);
++  }
++  return listOfPages;
++};
++
++
++/**
+  * Re-creates the HTML for the view, and hands the HTML to the 
+  * browser to be re-drawn.
+  *
+@@ -98,24 +173,32 @@
+     page = listOfPages[key];
+     var anchorName = RootView.URL_PAGE_PREFIX + page._getUuid();
+     View.appendNewElement(this._htmlElementForAnchors, &quot;a&quot;, null, {name: anchorName});
+-    // anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + page._getUuid());
+   }
+   
+   var divElement = this.getHtmlElement();
+   View.removeChildrenOfElement(divElement); 
+-  var ulElement = View.appendNewElement(divElement, &quot;ul&quot;, NavbarView.CSS_CLASS_MENU);
++  var ulElement = View.appendNewElement(divElement, &quot;ul&quot;, NavbarView.CSS_CLASS_MENU, {id: NavbarView.ELEMENT_ID_MENU});
+   var rootView = this.getRootView();
+   for (key in listOfPages) {
+     page = listOfPages[key];
+     page.addObserver(this);
+-    var liElement = View.appendNewElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM);
+     var menuUrl = rootView.getUrlForItem(page);
+     var menuText = page.getDisplayString();
++    // Caution: 
++    // In order for us to use the &quot;Sortable&quot; feature in the script.aculo.us 
++    // dragdrop.js library, this menuItemId must have exactly one underscore in
++    // it, with the id for the whole menu is to the left of the underscore, and
++    // the id for the individual menu item to the right of the underscore.
++    var menuItemId = NavbarView.ELEMENT_ID_MENU + '_' + page._getUuid();
++    var liElement = View.appendNewElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM, {id: menuItemId});
+     var anchorElement = View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
+-    // anchorElement.setAttribute(&quot;href&quot;, menuUrl);
+-    // View.appendNewTextNode(anchorElement, menuText);
+-    anchorElement.onclick = RootView.clickOnLocalLink.bindAsEventListener();
++    Event.observe(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink.bindAsEventListener());
++    Event.observe(liElement, &quot;mousedown&quot;, this._mouseDownOnMenuItem.bindAsEventListener(this, liElement));
+   }
++  var listener = this;
++  Sortable.create(NavbarView.ELEMENT_ID_MENU, {
++    onUpdate: function(element){ listener._sortOrderUpdate(element);}
++  });
+   
+   var newPageButton = View.appendNewElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   newPageButton.type = &quot;button&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000249.html">[openrecord-svn] r264 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000251.html">[openrecord-svn] r266 - trunk/source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#250">[ date ]</a>
+              <a href="thread.html#250">[ thread ]</a>
+              <a href="subject.html#250">[ subject ]</a>
+              <a href="author.html#250">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

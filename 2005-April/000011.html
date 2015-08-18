@@ -1,0 +1,1195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r13 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r13%20-%20trunk/source&In-Reply-To=%3C200503312300.j2VN0IKe015330%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000012.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r13 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r13%20-%20trunk/source&In-Reply-To=%3C200503312300.j2VN0IKe015330%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r13 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr  1 01:00:18 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000012.html">[openrecord-svn] r14 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-01 01:00:14 +0200 (Fri, 01 Apr 2005)
+New Revision: 13
+
+Added:
+   trunk/source/root_view.js
+Removed:
+   trunk/source/complete_view.js
+Modified:
+   trunk/source/item_view.js
+   trunk/source/outline_layout.js
+   trunk/source/page_view.js
+   trunk/source/section_view.js
+   trunk/source/stevedore.js
+   trunk/source/table_layout.js
+   trunk/source/test_page.html
+   trunk/source/test_page.js
+Log:
+Renamed CompleteView to be RootView.
+
+Deleted: trunk/source/complete_view.js
+===================================================================
+--- trunk/source/complete_view.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/complete_view.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -1,433 +0,0 @@
+-/*****************************************************************************
+- complete_view.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+-
+-
+-// -------------------------------------------------------------------
+-// Dependencies:
+-//   page_view.js
+-//   repository.js
+-//   util.js
+-// -------------------------------------------------------------------
+-
+-
+-// -------------------------------------------------------------------
+-// CompleteView public class constants
+-// -------------------------------------------------------------------
+-CompleteView.ELEMENT_CLASS_PAGE_EDIT_BUTTON = &quot;page_edit_button&quot;;
+-
+-CompleteView.ELEMENT_ID_EDIT_BUTTON = &quot;edit_button&quot;;
+-CompleteView.ELEMENT_ID_DEBUG_TEXTAREA = &quot;debug_textarea&quot;;
+-
+-CompleteView.URL_PAGE_PREFIX = &quot;page&quot;;
+-CompleteView.URL_ITEM_PREFIX = &quot;item&quot;;
+-CompleteView.URL_HASH_PAGE_PREFIX = &quot;#&quot; + CompleteView.URL_PAGE_PREFIX;
+-CompleteView.URL_HASH_ITEM_PREFIX = &quot;#&quot; + CompleteView.URL_ITEM_PREFIX;
+-
+-
+-// -------------------------------------------------------------------
+-// CompleteView class properties
+-// -------------------------------------------------------------------
+-CompleteView.ourSingleInstance = null;
+-
+-
+-/**
+- * The OpenRecord app uses a single instance of CompleteView, which serves as the
+- * outer-most view in the browser, and contains the current PageView as well
+- * as some standard chrome (like the Edit button).
+- *
+- * @scope    public instance constructor
+- * @syntax   var completeView = new CompleteView()
+- */
+-function CompleteView(inStevedore, inNavbarDivElement, inContentViewDivElement, inDebugDivElement, inMainControlSpanElement, inStatusBlurbSpanElement) {
+-  CompleteView.ourSingleInstance = this;
+-   
+-  Util.assert(inStevedore instanceof Stevedore);
+-  Util.assert(inNavbarDivElement instanceof HTMLDivElement);
+-  Util.assert(inContentViewDivElement instanceof HTMLDivElement);
+-  Util.assert(inDebugDivElement instanceof HTMLDivElement);
+-  Util.assert(inMainControlSpanElement instanceof HTMLSpanElement);
+-  Util.assert(inStatusBlurbSpanElement instanceof HTMLSpanElement);
+-
+-  // instance properties
+-  this._myStevedore = inStevedore;
+-  this.myNavbarDivElement = inNavbarDivElement;
+-  this._myContentViewDivElement = inContentViewDivElement;
+-  this.myDebugDivElement = inDebugDivElement;
+-  this.myMainControlSpanElement = inMainControlSpanElement;
+-  this.myStatusBlurbSpanElement = inStatusBlurbSpanElement;
+-  
+-  this.myEditButtonId = CompleteView.ELEMENT_ID_EDIT_BUTTON;
+-  this.myEditMode = false;
+-  this.myNumberOfCallsToDebug = 0;
+-  this.myDebugTextarea = null;
+-  
+-  this._myHashTableOfItemViewsKeyedByUuid = {};
+-  this._myHashTableOfPageViewsKeyedByUuid = {};
+-  this._myCurrentContentView = null;
+-  
+-  this.myHashTableOfPagesKeyedByUuid = {};
+-  var categoryPage = this._myStevedore.getItemFromUuid(Stevedore.UUID_FOR_CATEGORY_PAGE);
+-  var listOfPages = this._myStevedore.getListOfItemsInCategory(categoryPage);
+-  for (var key in listOfPages) {
+-    var page = listOfPages[key];
+-    this.myHashTableOfPagesKeyedByUuid[page.getUuid()] = page; 
+-  }
+-
+-  Util.setErrorReportCallback(CompleteView.displayTextInDebugTextarea);
+-  this.setCurrentContentViewFromUrl();
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Public instance methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Returns the Stevedore instance that this CompleteView is using.
+- *
+- * @scope    public instance method
+- * @return   A Stevedore object. 
+- */
+-CompleteView.prototype.getStevedore = function () {
+-  return this._myStevedore;
+-};
+-
+-
+-/**
+- * Returns true if we are in Edit Mode.
+- *
+- * @scope    public instance method
+- * @return   A boolean value. True if we are in Edit Mode.
+- */
+-CompleteView.prototype.isInEditMode = function () {
+-  return this.myEditMode;
+-};
+-
+-  
+-/**
+- * Gets the browser URL from window.location, finds or creates a corresponding
+- * PageView or ItemView, and sets the current content view to the newly selected
+- * PageView or ItemView.
+- *
+- * @scope    public instance method
+- */
+-CompleteView.prototype.setCurrentContentViewFromUrl = function () {
+-  var contentViewToSwitchTo = null;
+-  
+-  if (window.location) {
+-    if (window.location.hash) {
+-      var originalHash = window.location.hash;
+-      var uuidText = null;
+-      var uuidNumber = null;
+-      var pageFromUuid = null;
+-      var itemFromUuid = null;
+-      var divElement = null;
+-      var isUrlForPage = (originalHash.indexOf(CompleteView.URL_HASH_PAGE_PREFIX) != -1);
+-      var isUrlForItem = (originalHash.indexOf(CompleteView.URL_HASH_ITEM_PREFIX) != -1);
+-      // alert(originalHash + &quot;\n isUrlForPage: &quot; + isUrlForPage + &quot;\n isUrlForItem: &quot; + isUrlForItem);
+-      if (isUrlForItem) {
+-        uuidText = originalHash.replace(CompleteView.URL_HASH_ITEM_PREFIX, &quot;&quot;);
+-        uuidNumber = parseInt(uuidText);
+-        contentViewToSwitchTo = this._myHashTableOfItemViewsKeyedByUuid[uuidNumber];
+-        if (!contentViewToSwitchTo) {
+-          itemFromUuid = this._myStevedore.getItemFromUuid(uuidNumber);
+-          if (itemFromUuid) {
+-            divElement = window.document.createElement(&quot;div&quot;); 
+-            this._myContentViewDivElement.appendChild(divElement);
+-            contentViewToSwitchTo = new ItemView(itemFromUuid, divElement, this);
+-            this._myHashTableOfItemViewsKeyedByUuid[uuidNumber] = contentViewToSwitchTo;
+-          }
+-        }
+-        // this._myCurrentContentView = contentView;
+-      } else {
+-        if (isUrlForPage) {
+-          uuidText = originalHash.replace(CompleteView.URL_HASH_PAGE_PREFIX, &quot;&quot;);
+-          uuidNumber = parseInt(uuidText);
+-          contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[uuidNumber];
+-          if (!contentViewToSwitchTo) {
+-            pageFromUuid = this.myHashTableOfPagesKeyedByUuid[uuidNumber];
+-            if (pageFromUuid) {
+-              divElement = window.document.createElement(&quot;div&quot;); 
+-              this._myContentViewDivElement.appendChild(divElement);
+-              contentViewToSwitchTo = new PageView(pageFromUuid, divElement, this);
+-              this._myHashTableOfPageViewsKeyedByUuid[uuidNumber] = contentViewToSwitchTo;
+-            }
+-          }
+-        } 
+-      }
+-    } 
+-  }
+-  
+-  if (!contentViewToSwitchTo) {
+-    var page = this._myStevedore.getHomePage();
+-    contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[page.getUuid()];
+-    if (!contentViewToSwitchTo) {
+-      divElement = window.document.createElement(&quot;div&quot;); 
+-      this._myContentViewDivElement.appendChild(divElement);
+-      contentViewToSwitchTo = new PageView(page, divElement, this);
+-      this._myHashTableOfPageViewsKeyedByUuid[page.getUuid()] = contentViewToSwitchTo;
+-    }
+-  }
+-  if (this._myCurrentContentView) {
+-    this._myCurrentContentView.hide();
+-  }
+-  this._myCurrentContentView = contentViewToSwitchTo;
+-
+-  this.display();
+-};
+-
+-  
+-/**
+- * Re-creates all the HTML for the CompleteView, including the chrome and 
+- * the current PageView, and hands the HTML to the browser to be re-drawn.
+- *
+- * @scope    public instance method
+- */
+-CompleteView.prototype.display = function () {
+-  Util.assert(this._myCurrentContentView instanceof Object);
+-
+-  document.title = this._myCurrentContentView.getPageTitle() + &quot; - openagenda.org&quot;;
+-  this.displayControlSpan();
+-  this.displayNavbar();
+-  this.displayDebugArea();
+-  this._myCurrentContentView.display();
+-  window.focus();
+-};
+-
+-
+-/**
+- * Re-creates the HTML for the chrome area containing the controls,
+- * and hands the HTML to the browser to be re-drawn.
+- *
+- * @scope    public instance method
+- */
+-CompleteView.prototype.displayControlSpan = function () {
+-  Util.assert(this.myMainControlSpanElement instanceof HTMLSpanElement);
+-
+-  var listOfStrings = [];
+-  
+-  var buttonValue = (this.myEditMode) ? &quot;View&quot; : &quot;Edit&quot;;
+-  listOfStrings.push(&quot;&lt;input type=\&quot;button\&quot; class=\&quot;&quot; + CompleteView.ELEMENT_CLASS_PAGE_EDIT_BUTTON + &quot;\&quot; id=\&quot;&quot; + this.myEditButtonId + &quot;\&quot; name=\&quot;layout\&quot; value=\&quot;&quot; + buttonValue + &quot;\&quot;&gt;&lt;/input&gt;&quot;);
+-
+-  // write out the new control span content 
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  this.myMainControlSpanElement.innerHTML = finalString;
+-
+-  // add event handlers for the newly created control span UI elements
+-  var editButton = document.getElementById(this.myEditButtonId);
+-  editButton.onclick = CompleteView.clickOnEditButton;
+- 
+-  // attach back-pointers to the newly created control span UI elements
+-  editButton.mycompleteview = this;
+-};
+-
+-
+-/**
+- * Re-creates the HTML for the Navbar, and hands the HTML to the browser 
+- * to be re-drawn.
+- *
+- * @scope    public instance method
+- */
+-CompleteView.prototype.displayNavbar = function () {
+-  Util.assert(this.myNavbarDivElement instanceof HTMLDivElement);
+-
+-  var listOfStrings = [];
+-
+-  listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
+-  
+-  for (var uuid in this.myHashTableOfPagesKeyedByUuid) {
+-    var page = this.myHashTableOfPagesKeyedByUuid[uuid];
+-    var menuText = page.getShortName();
+-    var menuUrl = CompleteView.URL_HASH_PAGE_PREFIX + page.getUuid();
+-    listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;CompleteView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
+-  }
+-
+-  listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
+-  // listOfStrings.push(&quot;&lt;p&gt;&lt;a href=\&quot;<A HREF="http://www.opensource.org/\">http://www.opensource.org/\</A>&quot;&gt;&lt;img src=\&quot;osi-certified-60x50.png\&quot; width=\&quot;60\&quot; height=\&quot;50\&quot; alt=\&quot;OSI logo\&quot;&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&quot;);
+-  
+-  // write out the new control span content 
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  this.myNavbarDivElement.innerHTML = finalString;
+-};
+-
+-
+-/**
+- * Re-creates the HTML for the Debug area, and hands the HTML to the browser 
+- * to be re-drawn.
+- *
+- * @scope    public instance method
+- */
+-CompleteView.prototype.displayDebugArea = function () {
+-  Util.assert(this.myDebugDivElement instanceof HTMLDivElement);
+-
+-  var listOfStrings = [];
+-  listOfStrings.push(&quot;&lt;textarea readonly id=\&quot;&quot; + CompleteView.ELEMENT_ID_DEBUG_TEXTAREA + &quot;\&quot; rows=\&quot;20\&quot; cols=\&quot;100\&quot; wrap=\&quot;virtual\&quot;&gt;&lt;/textarea&gt;&quot;);
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  this.myDebugDivElement.innerHTML = finalString;
+-  this.myDebugTextarea = document.getElementById(CompleteView.ELEMENT_ID_DEBUG_TEXTAREA);
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Debug error display methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Displays a text string in the status blurb span.
+- *
+- * @scope    public class method
+- * @param    inText    A text string to be displayed. 
+- */
+-CompleteView.displayStatusBlurb = function (inText) {
+-  CompleteView.ourSingleInstance.displayStatusBlurb(inText);
+-};
+-
+-
+-/**
+- * Displays a text string in the status blurb span.
+- *
+- * @scope    public instance method
+- * @param    inText    A text string to be displayed. 
+- */
+-CompleteView.prototype.displayStatusBlurb = function (inText) {
+-  this.myStatusBlurbSpanElement.innerHTML = inText;
+-};
+-
+-
+-/**
+- * Displays a text string in the debug textarea.
+- *
+- * @scope    public class method
+- * @param    inText    A text string to be displayed. 
+- */
+-CompleteView.displayTextInDebugTextarea = function (inText) {
+-  CompleteView.ourSingleInstance.displayTextInDebugTextarea(inText);
+-};
+-
+-
+-/**
+- * Displays a text string in the debug textarea.
+- *
+- * @scope    public instance method
+- * @param    inText    A text string to be displayed. 
+- */
+-CompleteView.prototype.displayTextInDebugTextarea = function (inText) {
+-  this.myNumberOfCallsToDebug++;
+-  if (this.myNumberOfCallsToDebug &gt; 20) {
+-    return;
+-  }
+-  this.myDebugTextarea.value += inText + &quot;\n\n============================\n\n&quot;;
+-  this.myDebugTextarea.style.visibility = &quot;visible&quot;;
+-  this.myDebugTextarea.style.display = &quot;block&quot;;
+-  this.myDebugTextarea.scrollIntoView();
+-};
+-
+-
+-/**
+- * Given a JavaScript object, gets all the values of all the object's properties,
+- * and displays them in the debug textarea.
+- *
+- * @scope    public instance method
+- * @param    inObject    Any sort of object. 
+- */
+-CompleteView.prototype.displayObjectInDebugTextarea = function (inObject) {
+-  var outputText = &quot;&quot;;
+-  for (var property in inObject) {
+-    outputText += property + &quot; == &quot; + inObject[property] + &quot;\n&quot;;
+-  }
+-  this.displayTextInDebugTextarea(outputText);
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Event handler methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Called when the user clicks on a menu item in the navbar, or on any other 
+- * auto-generated link that points to other Blue-sky content.
+- * 
+- * Called from an HTML &quot;li&quot; element or an HTML &quot;a&quot; element on a generated page.
+- * There is no need to call this method directly.
+- *
+- * @scope    public class method
+- * @param    inEventObject    An event object. 
+- */
+-CompleteView.clickOnLocalLink = function (inEventObject) {
+-  var eventObject = inEventObject;
+-  if (!eventObject) { eventObject = window.event; }
+-  
+-  var startTiming = new Date();
+-  var htmlAnchorElement = Util.getTargetFromEvent(eventObject);
+-  
+-  window.location = htmlAnchorElement.href;
+-  CompleteView.ourSingleInstance.setCurrentContentViewFromUrl();
+-  
+-  var stopTiming = new Date();
+-  var delayInMilliseconds = stopTiming.getTime() - startTiming.getTime();
+-  CompleteView.ourSingleInstance.displayStatusBlurb(&quot;Page load: &quot; + delayInMilliseconds + &quot; milliseconds&quot;);
+-};
+-
+-  
+-/**
+- * Called when the user clicks on the big &quot;Edit&quot; button.
+- * 
+- * Called from an HTML &quot;input type='button'&quot; element on the generated page.  
+- * There is no need to call this method directly.
+- *
+- * @scope    public class method
+- * @param    inEventObject    An event object. 
+- */
+-CompleteView.clickOnEditButton = function (inEventObject) {
+-  var eventObject = inEventObject;
+-  if (!eventObject) { eventObject = window.event; }
+-  var editButton = Util.getTargetFromEvent(eventObject);
+-  // PROBLEM: We could replace the lines above with &quot;var editButton = this;&quot;
+-  // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
+-
+-  var completeView = editButton.mycompleteview;
+-  var stevedore = completeView.getStevedore();
+-  if (completeView.myEditMode) {
+-    stevedore.endTransaction();
+-  } else {
+-    stevedore.beginTransaction();
+-  }
+-  completeView.myEditMode = !completeView.myEditMode;
+-  completeView.display();
+-  // completeView.displayTextInDebugTextarea(completeView.myEditMode);
+-  if (!completeView.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
+-    CompleteView.displayTextInDebugTextarea(stevedore._getJsonStringRepresentingAllItems());
+-  }
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/item_view.js
+===================================================================
+--- trunk/source/item_view.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/item_view.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -33,7 +33,7 @@
+ // Dependencies:
+ //   repository.js
+ //   util.js
+-//   complete_view.js
++//   root_view.js
+ //   detail_layout.js
+ // -------------------------------------------------------------------
+ 
+@@ -51,23 +51,23 @@
+ 
+ 
+ /**
+- * The CompleteView uses an instance of a ItemView to display an Item in the
++ * The RootView uses an instance of a ItemView to display an Item in the
+  * browser window.
+  *
+  * @scope    public instance constructor
+  * @param    inItem    The item to be displayed by this view. 
+  * @param    inDivElement    The HTMLDivElement to display the HTML in. 
+- * @param    inCompleteView    The CompleteView that this ItemView is nested in. 
++ * @param    inRootView    The RootView that this ItemView is nested in. 
+  */
+-function ItemView(inItem, inDivElement, inCompleteView) {
++function ItemView(inItem, inDivElement, inRootView) {
+   Util.assert(inItem instanceof Item);
+   Util.assert(inDivElement instanceof HTMLDivElement);
+-  Util.assert(inCompleteView instanceof CompleteView);
++  Util.assert(inRootView instanceof RootView);
+ 
+   // instance properties
+   this.myItem = inItem;
+   this.myDivElement = inDivElement;
+-  this.myCompleteView = inCompleteView;
++  this.myRootView = inRootView;
+   this.myLayout = new DetailLayout(this);
+ }
+ 
+@@ -79,7 +79,7 @@
+  * @return   The stevedore object.
+  */
+ ItemView.prototype.getStevedore = function () {
+-  return this.myCompleteView.getStevedore();
++  return this.myRootView.getStevedore();
+ };
+ 
+ 
+@@ -103,7 +103,7 @@
+  * @return   A boolean value. True if we are in Edit Mode.
+  */
+ ItemView.prototype.isInEditMode = function () {
+-  return this.myCompleteView.isInEditMode();
++  return this.myRootView.isInEditMode();
+ };
+ 
+   
+@@ -142,7 +142,7 @@
+   var listOfStrings = [];
+ 
+   // add an &lt;h1&gt; heading with the name of the page
+-  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + CompleteView.URL_ITEM_PREFIX + this.myItem.getUuid() + &quot;\&quot;&gt;&quot; + this.myItem.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
++  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this.myItem.getUuid() + &quot;\&quot;&gt;&quot; + this.myItem.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+ 
+   // add a &lt;div&gt; element for the detail layout
+   var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this.myItem.getUuid();
+
+Modified: trunk/source/outline_layout.js
+===================================================================
+--- trunk/source/outline_layout.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/outline_layout.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -99,7 +99,7 @@
+     listOfStrings.push(&quot;&lt;li&gt;&quot;);
+     listOfStrings.push(contentItem.getDisplayName(&quot;{no name}&quot;));
+     // PROBLEM: Why do I have to provide an onclick handler to get these links to work?
+-    listOfStrings.push(&quot; &quot; + &quot;&lt;a class=\&quot;&quot; + SectionView.ELEMENT_CLASS_MORE_LINK + &quot;\&quot; href=\&quot;&quot; + CompleteView.URL_HASH_ITEM_PREFIX + contentItem.getUuid() + &quot;\&quot; onclick=\&quot;CompleteView.clickOnLocalLink(event)\&quot;&gt;(more &#8658;)&lt;/a&gt;&quot; + &quot;&quot;);
++    listOfStrings.push(&quot; &quot; + &quot;&lt;a class=\&quot;&quot; + SectionView.ELEMENT_CLASS_MORE_LINK + &quot;\&quot; href=\&quot;&quot; + RootView.URL_HASH_ITEM_PREFIX + contentItem.getUuid() + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;(more &#8658;)&lt;/a&gt;&quot; + &quot;&quot;);
+     listOfStrings.push(&quot;&lt;/li&gt;&quot;);
+   }
+   listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
+
+Modified: trunk/source/page_view.js
+===================================================================
+--- trunk/source/page_view.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/page_view.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -55,23 +55,23 @@
+ 
+ 
+ /**
+- * The CompleteView uses an instance of a PageView to display a Page in the
++ * The RootView uses an instance of a PageView to display a Page in the
+  * browser window.
+  *
+  * @scope    public instance constructor
+  * @param    inPage    The page item to be displayed by this view. 
+  * @param    inDivElement    The HTMLDivElement to display the HTML in. 
+- * @param    inCompleteView    The CompleteView that this PageView is nested in. 
++ * @param    inRootView    The RootView that this PageView is nested in. 
+  */
+-function PageView(inPage, inDivElement, inCompleteView) {
++function PageView(inPage, inDivElement, inRootView) {
+   Util.assert(inPage instanceof Item);
+   Util.assert(inDivElement instanceof HTMLDivElement);
+-  Util.assert(inCompleteView instanceof CompleteView);
++  Util.assert(inRootView instanceof RootView);
+ 
+   // instance properties
+   this.myPage = inPage;
+   this.myDivElement = inDivElement;
+-  this.myCompleteView = inCompleteView;
++  this.myRootView = inRootView;
+   
+   this.myListOfSectionViews = [];
+   
+@@ -93,7 +93,7 @@
+  * @return   A boolean value. True if we are in Edit Mode.
+  */
+ PageView.prototype.isInEditMode = function () {
+-  return this.myCompleteView.isInEditMode();
++  return this.myRootView.isInEditMode();
+ };
+ 
+   
+@@ -132,7 +132,7 @@
+   var hashTableOfSectionViewsKeyedByDivId = {};
+   
+   // add an &lt;h1&gt; heading with the name of the page
+-  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + CompleteView.URL_PAGE_PREFIX + this.myPage.getUuid() + &quot;\&quot;&gt;&quot; + this.myPage.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
++  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_PAGE_PREFIX + this.myPage.getUuid() + &quot;\&quot;&gt;&quot; + this.myPage.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+   
+   var summaryViewDivId = PageView.ELEMENT_ID_SUMMARY_VIEW_DIV_PREFIX + this.myPage.getUuid();
+   listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + summaryViewDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+
+Copied: trunk/source/root_view.js (from rev 11, trunk/source/complete_view.js)
+===================================================================
+--- trunk/source/complete_view.js	2005-03-31 00:22:54 UTC (rev 11)
++++ trunk/source/root_view.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -0,0 +1,433 @@
++/*****************************************************************************
++ root_view.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   page_view.js
++//   repository.js
++//   util.js
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// RootView public class constants
++// -------------------------------------------------------------------
++RootView.ELEMENT_CLASS_PAGE_EDIT_BUTTON = &quot;page_edit_button&quot;;
++
++RootView.ELEMENT_ID_EDIT_BUTTON = &quot;edit_button&quot;;
++RootView.ELEMENT_ID_DEBUG_TEXTAREA = &quot;debug_textarea&quot;;
++
++RootView.URL_PAGE_PREFIX = &quot;page&quot;;
++RootView.URL_ITEM_PREFIX = &quot;item&quot;;
++RootView.URL_HASH_PAGE_PREFIX = &quot;#&quot; + RootView.URL_PAGE_PREFIX;
++RootView.URL_HASH_ITEM_PREFIX = &quot;#&quot; + RootView.URL_ITEM_PREFIX;
++
++
++// -------------------------------------------------------------------
++// RootView class properties
++// -------------------------------------------------------------------
++RootView.ourSingleInstance = null;
++
++
++/**
++ * The OpenRecord app uses a single instance of RootView, which serves as the
++ * outer-most view in the browser, and contains the current PageView as well
++ * as some standard chrome (like the Edit button).
++ *
++ * @scope    public instance constructor
++ * @syntax   var rootView = new RootView()
++ */
++function RootView(inStevedore, inNavbarDivElement, inContentViewDivElement, inDebugDivElement, inMainControlSpanElement, inStatusBlurbSpanElement) {
++  RootView.ourSingleInstance = this;
++   
++  Util.assert(inStevedore instanceof Stevedore);
++  Util.assert(inNavbarDivElement instanceof HTMLDivElement);
++  Util.assert(inContentViewDivElement instanceof HTMLDivElement);
++  Util.assert(inDebugDivElement instanceof HTMLDivElement);
++  Util.assert(inMainControlSpanElement instanceof HTMLSpanElement);
++  Util.assert(inStatusBlurbSpanElement instanceof HTMLSpanElement);
++
++  // instance properties
++  this._myStevedore = inStevedore;
++  this.myNavbarDivElement = inNavbarDivElement;
++  this._myContentViewDivElement = inContentViewDivElement;
++  this.myDebugDivElement = inDebugDivElement;
++  this.myMainControlSpanElement = inMainControlSpanElement;
++  this.myStatusBlurbSpanElement = inStatusBlurbSpanElement;
++  
++  this.myEditButtonId = RootView.ELEMENT_ID_EDIT_BUTTON;
++  this.myEditMode = false;
++  this.myNumberOfCallsToDebug = 0;
++  this.myDebugTextarea = null;
++  
++  this._myHashTableOfItemViewsKeyedByUuid = {};
++  this._myHashTableOfPageViewsKeyedByUuid = {};
++  this._myCurrentContentView = null;
++  
++  this.myHashTableOfPagesKeyedByUuid = {};
++  var categoryPage = this._myStevedore.getItemFromUuid(Stevedore.UUID_FOR_CATEGORY_PAGE);
++  var listOfPages = this._myStevedore.getListOfItemsInCategory(categoryPage);
++  for (var key in listOfPages) {
++    var page = listOfPages[key];
++    this.myHashTableOfPagesKeyedByUuid[page.getUuid()] = page; 
++  }
++
++  Util.setErrorReportCallback(RootView.displayTextInDebugTextarea);
++  this.setCurrentContentViewFromUrl();
++}
++
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the Stevedore instance that this RootView is using.
++ *
++ * @scope    public instance method
++ * @return   A Stevedore object. 
++ */
++RootView.prototype.getStevedore = function () {
++  return this._myStevedore;
++};
++
++
++/**
++ * Returns true if we are in Edit Mode.
++ *
++ * @scope    public instance method
++ * @return   A boolean value. True if we are in Edit Mode.
++ */
++RootView.prototype.isInEditMode = function () {
++  return this.myEditMode;
++};
++
++  
++/**
++ * Gets the browser URL from window.location, finds or creates a corresponding
++ * PageView or ItemView, and sets the current content view to the newly selected
++ * PageView or ItemView.
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.setCurrentContentViewFromUrl = function () {
++  var contentViewToSwitchTo = null;
++  
++  if (window.location) {
++    if (window.location.hash) {
++      var originalHash = window.location.hash;
++      var uuidText = null;
++      var uuidNumber = null;
++      var pageFromUuid = null;
++      var itemFromUuid = null;
++      var divElement = null;
++      var isUrlForPage = (originalHash.indexOf(RootView.URL_HASH_PAGE_PREFIX) != -1);
++      var isUrlForItem = (originalHash.indexOf(RootView.URL_HASH_ITEM_PREFIX) != -1);
++      // alert(originalHash + &quot;\n isUrlForPage: &quot; + isUrlForPage + &quot;\n isUrlForItem: &quot; + isUrlForItem);
++      if (isUrlForItem) {
++        uuidText = originalHash.replace(RootView.URL_HASH_ITEM_PREFIX, &quot;&quot;);
++        uuidNumber = parseInt(uuidText);
++        contentViewToSwitchTo = this._myHashTableOfItemViewsKeyedByUuid[uuidNumber];
++        if (!contentViewToSwitchTo) {
++          itemFromUuid = this._myStevedore.getItemFromUuid(uuidNumber);
++          if (itemFromUuid) {
++            divElement = window.document.createElement(&quot;div&quot;); 
++            this._myContentViewDivElement.appendChild(divElement);
++            contentViewToSwitchTo = new ItemView(itemFromUuid, divElement, this);
++            this._myHashTableOfItemViewsKeyedByUuid[uuidNumber] = contentViewToSwitchTo;
++          }
++        }
++        // this._myCurrentContentView = contentView;
++      } else {
++        if (isUrlForPage) {
++          uuidText = originalHash.replace(RootView.URL_HASH_PAGE_PREFIX, &quot;&quot;);
++          uuidNumber = parseInt(uuidText);
++          contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[uuidNumber];
++          if (!contentViewToSwitchTo) {
++            pageFromUuid = this.myHashTableOfPagesKeyedByUuid[uuidNumber];
++            if (pageFromUuid) {
++              divElement = window.document.createElement(&quot;div&quot;); 
++              this._myContentViewDivElement.appendChild(divElement);
++              contentViewToSwitchTo = new PageView(pageFromUuid, divElement, this);
++              this._myHashTableOfPageViewsKeyedByUuid[uuidNumber] = contentViewToSwitchTo;
++            }
++          }
++        } 
++      }
++    } 
++  }
++  
++  if (!contentViewToSwitchTo) {
++    var page = this._myStevedore.getHomePage();
++    contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[page.getUuid()];
++    if (!contentViewToSwitchTo) {
++      divElement = window.document.createElement(&quot;div&quot;); 
++      this._myContentViewDivElement.appendChild(divElement);
++      contentViewToSwitchTo = new PageView(page, divElement, this);
++      this._myHashTableOfPageViewsKeyedByUuid[page.getUuid()] = contentViewToSwitchTo;
++    }
++  }
++  if (this._myCurrentContentView) {
++    this._myCurrentContentView.hide();
++  }
++  this._myCurrentContentView = contentViewToSwitchTo;
++
++  this.display();
++};
++
++  
++/**
++ * Re-creates all the HTML for the RootView, including the chrome and 
++ * the current PageView, and hands the HTML to the browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.display = function () {
++  Util.assert(this._myCurrentContentView instanceof Object);
++
++  document.title = this._myCurrentContentView.getPageTitle() + &quot; - openagenda.org&quot;;
++  this.displayControlSpan();
++  this.displayNavbar();
++  this.displayDebugArea();
++  this._myCurrentContentView.display();
++  window.focus();
++};
++
++
++/**
++ * Re-creates the HTML for the chrome area containing the controls,
++ * and hands the HTML to the browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.displayControlSpan = function () {
++  Util.assert(this.myMainControlSpanElement instanceof HTMLSpanElement);
++
++  var listOfStrings = [];
++  
++  var buttonValue = (this.myEditMode) ? &quot;View&quot; : &quot;Edit&quot;;
++  listOfStrings.push(&quot;&lt;input type=\&quot;button\&quot; class=\&quot;&quot; + RootView.ELEMENT_CLASS_PAGE_EDIT_BUTTON + &quot;\&quot; id=\&quot;&quot; + this.myEditButtonId + &quot;\&quot; name=\&quot;layout\&quot; value=\&quot;&quot; + buttonValue + &quot;\&quot;&gt;&lt;/input&gt;&quot;);
++
++  // write out the new control span content 
++  var finalString = listOfStrings.join(&quot;&quot;);
++  this.myMainControlSpanElement.innerHTML = finalString;
++
++  // add event handlers for the newly created control span UI elements
++  var editButton = document.getElementById(this.myEditButtonId);
++  editButton.onclick = RootView.clickOnEditButton;
++ 
++  // attach back-pointers to the newly created control span UI elements
++  editButton.myrootview = this;
++};
++
++
++/**
++ * Re-creates the HTML for the Navbar, and hands the HTML to the browser 
++ * to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.displayNavbar = function () {
++  Util.assert(this.myNavbarDivElement instanceof HTMLDivElement);
++
++  var listOfStrings = [];
++
++  listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
++  
++  for (var uuid in this.myHashTableOfPagesKeyedByUuid) {
++    var page = this.myHashTableOfPagesKeyedByUuid[uuid];
++    var menuText = page.getShortName();
++    var menuUrl = RootView.URL_HASH_PAGE_PREFIX + page.getUuid();
++    listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
++  }
++
++  listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
++  // listOfStrings.push(&quot;&lt;p&gt;&lt;a href=\&quot;<A HREF="http://www.opensource.org/\">http://www.opensource.org/\</A>&quot;&gt;&lt;img src=\&quot;osi-certified-60x50.png\&quot; width=\&quot;60\&quot; height=\&quot;50\&quot; alt=\&quot;OSI logo\&quot;&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&quot;);
++  
++  // write out the new control span content 
++  var finalString = listOfStrings.join(&quot;&quot;);
++  this.myNavbarDivElement.innerHTML = finalString;
++};
++
++
++/**
++ * Re-creates the HTML for the Debug area, and hands the HTML to the browser 
++ * to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.displayDebugArea = function () {
++  Util.assert(this.myDebugDivElement instanceof HTMLDivElement);
++
++  var listOfStrings = [];
++  listOfStrings.push(&quot;&lt;textarea readonly id=\&quot;&quot; + RootView.ELEMENT_ID_DEBUG_TEXTAREA + &quot;\&quot; rows=\&quot;20\&quot; cols=\&quot;100\&quot; wrap=\&quot;virtual\&quot;&gt;&lt;/textarea&gt;&quot;);
++  var finalString = listOfStrings.join(&quot;&quot;);
++  this.myDebugDivElement.innerHTML = finalString;
++  this.myDebugTextarea = document.getElementById(RootView.ELEMENT_ID_DEBUG_TEXTAREA);
++}
++
++
++// -------------------------------------------------------------------
++// Debug error display methods
++// -------------------------------------------------------------------
++
++/**
++ * Displays a text string in the status blurb span.
++ *
++ * @scope    public class method
++ * @param    inText    A text string to be displayed. 
++ */
++RootView.displayStatusBlurb = function (inText) {
++  RootView.ourSingleInstance.displayStatusBlurb(inText);
++};
++
++
++/**
++ * Displays a text string in the status blurb span.
++ *
++ * @scope    public instance method
++ * @param    inText    A text string to be displayed. 
++ */
++RootView.prototype.displayStatusBlurb = function (inText) {
++  this.myStatusBlurbSpanElement.innerHTML = inText;
++};
++
++
++/**
++ * Displays a text string in the debug textarea.
++ *
++ * @scope    public class method
++ * @param    inText    A text string to be displayed. 
++ */
++RootView.displayTextInDebugTextarea = function (inText) {
++  RootView.ourSingleInstance.displayTextInDebugTextarea(inText);
++};
++
++
++/**
++ * Displays a text string in the debug textarea.
++ *
++ * @scope    public instance method
++ * @param    inText    A text string to be displayed. 
++ */
++RootView.prototype.displayTextInDebugTextarea = function (inText) {
++  this.myNumberOfCallsToDebug++;
++  if (this.myNumberOfCallsToDebug &gt; 20) {
++    return;
++  }
++  this.myDebugTextarea.value += inText + &quot;\n\n============================\n\n&quot;;
++  this.myDebugTextarea.style.visibility = &quot;visible&quot;;
++  this.myDebugTextarea.style.display = &quot;block&quot;;
++  this.myDebugTextarea.scrollIntoView();
++};
++
++
++/**
++ * Given a JavaScript object, gets all the values of all the object's properties,
++ * and displays them in the debug textarea.
++ *
++ * @scope    public instance method
++ * @param    inObject    Any sort of object. 
++ */
++RootView.prototype.displayObjectInDebugTextarea = function (inObject) {
++  var outputText = &quot;&quot;;
++  for (var property in inObject) {
++    outputText += property + &quot; == &quot; + inObject[property] + &quot;\n&quot;;
++  }
++  this.displayTextInDebugTextarea(outputText);
++}
++
++
++// -------------------------------------------------------------------
++// Event handler methods
++// -------------------------------------------------------------------
++
++/**
++ * Called when the user clicks on a menu item in the navbar, or on any other 
++ * auto-generated link that points to other Blue-sky content.
++ * 
++ * Called from an HTML &quot;li&quot; element or an HTML &quot;a&quot; element on a generated page.
++ * There is no need to call this method directly.
++ *
++ * @scope    public class method
++ * @param    inEventObject    An event object. 
++ */
++RootView.clickOnLocalLink = function (inEventObject) {
++  var eventObject = inEventObject;
++  if (!eventObject) { eventObject = window.event; }
++  
++  var startTiming = new Date();
++  var htmlAnchorElement = Util.getTargetFromEvent(eventObject);
++  
++  window.location = htmlAnchorElement.href;
++  RootView.ourSingleInstance.setCurrentContentViewFromUrl();
++  
++  var stopTiming = new Date();
++  var delayInMilliseconds = stopTiming.getTime() - startTiming.getTime();
++  RootView.ourSingleInstance.displayStatusBlurb(&quot;Page load: &quot; + delayInMilliseconds + &quot; milliseconds&quot;);
++};
++
++  
++/**
++ * Called when the user clicks on the big &quot;Edit&quot; button.
++ * 
++ * Called from an HTML &quot;input type='button'&quot; element on the generated page.  
++ * There is no need to call this method directly.
++ *
++ * @scope    public class method
++ * @param    inEventObject    An event object. 
++ */
++RootView.clickOnEditButton = function (inEventObject) {
++  var eventObject = inEventObject;
++  if (!eventObject) { eventObject = window.event; }
++  var editButton = Util.getTargetFromEvent(eventObject);
++  // PROBLEM: We could replace the lines above with &quot;var editButton = this;&quot;
++  // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
++
++  var rootView = editButton.myrootview;
++  var stevedore = rootView.getStevedore();
++  if (rootView.myEditMode) {
++    stevedore.endTransaction();
++  } else {
++    stevedore.beginTransaction();
++  }
++  rootView.myEditMode = !rootView.myEditMode;
++  rootView.display();
++  // rootView.displayTextInDebugTextarea(rootView.myEditMode);
++  if (!rootView.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
++    RootView.displayTextInDebugTextarea(stevedore._getJsonStringRepresentingAllItems());
++  }
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/section_view.js
+===================================================================
+--- trunk/source/section_view.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/section_view.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -134,7 +134,7 @@
+  * @return   A Stevedore object.
+  */
+ SectionView.prototype.getStevedore = function () {
+-  return this.myPageView.myCompleteView.getStevedore();
++  return this.myPageView.myRootView.getStevedore();
+ };
+ 
+ 
+@@ -229,6 +229,7 @@
+ 
+   var summaryDivId = this.myDivElement.id + SectionView.ELEMENT_ID_SUMMARY_DIV_SUFFIX;
+   listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + summaryDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
++  listOfStrings.push(&quot;&lt;p&gt;&lt;/p&gt;&quot;);
+   
+   // create the layout editing controls, if we're in edit mode
+   var selectMenuId = this.myDivElement.id + SectionView.ELEMENT_ID_SELECT_MENU_SUFFIX;
+
+Modified: trunk/source/stevedore.js
+===================================================================
+--- trunk/source/stevedore.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/stevedore.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -317,7 +317,7 @@
+   //   This is just a stub method for now.  Once we start implementing
+   //   support for transactions we'll have to put some real code here.
+   if (this._myCountOfNestedTransactions === 0) {
+-    CompleteView.displayStatusBlurb(this._myListOfDirtyItems.length + &quot; changes made&quot;);
++    RootView.displayStatusBlurb(this._myListOfDirtyItems.length + &quot; changes made&quot;);
+     if (this._myListOfDirtyItems &amp;&amp; (this._myListOfDirtyItems.length &gt; 0)) {
+       this._saveChangesToServer();
+       this._myListOfDirtyItems = [];
+
+Modified: trunk/source/table_layout.js
+===================================================================
+--- trunk/source/table_layout.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/table_layout.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -203,7 +203,7 @@
+         hashTableOfCellDelegatesKeyedByElementId[cellId] = cellDelegate;
+       } else {
+         // if (columnCount == 0) {
+-        //   string = &quot;&lt;a href=\&quot;&quot; + CompleteView.URL_HASH_ITEM_PREFIX + contentItem.getUuid() + &quot;\&quot; onclick=\&quot;CompleteView.clickOnLocalLink(event)\&quot;&gt;&quot; + string + &quot;&lt;/a&gt;&quot;;
++        //   string = &quot;&lt;a href=\&quot;&quot; + RootView.URL_HASH_ITEM_PREFIX + contentItem.getUuid() + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + string + &quot;&lt;/a&gt;&quot;;
+         // }
+         listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_PLAIN + &quot;\&quot;&gt;&quot; + string + &quot;&lt;/td&gt;&quot;);
+       }
+
+Modified: trunk/source/test_page.html
+===================================================================
+--- trunk/source/test_page.html	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/test_page.html	2005-03-31 23:00:14 UTC (rev 13)
+@@ -6,7 +6,7 @@
+     &lt;title&gt;openagenda.org - Test Page&lt;/title&gt;
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;base_style.css&quot; /&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;complete_view.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;root_view.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;item_view.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;page_view.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;section_view.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/test_page.js
+===================================================================
+--- trunk/source/test_page.js	2005-03-31 21:46:47 UTC (rev 12)
++++ trunk/source/test_page.js	2005-03-31 23:00:14 UTC (rev 13)
+@@ -32,7 +32,7 @@
+ // -------------------------------------------------------------------
+ // Dependencies:
+ //   repository.js
+-//   complete_view.js
++//   root_view.js
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -71,8 +71,7 @@
+ 
+   var stevedore = new Stevedore();
+   stevedore._loadItemsFromList(Stevedore._ourRepositoryInJsonFormat);
+-  window.completeView = new CompleteView(stevedore, navbarDivElement, contentViewDivElement, debugDivElement, mainControlSpanElement, statusBlurbSpanElement);
+-  // window.completeView.displayTextInDebugTextarea(stevedore._getPickleForAllItems());
++  window.rootView = new RootView(stevedore, navbarDivElement, contentViewDivElement, debugDivElement, mainControlSpanElement, statusBlurbSpanElement);
+ };
+ 
+ 
+@@ -87,11 +86,11 @@
+ };
+ 
+ window.doOnfocusActions = function() {
+-  // window.completeView.displayTextInDebugTextarea(&quot;onfocus&quot;);
++  // window.rootView.displayTextInDebugTextarea(&quot;onfocus&quot;);
+ };
+ 
+ window.doOnblurActions = function() {
+-  // window.completeView.displayTextInDebugTextarea(&quot;onblur&quot;);
++  // window.rootView.displayTextInDebugTextarea(&quot;onblur&quot;);
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000012.html">[openrecord-svn] r14 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#11">[ date ]</a>
+              <a href="thread.html#11">[ thread ]</a>
+              <a href="subject.html#11">[ subject ]</a>
+              <a href="author.html#11">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

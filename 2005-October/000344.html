@@ -1,0 +1,665 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r362 - in trunk: documentation source source/model source/util source/view tests/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r362%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20source/view%20tests/model&In-Reply-To=%3C200510142316.j9ENGEuY031891%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000343.html">
+   <LINK REL="Next"  HREF="000345.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r362 - in trunk: documentation source source/model source/util source/view tests/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r362%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20source/view%20tests/model&In-Reply-To=%3C200510142316.j9ENGEuY031891%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r362 - in trunk: documentation source source/model source/util source/view tests/model">skinner at berlios.de
+       </A><BR>
+    <I>Sat Oct 15 01:16:14 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000343.html">[openrecord-svn] r361 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000345.html">[openrecord-svn] r363 - trunk/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#344">[ date ]</a>
+              <a href="thread.html#344">[ thread ]</a>
+              <a href="subject.html#344">[ subject ]</a>
+              <a href="author.html#344">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-15 01:16:03 +0200 (Sat, 15 Oct 2005)
+New Revision: 362
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/OutlinePlugin.js
+   trunk/source/model/Entry.js
+   trunk/source/util/CsvParser.js
+   trunk/source/util/Util.js
+   trunk/source/util/XmlConverter.js
+   trunk/source/view/SectionView.js
+   trunk/source/view/View.js
+   trunk/tests/model/ModelTest.js
+   trunk/tests/model/RepositoryWritingTest.js
+Log:
+Minor clean-up work, removing old orp.util cruft.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/documentation/release_planning.txt	2005-10-14 23:16:03 UTC (rev 362)
+@@ -425,6 +425,7 @@
+        |          |         | 19. Do lazy creation of layout data items
+        |          |         | 20. try to replace orp.util.css_xxx functions with dojo.xml.htmlUtil.xxxClass functions
+        |          |         | 21. try to replace View.appendNewElement() with dojo.xml.domUtil methods
++       |          |         |     try to replace md5.js with dojo.crypto.MD5 methods
+        |          |         | 22. try to replace remaining Util.js functions with dojo.lang functions
+        |          |         | 23. try using Ant and the Dojo build system to build OpenRecord into a single-file 
+        |          |         | 24. move XmlConverter.js out of util, because it depends on model code
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/OutlinePlugin.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -129,7 +129,11 @@
+ 
+     // orp.view.View.appendNewTextNode(anchorElement, &quot;(more &#8658;)&quot;);
+     anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
+-    orp.util.addEventListener(anchorElement, &quot;click&quot;, orp.view.RootView.clickOnLocalLink);
++    // orp.util.addEventListener(anchorElement, &quot;click&quot;, orp.view.RootView.clickOnLocalLink);
++
++    // orp.util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
++    // optionElement.onclick = this.clickOnAttributeMenu.orpBindAsEventListener(this);    
++    dojo.event.connect(anchorElement, &quot;onclick&quot;, orp.view.RootView.clickOnLocalLink);
+   }
+ };
+ 
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/model/Entry.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -306,7 +306,7 @@
+ orp.model.Entry.prototype.getAttributeForItem = function(item) {
+   var FIXME_OCT_7_2005_EXPERIMENT = true;
+   if (FIXME_OCT_7_2005_EXPERIMENT) {
+-    orp.util.assert(false);  // we should never get called
++    orp.lang.assert(false);  // we should never get called
+   } else {
+     if (this._item == item) {
+       return this._attribute;
+@@ -335,7 +335,7 @@
+ orp.model.Entry.prototype.getConnectedItem = function(item) {
+   var FIXME_OCT_7_2005_EXPERIMENT = true;
+   if (FIXME_OCT_7_2005_EXPERIMENT) {
+-    orp.util.assert(false);  // we should never get called
++    orp.lang.assert(false);  // we should never get called
+   } else {
+     orp.lang.assert(item instanceof orp.model.Item);
+     if (this._item == item) {
+
+Modified: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/util/CsvParser.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -79,7 +79,6 @@
+  * @return   Returns an array containing sub-arrays containing strings.
+  */
+ orp.util.CsvParser.prototype.getStringValuesFromCsvData = function(csvData) {
+-  // orp.util.assert(dojo.lang.isString(csvData));
+   orp.lang.assertType(csvData, String);
+   
+   var lineEndingCharacters = new RegExp(&quot;\r\n|\n|\r&quot;);
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/util/Util.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -34,7 +34,6 @@
+ dojo.provide(&quot;orp.util.Util&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;dojo.lang.*&quot;);
+-// dojo.require(&quot;orp.uuid.Uuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -44,26 +43,12 @@
+ 
+ 
+ /**
+- * The Util class offers general utility methods that might
++ * The Util file offers general utility functions that might
+  * be useful in a wide variety of applications.
+- *
+- * There is no need to ever call this constructor.  All the Util
+- * methods are class methods, not instance methods, and the only 
+- * reason this constructor exists is to cause the name &quot;Util&quot;
+- * to be a globally-scoped class name, which the class methods 
+- * can then be attached to.
+- *
+- * @scope    public instance constructor
+- * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+- /*
+-function Util() {
+-  throw new Error(&quot;Util is a static class. You can't create instances of it.&quot;);
+-}
+-*/
+ 
+ // -------------------------------------------------------------------
+-// Public class constants
++// Public constants
+ // -------------------------------------------------------------------
+ orp.util.ASCII = {
+   RETURN: 13,
+@@ -118,54 +103,11 @@
+  * @param    line    The line number where the error was found.
+  */
+ orp.util.handleError = function(message, url, line) {
+-  // orp.lang.assert(false);
+   orp.util.ourErrorReporter(&quot;orp.util.handleError()\n&quot; + message + &quot;\nline: &quot; + line + &quot;\nURL: &quot; + url);
+ };
+ 
+ 
+ /**
+- * Pops up an alert box if the assertion fails.
+- *
+- * If the asserted condition is true, this method does nothing. If the condition
+- * is false, this method pops up an alert box.  The alert box explains that an
+- * assertion failed, and it gives a stack trace showing the file name and line
+- * number where the assertion failed.
+- *
+- * @scope    public class method
+- * @param    booleanValue    A boolean value, which needs to be true for the assertion to succeed. 
+- * @param    message    Optional. A string describing the assertion.
+- */
+-/*
+-orp.util.assert = function(booleanValue, message) {
+-  if (orp.util.isBoolean(booleanValue)) {
+-    if (!booleanValue) {    
+-      var exception = new Error();  // create an exception, just to get a stack trace
+-      var stackString = exception.stack;
+-      var stackList = stackString.split(&quot;\n&quot;);
+-      stackList.shift(); // get rid of the &quot;ReferenceError()@:0&quot; at the start of the list
+-      stackList.shift(); // get rid of the &quot;(false)@file ... util.js:67&quot; at the start of the list
+-      stackList.pop();   // get rid of the trailing &quot;\n&quot;
+-      stackList.pop();   // get rid of the &quot;@:0&quot; at the end of the list
+-      for (var key in stackList) {
+-        var string = stackList[key];
+-        var result = string.match(/[^\/]*$/);
+-        stackList[key] = result[0];
+-      }
+-      stackString = stackList.join(&quot;\n&quot;);
+-
+-      orp.util.ourErrorReporter(&quot;An assert statement failed with message: \n&quot; + message + &quot; \nThe method orp.util.assert() was called with a 'false' value.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
+-    }
+-  } else {
+-    orp.util.ourErrorReporter(&quot;An assert statement went sour.\nThe method orp.util.assert() was passed a non-boolean argument.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
+-  }
+-};
+-*/
+-orp.util.assert = function(booleanValue, message) {
+-  dj_deprecated(&quot;orp.util.assert() is deprecated. Use orp.lang.assert().&quot;);
+-  orp.lang.assert(booleanValue, message);
+-};
+-
+-/**
+  * Registers a function to be used to report status messages to the user.
+  *
+  * @scope    public class method
+@@ -203,60 +145,8 @@
+ // Type checking methods
+ // -------------------------------------------------------------------
+ 
+-/**
+- * Returns true if the given value is a function.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a function.
+- */
+- /*
+-orp.util.isFunction = function(value) {
+-  return ((typeof value) == &quot;function&quot;);
+-};
+-*/
+-orp.util.isFunction = function(value) {
+-  dj_deprecated(&quot;orp.util.isFunction() is deprecated. Use dojo.lang.isFunction().&quot;);
+-  return dojo.lang.isFunction(value);
+-};
+ 
+ /**
+- * Returns true if the given value is a string.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a string.
+- */
+- /*
+-orp.util.isString = function(value) {
+-  return ((typeof value) == &quot;string&quot;);
+-};
+-*/
+-orp.util.isString = function(value) {
+-  dj_deprecated(&quot;orp.util.isString() is deprecated. Use dojo.lang.isString().&quot;);
+-  return dojo.lang.isString(value);
+-};
+-
+-
+-/**
+- * Returns true if the given value is a number (and is finite number).
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a number.
+- */
+-/*
+-orp.util.isNumber = function(value) {
+-  return (((typeof value) == &quot;number&quot;) &amp;&amp; isFinite(value));
+-};
+-*/
+-orp.util.isNumber = function(value) {
+-  dj_deprecated(&quot;orp.util.isNumber() is deprecated. Use dojo.lang.isNumber().&quot;);
+-  return dojo.lang.isNumber(value);
+-};
+-
+-
+-/**
+  * Returns true if the given value is a number or a string that 
+  * represents a number.
+  *
+@@ -279,40 +169,6 @@
+ 
+ 
+ /**
+- * Returns true if the given value is a boolean.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a boolean.
+- */
+-/*
+-orp.util.isBoolean = function(value) {
+-  return ((typeof value) == &quot;boolean&quot;);
+-};
+-*/
+-orp.util.isBoolean = function(value) {
+-  dj_deprecated(&quot;orp.util.isBoolean() is deprecated. Use dojo.lang.isBoolean().&quot;);
+-  return dojo.lang.isBoolean(value);
+-};
+-
+-/**
+- * Returns true if the given value is an object.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is an object.
+- */
+- /*
+-orp.util.isObject = function(value) {
+-  return (value &amp;&amp; ((typeof value) == &quot;object&quot;));
+-};
+-*/
+-orp.util.isObject = function(value) {
+-  dj_deprecated(&quot;orp.util.isObject() is deprecated. Use dojo.lang.isObject().&quot;);
+-  return dojo.lang.isObject(value);
+-};
+-
+-/**
+  * Returns true if the given value is a Date.
+  *
+  * @scope    public class method
+@@ -325,64 +181,6 @@
+ 
+ 
+ /**
+- * Returns true if the given value is a UUID object. 
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if value is a UUID object.
+- */
+-orp.util.isUuid = function(value) {
+-  dj_deprecated(&quot;orp.util.isUuid() is deprecated. Use orp.uuid.Uuid.prototype.isValid().&quot;);
+-  // return (value instanceof orp.uuid.Uuid);
+-  return true; // PENDING: FIXME.
+-};
+-
+-
+-/**
+- * Returns true if the given value is a UUID object or a string
+- * that represents a UUID. Here's an example of a string that
+- * represents a UUID: &quot;e3bf3e14-e8f4-43e2-866c-121c5ab70c0b&quot;.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if value is a UUID.
+- */
+-orp.util.isUuidValue = function(value) {
+-  dj_deprecated(&quot;orp.util.isUuidValue() is deprecated. Use orp.uuid.Uuid.prototype.isValid().&quot;);
+-  if (orp.util.isUuid(value)) {
+-    return true;
+-  }
+-  if ((typeof value) == &quot;string&quot;) {
+-    // PENDING: 
+-    // We should include more rigorous tests, to make sure this
+-    // is really a UUID, not just a string with 36 characters.
+-    return (value.length == 36);
+-  }
+-  return false;
+-};
+-
+-
+-/**
+- * Returns true if the given value is an array.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is an array.
+- */
+- /*
+-orp.util.isArray = function(value) {
+-  if (!value) {
+-    return false;
+-  }
+-  return (((typeof value) == &quot;object&quot;) &amp;&amp; (value.constructor == Array));
+-};
+-*/
+-orp.util.isArray = function(value) {
+-  dj_deprecated(&quot;orp.util.isArray() is deprecated. Use dojo.lang.isArray().&quot;);
+-  return dojo.lang.isArray(value);
+-};
+-
+-/**
+  * Returns true if the given value is a hash table.
+  *
+  * @scope    public class method
+@@ -462,7 +260,6 @@
+  * @return   Returns true if the object was found in the set.
+  */
+ orp.util.isObjectInSet = function(object, set) {
+-  // orp.util.assert(orp.util.isArray(set));
+   orp.lang.assertType(set, Array);
+   
+   for (var key in set) {
+@@ -483,8 +280,6 @@
+  * @return   Returns true if each of the objects was found in the set.
+  */
+ orp.util.areObjectsInSet = function(array, set) {
+-  // orp.util.assert(orp.util.isArray(array));
+-  // orp.util.assert(orp.util.isArray(set));
+   orp.lang.assertType(array, Array);
+   orp.lang.assertType(set, Array);
+   
+@@ -508,7 +303,6 @@
+  * @return   Returns true if the object was removed from the array.
+  */
+ orp.util.removeObjectFromSet = function(object, set) {
+-  // orp.util.assert(orp.util.isArray(set));
+   orp.lang.assertType(set, Array);
+   
+   if (!object) {
+@@ -534,7 +328,6 @@
+  * @return   Returns true if the object was added to the array.
+  */
+ orp.util.addObjectToSet = function(object, set) {
+-  // orp.util.assert(orp.util.isArray(set));
+   orp.lang.assertType(set, Array);
+ 
+   if (!object) {
+@@ -629,28 +422,6 @@
+ 
+ 
+ /**
+- * A cross-browser compatibility method for registering event listeners. 
+- *
+- * @scope public class method
+- * @param element    An HTMLElement.
+- * @param eventType    The type of event (e.g. &quot;mousedown&quot;, &quot;click&quot;).
+- * @param callback    The function to call when the event happens.
+- * @param captures    True if the event should be captured by this function.
+- */
+-orp.util.addEventListener = function(element, eventType, callback, captures) {
+-  if (element.addEventListener) {
+-    // for DOM Level 2 browsers, like Firefox
+-    element.addEventListener(eventType, callback, captures);
+-  } else {
+-    if (element.attachEvent) {
+-      // for Internet Explorer
+-      element.attachEvent(&quot;on&quot;+eventType, callback, captures);
+-    }
+-  } 
+-};
+-
+-
+-/**
+  * When passing an EventListener (e.g. onclick) a function, it is often useful to
+  * 1) have the function be called by an instance of an object
+  * 2) have additional arguments passed as parameters to the function
+@@ -675,31 +446,6 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// File I/O methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Given the URL of a file, returns the contents of the file as a text string.
+- *
+- * @scope    public class method
+- * @param    url    A string with the URL of a file containing JavaScript code. 
+- * @return   A string containing the contents of the file.
+- */
+-orp.util.getStringContentsOfFileAtURL = function(url) {
+-  dj_deprecated(&quot;orp.util.getStringContentsOfFileAtURL() is deprecated. Use dojo.hostenv.getText().&quot;);
+-  return dojo.hostenv.getText(url);
+-
+-  /* 
+-  var anXMLHttpRequestObject = new window.XMLHttpRequest();
+-  anXMLHttpRequestObject.open(&quot;GET&quot;, url, false);
+-  anXMLHttpRequestObject.send(null);
+-  var fileContents = anXMLHttpRequestObject.responseText;
+-  return fileContents;
+-  */
+-};
+-
+-
+-// -------------------------------------------------------------------
+ // HTML document manipulation
+ // -------------------------------------------------------------------
+ 
+@@ -732,7 +478,7 @@
+  * @return   An HTML &quot;img&quot; element.
+  */
+ orp.util.createImageElement = function(imageFileName) {
+-  var imagesDirectory = &quot;images/&quot;; // PENDING: this shouldn't be hard-coded in Util
++  var imagesDirectory = &quot;images/&quot;; // FIXME: this shouldn't be hard-coded in Util
+   var imageElement = document.createElement(&quot;img&quot;);
+   imageElement.src = imagesDirectory + imageFileName;
+   return imageElement;
+
+Modified: trunk/source/util/XmlConverter.js
+===================================================================
+--- trunk/source/util/XmlConverter.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/util/XmlConverter.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -46,7 +46,6 @@
+  * @scope    public instance constructor
+  */
+ orp.util.XmlTextNodeToAttributeSpecifier = function(tagPath, attribute) {
+-  // orp.util.assert(tagPath instanceof Array);
+   orp.lang.assertType(tagPath, Array);
+   orp.lang.assert(attribute instanceof orp.model.Item);
+   this._tagPath = tagPath;
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/view/SectionView.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -284,8 +284,7 @@
+     optionElement.value = pluginClass.getPluginItemUuid();
+     var pluginItem = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+     optionElement.text = pluginItem.getDisplayString();
+-    listener = this; 
+-    orp.util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
++    dojo.event.connect(optionElement, &quot;onclick&quot;, this, &quot;clickOnPluginSelectionMenu&quot;);
+   }
+   orp.view.View.appendNewTextNode(controlArea,&quot; of items whose &quot;);
+   this._queryEditSpan = orp.view.View.appendNewElement(controlArea, &quot;span&quot;);
+@@ -317,7 +316,6 @@
+       if (FIXME_OCT_7_2005_EXPERIMENT) {
+         var layoutItem = entriesLayoutData[i].getValue();
+       } else {
+-        // var layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
+         layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
+       }
+       var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attributeAppliesToPlugin);
+@@ -334,9 +332,7 @@
+   repository.beginTransaction();
+   layoutItem = repository.newItem(&quot;Layout data for &quot; + pluginTypeItem.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
+   layoutItem.assignToCategory(categoryCalledLayoutData);
+-  // layoutItem.addEntryForAttribute(attributeAppliesToPlugin, pluginTypeItem);
+   layoutItem.addEntry({attribute:attributeAppliesToPlugin, value:pluginTypeItem});
+-  // this._section.addEntryForAttribute(attributeLayoutData, layoutItem, repository.getTypeCalledItem());
+   this._section.addConnectionEntry(attributeLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
+   repository.endTransaction();
+   return layoutItem;
+@@ -374,7 +370,6 @@
+     var optionElement = orp.view.View.appendNewElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (matchingAttribute.getDisplayString() == anAttribute.getDisplayString());
+     optionElement.value = anAttribute.getUuidString();
+-    // optionElement.onclick = this.clickOnAttributeMenu.orpBindAsEventListener(this);
+     dojo.event.connect(optionElement, &quot;onclick&quot;, this, &quot;clickOnAttributeMenu&quot;);
+     optionElement.text = anAttribute.getDisplayString();
+   }
+
+Modified: trunk/source/view/View.js
+===================================================================
+--- trunk/source/view/View.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/source/view/View.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -176,7 +176,6 @@
+  * @param    visibleFlag    True if the view should be visible on screen. False if the view should be hidden off screen.
+  */
+ orp.view.View.prototype.includeOnScreen = function(visibleFlag) {
+-  // orp.util.assert(orp.util.isBoolean(visibleFlag));
+   orp.lang.assertType(visibleFlag, Boolean);
+ 
+   if (visibleFlag) {
+@@ -217,10 +216,6 @@
+  * @return   The newly created HTML element.
+  */
+ orp.view.View.newElement = function(tagName, cssClassName, attributesInJson, text) {
+-  // orp.util.assert(orp.util.isString(tagName));
+-  // orp.util.assert(!cssClassName || orp.util.isString(cssClassName));
+-  // orp.util.assert(!attributesInJson || orp.util.isObject(attributesInJson));
+-  // orp.util.assert(!text|| orp.util.isString(text));
+   orp.lang.assertType(tagName, String);
+   orp.lang.assertTypeForOptionalValue(cssClassName, String);
+   orp.lang.assertTypeForOptionalValue(attributesInJson, Object);
+@@ -288,7 +283,6 @@
+  */
+ orp.view.View.appendNewTextNode = function(parentElement, textString) {
+   orp.lang.assert(parentElement instanceof HTMLElement);
+-  // orp.util.assert(orp.util.isString(textString));
+   orp.lang.assertType(textString, String);
+ 
+   var newTextNode = window.document.createTextNode(textString);
+
+Modified: trunk/tests/model/ModelTest.js
+===================================================================
+--- trunk/tests/model/ModelTest.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/tests/model/ModelTest.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -203,11 +203,11 @@
+   for (key in listOfAttributes) {
+     item = listOfAttributes[key];
+     listOfAssignedNames = item.getNameEntries();
+-    assertTrue('Every axiomatic attribute has an array of names', orp.util.isArray(listOfAssignedNames));
++    assertTrue('Every axiomatic attribute has an array of names', dojo.lang.isArray(listOfAssignedNames));
+     assertTrue('Every axiomatic attribute has one name assigned', listOfAssignedNames.length == 1);
+     nameEntry = listOfAssignedNames[0];
+     assertTrue('Every axiomatic attribute has a name which is an entry', (nameEntry instanceof orp.model.Entry));
+-    assertTrue('Every entry can be displayed as a string', orp.util.isString(nameEntry.getDisplayString()));
++    assertTrue('Every entry can be displayed as a string', dojo.lang.isString(nameEntry.getDisplayString()));
+     assertTrue('Every axiomatic attribute is in the category &quot;Attribute&quot;', item.isInCategory(categoryCalledAttribute));
+   }
+   
+@@ -217,11 +217,11 @@
+   for (key in listOfCategories) {
+     item = listOfCategories[key];
+     listOfAssignedNames = item.getNameEntries();
+-    assertTrue('Every axiomatic category has an array of names', orp.util.isArray(listOfAssignedNames));
++    assertTrue('Every axiomatic category has an array of names', dojo.lang.isArray(listOfAssignedNames));
+     assertTrue('Every axiomatic category has one name assigned', listOfAssignedNames.length == 1);
+     nameEntry = listOfAssignedNames[0];
+     assertTrue('Every axiomatic category has a name which is entry', (nameEntry instanceof orp.model.Entry));
+-    assertTrue('Every entry can be displayed as a string', orp.util.isString(nameEntry.getDisplayString()));
++    assertTrue('Every entry can be displayed as a string', dojo.lang.isString(nameEntry.getDisplayString()));
+   }
+ }
+ 
+
+Modified: trunk/tests/model/RepositoryWritingTest.js
+===================================================================
+--- trunk/tests/model/RepositoryWritingTest.js	2005-10-14 21:45:17 UTC (rev 361)
++++ trunk/tests/model/RepositoryWritingTest.js	2005-10-14 23:16:03 UTC (rev 362)
+@@ -154,19 +154,23 @@
+ }
+ 
+ function fileHasExpectedContents(expectedContents) {
+-  var contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++  // var contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++  var contents = dojo.hostenv.getText(fileUrl);
+   for (var i = 0; contents != expectedContents &amp;&amp; i &lt; 5; ++i) {
+     waitASecond();
+-    contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++    // contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++    contents = dojo.hostenv.getText(fileUrl);
+   }
+   return (contents == expectedContents);
+ }
+ 
+ function fileHasExpectedSubstring(expectedSubstring) {
+-  var contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++  // var contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++  var contents = dojo.hostenv.getText(fileUrl);
+   for (var i = 0; contents.indexOf(expectedSubstring) == -1 &amp;&amp; i &lt; 5; ++i) {
+     waitASecond();
+-    contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++    // contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
++    contents = dojo.hostenv.getText(fileUrl);
+   }
+   return (contents.indexOf(expectedSubstring) != -1);
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000343.html">[openrecord-svn] r361 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000345.html">[openrecord-svn] r363 - trunk/tests
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#344">[ date ]</a>
+              <a href="thread.html#344">[ thread ]</a>
+              <a href="subject.html#344">[ subject ]</a>
+              <a href="author.html#344">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

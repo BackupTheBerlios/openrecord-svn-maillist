@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r354 - in trunk: documentation source/model source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r354%20-%20in%20trunk%3A%20documentation%20source/model%20source/view&In-Reply-To=%3C200510070335.j973Zn4a014103%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000336.html">
+   <LINK REL="Next"  HREF="000338.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r354 - in trunk: documentation source/model source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r354%20-%20in%20trunk%3A%20documentation%20source/model%20source/view&In-Reply-To=%3C200510070335.j973Zn4a014103%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r354 - in trunk: documentation source/model source/view">skinner at berlios.de
+       </A><BR>
+    <I>Fri Oct  7 05:35:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000336.html">[openrecord-svn] r353 - in trunk: documentation source/archive source/model tests/model tests/util
+</A></li>
+        <LI>Next message: <A HREF="000338.html">[openrecord-svn] r355 - in trunk/source: archive model util view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#337">[ date ]</a>
+              <a href="thread.html#337">[ thread ]</a>
+              <a href="subject.html#337">[ subject ]</a>
+              <a href="author.html#337">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-07 05:35:47 +0200 (Fri, 07 Oct 2005)
+New Revision: 354
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/model/QueryRunner.js
+   trunk/source/view/PluginView.js
+   trunk/source/view/SectionView.js
+Log:
+Changed &quot;endOfLife()&quot; to &quot;destroy()&quot;, following the Dojo naming convention.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-10-07 03:30:33 UTC (rev 353)
++++ trunk/documentation/release_planning.txt	2005-10-07 03:35:47 UTC (rev 354)
+@@ -411,7 +411,7 @@
+        |          |         |  7. merge StubArchive + DeltaArchive, and re-name the result
+ brian  |          | 0.25 IED|  8. create a FakeStorage class, + rename FileSaver + HttpSaver
+        |          |         |     update unit tests to use the FakeStorage instead of StubArchive
+-       |          |         |  9. change &quot;endOfLife()&quot; to &quot;destroy()&quot;
++brian  |          | 0    IED|  9. change &quot;endOfLife()&quot; to &quot;destroy()&quot;
+        |          |         | 10. Rationalize the View API and document public API
+ mignon | 1    IED |         | 11. Rationalize the ViewPlugin API
+ mignon | 0.25 IED |         | 12. Create a &quot;view_plugins&quot; directory &amp; change &quot;TablePlugin&quot; to &quot;TableView&quot;, etc. 
+
+Modified: trunk/source/model/QueryRunner.js
+===================================================================
+--- trunk/source/model/QueryRunner.js	2005-10-07 03:30:33 UTC (rev 353)
++++ trunk/source/model/QueryRunner.js	2005-10-07 03:35:47 UTC (rev 354)
+@@ -179,7 +179,7 @@
+  *
+  * @scope    public instance method
+  */
+-orp.model.QueryRunner.prototype.endOfLife = function() {
++orp.model.QueryRunner.prototype.destroy = function() {
+   this.getWorld()._unregisterQueryRunner(this);
+ };
+ 
+
+Modified: trunk/source/view/PluginView.js
+===================================================================
+--- trunk/source/view/PluginView.js	2005-10-07 03:30:33 UTC (rev 353)
++++ trunk/source/view/PluginView.js	2005-10-07 03:35:47 UTC (rev 354)
+@@ -119,7 +119,7 @@
+  *
+  * @scope    public instance method
+  */
+-orp.view.PluginView.prototype.endOfLife = function() {
++orp.view.PluginView.prototype.destroy = function() {
+   orp.view.View.removeChildrenOfElement(this.getHtmlElement());
+ };
+ 
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-10-07 03:30:33 UTC (rev 353)
++++ trunk/source/view/SectionView.js	2005-10-07 03:35:47 UTC (rev 354)
+@@ -417,7 +417,7 @@
+   var myQuery = this.getQuerySpec();
+   orp.lang.assert(item == myQuery);
+   var pluginItem = this._pluginView.getPluginItem();
+-  this._pluginView.endOfLife();
++  this._pluginView.destroy();
+   this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
+   this.refresh();
+ };
+@@ -444,7 +444,7 @@
+   if (this._pluginView.getPluginItem() == newPluginViewItem) { 
+     return;
+   } else {
+-    this._pluginView.endOfLife();
++    this._pluginView.destroy();
+     this._pluginView = this.getPluginInstanceFromPluginItem(newPluginViewItem, this._pluginDiv);
+ 
+     var oldEntry = this._section.getSingleEntryFromAttribute(attributeCalledPluginView);
+@@ -514,7 +514,7 @@
+     // query item, and then the plugin itself can know what to do when the
+     // query item changes.  
+     var pluginItem = this._pluginView.getPluginItem();
+-    this._pluginView.endOfLife();
++    this._pluginView.destroy();
+     this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
+ 
+     this.refresh();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000336.html">[openrecord-svn] r353 - in trunk: documentation source/archive source/model tests/model tests/util
+</A></li>
+	<LI>Next message: <A HREF="000338.html">[openrecord-svn] r355 - in trunk/source: archive model util view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#337">[ date ]</a>
+              <a href="thread.html#337">[ thread ]</a>
+              <a href="subject.html#337">[ subject ]</a>
+              <a href="author.html#337">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

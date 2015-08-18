@@ -1,0 +1,1800 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r205 - in trunk: . source source/model source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r205%20-%20in%20trunk%3A%20.%20source%20source/model%20source/util&In-Reply-To=%3C200507010250.j612oQrs010683%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000190.html">
+   <LINK REL="Next"  HREF="000192.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r205 - in trunk: . source source/model source/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r205%20-%20in%20trunk%3A%20.%20source%20source/model%20source/util&In-Reply-To=%3C200507010250.j612oQrs010683%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r205 - in trunk: . source source/model source/util">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul  1 04:50:26 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000190.html">[openrecord-svn] r204 - in trunk/source: . model util
+</A></li>
+        <LI>Next message: <A HREF="000192.html">[openrecord-svn] r206 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-01 04:50:23 +0200 (Fri, 01 Jul 2005)
+New Revision: 205
+
+Added:
+   trunk/source/CodingConventions.js
+   trunk/source/util/Cookie.js
+   trunk/source/util/TestSuite.html
+   trunk/source/util/Util.js
+   trunk/source/util/UtilTest.html
+   trunk/source/util/UtilTest.js
+Removed:
+   trunk/source/Cookie.js
+   trunk/source/Rectangle.js
+   trunk/source/Util.js
+   trunk/source/UtilTest.html
+   trunk/source/UtilTest.js
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/dogfood.html
+   trunk/source/LintTest.html
+   trunk/source/LintTest.js
+   trunk/source/TestSuite.html
+   trunk/source/model/LintTest.html
+   trunk/source/model/ModelTest.html
+   trunk/source/util/LintTest.html
+   trunk/source/util/LintTest.js
+Log:
+Moved Cookie.js and Util.js down into the util directory, and did all the follow-up stuff that that entailed.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/dashboard.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -16,8 +16,8 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/View.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/RootView.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/demo_page.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -16,8 +16,8 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/View.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/RootView.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/dogfood.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -16,8 +16,8 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/View.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/RootView.js&quot;&gt;&lt;/script&gt;
+
+Copied: trunk/source/CodingConventions.js (from rev 203, trunk/source/Rectangle.js)
+
+Deleted: trunk/source/Cookie.js
+===================================================================
+--- trunk/source/Cookie.js	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/Cookie.js	2005-07-01 02:50:23 UTC (rev 205)
+@@ -1,145 +0,0 @@
+-// -------------------------------------------------------------------
+-// Copyright Acknowledgement
+-// -------------------------------------------------------------------
+-// The code in this file is based on example code from the book:
+-//       title: &quot;Javascript: The Definitive Guide&quot;, 4th Edition
+-//      author: David Flanagan
+-//   publisher: O'Reilly Media, Inc.
+-//        ISBN: 0-596-00048-0
+-// 
+-// O'Reilly Media has a written policy that covers re-use of code examples
+-// from their books:
+-//   <A HREF="http://www.oreilly.com/pub/a/oreilly/ask_tim/2001/codepolicy.html">http://www.oreilly.com/pub/a/oreilly/ask_tim/2001/codepolicy.html</A>
+-// -------------------------------------------------------------------
+-
+-
+-// The constructor function: creates a Cookie object for the specified
+-// document, with a specified name and optional attributes.
+-// Arguments:
+-//   document: The Document object for which the cookie is stored. Required.
+-//   name:     A string that specifies a name for the cookie. Required.
+-//   hours:    An optional number that specifies the number of hours from now
+-//             after which the cookie should expire.
+-//   path:     An optional string that specifies the cookie path attribute.
+-//   domain:   An optional string that specifies the cookie domain attribute.
+-//   secure:   An optional boolean value that, if true, requests a secure cookie.
+-//
+-function Cookie(document, name, hours, path, domain, secure)
+-{
+-    // All the predefined properties of this object begin with '$'
+-    // to distinguish them from other properties, which are the values to
+-    // be stored in the cookie
+-    this.$document = document;
+-    this.$name = name;
+-    if (hours)
+-        this.$expiration = new Date((new Date()).getTime(  ) + hours*3600000);
+-    else this.$expiration = null;
+-    if (path) this.$path = path; else this.$path = null;
+-    if (domain) this.$domain = domain; else this.$domain = null;
+-    if (secure) this.$secure = true; else this.$secure = false;
+-}
+-
+-// This function is the store(  ) method of the Cookie object
+-Cookie.prototype.store = function (  ) {
+-    // First, loop through the properties of the Cookie object and
+-    // put together the value of the cookie. Since cookies use the
+-    // equals sign and semicolons as separators, we'll use colons
+-    // and ampersands for the individual state variables we store 
+-    // within a single cookie value. Note that we escape the value
+-    // of each state variable, in case it contains punctuation or other
+-    // illegal characters.
+-    var cookieval = &quot;&quot;;
+-    for(var prop in this) {
+-        // Ignore properties with names that begin with '$' and also methods
+-        if ((prop.charAt(0) == '$') || ((typeof this[prop]) == 'function') || !this[prop]) 
+-            continue;
+-        if (cookieval != &quot;&quot;) cookieval += '&amp;';
+-        cookieval += prop + ':' + escape(this[prop]);
+-    }
+-
+-    // Now that we have the value of the cookie, put together the 
+-    // complete cookie string, which includes the name and the various
+-    // attributes specified when the Cookie object was created
+-    var cookie = this.$name + '=' + cookieval;
+-    if (this.$expiration)
+-        cookie += '; expires=' + this.$expiration.toGMTString(  );
+-    if (this.$path) cookie += '; path=' + this.$path;
+-    if (this.$domain) cookie += '; domain=' + this.$domain;
+-    if (this.$secure) cookie += '; secure';
+-
+-    // Now store the cookie by setting the magic Document.cookie property
+-    this.$document.cookie = cookie;
+-}
+-
+-// This function is the load(  ) method of the Cookie object
+-Cookie.prototype.load = function(  ) { 
+-    // First, get a list of all cookies that pertain to this document
+-    // We do this by reading the magic Document.cookie property
+-    var allcookies = this.$document.cookie;
+-    if (allcookies == &quot;&quot;) return false;
+-
+-    // Now extract just the named cookie from that list
+-    var start = allcookies.indexOf(this.$name + '=');
+-    if (start == -1) return false;   // Cookie not defined for this page
+-    start += this.$name.length + 1;  // Skip name and equals sign
+-    var end = allcookies.indexOf(';', start);
+-    if (end == -1) end = allcookies.length;
+-    var cookieval = allcookies.substring(start, end);
+-
+-    // Now that we've extracted the value of the named cookie, we
+-    // must break that value down into individual state variable 
+-    // names and values. The name/value pairs are separated from each
+-    // other by ampersands, and the individual names and values are
+-    // separated from each other by colons. We use the split(  ) method
+-    // to parse everything.
+-    var a = cookieval.split('&amp;');    // Break it into an array of name/value pairs
+-    for(var i=0; i &lt; a.length; i++)  // Break each pair into an array
+-        a[i] = a[i].split(':');
+-
+-    // Now that we've parsed the cookie value, set all the names and values
+-    // of the state variables in this Cookie object. Note that we unescape(  )
+-    // the property value, because we called escape(  ) when we stored it.
+-    for(var i = 0; i &lt; a.length; i++) {
+-        this[a[i][0]] = unescape(a[i][1]);
+-    }
+-
+-    // We're done, so return the success code
+-    return true;
+-}
+-
+-// This function is the remove(  ) method of the Cookie object
+-Cookie.prototype.remove = function(  ) {
+-    var cookie;
+-    cookie = this.$name + '=';
+-    if (this.$path) cookie += '; path=' + this.$path;
+-    if (this.$domain) cookie += '; domain=' + this.$domain;
+-    cookie += '; expires=Fri, 02-Jan-1970 00:00:00 GMT';
+-
+-    this.$document.cookie = cookie;
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Code below this line was written by Chih-Chao Lam, not David Flanagan...
+-// -------------------------------------------------------------------
+-
+-// -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js [pending: will soon when we add error checking]
+-// -------------------------------------------------------------------
+-
+-/* need to turn this into Unit tests
+-var testCookieCreation = false;
+-var cookieName = &quot;user&quot;
+-var userCookie = new Cookie(document, cookieName,10*365*24);
+-if (testCookieCreation) {
+-  userCookie.username = &quot;chao&quot;;
+-  userCookie.editMode = true;
+-  userCookie.store();
+-}
+-else {
+-  Util.assert(userCookie.load());
+-  Util.assert(userCookie.username == &quot;chao&quot;);
+-  Util.assert(userCookie.editMode == &quot;true&quot;);
+-}
+-*/
+
+Modified: trunk/source/LintTest.html
+===================================================================
+--- trunk/source/LintTest.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/LintTest.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -15,7 +15,7 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;util/LintTool.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/LintTest.js	2005-07-01 02:50:23 UTC (rev 205)
+@@ -56,7 +56,6 @@
+ 
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
+-    &quot;Util.js&quot;,
+     &quot;View.js&quot;,
+     &quot;RootView.js&quot;,
+     &quot;ItemView.js&quot;,
+@@ -69,8 +68,7 @@
+     &quot;TablePlugin.js&quot;,
+     &quot;OutlinePlugin.js&quot;,
+     &quot;DetailPlugin.js&quot;,
+-    &quot;BarChartPlugin.js&quot;,
+-    &quot;UtilTest.js&quot;];
++    &quot;BarChartPlugin.js&quot;];
+   var prefix = &quot;../../../source/&quot;;
+   var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+   var message = &quot;Lint check \n&quot; + errorReport;
+
+Deleted: trunk/source/Rectangle.js
+===================================================================
+--- trunk/source/Rectangle.js	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/Rectangle.js	2005-07-01 02:50:23 UTC (rev 205)
+@@ -1,69 +0,0 @@
+-// -------------------------------------------------------------------
+-// OpenRecord 2005 JavaScript Coding Conventions
+-//
+-// + jslint approved
+-//    + jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
+-//    + do not use &quot;with&quot;
+-//    + do not use &quot;new Function&quot;
+-//    + use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+-// 
+-// + naming conventions
+-//    + capitalization
+-//       + classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
+-//       + all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
+-//       + acronyms appear in initial caps: &quot;htmlString&quot;, not &quot;HTMLString&quot;
+-//       + constants are all caps, with underscores: FILL_PATTERN_SOLID
+-//    + file names
+-//       + each file has just one public class
+-//       + file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
+-//       + directories are all lower case, with underscores: &quot;basic_shapes&quot;
+-//    + unit tests
+-//       + a JavaScript code file typically has two associated unit test files
+-//       + the unit test files have the suffix &quot;Test&quot;
+-//       + example: Book.js has unit test files BookTest.html and BookTest.js
+-//    + variable scoping prefixes
+-//       + class variables are prefixed with &quot;our&quot;
+-//       + [DEPRECATED: instance variables are prefixed with &quot;my&quot;]
+-//       + global variables are prefixed with &quot;window.global&quot;
+-//       + locally scoped variables are not prefixed
+-//       + non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
+-//       + [DEPRECATED: function input parameters are prefixed with &quot;in&quot;]
+-//       + [DEPRECATED: private variables and methods are prefixed with &quot;__&quot;]
+-//       + [DEPRECATED: protected variables and methods are prefixed with &quot;_&quot;]
+-//    + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
+-//    + array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
+-//       + var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
+-//       + var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
+-//       + var arrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number arrayOfFruit[23] = &quot;Apple&quot;
+-//    + accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
+-//       + any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
+-//       + any method that does change an object's state should be a &quot;set&quot; method
+-//    + problems are marked with &quot;PENDING&quot;
+-//
+-// + compatiblity with other browsers and other JavaScript libraries 
+-//    + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
+-//    + [DEPRECATED: add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...]
+-//
+-// + indenting, tabs, and line ending characters
+-//    + 2-space indenting
+-//    + only spaces, no tabs
+-//    + Unix style line endings: just \n -- not \r or \r\n
+-//
+-// + file header and footer conventions
+-//    + file name is given
+-//    + copyright and license statements are included
+-//    + file dependencies are listed
+-//    + sections for: class constants, class properties, constructor, instance methods
+-//    + &quot;End of file&quot; ending
+-//
+-// + scoping
+-//    + locally scoped variables are declared before being used: &quot;var foo&quot;, not &quot;foo&quot;
+-//    + global variables are not used, except for class names
+-//    + instance methods are defined on the prototype -- see getArea()
+-//    + accessor methods never have side-effects
+-//
+-// + PENDING
+-//    + private instance properties?
+-//    + private instance methods?
+-//    + class methods?
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/TestSuite.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -23,10 +23,9 @@
+       
+       function openRecordTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
+-        testSuite.addTestPage(&quot;../../../source/UtilTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestSuite.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/util/LintTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../source/util/TestSuite.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Deleted: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/Util.js	2005-07-01 02:50:23 UTC (rev 205)
+@@ -1,723 +0,0 @@
+-/*****************************************************************************
+- Util.js
+- 
+-******************************************************************************
+- Written in 2005 by 
+-    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+-    Mignon Belongie
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-
+-// -------------------------------------------------------------------
+-// Dependencies, expressed in the syntax that JSLint understands:
+-/*global window, document  */
+-/*global hex_md5  */
+-// -------------------------------------------------------------------
+-
+-
+-/**
+- * The Util class offers general utility methods that might
+- * be useful in a wide variety of applications.
+- *
+- * There is no need to ever call this constructor.  All the Util
+- * methods are class methods, not instance methods, and the only 
+- * reason this constructor exists is to cause the name &quot;Util&quot;
+- * to be a globally-scoped class name, which the class methods 
+- * can then be attached to.
+- *
+- * @scope    public instance constructor
+- * @syntax   DO NOT CALL THIS CONSTRUCTOR
+- */
+-function Util() {
+-  throw new Error(&quot;Util is a static class. You can't create instances of it.&quot;);
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Util public class constants
+-// -------------------------------------------------------------------
+-Util.ASCII_VALUE_FOR_RETURN = 13;
+-Util.ASCII_VALUE_FOR_TAB = 9;
+-Util.ASCII_VALUE_FOR_ESCAPE = 27;
+-// &#37; = %
+-// &#38; = &amp;
+-// &#39; = '
+-// &#40; = (
+-Util.ASCII_VALUE_FOR_LEFT_ARROW = 37;  // 123
+-Util.ASCII_VALUE_FOR_UP_ARROW = 38;    // 126
+-Util.ASCII_VALUE_FOR_RIGHT_ARROW = 39; // 124
+-Util.ASCII_VALUE_FOR_DOWN_ARROW = 40;  // 125
+-
+-Util.ABBREV_MONTHS_ARRAY = new Array(&quot;Jan&quot;,&quot;Feb&quot;,&quot;Mar&quot;,&quot;Apr&quot;,&quot;May&quot;,&quot;Jun&quot;,&quot;Jul&quot;,&quot;Aug&quot;,&quot;Sep&quot;,&quot;Oct&quot;,&quot;Nov&quot;,&quot;Dec&quot;);
+-
+-
+-// -------------------------------------------------------------------
+-// String manipulation methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Returns a copy of the input string, cleaned up so that it can be 
+- * included in a valid HTML page.
+- *
+- * Returns a copy of the string, but with the original characters 
+- * '&lt;', '&gt;', and '&amp;' all replaced by their HTML entities: &quot;&lt;&quot;, 
+- * &quot;&gt;&quot;, and &quot;&amp;&quot;.  Allows strings to displayed on HTML pages.
+- *
+- * @scope    public class method
+- * @syntax   var cleanString = Util.getCleanString(dirtyString);
+- * @param    string    A dirty string to be cleaned up.
+- * @return   String
+- */
+-Util.getCleanString = function(string) {
+-  Util.assert(Util.isString(string));
+-  
+-  var returnString = string;
+-  returnString = returnString.replace(/&amp;/g, &quot;&amp;&quot;);
+-  returnString = returnString.replace(/&lt;/g, &quot;&lt;&quot;);
+-  returnString = returnString.replace(/&gt;/g, &quot;&gt;&quot;);
+-  returnString = returnString.replace(/&quot;/g, &quot;&quot;&quot;);
+-  returnString = returnString.replace(/\n/g, &quot; &quot;);
+-  return returnString;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Assertions and error handling methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Registers a function to be used to report errors.
+- *
+- * @scope    public class method
+- * @param    errorReporterFunction    A function which takes a single string argument. 
+- */
+-Util.setErrorReportCallback = function(errorReporterFunction) {
+-  Util.ourErrorReporter = errorReporterFunction;
+-};
+-
+-
+-/**
+- * This defaultErrorReporter simply calls &quot;alert&quot; to report errors.
+- *
+- * @scope    public class method
+- * @param    inText    The error message to be reported. 
+- */
+-Util.defaultErrorReporter = function(text) {
+-  window.alert(text);
+-};
+-Util.ourErrorReporter = Util.defaultErrorReporter;
+-
+- 
+- /**
+- * Pops up an alert box showing an error message.
+- *
+- * @scope    public class method
+- * @param    message    A string describing the error.
+- * @param    url    A string that gives the name of the file where the error was found.
+- * @param    line    The line number where the error was found.
+- */
+-Util.handleError = function(message, url, line) {
+-  Util.ourErrorReporter(&quot;Util.handleError()\n&quot; + message + &quot;\nline: &quot; + line + &quot;\nURL: &quot; + url);
+-};
+-
+-
+-/**
+- * Pops up an alert box if the assertion fails.
+- *
+- * If the asserted condition is true, this method does nothing. If the condition
+- * is false, this method pops up an alert box.  The alert box explains that an
+- * assertion failed, and it gives a stack trace showing the file name and line
+- * number where the assertion failed.
+- *
+- * @scope    public class method
+- * @param    booleanValue    A boolean value, which needs to be true for the assertion to succeed. 
+- * @param    message    Optional. A string describing the assertion.
+- */
+-Util.assert = function(booleanValue, message) {
+-  if (Util.isBoolean(booleanValue)) {
+-    if (!booleanValue) {    
+-      var exception = new Error();  // create an exception, just to get a stack trace
+-      var stackString = exception.stack;
+-      var stackList = stackString.split(&quot;\n&quot;);
+-      stackList.shift(); // get rid of the &quot;ReferenceError()@:0&quot; at the start of the list
+-      stackList.shift(); // get rid of the &quot;(false)@file ... util.js:67&quot; at the start of the list
+-      stackList.pop();   // get rid of the trailing &quot;\n&quot;
+-      stackList.pop();   // get rid of the &quot;@:0&quot; at the end of the list
+-      for (var key in stackList) {
+-        var string = stackList[key];
+-        var result = string.match(/[^\/]*$/);
+-        stackList[key] = result[0];
+-      }
+-      stackString = stackList.join(&quot;\n&quot;);
+-
+-      Util.ourErrorReporter(&quot;An assert statement failed with message: \n&quot; + message + &quot; \nThe method Util.assert() was called with a 'false' value.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
+-    }
+-  } else {
+-    Util.ourErrorReporter(&quot;An assert statement went sour.\nThe method Util.assert() was passed a non-boolean argument.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
+-  }
+-};
+-
+-
+-/**
+- * Registers a function to be used to report status messages to the user.
+- *
+- * @scope    public class method
+- * @param    statusReporterFunction    A function which takes a single string argument. 
+- */
+-Util.setStatusReporter = function(statusReporterFunction) {
+-  Util.ourStatusReporter = statusReporterFunction;
+-};
+-
+-
+-/**
+- * Reports a status message to the user.
+- *
+- * @scope    public class method
+- * @param    message    A string with a status message.
+- */
+-Util.displayStatusBlurb = function(message) {
+-  Util.ourStatusReporter(message);
+-};
+-
+-
+-/**
+- * This defaultStatusReporter simply ignores the status report.
+- *
+- * @scope    public class method
+- * @param    text    The status message to be reported. 
+- */
+-Util.defaultStatusReporter = function(text) {
+-  // do nothing!
+-};
+-Util.ourStatusReporter = Util.defaultStatusReporter;
+-
+-
+-// -------------------------------------------------------------------
+-// Type checking methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Returns true if the given value is a function.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a function.
+- */
+-Util.isFunction = function(value) {
+-  return ((typeof value) == &quot;function&quot;);
+-};
+-
+-
+-/**
+- * Returns true if the given value is a string.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a string.
+- */
+-Util.isString = function(value) {
+-  return ((typeof value) == &quot;string&quot;);
+-};
+-
+-
+-/**
+- * Returns true if the given value is a number (and is finite number).
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a number.
+- */
+-Util.isNumber = function(value) {
+-  return (((typeof value) == &quot;number&quot;) &amp;&amp; isFinite(value));
+-};
+-
+-
+-/**
+- * Returns true if the given value is a number or a string that 
+- * represents a number.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a number or a string that represents a number.
+- */
+-Util.isNumeric = function(value) {
+-  var isNumber = Util.isNumber(value);
+-  if (isNumber) {
+-    return true;
+-  }
+-  var isNumeric = Util.isString(value) &amp;&amp; Util.isNumber(parseInt(value));
+-  return isNumeric;
+-};
+-
+-
+-/**
+- * Returns true if the given value is a boolean.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a boolean.
+- */
+-Util.isBoolean = function(value) {
+-  return ((typeof value) == &quot;boolean&quot;);
+-};
+-
+-
+-/**
+- * Returns true if the given value is an object.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is an object.
+- */
+-Util.isObject = function(value) {
+-  return (value &amp;&amp; ((typeof value) == &quot;object&quot;));
+-};
+-
+-
+-/**
+- * Returns true if the given value is a Date.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a Date.
+- */
+-Util.isDate = function(value) {
+-  return (value instanceof Date);
+-};
+-
+-
+-/**
+- * Returns true if the given value is a UUID. Here's an example of
+- * a valid UUID: &quot;e3bf3e14-e8f4-43e2-866c-121c5ab70c0b&quot;.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a UUID.
+- */
+-Util.isUuid = function(value) {
+-  // PENDING: 
+-  // We should include more rigorous tests, to make sure this
+-  // is really a UUID, not just a string with 36 characters.
+-  if ((typeof value) != &quot;string&quot;) {
+-    return false;
+-  }
+-  return (value.length == 36);  
+-};
+-
+-
+-/**
+- * Returns true if the given value is an array.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is an array.
+- */
+-Util.isArray = function(value) {
+-  if (!value) {
+-    return false;
+-  }
+-  return (((typeof value) == &quot;object&quot;) &amp;&amp; (value.constructor == Array));
+-};
+-
+-
+-/**
+- * Returns true if the given value is a hash table.
+- *
+- * @scope    public class method
+- * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a hash table.
+- */
+-Util.isHashTable = function(value) {
+-  return (value &amp;&amp; ((typeof value) == &quot;object&quot;));  // PENDING: we should be more restrictive!
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Methods that operate on Arrays
+-// -------------------------------------------------------------------
+-
+-/**
+- * Given an element in an array, returns the position of the element in
+- * the array.  
+- * 
+- * @scope    public class method
+- * @param    array    The Array to look for the element in. 
+- * @param    value    The array element to find the position of. 
+- * @return   Returns a number between 0 and array.length, or -1 if the element was not in the array.
+- */
+-Util.getArrayIndex = function(array, value) {
+-  for (var i=0; i&lt;array.length; ++i) {
+-    if (array[i] == value) {
+-      return i;
+-    }
+-  }
+-  return -1;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Methods that operate on Sets
+-// -------------------------------------------------------------------
+-
+-/**
+- * Returns true if the given object is a member of the set.  
+- * 
+- * @scope    public class method
+- * @param    object    The object to look for. 
+- * @param    set    The Array to look for the object in. 
+- * @return   Returns true if the object was found in the set.
+- */
+-Util.isObjectInSet = function(object, set) {
+-  Util.assert(Util.isArray(set));
+-  
+-//  for (var i=0; i&lt;set.length; i+=1) {
+-//    if (set[i] == object) {
+-//      return true;
+-//    }
+-//  }
+-  for (var key in set) {
+-    if (set[key] == object) {
+-      return true;
+-    }
+-  }
+-  return false;
+-};
+-
+-
+-/**
+- * Returns true if each of the given objects is a member of the set.  
+- * 
+- * @scope    public class method
+- * @param    array    An array of objects to look for. 
+- * @param    set    The Array to look for the objects in. 
+- * @return   Returns true if each of the objects was found in the set.
+- */
+-Util.areObjectsInSet = function(array, set) {
+-  Util.assert(Util.isArray(array));
+-  Util.assert(Util.isArray(set));
+-  
+-  for (var key in array) {
+-    var object = array[key];
+-    var objectIsInSet = Util.isObjectInSet(object, set);
+-    if (!objectIsInSet) {
+-      return false;
+-    }
+-  }
+-  return true;
+-};
+-
+-
+-/**
+- * Removes an object from an array.  
+- * 
+- * @scope    public class method
+- * @param    object    The object to be removed. 
+- * @param    set    The Array that the object should be removed from. 
+- * @return   Returns true if the object was removed from the array.
+- */
+-Util.removeObjectFromSet = function(object, set) {
+-  Util.assert(Util.isArray(set));
+-  
+-  if (!object) {
+-    return false;
+-  }
+-  for (var i=0; i&lt;set.length; i+=1) {
+-    if (set[i] == object) {
+-      set.splice(i, 1);
+-      return true;
+-    }
+-  }
+-  return false;
+-};
+-
+-
+-/**
+- * This method is similar to array.push(object), but it will only add the
+- * object to the array if the object is not already in the array.  
+- * 
+- * @scope    public class method
+- * @param    object    The object to be added. 
+- * @param    set    The Array that the object should be added to. 
+- * @return   Returns true if the object was added to the array.
+- */
+-Util.addObjectToSet = function(object, set) {
+-  Util.assert(Util.isArray(set));
+-
+-  if (!object) {
+-    return false;
+-  }
+-  if (Util.isObjectInSet(object, set)) {
+-    return false;
+-  }
+-  set.push(object);
+-  return true;
+-};
+-
+-
+-/**
+- * Returns the number of values in a hash table. 
+- * 
+- * @scope    public class method
+- * @param    hashTable   A hashTable containing values.
+- * @return   The number of values in inHashTable.
+- */
+-Util.lengthOfHashTable = function(hashTable) {
+-  Util.assert(Util.isHashTable(hashTable));
+-  var count = 0;
+-  for (var key in hashTable) {
+-    count += 1;
+-  }
+-  return count;
+-};
+-
+-
+-/**
+- * Return the values of a HashTable in the form of an Array
+- * Analogous to Python hash.values() 
+- * 
+- * @scope    public class method
+- * @param    hashTable   A hashTable containing values.
+- * @return   An array containing the values that are in inHashTable.
+- */
+-Util.hashTableValues = function(hashTable) {
+-  Util.assert(Util.isHashTable(hashTable));
+-  var returnArray = [];
+-  for (var key in hashTable) {
+-    returnArray.push(hashTable[key]);
+-  }
+-  return returnArray;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Methods that operate on Dates
+-// -------------------------------------------------------------------
+-
+-Util.getStringMonthDayYear = function(date) {
+-  var returnString = Util.ABBREV_MONTHS_ARRAY[date.getMonth()] + ' ' + date.getDate() + ', ' + (date.getYear()+1900);
+-  return returnString;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Methods for doing encryption
+-// -------------------------------------------------------------------
+-
+-Util.hex_md5 = function(string) {
+-  // Calls the hex_md5() function in .../trunk/third_party/md5/md5.js
+-  return hex_md5(string);
+-};
+-
+-
+-
+-// -------------------------------------------------------------------
+-// Methods that deal with event handling
+-// -------------------------------------------------------------------
+-
+-/**
+- * Given an event object, returns the HTML element that was the 
+- * target of the event.  
+- * 
+- * Should work for IE, Mozilla, and _some_ other browsers.  
+- *
+- * @scope    public class method
+- * @param    eventObject    An event object. 
+- * @return   An HTML element.
+- */
+-Util.getTargetFromEvent = function(eventObject) {
+-  var target = null;
+-  if (eventObject.target) {
+-    target = eventObject.target;
+-  } else {
+-    if (eventObject.srcElement) {
+-      target = eventObject.srcElement;
+-    }
+-  }
+-  if (target &amp;&amp; target.nodeType == 3) { // defeat Safari bug
+-    target = target.parentNode;
+-  }
+-  return target;
+-};
+-
+-
+-/**
+- * A cross-browser compatibility method for registering event listeners. 
+- *
+- * @scope public class method
+- * @param element    An HTMLElement.
+- * @param eventType    The type of event (e.g. &quot;mousedown&quot;, &quot;click&quot;).
+- * @param callback    The function to call when the event happens.
+- * @param captures    True if the event should be captured by this function.
+- */
+-Util.addEventListener = function(element, eventType, callback, captures) {
+-  if (element.addEventListener) {
+-    // for DOM Level 2 browsers, like Firefox
+-    element.addEventListener(eventType, callback, captures);
+-  } else {
+-    if (element.attachEvent) {
+-      // for Internet Explorer
+-      element.attachEvent(&quot;on&quot;+eventType, callback, captures);
+-    }
+-  } 
+-};
+-
+-
+-/**
+- * When passing an EventListener (e.g. onclick) a function, it is often useful to
+- * 1) have the function be called by an instance of an object
+- * 2) have additional arguments passed as parameters to the function
+- * 3) some of these additional parameters in (2) are known only when the
+- *    EventListener function is bound, not when the function is called
+- * This utility function returns  a function that satisfies the above 3 reqs.
+- * For more details see, <A HREF="http://www.deepwood.net/writing/method-references.html.utf8">http://www.deepwood.net/writing/method-references.html.utf8</A>
+- * However, empirically, arguments is not an array in Firefox and cannot be
+- * concat'd with an array, hence the mod.
+- */
+-Function.prototype.bindAsEventListener = function(object) {
+-  var method = this;
+-  var preappliedArguments = arguments;
+-  return function (event) {
+-    var args = [event || window.event];
+-    for (var i = 1; i &lt; preappliedArguments.length; ++i) {
+-      args.push(preappliedArguments[i]);
+-    }
+-    method.apply(object, args);
+-  };
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// File I/O methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Given the URL of a file, returns the contents of the file as a text string.
+- *
+- * @scope    public class method
+- * @param    url    A string with the URL of a file containing JavaScript code. 
+- * @return   A string containing the contents of the file.
+- */
+-Util.getStringContentsOfFileAtURL = function(url) {
+-  var anXMLHttpRequestObject = new window.XMLHttpRequest();
+-  anXMLHttpRequestObject.open(&quot;GET&quot;, url, false);
+-  anXMLHttpRequestObject.send(null);
+-  var fileContents = anXMLHttpRequestObject.responseText;
+-  return fileContents;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// HTML document manipulation
+-// -------------------------------------------------------------------
+-
+-/**
+- * Looks at all the anchor links in the document, finds the ones with the 
+- * attribute rel=&quot;external&quot;, and sets the target attribute of those anchor
+- * links so that the links will open in a new browser window.  
+- * 
+- * @scope    public class method
+- */
+-Util.setTargetsForExternalLinks = function() {
+-  if (!window.document.getElementsByTagName) {
+-    return;
+-  }
+-  var listOfAnchorElements = window.document.getElementsByTagName(&quot;a&quot;);
+-  var regExp = new RegExp(&quot;\\b&quot; + &quot;external&quot; + &quot;\\b&quot;);
+-  for (var i=0; i&lt;listOfAnchorElements.length; i+=1) {
+-    var anchor = listOfAnchorElements[i];
+-    if (anchor.getAttribute(&quot;href&quot;) &amp;&amp; (anchor.getAttribute(&quot;rel&quot;)) &amp;&amp; (anchor.getAttribute(&quot;rel&quot;).search(regExp) != -1)) {
+-      anchor.target = &quot;_blank&quot;;
+-    }
+-  }
+-};
+-
+-
+-/**
+- * Given the filename of an image, returns an HTML img element.
+- * 
+- * @scope    public class method
+- * @return   An HTML &quot;img&quot; element.
+- */
+-Util.createImageElement = function(imageFileName) {
+-  var imagesDirectory = &quot;images/&quot;; // PENDING: this shouldn't be hard-coded in Util
+-  var imageElement = document.createElement(&quot;img&quot;);
+-  imageElement.src = imagesDirectory + imageFileName;
+-  return imageElement;
+-};
+-
+-
+-/**
+- * Given an HTML element, find the real left offset for the element,  
+- * meaning the distance in pixels from the left edge of the page.
+- *
+- * @scope    public class method
+- * @param    htmlElement    The HTML element that we want the left offest of. 
+- * @return   An integer value equal to the number of pixels from the left of the page to htmlElement.
+- */
+-Util.getOffsetLeftFromElement = function(htmlElement) {
+-  var cumulativeOffset = 0;
+-  if (htmlElement.offsetParent) {
+-    while (htmlElement.offsetParent) {
+-      cumulativeOffset += htmlElement.offsetLeft;
+-      htmlElement = htmlElement.offsetParent;
+-    }
+-  } else {
+-    if (htmlElement.x) {
+-      cumulativeOffset += htmlElement.x;
+-    }
+-  }
+-  return cumulativeOffset;
+-};
+-
+-
+-/**
+- * Given an HTML element, find the real top offset for the element,  
+- * meaning the distance in pixels from the top edge of the page.
+- *
+- * @scope    public class method
+- * @param    htmlElement    The HTML element that we want the top offest of. 
+- * @return   An integer value equal to the number of pixels from the top of the page to htmlElement.
+- */
+-Util.getOffsetTopFromElement = function(htmlElement) {
+-  var cumulativeOffset = 0;
+-  if (htmlElement.offsetParent) {
+-    while (htmlElement.offsetParent) {
+-      cumulativeOffset += htmlElement.offsetTop;
+-      htmlElement = htmlElement.offsetParent;
+-    }
+-  } else {
+-    if (htmlElement.y) {
+-      cumulativeOffset += htmlElement.y;
+-    }
+-  }
+-  return cumulativeOffset;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Deleted: trunk/source/UtilTest.html
+===================================================================
+--- trunk/source/UtilTest.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/UtilTest.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -1,86 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests for Util.js&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/UtilTest.js	2005-07-01 02:50:23 UTC (rev 205)
+@@ -1,295 +0,0 @@
+-/*****************************************************************************
+- UtilTest.js
+- 
+-******************************************************************************
+- Written in 2005 by 
+-    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-    Mignon Belongie
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-var UtilTestVars = null;
+-
+-function setUp() {
+-  UtilTestVars = {};
+-  UtilTestVars.theHobbit = &quot;The Hobbit&quot;;
+-}
+-
+-function testSimplestCase() {
+-  assertTrue(&quot;This is true&quot;, true);
+-}
+-
+-function testTypeCheckingMethods() {
+-  assertTrue('&quot;The Hobbit&quot; is a string', Util.isString(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not a number', Util.isNumber(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not numeric', Util.isNumeric(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not a boolean', Util.isBoolean(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not an object', Util.isObject(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not an array', Util.isArray(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not a hash table', Util.isHashTable(&quot;The Hobbit&quot;));
+-}
+-
+-function testMethodsThatOperateOnSets() {
+-  var aTinySet = [];
+-  var theHobbit = UtilTestVars.theHobbit;
+-  assertFalse('&quot;The Hobbit&quot; is not in an empty set', Util.isObjectInSet(theHobbit, aTinySet));
+-  assertTrue('&quot;The Hobbit&quot; can be added to an empty set', Util.addObjectToSet(theHobbit, aTinySet));
+-  assertTrue('&quot;The Hobbit&quot; is in the set after being added', Util.isObjectInSet(theHobbit, aTinySet));
+-  assertTrue('&quot;The Hobbit&quot; can be removed from a set it is in', Util.removeObjectFromSet(theHobbit, aTinySet));
+-  assertFalse('&quot;The Hobbit&quot; is no longer in a set it was removed from', Util.isObjectInSet(theHobbit, aTinySet));
+-  assertFalse('&quot;The Hobbit&quot; can not be removed twice', Util.removeObjectFromSet(theHobbit, aTinySet));
+-
+-  var setNumber2 = [123, &quot;456&quot;, 78.9, new Date(), theHobbit];
+-  assertTrue('&quot;The Hobbit&quot; is in setNumber2', Util.isObjectInSet(theHobbit, setNumber2));
+-  assertTrue('78.9 is in setNumber2', Util.isObjectInSet(78.9, setNumber2));
+-  assertTrue('78.9 and &quot;The Hobbit&quot; is in setNumber2', Util.areObjectsInSet([78.9, theHobbit], setNumber2));
+-  assertTrue('All members of setNumber2 are in setNumber2', Util.areObjectsInSet(setNumber2, setNumber2));
+-  
+-}
+-
+-function testEncryptionMethods() {
+-  var longString = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
+-  assertTrue('md5 of &quot;&quot; is correct', (Util.hex_md5(&quot;&quot;) == &quot;d41d8cd98f00b204e9800998ecf8427e&quot;));
+-  assertTrue('md5 of &quot;iggy&quot; is correct', (Util.hex_md5(&quot;iggy&quot;) == &quot;0e026f55a72c0861a93e750c2a5427b1&quot;));
+-  assertTrue('md5 of longString is correct', (Util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
+-}
+-
+-function testGet64bitArrayFromFloat() {
+-  var x = Math.pow(2, 63) + Math.pow(2, 15);
+-  var result = Uuid._get64bitArrayFromFloat(x);
+-  assertTrue(&quot;result[0] == 0x8000&quot;, result[0] === 0x8000);
+-  assertTrue(&quot;result[1] == 0x0000&quot;, result[1] === 0x0000);
+-  assertTrue(&quot;result[2] == 0x0000&quot;, result[2] === 0x0000);
+-  assertTrue(&quot;result[3] == 0x8000&quot;, result[3] === 0x8000);
+-  
+-  var date = new Date();
+-  x = date.valueOf();
+-  result = Uuid._get64bitArrayFromFloat(x);
+-  var reconstructedFloat = result[0];
+-  reconstructedFloat *= 0x10000;
+-  reconstructedFloat += result[1];
+-  reconstructedFloat *= 0x10000;
+-  reconstructedFloat += result[2];
+-  reconstructedFloat *= 0x10000;
+-  reconstructedFloat += result[3];
+-  
+-  assertTrue(&quot;reconstructedFloat === x&quot;, reconstructedFloat === x);
+-}
+-
+-function testAddTwo64bitArrays() {
+-  var a = [0x0000, 0x0000, 0x0000, 0x0001];
+-  var b = [0x0FFF, 0xFFFF, 0xFFFF, 0xFFFF];
+-  var result = Uuid._addTwo64bitArrays(a, b);
+-  assert(result[0] === 0x1000);
+-  assert(result[1] === 0x0000);
+-  assert(result[2] === 0x0000);
+-  assert(result[3] === 0x0000);
+-  
+-  a = [0x4000, 0x8000, 0x8000, 0x8000];
+-  b = [0x8000, 0x8000, 0x8000, 0x8000];
+-  result = Uuid._addTwo64bitArrays(a, b);
+-  assert(result[0] === 0xC001);
+-  assert(result[1] === 0x0001);
+-  assert(result[2] === 0x0001);
+-  assert(result[3] === 0x0000);
+-  
+-  a = [7, 6, 2, 5];
+-  b = [1, 0, 3, 4];
+-  result = Uuid._addTwo64bitArrays(a, b);
+-  assert(result[0] === 8);
+-  assert(result[1] === 6);
+-  assert(result[2] === 5);
+-  assert(result[3] === 9);  
+-}  
+-
+-function testMultiplyTwo64bitArrays() {
+-  var a = [     0, 0x0000, 0x0000, 0x0003];
+-  var b = [0x1111, 0x1234, 0x0000, 0xFFFF];
+-  var result = Uuid._multiplyTwo64bitArrays(a, b);
+-  assert(result[0] === 0x3333);
+-  assert(result[1] === 0x369C);
+-  assert(result[2] === 0x0002);
+-  assert(result[3] === 0xFFFD);
+-  
+-  a = [0, 0, 0, 5];
+-  b = [0, 0, 0, 4];
+-  result = Uuid._multiplyTwo64bitArrays(a, b);
+-  assert(result[0] === 0);
+-  assert(result[1] === 0);
+-  assert(result[2] === 0);
+-  assert(result[3] === 20);  
+-  
+-  a = [0, 0, 2, 5];
+-  b = [0, 0, 3, 4];
+-  result = Uuid._multiplyTwo64bitArrays(a, b);
+-  assert(result[0] === 0);
+-  assert(result[1] === 6);
+-  assert(result[2] === 23);
+-  assert(result[3] === 20);  
+-}  
+-
+-function subtestOnUuid(uuid) {
+-  assertTrue('UUIDs have 36 characters', (uuid.length == 36));
+-
+-  var validCharacters = &quot;0123456789abcedfABCDEF-&quot;;
+-  var character;
+-  var position;
+-  for (var i = 0; i &lt; 36; ++i) {
+-    character = uuid.charAt(i);
+-    position = validCharacters.indexOf(character);
+-    assertTrue('UUIDs have only valid characters', (position != -1));
+-  }
+-  
+-  var arrayOfParts = uuid.split(&quot;-&quot;);
+-  assertTrue('UUIDs have 5 sections separated by 4 hyphens', (arrayOfParts.length == 5));
+-  assertTrue('Section 0 has 8 characters', (arrayOfParts[0].length == 8));
+-  assertTrue('Section 1 has 4 characters', (arrayOfParts[1].length == 4));
+-  assertTrue('Section 2 has 4 characters', (arrayOfParts[2].length == 4));
+-  assertTrue('Section 3 has 4 characters', (arrayOfParts[3].length == 4));
+-  assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+-  
+-  var section3 = arrayOfParts[3];
+-  var hex3 = parseInt(section3, Uuid.HEX_RADIX);
+-  var binaryString = hex3.toString(2);
+-  // alert(&quot;section3 = &quot; + section3 + &quot;\n binaryString = &quot; + binaryString);
+-  assertTrue('section 3 has 16 bits', binaryString.length == 16);
+-  assertTrue(&quot;first bit of section 3 is 1&quot;, binaryString.charAt(0) == '1');
+-  assertTrue(&quot;second bit of section 3 is 0&quot;, binaryString.charAt(1) == '0');
+-  
+-}
+-
+-function testMethodsForWorkingWithRandomUuids() {
+-  var uuid1 = Uuid.generateRandomUuid();
+-  var uuid2 = Uuid.generateRandomUuid();
+-  // alert(uuid1 + &quot;\n&quot; + uuid2);
+-  subtestOnUuid(uuid1);
+-  subtestOnUuid(uuid2);
+-  
+-  var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
+-  
+-  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
+-}
+-
+-function testMethodsForWorkingWithTimeBasedUuids() {
+-  var uuid1 = Uuid.generateTimeBasedUuid();
+-  var uuid2 = Uuid.generateTimeBasedUuid();
+-  var uuid3 = Uuid.generateTimeBasedUuid();
+-  
+-  subtestOnUuid(uuid1);
+-  subtestOnUuid(uuid2);
+-  subtestOnUuid(uuid3);
+-
+-  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
+-  assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
+-  
+-  var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
+-
+-  var section4 = arrayOfParts[4];
+-  var firstChar = section4.charAt(0);
+-  var hexFirstChar = parseInt(firstChar, Uuid.HEX_RADIX);
+-  binaryString = hexFirstChar.toString(2);
+-  var firstBit;
+-  if (binaryString.length == 4) {
+-    firstBit = binaryString.charAt(0);
+-  } else {
+-    firstBit = '0';
+-  }
+-  // alert(&quot;firstChar = &quot; + firstChar + &quot;\n as number = &quot; + hexFirstChar + 
+-  //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+-  assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+-
+-  var uuid4 = Uuid.generateTimeBasedUuid(&quot;123456789ABC&quot;);
+-  subtestOnUuid(uuid4);
+-  arrayOfParts = uuid4.split(&quot;-&quot;);
+-  section4 = arrayOfParts[4];
+-  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
+-
+-  /* 
+-  // Old code that Brian wrote to try to get a sense of how
+-  // many UUIDs we can create in a single millisecond 
+-  var array = [];
+-  var now = new Date();
+-  var then = new Date();
+-  while (now.valueOf() == then.valueOf()) {
+-    then = new Date();
+-  }
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  alert(array[0] + &quot;\n&quot; + 
+-        array[1] + &quot;\n&quot; + 
+-        array[2] + &quot;\n&quot; + 
+-        array[3] + &quot;\n&quot; + 
+-        array[4] + &quot;\n&quot; + 
+-        array[5] + &quot;\n&quot; + 
+-        array[6] + &quot;\n&quot; + 
+-        array[7] + &quot;\n&quot; + 
+-        array[8] + &quot;\n&quot; + 
+-        array[9] + &quot;\n&quot; + 
+-        array[10] + &quot;\n&quot; + 
+-        array[11] + &quot;\n&quot; + 
+-        array[12] + &quot;\n&quot; + 
+-        array[13] + &quot;\n&quot; + 
+-        array[14] + &quot;\n&quot; + 
+-        array[15] + &quot;\n&quot; + 
+-        array[16] + &quot;\n&quot; + 
+-        array[17] + &quot;\n&quot; + 
+-        array[18] + &quot;\n&quot; + 
+-        array[19] + &quot;\n&quot;);
+-  */
+-}
+-
+-function tearDown() {
+-  test = null;
+-}
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/model/LintTest.html
+===================================================================
+--- trunk/source/model/LintTest.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/model/LintTest.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -15,7 +15,7 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/LintTool.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/model/ModelTest.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -15,7 +15,7 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+
+Copied: trunk/source/util/Cookie.js (from rev 200, trunk/source/Cookie.js)
+
+Modified: trunk/source/util/LintTest.html
+===================================================================
+--- trunk/source/util/LintTest.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/util/LintTest.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -15,7 +15,7 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/LintTool.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/source/util/LintTest.js
+===================================================================
+--- trunk/source/util/LintTest.js	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/util/LintTest.js	2005-07-01 02:50:23 UTC (rev 205)
+@@ -39,6 +39,8 @@
+ 
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
++    &quot;Util.js&quot;,
++    &quot;UtilTest.js&quot;,
+     &quot;Uuid.js&quot;,
+     &quot;LintTool.js&quot;];
+   var prefix = &quot;../../../source/util/&quot;;
+
+Added: trunk/source/util/TestSuite.html
+===================================================================
+--- trunk/source/util/TestSuite.html	2005-07-01 02:27:57 UTC (rev 204)
++++ trunk/source/util/TestSuite.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -0,0 +1,96 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Util Test Suite&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      function suite() {
++        var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestSuite(utilTestSuite());
++        return testSuite;
++      }
++      
++      function utilTestSuite() {
++        var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestPage(&quot;../../../source/util/UtilTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../source/util/LintTest.html&quot;);
++        return testSuite;
++      }
++    &lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Util Test Suite&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/source/util/Util.js (from rev 203, trunk/source/Util.js)
+
+Copied: trunk/source/util/UtilTest.html (from rev 201, trunk/source/UtilTest.html)
+===================================================================
+--- trunk/source/UtilTest.html	2005-06-30 22:14:03 UTC (rev 201)
++++ trunk/source/util/UtilTest.html	2005-07-01 02:50:23 UTC (rev 205)
+@@ -0,0 +1,86 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for Util.js&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/source/util/UtilTest.js (from rev 201, trunk/source/UtilTest.js)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000190.html">[openrecord-svn] r204 - in trunk/source: . model util
+</A></li>
+	<LI>Next message: <A HREF="000192.html">[openrecord-svn] r206 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#191">[ date ]</a>
+              <a href="thread.html#191">[ thread ]</a>
+              <a href="subject.html#191">[ subject ]</a>
+              <a href="author.html#191">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

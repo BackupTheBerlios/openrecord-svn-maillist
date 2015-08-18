@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r172 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r172%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506232042.j5NKgfsl015833%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000157.html">
+   <LINK REL="Next"  HREF="000159.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r172 - in trunk: documentation source source/model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r172%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506232042.j5NKgfsl015833%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r172 - in trunk: documentation source source/model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 23 22:42:41 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000157.html">[openrecord-svn] r171 - in trunk/source: . model repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000159.html">[openrecord-svn] r173 - in trunk: . source source/model source/repositories source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-23 22:42:41 +0200 (Thu, 23 Jun 2005)
+New Revision: 172
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Fixed bug that writes to repository when no user is logged in.
+Cleaned up some UI navigation issues per Mimi's feedback
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-22 22:32:12 UTC (rev 171)
++++ trunk/documentation/release_planning.txt	2005-06-23 20:42:41 UTC (rev 172)
+@@ -184,12 +184,12 @@
+ mignon |          | done    | 24. Display Navbar pages in the right order
+ chao   |          | done?   | 25. Arrow keys in SuggestionBox
+        |          |         | 26. Arrow keys in Table View
+-       |          |         | 27. Change UI so that non-literal entries are immutable
++chao   |1.5 IED   |         | 27. Change UI so that non-literal entries are immutable
+        |          |         | 28. Implement a good URL-to-content mapping, such that URLs won't go bad in future releases
+        |          |         | 29. Convert UI code from DOM level 0 to DOM level 2
+        |          |         | 30. Have identifiedRecord.getTimestamp() get the time from the UUID 
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 31. Wire up observers &amp; keep views in sync
++chao   |0.5 IED   |         | 31. Wire up observers &amp; keep views in sync
+        |          |         | 32. improve UI for adding an attribute to an item
+        |          |         | 33. improve UI for setting the expected data type of an attribute
+        |          |         | 34. improve UI for creating a new category
+@@ -226,6 +226,7 @@
+ chao   | 0.5 IED  | 0.5 IED | Improved UI for autocomplete
+ chao   | 0.5 IED  | 0.5 IED | Allow plugins to store layout data
+ chao   | 0.5 IED  | 0.5 IED | Table plugin persists column order
++chao   | 0.5 IED  |         | Improve UI for navigating between cells and autocomplete
+        
+ 
+ 
+@@ -456,3 +457,4 @@
+ + BUG: need to convert HTML entity codes back at client-server layer
+ + Task: Rename ORlugin to PluginView
+ + BUG: Can't really create own plugins yet (e.g. UUID need to be assigned, plugin item created)
+++ Q: Do we (and how) need a concept of focus for Views? Currently, only Text input and Textarea gets keyboard focus. We need it for table selections and possibly selecting &quot;lozenges&quot; (item references stored in the TextView)
+\ No newline at end of file
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-22 22:32:12 UTC (rev 171)
++++ trunk/source/TablePlugin.js	2005-06-23 20:42:41 UTC (rev 172)
+@@ -119,9 +119,7 @@
+   var entriesTableColumns = this._layout.getEntriesForAttribute(attrTableColumns);
+   var displayAttrs = [];
+   var anAttribute;
+-  var useLayoutData = (entriesTableColumns) &amp;&amp; (entriesTableColumns.length &gt; 1 ||
+-    (entriesTableColumns.length ==1 &amp;&amp; entriesTableColumns[0].getValue() != repository.getAttributeCalledName()));
+-  if (useLayoutData) {
++  if (entriesTableColumns.length &gt; 0) {
+     this._hashTableOfEntries = {};
+     for (var i=0;i&lt;entriesTableColumns.length;++i) {
+       anAttribute = entriesTableColumns[i].getValue();
+@@ -132,12 +130,10 @@
+     }
+   }
+   else {
+-    if (entriesTableColumns.length == 1) {entriesTableColumns[0].voteToDelete();}
+     var hashTableOfAttributes = this._buildAttributeHashFromScratch();
+     for (var key in hashTableOfAttributes) {
+       anAttribute = hashTableOfAttributes[key];
+       displayAttrs.push(anAttribute);
+-      this._layout.addEntryForAttribute(attrTableColumns,anAttribute,repository.getTypeCalledItem());
+     }
+   }
+   this._displayAttributes = displayAttrs;
+@@ -562,15 +558,15 @@
+   
+   var move = null;
+   switch (asciiValueOfKey) {
+-    case Util.ASCII_VALUE_FOR_LEFT_ARROW:
++/*    case Util.ASCII_VALUE_FOR_LEFT_ARROW:
+       move = MOVE_LEFT;
+-      break;
++      break;*/
+     case Util.ASCII_VALUE_FOR_UP_ARROW:
+       move = MOVE_UP;
+       break;
+-    case Util.ASCII_VALUE_FOR_RIGHT_ARROW:
++/*    case Util.ASCII_VALUE_FOR_RIGHT_ARROW:
+       move = MOVE_RIGHT;
+-      break;
++      break;*/
+     case Util.ASCII_VALUE_FOR_DOWN_ARROW:
+       move = MOVE_DOWN;
+       break;
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-22 22:32:12 UTC (rev 171)
++++ trunk/source/TextView.js	2005-06-23 20:42:41 UTC (rev 172)
+@@ -552,6 +552,7 @@
+   this._myInputField = inHTMLInputField;
+   this._listOfSuggestedItems = listOfItems.sort(AttributeSuggestionBox._compareItemDisplayNames);
+   this._selectedItem = null;
++  this._shouldHide = inHTMLInputField.value.length === 0;
+   
+   this._myAttributeSuggestionBoxDivElement = document.createElement('div');
+   // this._myAttributeSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
+@@ -712,7 +713,7 @@
+  *
+  */
+ AttributeSuggestionBox.prototype._redisplayAttributeSuggestionBox = function () {
+-  if (this._shouldHide) {return;} // if SuggestionBox is in hide mode, don't show the box
++  //if (this._shouldHide) {return;} // if SuggestionBox is in hide mode, don't show the box
+   
+   var partialInputString = this._myInputField.value;
+   var listOfMatchingItems = [];
+@@ -732,7 +733,7 @@
+   }
+   this._listOfMatchingItems = listOfMatchingItems;
+ 
+-  if (listOfMatchingItems.length === 0) {
++  if (this._shouldHide || listOfMatchingItems.length === 0) {
+     // make the suggestion box disappear
+     this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-22 22:32:12 UTC (rev 171)
++++ trunk/source/model/StubVirtualServer.js	2005-06-23 20:42:41 UTC (rev 172)
+@@ -417,39 +417,6 @@
+ 
+ 
+ /**
+- *
+- */
+-StubVirtualServer.prototype.getItemsOfCategory = function (inCategory) {
+-  var listOfItems = [];
+-  for (var key in this.__myHashTableOfItemsKeyedByUuid) {
+-    var item = this.__myHashTableOfItemsKeyedByUuid[key];
+-    if (item.isInCategory(inCategory)) {
+-      listOfItems.push(item);
+-    }
+-  }
+-  return listOfItems;
+-};
+-
+-
+-/**
+- *
+- */
+-StubVirtualServer.prototype.getCategories = function () {
+-  var categoryCalledCategory = this.getWorld().getCategoryCalledCategory();
+-  return this.getItemsOfCategory(categoryCalledCategory);
+-};
+-
+-
+-/**
+- *
+- */
+-StubVirtualServer.prototype.getAttributes = function () {
+-  var categoryCalledAttribute = this.getWorld().getCategoryCalledAttribute();
+-  return this.getItemsOfCategory(categoryCalledAttribute);
+-};
+-
+-
+-/**
+  * Returns an item representing the user who is currently logged in.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-22 22:32:12 UTC (rev 171)
++++ trunk/source/model/World.js	2005-06-23 20:42:41 UTC (rev 172)
+@@ -805,8 +805,9 @@
+  */
+ World.prototype.getItemsInCategory = function(category, observer) {
+   var listOfItems = this._virtualServer.getItemsInCategory(category);
++  // listOfItems = this._getFilteredList(listOfItems); PENDING: not sure if I should call this?
+   this.__addListObserver(listOfItems, observer);
+-  return listOfItems;
++  return (listOfItems);
+ };
+ 
+ 
+@@ -816,9 +817,9 @@
+  * @scope    public instance method
+  * @return   A list of items that represent categories.
+  */
+-World.prototype.getCategories = function() {
+-  var listOfCategories = this._virtualServer.getCategories();
+-  return this._getFilteredList(listOfCategories);
++World.prototype.getCategories = function(observer) {
++  var categoryCalledCategory = this.getCategoryCalledCategory();
++  return this.getItemsInCategory(categoryCalledCategory, observer);
+ };
+ 
+ /**
+@@ -827,15 +828,15 @@
+  * @scope    public instance method
+  * @return   A list of items that represent attributes.
+  */
+-World.prototype.getAttributes = function() {
+-  var listOfAttributes = this._virtualServer.getAttributes();
+-  return this._getFilteredList(listOfAttributes);
++World.prototype.getAttributes = function(observer) {
++  var categoryCalledAttribute = this.getCategoryCalledAttribute();
++  return this.getItemsInCategory(categoryCalledAttribute, observer);
+ };
+ 
+ /**
+  *
+  */
+-World.prototype.getSuggestedItemsForAttribute = function(attribute) {
++World.prototype.getSuggestedItemsForAttribute = function(attribute, observer) {
+   var listOfSuggestedItems = [];
+   var key;
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+@@ -858,6 +859,8 @@
+       Util.addObjectToSet(item, listOfSuggestedItems);
+     }
+   }
++  this.__addListObserver(listOfSuggestedItems, observer);
++  
+   // For no suggested items, TablePlugin expects an empty array rather than null 
+   return listOfSuggestedItems;
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000157.html">[openrecord-svn] r171 - in trunk/source: . model repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000159.html">[openrecord-svn] r173 - in trunk: . source source/model source/repositories source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

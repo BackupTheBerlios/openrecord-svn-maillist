@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r58 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r58%20-%20trunk/source&In-Reply-To=%3C200505070241.j472fHKr005696%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000049.html">
+   <LINK REL="Next"  HREF="000051.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r58 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r58%20-%20trunk/source&In-Reply-To=%3C200505070241.j472fHKr005696%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r58 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Sat May  7 04:41:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000049.html">[openrecord-svn] r57 - in trunk: documentation source source/images
+</A></li>
+        <LI>Next message: <A HREF="000051.html">[openrecord-svn] r59 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#50">[ date ]</a>
+              <a href="thread.html#50">[ thread ]</a>
+              <a href="subject.html#50">[ subject ]</a>
+              <a href="author.html#50">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-05-07 04:41:09 +0200 (Sat, 07 May 2005)
+New Revision: 58
+
+Modified:
+   trunk/source/TablePlugin.js
+Log:
+
+
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-07 02:19:43 UTC (rev 57)
++++ trunk/source/TablePlugin.js	2005-05-07 02:41:09 UTC (rev 58)
+@@ -235,129 +235,7 @@
+   this.doInitialDisplay();
+ }
+   
+-  
+-// FOLLOWING methods are no longer used
+-
+ /**
+- * Called when the user clicks on a table cell.
+- * 
+- * Called from an HTML &quot;td&quot; element on the generated page.  There is no need
+- * to call this method directly.
+- *
+- * @scope    public class method
+- */
+-TablePlugin.clickOnCell = function (inEventObject) {
+-  var eventObject = inEventObject;
+-  if (!eventObject) { eventObject = window.event; } 
+-  // PENDING: try this instead: var eventObject = inEventObject || window.event;
+-  
+-  var htmlElement = Util.getTargetFromEvent(eventObject);
+-  // PENDING: We could replace the two lines above with &quot;var htmlElement = this;&quot;
+-  // That would work fine in Firefox, but maybe it wouldn't work in other browsers?
+-
+-  var currentEditField = document.getElementById(TablePlugin.ELEMENT_ID_CURRENT_EDIT_FIELD);
+-  if (currentEditField &amp;&amp; (currentEditField == htmlElement)) {
+-    // another click in the cell we're already editing -- just ignore it
+-    return; 
+-  }
+-  TablePlugin.leaveEditField();
+-  TablePlugin.startEditingInCell(htmlElement);
+-};
+-
+-
+-/**
+- * Called when the user first moves the cursor into one of the cells of
+- * the bottom table row, which is the row used for creating new items.
+- * 
+- * @scope    public instance method
+- * @param    inColumnNumber    An integer column number, telling which column to start editing in. 
+- */
+-TablePlugin.prototype.startEditingInCellForNewItemAtColumn = function (inColumnNumber) {
+-  var rowForNewItemEntry = this.myNumRows - 1;
+-  var rowDelegateForNewItemEntry = this.myArrayOfRowDelegates[rowForNewItemEntry];
+-  var cellDelegate = rowDelegateForNewItemEntry.myArrayOfCellDelegates[inColumnNumber];
+-  var nextCell = document.getElementById(cellDelegate.myCellElementId);
+-  TablePlugin.startEditingInCell(nextCell);
+-};
+-
+-
+-/**
+- * Given an HTML table cell element, adds a text field inside the
+- * table cell, so the user can edit the cell.
+- * 
+- * @scope    public class method
+- * @param    inCellElement    An HTMLTableCellElement. 
+- */
+-TablePlugin.startEditingInCell = function (inCellElement) {
+-  Util.assert(inCellElement instanceof HTMLTableCellElement);
+-
+-  var initialEditValue = inCellElement.innerHTML.replace(/&quot;/g, &quot;&amp;quot&quot;);
+-  var editFieldString = &quot;&lt;input type=\&quot;text\&quot; class=\&quot;&quot; + SectionView.ELEMENT_CLASS_TEXT_FIELD_IN_TABLE_CELL + &quot;\&quot; id=\&quot;&quot; + TablePlugin.ELEMENT_ID_CURRENT_EDIT_FIELD + &quot;\&quot; value=\&quot;&quot; + initialEditValue + &quot;\&quot; size=\&quot;1\&quot;&gt;&lt;/input&gt;&quot;;
+-  inCellElement.innerHTML = editFieldString;
+-  inCellElement.className = SectionView.ELEMENT_CLASS_SELECTED + &quot; &quot; + inCellElement.className;
+-  // var listener = this; 
+-  // Util.addEventListener(editField, &quot;blur&quot;, function(event) {listener.onBlur(event);});
+-      
+-  var newEditField = document.getElementById(TablePlugin.ELEMENT_ID_CURRENT_EDIT_FIELD);
+-  newEditField.onkeypress = TablePlugin.keyPressOnEditField;
+-  newEditField.select();
+-  newEditField.focus();
+-};
+-
+-
+-/**
+- * Called when the user is done editing a table cell. 
+- *
+- * @scope    public class method
+- */
+-TablePlugin.leaveEditField = function () {
+-  var currentEditField = document.getElementById(TablePlugin.ELEMENT_ID_CURRENT_EDIT_FIELD);
+-
+-  if (currentEditField) {
+-    var newValueString = currentEditField.value;
+-    var cellElement = currentEditField.parentNode;
+-    var cellDelegate = cellElement.mydelegate;
+-
+-    // find the content item for this cell, and set the attribute to the new cell value
+-    var contentItem = cellDelegate.myRowDelegate.myContentItem;
+-    if (!contentItem) {
+-      var sectionView = cellDelegate.myTablePlugin.getSuperview();
+-      var stevedore = sectionView.getStevedore();
+-      contentItem = stevedore.newItem(); 
+-      cellDelegate.myTablePlugin.myNewItemCreatedFlag = true;
+-      cellDelegate.myRowDelegate.myContentItem = contentItem;
+-      var queryList = sectionView.mySection.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY);
+-      if (queryList) {
+-        var query = queryList[0];
+-        // PENDING: We should NOT get a value from the item's PRIVATE _myStevedore property
+-        contentItem._myStevedore.setItemToBeIncludedInQueryResultList(contentItem, query);
+-      }
+-    }
+-    var attribute = cellDelegate.myAttribute;
+-    var valueList = contentItem.getValueListFromAttribute(attribute);
+-    var oldValueString = &quot;&quot;;
+-    if (valueList) {
+-      oldValueString = SectionView.getStringForValue(valueList[0]);
+-    }
+-    if (oldValueString != newValueString) {
+-      contentItem.clear(attribute);
+-      contentItem.assign(attribute, newValueString);
+-    }
+-    
+-    // remove the edit field from the cell, and replace it with the new cell value
+-    valueList = contentItem.getValueListFromAttribute(attribute);
+-    newValueString = &quot;&quot;;
+-    if (valueList) {
+-      newValueString = SectionView.getStringForValue(valueList[0]);
+-    } 
+-    cellElement.innerHTML = newValueString;
+-    var regularExpression = new RegExp(SectionView.ELEMENT_CLASS_SELECTED, &quot;i&quot;);
+-    cellElement.className = cellElement.className.replace(regularExpression, &quot;&quot;);    
+-  }
+-};
+-
+-
+-/**
+  * Called when the user types a character when editing a table cell. 
+  *
+  * Called from an HTML &quot;input type='text'&quot; element within an HTML &quot;td&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000049.html">[openrecord-svn] r57 - in trunk: documentation source source/images
+</A></li>
+	<LI>Next message: <A HREF="000051.html">[openrecord-svn] r59 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#50">[ date ]</a>
+              <a href="thread.html#50">[ thread ]</a>
+              <a href="subject.html#50">[ subject ]</a>
+              <a href="author.html#50">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,485 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r165 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r165%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506210233.j5L2XNmk019812%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000150.html">
+   <LINK REL="Next"  HREF="000152.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r165 - in trunk/source: . model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r165%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506210233.j5L2XNmk019812%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r165 - in trunk/source: . model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jun 21 04:33:23 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000150.html">[openrecord-svn] r164 - in trunk: documentation source source/model
+</A></li>
+        <LI>Next message: <A HREF="000152.html">[openrecord-svn] r166 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#151">[ date ]</a>
+              <a href="thread.html#151">[ thread ]</a>
+              <a href="subject.html#151">[ subject ]</a>
+              <a href="author.html#151">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-21 04:33:13 +0200 (Tue, 21 Jun 2005)
+New Revision: 165
+
+Modified:
+   trunk/source/RootView.js
+   trunk/source/TextView.js
+   trunk/source/base_style.css
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Added support for bi-directional items in the UI
+Attribute has a new attribute: &quot;Inverse Attribute&quot; to specify it's bi-directional pair.
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/RootView.js	2005-06-21 02:33:13 UTC (rev 165)
+@@ -468,10 +468,13 @@
+   if (this.myNumberOfCallsToDebug &gt; 20) {
+     return;
+   }
+-  this.myDebugTextarea.value += inText + &quot;\n\n============================\n\n&quot;;
+-  this.myDebugTextarea.style.visibility = &quot;visible&quot;;
+-  this.myDebugTextarea.style.display = &quot;block&quot;;
+-  this.myDebugTextarea.scrollIntoView();
++  if (this.myDebugTextarea) {
++    this.myDebugTextarea.value += inText + &quot;\n\n============================\n\n&quot;;
++    this.myDebugTextarea.style.visibility = &quot;visible&quot;;
++    this.myDebugTextarea.style.display = &quot;block&quot;;
++    this.myDebugTextarea.scrollIntoView();
++  }
++  else {alert(inText);}
+ };
+ 
+ 
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/TextView.js	2005-06-21 02:33:13 UTC (rev 165)
+@@ -332,17 +332,24 @@
+  * @param    value    The new value to be saved. 
+  */
+ TextView.prototype._writeValue = function(value) {
+-  value = this._transformToExpectedType(value);
+-  if (this._entry) {
+-    var oldValue = this._entry.getValue();
++  if (value === 0 || value) {
++    value = this._transformToExpectedType(value);
++
++    var oldValue = null;
++    if (this._entry) {oldValue = this._entry.getValue();}
+     if (oldValue != value) {
+-      this._entry = this._item.replaceEntry(this._entry, value);
+-      this._restoreText(true); // call restore text in case item is transformed (e.g. Dates will be normalized)
+-    }
+-  } else if (value) {
+-    this._entry = this._item.addEntryForAttribute(this._attribute, value);
+-    this._restoreText(true); // call restore text in case item is transformed (e.g. Dates will be normalized
++      var attributeCalledInverseAttribute = this.getWorld().getAttributeCalledInverseAttribute();
++      var listOfInverseAttributeEntries = this._attribute.getEntriesForAttribute(attributeCalledInverseAttribute);
++      if (listOfInverseAttributeEntries.length &gt; 0) {
++        var inverseAttr = listOfInverseAttributeEntries[0].getValue();
++        this._entry = this._item.replaceEntryWithConnection(this._entry, this._attribute, value, inverseAttr);
++      }
++      else {
++        this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
++      }
++    }    
+   }
++  this._restoreText(true); // call restore text in case item is transformed (e.g. Dates will be normalized)
+ };
+ 
+ 
+@@ -353,7 +360,7 @@
+  */
+ TextView.prototype._getText = function() {
+   if (this._isProvisional) {return this._provisionalText;}
+-  if (this._entry) {return this._entry.getDisplayString();}
++  if (this._entry) {return this._item.getDisplayStringForEntry(this._entry);}
+   return '';
+ };
+ 
+@@ -364,7 +371,7 @@
+  * @scope    private instance method
+  */
+ TextView.prototype._restoreText = function(dontSelect) {
+-  var oldText = (this._entry) ?  this._entry.getDisplayString() : '';
++  var oldText = (this._entry) ?  this._getText() : '';
+   if (this._isEditing) {
+     this._editField.value = oldText;
+   }
+@@ -621,6 +628,7 @@
+       }
+       break;
+       case Util.ASCII_VALUE_FOR_TAB:
++      if (this._myInputField.value.length === 0) {return false;}
+       if (!this._selectedItem) {
+         this._selectedItem = this._listOfMatchingItems[0];
+         doSelectItem = true;
+@@ -731,7 +739,8 @@
+       var textNode = document.createTextNode(item.getDisplayName());
+       var row = table.insertRow(rowNumber);
+       var cell = row.insertCell(columnNumber);
+-      cell.style.background = (this._selectedItem == item) ? &quot;rgb(0%,70%,100%)&quot;:&quot;&quot;; //pending need to CSS-ify this
++      cell.className = (this._selectedItem == item) ? &quot;suggestion_box_selected&quot;:&quot;&quot;;
++      //cell.style.background = (this._selectedItem == item) ? &quot;rgb(0%,70%,100%)&quot;:&quot;&quot;; //pending need to CSS-ify this
+       cell.appendChild(textNode);
+       cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, item);
+       rowNumber += 1;
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/base_style.css	2005-06-21 02:33:13 UTC (rev 165)
+@@ -568,6 +568,10 @@
+   width: 100%;
+ }
+ 
++.suggestion_box_selected td {
++  background: rgb(100%,100%,0%);
++}
++
+ .suggestion_box td {
+   margin: 0px;
+   border: 0px;
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-21 02:33:13 UTC (rev 165)
+@@ -47,6 +47,10 @@
+              &quot;uuid&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Inverse Attribute
++             &quot;uuid&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Attribute
+              &quot;uuid&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -343,7 +347,31 @@
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Inverse Attribute
++             &quot;uuid&quot;: &quot;000100ba-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;Inverse Attribute&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Attribute
++             &quot;uuid&quot;: &quot;000100bb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;type&quot;: &quot;RelatedUuid&quot;,
++            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Attribute
++             &quot;uuid&quot;: &quot;000100bc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
++             &quot;type&quot;: &quot;RelatedUuid&quot;,
++            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Attribute
+              &quot;uuid&quot;: &quot;0001010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/model/Entry.js	2005-06-21 02:33:13 UTC (rev 165)
+@@ -131,12 +131,20 @@
+  * need to call entry.rehydrate();
+  *
+  * @scope    protected instance method
++ * @param    previousEntry    The entry that this entry will replace. Can be null.
+  * @param    itemOne    One of the two items that this entry will connect. 
+  * @param    attributeOne    The attribute of itemOne that this entry will be assigned to. 
+  * @param    itemTwo    One of the two items that this entry will connect. 
+  * @param    attributeTwo    Optional. The attribute of itemTwo that this entry will be assigned to.  
+  */
+-Entry.prototype._initializeConnection = function (itemOne, attributeOne, itemTwo, attributeTwo) {
++Entry.prototype._initializeConnection = function (previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
++  if (previousEntry) {
++    this.__myPreviousEntry = previousEntry;
++    this.__myPreviousEntry.__addSubsequentEntry(this);
++  } else {
++    this.__myPreviousEntry = null;
++  }
++
+   this.__myItem = [itemOne, itemTwo];
+   this.__myAttribute = [attributeOne, attributeTwo];
+   this._myType = this.getWorld().getTypeCalledConnection();
+@@ -278,7 +286,7 @@
+  * @scope    public instance method
+  * @return   A string representing the literal data in this entry.
+  */
+-Entry.prototype.getDisplayString = function () {
++Entry.prototype.getDisplayString = function (myItem) {
+   var returnString = &quot;&quot;;
+   switch (this._myType) {
+     case this.getWorld().getTypeCalledNumber():
+@@ -297,7 +305,14 @@
+     case this.getWorld().getTypeCalledConnection():
+       var firstItem = this.__myItem[0];
+       var secondItem = this.__myItem[1];
+-      returnString = &quot;connection between [&quot; + firstItem.getDisplayName() + &quot;] and [&quot; + secondItem.getDisplayName() + &quot;]&quot;;
++      if (myItem) {
++        if (myItem == firstItem) {returnString = secondItem.getDisplayName();}
++        else if (myItem == secondItem) {returnString = firstItem.getDisplayName();}
++        else {Util.assert(false, &quot;myItem isn't part of this Entry&quot;);}
++      }
++      else {
++        returnString = &quot;connection between [&quot; + firstItem.getDisplayName() + &quot;] and [&quot; + secondItem.getDisplayName() + &quot;]&quot;;
++      }
+       break;
+   }
+   return returnString;
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/model/Item.js	2005-06-21 02:33:13 UTC (rev 165)
+@@ -220,8 +220,36 @@
+  * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.addConnectionEntry = function (myAttribute, otherItem, otherAttribute) {
++  return this.replaceEntryWithConnection(null, myAttribute, otherItem, otherAttribute);
++};
++
++
++/**
++ *
++ */
++Item.prototype.replaceEntryWithConnection = function (previousEntry, myAttribute, otherItem, otherAttribute) {
+   Util.assert(otherItem instanceof Item);
+-  
++  Util.assert(myAttribute instanceof Item);
++
++  // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
++  // then don't even bother creating a new entry. 
++  if (previousEntry) {
++    var oldValue = previousEntry.getValue();
++    var oldPairOfAttributes = previousEntry.getAttribute();
++    var oldPairOfItems = previousEntry.getItem();
++    if (Util.isArray(oldPairOfAttributes)) {
++      Util.assert(Util.isArray(oldPairOfAttributes));
++      Util.assert(oldPairOfAttributes.length == 2);
++      Util.assert(oldPairOfItems.length == 2);
++      if (((oldPairOfAttributes[0] == myAttribute) &amp;&amp;  (oldPairOfAttributes[1] == otherAttribute) &amp;&amp;
++        oldPairOfItems[0] == this &amp;&amp; oldPairOfItems[1] == otherItem) ||
++        ((oldPairOfAttributes[1] == myAttribute) &amp;&amp;  (oldPairOfAttributes[0] == otherAttribute) &amp;&amp;
++        oldPairOfItems[1] == this &amp;&amp; oldPairOfItems[0] == otherItem)) {
++        return null;
++      }
++    }
++  }
++
+   this.getWorld().beginTransaction();
+   if (this.__myProvisionalFlag) {
+     this.__myProvisionalFlag = false;
+@@ -235,12 +263,11 @@
+     otherAttribute = this.getWorld().getAttributeCalledUnfiled();
+   }
+ 
+-  var entry = this.getWorld()._newConnectionEntry(this, myAttribute, otherItem, otherAttribute);
++  var entry = this.getWorld()._newConnectionEntry(previousEntry, this, myAttribute, otherItem, otherAttribute);
+   this.getWorld().endTransaction();
+-  return entry;
++  return entry;  
+ };
+ 
+-
+ // -------------------------------------------------------------------
+ // Accessor methods where the answer depends on the retrieval filter
+ // -------------------------------------------------------------------
+@@ -291,7 +318,6 @@
+       Util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+-      Util.assert(false);
+       filteredListOfEntries = listOfEntriesForAttribute;
+       break;
+     default:
+@@ -425,6 +451,10 @@
+   return &quot;&quot;;
+ };
+ 
++Item.prototype.getDisplayStringForEntry = function (myEntry) {
++  Util.assert(myEntry instanceof Entry);
++  return myEntry.getDisplayString(this);
++};
+ /**
+  * Returns a string describing the item.
+  *
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/model/StubVirtualServer.js	2005-06-21 02:33:13 UTC (rev 165)
+@@ -58,6 +58,7 @@
+ 
+ StubVirtualServer.JSON_MEMBER_TYPE = &quot;type&quot;;
+ StubVirtualServer.JSON_MEMBER_VALUE = &quot;value&quot;;
++
+ StubVirtualServer.JSON_TYPE_TEXT_VALUE = &quot;TextValue&quot;;
+ StubVirtualServer.JSON_TYPE_UUID = &quot;Uuid&quot;;
+ StubVirtualServer.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
+@@ -303,6 +304,7 @@
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
++ * @param    previousEntry    The entry that this entry will replace. Can be null.
+  * @param    itemOne    One of the two items that this entry will connect. 
+  * @param    attributeOne    The attribute of itemOne that this entry will be assigned to. 
+  * @param    itemTwo    One of the two items that this entry will connect. 
+@@ -310,11 +312,11 @@
+  * @return   A newly created entry.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype.newConnectionEntry = function(itemOne, attributeOne, itemTwo, attributeTwo) {
++StubVirtualServer.prototype.newConnectionEntry = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
+   var entry = new Entry(this.__myWorld, uuid);
+-  entry._initializeConnection(itemOne, attributeOne, itemTwo, attributeTwo);
++  entry._initializeConnection(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
+ 
+   itemOne.__addEntryToListOfEntriesForAttribute(entry, attributeOne);
+   itemTwo.__addEntryToListOfEntriesForAttribute(entry, attributeTwo);
+@@ -536,7 +538,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ StubVirtualServer.prototype.getItemFromUuid = function (inUuid, inObserver) {
+-  Util.assert(Util.isUuid(inUuid));
++  Util.assert(Util.isUuid(inUuid), inUuid + ' is not a Uuid');
+   
+   var item = this.__myHashTableOfItemsKeyedByUuid[inUuid];
+   if (item &amp;&amp; inObserver) {
+@@ -974,6 +976,7 @@
+   var checkMark = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_CHECK_MARK);
+   var url       = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_URL);
+   var itemType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_ITEM);
++  var connectionType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_CONNECTION);
+   
+   this._myHashTableOfTypesKeyedByToken = {};
+   this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_TEXT_VALUE] = text;
+@@ -982,6 +985,7 @@
+   this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CHECKMARK_VALUE] = checkMark;
+   this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_URL_VALUE] = url;
+   this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_RELATED_UUID] = itemType;
++  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CONNECTION] = connectionType;
+ };
+ 
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-19 18:21:24 UTC (rev 164)
++++ trunk/source/model/World.js	2005-06-21 02:33:13 UTC (rev 165)
+@@ -59,8 +59,9 @@
+ World.UUID_FOR_ATTRIBUTE_QUERY         = &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE = &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE = &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_UNFILED       = &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE = &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_UNFILED           = &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE     = &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE = &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ World.UUID_FOR_CATEGORY_BOOK           = &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+ World.UUID_FOR_CATEGORY_MOVIE          = &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+@@ -121,6 +122,7 @@
+   this._attributeCalledQueryMatchingAttribute     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE);
+   this._attributeCalledUnfiled               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
+   this._attributeCalledExpectedType          = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
++  this._attributeCalledInverseAttribute         = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE);
+ 
+   // load the axiomatic categories
+   this._categoryCalledAttribute   = server.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+@@ -399,7 +401,11 @@
+   return this._attributeCalledExpectedType;
+ };
+ 
++World.prototype.getAttributeCalledInverseAttribute = function() {
++  return this._attributeCalledInverseAttribute;
++};
+ 
++
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic categories
+ // -------------------------------------------------------------------
+@@ -693,15 +699,16 @@
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
++ * @param    previousEntry    The entry that this entry will replace. Can be null.
+  * @param    itemOne    One of the two items that this entry will connect. 
+  * @param    attributeOne    The attribute of itemOne that this entry will be assigned to. 
+  * @param    itemTwo    One of the two items that this entry will connect. 
+  * @param    attributeTwo    The attribute of itemTwo that this entry will be assigned to.  
+  * @return   A newly created entry.
+  */
+-World.prototype._newConnectionEntry = function(itemOne, attributeOne, itemTwo, attributeTwo) {
++World.prototype._newConnectionEntry = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
+   this.beginTransaction();
+-  var entry = this._virtualServer.newConnectionEntry(itemOne, attributeOne, itemTwo, attributeTwo);
++  var entry = this._virtualServer.newConnectionEntry(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
+   this.endTransaction();
+   return entry;
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000150.html">[openrecord-svn] r164 - in trunk: documentation source source/model
+</A></li>
+	<LI>Next message: <A HREF="000152.html">[openrecord-svn] r166 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#151">[ date ]</a>
+              <a href="thread.html#151">[ thread ]</a>
+              <a href="subject.html#151">[ subject ]</a>
+              <a href="author.html#151">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

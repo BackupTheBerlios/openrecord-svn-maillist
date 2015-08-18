@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r28 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r28%20-%20trunk/source&In-Reply-To=%3C200504070209.j3729kHo019080%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000021.html">
+   <LINK REL="Next"  HREF="000023.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r28 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r28%20-%20trunk/source&In-Reply-To=%3C200504070209.j3729kHo019080%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r28 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr  7 04:09:46 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000021.html">[openrecord-svn] r27 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000023.html">[openrecord-svn] r30 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#22">[ date ]</a>
+              <a href="thread.html#22">[ thread ]</a>
+              <a href="subject.html#22">[ subject ]</a>
+              <a href="author.html#22">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-07 04:09:40 +0200 (Thu, 07 Apr 2005)
+New Revision: 28
+
+Modified:
+   trunk/source/TextView.js
+Log:
+Changed TextView so that as you type the text area automatically grows bigger instead of showing a scrollbar.
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-04-06 19:47:01 UTC (rev 27)
++++ trunk/source/TextView.js	2005-04-07 02:09:40 UTC (rev 28)
+@@ -135,7 +135,7 @@
+       //editField.cols=80; now using css style sheet &quot;text_view&quot;
+       var listener = this; 
+       Util.addEventListener(editField, &quot;blur&quot;, function(event) {listener.onBlur(event);});
+-      Util.addEventListener(editField, &quot;keypress&quot;, function(event) {listener.onKeyPress(event);});
++      Util.addEventListener(editField, &quot;keyup&quot;, function(event) {listener.onKeyUp(event);});
+       editField.defaultValue = this.textNode.data;
+     }
+     editField.style.height = this.getDivElement().offsetHeight + &quot;px&quot;;
+@@ -193,7 +193,7 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-TextView.prototype.onKeyPress = function(inEventObject) {
++TextView.prototype.onKeyUp = function(inEventObject) {
+   var editField = this.editField;
+ 
+   // PENDING: 
+@@ -223,12 +223,11 @@
+   }
+   */
+ 
+-  // ATTEMPT #2: has no impact
+-  /*
++  // ATTEMPT #2: 
++  // slightly clunky, but better than nothing!
+   if (editField.scrollHeight &gt; editField.clientHeight) {
+-    editField.style.height = editField.scrollHeight;
++    editField.style.height = editField.scrollHeight + &quot;px&quot;;
+   }
+-  */
+ 
+   // ATTEMPT #3: has no impact
+   /*
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000021.html">[openrecord-svn] r27 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000023.html">[openrecord-svn] r30 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#22">[ date ]</a>
+              <a href="thread.html#22">[ thread ]</a>
+              <a href="subject.html#22">[ subject ]</a>
+              <a href="author.html#22">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

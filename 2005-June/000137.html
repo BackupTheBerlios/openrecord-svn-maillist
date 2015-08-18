@@ -1,0 +1,1054 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r151 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r151%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506162225.j5GMP4Pn004454%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000136.html">
+   <LINK REL="Next"  HREF="000138.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r151 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r151%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506162225.j5GMP4Pn004454%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r151 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 17 00:25:04 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000136.html">[openrecord-svn] r150 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000138.html">[openrecord-svn] r152 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-17 00:25:02 +0200 (Fri, 17 Jun 2005)
+New Revision: 151
+
+Added:
+   trunk/source/model/Record.js
+Modified:
+   trunk/source/demo_page.html
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/LintTest.js
+   trunk/source/model/ModelTest.html
+   trunk/source/model/Ordinal.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/Vote.js
+Log:
+Got deletion working.  Got the data model to correctly save votes in JSON and load them back again.
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/demo_page.html	2005-06-16 22:25:02 UTC (rev 151)
+@@ -33,6 +33,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;BarChartPlugin.js&quot;&gt;&lt;/script&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/Vote.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/ContentRecord.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/Item.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/ContentRecord.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -2,7 +2,9 @@
+  ContentRecord.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -44,33 +46,27 @@
+  * @scope    public instance constructor
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
++ContentRecord.prototype = new Record();  // makes ContentRecord be a subclass of Record
+ function ContentRecord() {
++  // Don't create these properties until we know we need them.
++  // this._setOfVotes = null;
++  // this._setOfOrdinals = null;
+ }
+ 
+ 
+ // -------------------------------------------------------------------
+-// Protected methods
++// Package/module methods           
+ // -------------------------------------------------------------------
+ 
+ /**
+  * Called from the constructor function of each subclass of ContentRecord.
+  *
+  * @scope    protected instance method
+- * @param    inWorld    The world that this ContentRecord is a part of. 
+- * @param    inUuid    The UUID for this ContentRecord. 
++ * @param    world    The world that this ContentRecord is a part of. 
++ * @param    uuid    The UUID for this ContentRecord. 
+  */
+-ContentRecord.prototype._ContentRecord = function (inWorld, inUuid) {
+-  // Util.assert(!inUuid || Util.isNumeric(inUuid));
+-  
+-  this.__myWorld = inWorld;
+-  this.__myUuid = inUuid;
+-  
+-  this.__myCreationTimestamp = null;
+-  this.__myCreationUserstamp = null;
+-
+-  // Don't create these properties until we know we need them.
+-  // this.__mySetOfVotes = null;
+-  // this.__mySetOfOrdinals = null;
++ContentRecord.prototype._ContentRecord = function(world, uuid) {
++  this._Record(world, uuid);
+ };
+ 
+ 
+@@ -81,53 +77,21 @@
+  *
+  * @scope    protected instance method
+  */
+-ContentRecord.prototype._initializeContentRecord = function () {
++ContentRecord.prototype._initializeContentRecord = function() {
+ };
+ 
+ 
+ /**
+- * Sets the properties of a newly rehydrated contentRecord object.
+- *
+- * WARNING: This method should be called ONLY from subclasses.
+- *
+- * @scope    protected instance method
+- * @param    inTimestamp    A Date object with the creation timestamp for this item. 
+- * @param    inUserstamp    The user who created this item. 
+- */
+-ContentRecord.prototype._rehydrateContentRecord = function (inTimestamp, inUserstamp) {
+-  this.__myCreationTimestamp = inTimestamp;
+-  this.__myCreationUserstamp = inUserstamp;
+-};
+-
+-
+-/**
+- * Returns the UUID of the item. 
+- *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
+- *
+- * If you're writing code in the view layer, call
+- * item.getUniqueKeyString() instead of item._getUuid();
+- *
+- * @scope    protected instance method
+- * @return   The UUID of the item.
+- */
+-ContentRecord.prototype._getUuid = function () {
+-  return this.__myUuid;
+-};
+-
+-
+-/**
+  * Records a user's vote to retain or delete this ContentRecord.
+  *
+  * @scope    protected instance method
+- * @param    inVote    A vote to retain or delete this ContentRecord. 
++ * @param    vote    A vote to retain or delete this ContentRecord. 
+  */
+-ContentRecord.prototype._addVote = function (inVote) {
+-  if (!this.__mySetOfVotes) {
+-    this.__mySetOfVotes = [];
++ContentRecord.prototype._addVote = function(vote) {
++  if (!this._setOfVotes) {
++    this._setOfVotes = [];
+   }
+-  this.__mySetOfVotes.push(inVote);
++  this._setOfVotes.push(vote);
+ };
+ 
+ 
+@@ -135,13 +99,13 @@
+  * Records the ordinal number that a user sets for this ContentRecord.
+  *
+  * @scope    protected instance method
+- * @param    inOrdinal    A vote to retain or delete this ContentRecord. 
++ * @param    ordinal    A vote to retain or delete this ContentRecord. 
+  */
+-ContentRecord.prototype._addOrdinal = function (inOrdinal) {
+-  if (!this.__mySetOfOrdinals) {
+-    this.__mySetOfOrdinals = [];
++ContentRecord.prototype._addOrdinal = function(ordinal) {
++  if (!this._setOfOrdinals) {
++    this._setOfOrdinals = [];
+   }
+-  this.__mySetOfOrdinals.push(inOrdinal);
++  this._setOfOrdinals.push(ordinal);
+ };
+ 
+ 
+@@ -150,97 +114,14 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Returns the world that this item was created in.
+- *
+- * @scope    public instance method
+- * @return   A world object.
+- */
+-ContentRecord.prototype.getWorld = function () {
+-  return this.__myWorld;
+-};
+-
+-
+-/**
+- * Returns a Date object with the creation timestamp for this item.
+- *
+- * @scope    public instance method
+- * @return   A Date object.
+- */
+-ContentRecord.prototype.getTimestamp = function() {
+-  if (this.__myCreationTimestamp) {
+-    // This case is now here only for the (temporary) benefit of _rehydrateContentRecord.
+-    return this.__myCreationTimestamp;
+-  }
+-  var hexTimeLow = this.__myUuid.split('-')[0];
+-  var hexTimeMid = this.__myUuid.split('-')[1];
+-  var hexTimeHigh = this.__myUuid.split('-')[2];
+-  var timeLow = parseInt(hexTimeLow, Util.HEX_RADIX);
+-  var timeMid = parseInt(hexTimeMid, Util.HEX_RADIX);
+-  var timeHigh = parseInt(hexTimeHigh, Util.HEX_RADIX);
+-  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
+-  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
+-  hundredNanosecondIntervalsSince1582 += timeMid;
+-  // What we really want to do next is shift left 32 bits, but the result will be too big
+-  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
+-  hundredNanosecondIntervalsSince1582 *= 0x100000000;
+-  hundredNanosecondIntervalsSince1582 += timeLow;
+-  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
+-
+-  // Again, this will be a floating point approximation.
+-  // We can make things exact later if we need to.
+-  var secondsPerHour = 60 * 60;
+-  var hoursBetween1582and1970 = Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
+-  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
+-  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
+-
+-  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
+-  return millisecondsSince1970;
+-};
+-
+-
+-/**
+- * Returns the item representing the user who created this item.
+- *
+- * @scope    public instance method
+- * @return   A user item.
+- */
+-ContentRecord.prototype.getUserstamp = function() {
+-  if (this.__myCreationUserstamp) {
+-    // This case is now here only for the (temporary) benefit of _rehydrateContentRecord.
+-    return this.__myCreationUserstamp;
+-  }
+-  var allUsers = this.__myWorld.getUsers();
+-  var myPseudonode = this.__myUuid.split('-')[4];
+-  for (key in allUsers) {
+-    var usersPseudonode = allUsers[key]._getUuid().split('-')[4];
+-    if (usersPseudonode == myPseudonode) {
+-      return allUsers[key];
+-    }
+-  }
+-  throw new Error(&quot;User not found.  Database may be corrupted.&quot;);
+-};
+-
+-
+-/**
+- * Returns a string which can be used as a unique key in a hash table. 
+- *
+- * @scope    public instance method
+- * @return   A string which can serve as a unique key.
+- */
+-ContentRecord.prototype.getUniqueKeyString = function () {
+-  return this.__myUuid;
+-};
+-
+-
+-/**
+  * Returns the ordinal number that this contentRecord was given at creation. 
+  *
+  * @scope    public instance method
+  * @return   A number.
+  */
+-ContentRecord.prototype.getOrdinalNumberAtCreation = function () {
+-  // return (0 - this.__myCreationTimestamp.valueOf());
+-  return (0 - this.__myUuid);
++ContentRecord.prototype.getOrdinalNumberAtCreation = function() {
++  // return (0 - this._creationTimestamp.valueOf());
++  return (0 - this._uuid);
+ };
+ 
+ 
+@@ -254,15 +135,15 @@
+  * @scope    public instance method
+  * @return   A number.
+  */
+-ContentRecord.prototype.getOrdinalNumber = function () {
+-  if (!this.__mySetOfOrdinals || this.__mySetOfOrdinals.length === 0) {
++ContentRecord.prototype.getOrdinalNumber = function() {
++  if (!this._setOfOrdinals || this._setOfOrdinals.length === 0) {
+     return this.getOrdinalNumberAtCreation();
+   }
+ 
+   var ordinalNumber = this.getOrdinalNumberAtCreation();
+   var key;
+   var ordinal;
+-  var filter = this.__myWorld.getRetrievalFilter();
++  var filter = this._world.getRetrievalFilter();
+   
+   switch (filter) {
+     case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
+@@ -274,9 +155,9 @@
+       //   resolution.  For example, see scrap_yard/Timestamp.js.  However,
+       //   for now the simplest thing to do is just move on to APPROACH B:
+       /*
+-      var mostRecentOrdinal = this.__mySetOfOrdinals[0];
+-      for (key in this.__mySetOfOrdinals) {
+-        ordinal = this.__mySetOfOrdinals[key];
++      var mostRecentOrdinal = this._setOfOrdinals[0];
++      for (key in this._setOfOrdinals) {
++        ordinal = this._setOfOrdinals[key];
+         if (ordinal.getTimestamp() &gt; mostRecentOrdinal.getTimestamp()) {
+           mostRecentOrdinal = ordinal;
+         }
+@@ -286,7 +167,7 @@
+       // APPROACH B: 
+       //   This works, provided __mySetOfOrdinals is always initialized in
+       //   chronological order.
+-      var mostRecentOrdinal = this.__mySetOfOrdinals[this.__mySetOfOrdinals.length - 1];
++      var mostRecentOrdinal = this._setOfOrdinals[this._setOfOrdinals.length - 1];
+ 
+       ordinalNumber = mostRecentOrdinal.getOrdinalNumber();
+       break;
+@@ -317,15 +198,15 @@
+  * @scope    public instance method
+  * @return   A boolean.
+  */
+-ContentRecord.prototype.hasBeenDeleted = function () {
+-  if (!this.__mySetOfVotes || this.__mySetOfVotes.length === 0) {
++ContentRecord.prototype.hasBeenDeleted = function() {
++  if (!this._setOfVotes || this._setOfVotes.length === 0) {
+     return false;
+   }
+   
+   var hasBeenDeleted = false;
+   var key;
+   var vote;
+-  var filter = this.__myWorld.getRetrievalFilter();
++  var filter = this._world.getRetrievalFilter();
+   
+   switch (filter) {
+     case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
+@@ -337,9 +218,9 @@
+       //   resolution.  For example, see scrap_yard/Timestamp.js.  However,
+       //   for now the simplest thing to do is just move on to APPROACH B:
+       /*
+-      var mostRecentVote = this.__mySetOfVotes[0];
+-      for (key in this.__mySetOfVotes) {
+-        vote = this.__mySetOfVotes[key];
++      var mostRecentVote = this._setOfVotes[0];
++      for (key in this._setOfVotes) {
++        vote = this._setOfVotes[key];
+         if (vote.getTimestamp() &gt; mostRecentVote.getTimestamp()) {
+           mostRecentVote = vote;
+         }
+@@ -349,7 +230,7 @@
+       // APPROACH B: 
+       //   This works, provided __mySetOfVotes is always initialized in
+       //   chronological order.
+-      var mostRecentVote = this.__mySetOfVotes[this.__mySetOfVotes.length - 1];
++      var mostRecentVote = this._setOfVotes[this._setOfVotes.length - 1];
+       
+       hasBeenDeleted = !mostRecentVote.getRetainFlag();
+       break;
+@@ -379,20 +260,20 @@
+  * that this contentRecord appears between two other entries.
+  *
+  * @scope    public instance method
+- * @param    inContentRecordFirst    The contentRecord that should come before this one. 
+- * @param    inContentRecordThird    The contentRecord that should come after this one. 
++ * @param    contentRecordFirst    The contentRecord that should come before this one. 
++ * @param    contentRecordThird    The contentRecord that should come after this one. 
+  */
+-ContentRecord.prototype.reorderBetween = function (inContentRecordFirst, inContentRecordThird) {
++ContentRecord.prototype.reorderBetween = function(contentRecordFirst, contentRecordThird) {
+   var firstOrdinalNumber = null;
+   var secondOrdinalNumber = null;
+   var thirdOrdinalNumber = null;
+   var arbitraryNumberToMoveUsUpOrDownSlightly = 0.01;
+   
+-  if (inContentRecordFirst) {
+-    firstOrdinalNumber = inContentRecordFirst.getOrdinalNumber();
++  if (contentRecordFirst) {
++    firstOrdinalNumber = contentRecordFirst.getOrdinalNumber();
+   }
+-  if (inContentRecordThird) {
+-    thirdOrdinalNumber = inContentRecordThird.getOrdinalNumber();
++  if (contentRecordThird) {
++    thirdOrdinalNumber = contentRecordThird.getOrdinalNumber();
+   }
+   
+   if (firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+@@ -414,7 +295,7 @@
+  *
+  * @scope    public instance method
+  */
+-ContentRecord.prototype.voteToDelete = function () {
++ContentRecord.prototype.voteToDelete = function() {
+   this.getWorld()._newVote(this, false);
+ };
+ 
+@@ -424,7 +305,7 @@
+  *
+  * @scope    public instance method
+  */
+-ContentRecord.prototype.voteToRetain = function () {
++ContentRecord.prototype.voteToRetain = function() {
+   this.getWorld()._newVote(this, true);
+ };
+ 
+@@ -438,9 +319,9 @@
+  *
+  * @scope    public class method
+  */
+-ContentRecord.compareOrdinals = function (inContentRecordOne, inContentRecordTwo) {
+-  var ordinalNumberOne = inContentRecordOne.getOrdinalNumber();
+-  var ordinalNumberTwo = inContentRecordTwo.getOrdinalNumber();
++ContentRecord.compareOrdinals = function(contentRecordOne, contentRecordTwo) {
++  var ordinalNumberOne = contentRecordOne.getOrdinalNumber();
++  var ordinalNumberTwo = contentRecordTwo.getOrdinalNumber();
+   return (ordinalNumberTwo - ordinalNumberOne);
+ };
+ 
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -247,27 +247,36 @@
+       // var userstampUuid = contents[DeltaVirtualServer.JSON_MEMBER_USERSTAMP];
+       // var timestamp = new Date(new Number(timestampString));
+       // var userstamp = this.__getItemFromUuidOrBootstrapItem(userstampUuid);
+-      var timestamp = null;
+-      var userstamp = null;
++      // var timestamp = null;
++      // var userstamp = null;
+       
+       if (dehydratedItem) {
+         itemUuid = dehydratedItem[DeltaVirtualServer.JSON_MEMBER_UUID];
+         item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
+-        item._rehydrate(timestamp, userstamp);
+         this.__myChronologicalListOfRecords.push(item);
+       }
+       if (dehydratedVote) {
+-        var retainFlag = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG];
++        var voteUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_UUID];
++        var retainFlagString = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG];
++        var retainFlag = null;
++        if (retainFlagString == &quot;true&quot;) {
++          retainFlag = true;
++        }
++        if (retainFlagString == &quot;false&quot;) {
++          retainFlag = false;
++        }
++        Util.assert(retainFlag !== null);
+         contentRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
+         contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+-        var vote = new Vote(contentRecord, userstamp, retainFlag, timestamp);
++        var vote = new Vote(this.getWorld(), voteUuid, contentRecord, retainFlag);
+         this.__myChronologicalListOfRecords.push(vote);
+       }
+       if (dehydratedOrdinal) {
+-        var ordinalNumber = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
+-        contentRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
++        var ordinalUuid = dehydratedOrdinal[DeltaVirtualServer.JSON_MEMBER_UUID];
++        var ordinalNumber = dehydratedOrdinal[DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
++        contentRecordUuid = dehydratedOrdinal[DeltaVirtualServer.JSON_MEMBER_RECORD];
+         contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+-        var ordinal = new Ordinal(contentRecord, userstamp, ordinalNumber, timestamp);
++        var ordinal = new Ordinal(this.getWorld(), ordinalUuid, contentRecord, ordinalNumber);
+         this.__myChronologicalListOfRecords.push(ordinal);
+       }
+       if (dehydratedEntry) {
+@@ -306,7 +315,7 @@
+         }
+         var entry = this.__getEntryFromUuidOrBootstrapEntry(entryUuid);
+         var itemOrEntry = previousEntry || item;
+-        entry._rehydrate(itemOrEntry, attribute, finalData, timestamp, userstamp, dataType);
++        entry._rehydrate(itemOrEntry, attribute, finalData, dataType);
+         this.__myChronologicalListOfRecords.push(entry);
+       }
+     }
+@@ -438,6 +447,7 @@
+   var listOfStrings = [];
+   var firstContentRecord = true;
+   var itemDisplayNameSubstring;
++  var entryDisplayNameSubstring;
+ 
+   for (key in inListOfRecords) {
+     var record = inListOfRecords[key];
+@@ -456,20 +466,25 @@
+     }
+     if (record instanceof Vote) {
+       var vote = record;
+-      listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{' + '\n');
+-      listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getContentRecord()._getUuid() + '&quot;,\n');
+-      listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
++      listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{');
++      entryDisplayNameSubstring = this.truncateString(vote.getContentRecord().getDisplayString());
++      var deleteVsRetainString = vote.getRetainFlag() ? &quot;RETAIN&quot; : &quot;DELETE&quot;;
++      listOfStrings.push('                                              // vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
++      listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + vote._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '       &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getContentRecord()._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '   &quot;' + DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
+     }
+     if (record instanceof Ordinal) {
+       var ordinal = record;
+       listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
++      listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + ordinal._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
+     }
+     if (record instanceof Entry) {
+       var entry = record;
+       listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{');
+-      var entryDisplayNameSubstring = this.truncateString(entry.getDisplayString());
++      entryDisplayNameSubstring = this.truncateString(entry.getDisplayString());
+       listOfStrings.push('                                              // ' + entryDisplayNameSubstring + '\n');
+       listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + entry._getUuid() + '&quot;,\n');
+       var attribute = entry.getAttribute();
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/Entry.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -54,6 +54,7 @@
+ Entry.prototype = new ContentRecord();  // makes Entry be a subclass of ContentRecord
+ function Entry(inWorld, inUuid) {
+   this._ContentRecord(inWorld, inUuid);
++  // this._Record(inWorld, inUuid);
+  
+   this.__myPreviousEntry = null;
+   this.__myListOfSubsequentEntries = [];
+@@ -137,8 +138,9 @@
+  * @param    inTimestamp    A Date object with the creation timestamp for this entry. 
+  * @param    inUserstamp    The user who created this entry. 
+  */
+-Entry.prototype._rehydrate = function (inItemOrEntry, inAttribute, inValue, inTimestamp, inUserstamp, inType) {
+-  this._rehydrateContentRecord(inTimestamp, inUserstamp);
++// Entry.prototype._rehydrate = function (inItemOrEntry, inAttribute, inValue, inTimestamp, inUserstamp, inType) {
++Entry.prototype._rehydrate = function (inItemOrEntry, inAttribute, inValue, inType) {
++  // this._rehydrateContentRecord(inTimestamp, inUserstamp);
+ 
+   if (inItemOrEntry instanceof Entry) {
+     this.__myPreviousEntry = inItemOrEntry;
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/Item.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -55,6 +55,7 @@
+ Item.prototype = new ContentRecord();  // makes Item be a subclass of ContentRecord
+ function Item(inWorld, inUuid) {
+   this._ContentRecord(inWorld, inUuid);
++  // this._Record(inWorld, inUuid);
+   
+   this.__myHashTableOfEntryListsKeyedByAttributeUuid = {};
+   this.__myProvisionalFlag = false;
+@@ -87,25 +88,6 @@
+ };
+ 
+ 
+-/**
+- * Sets the properties of a newly rehydrated item object.
+- *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
+- *
+- * This method should only be called from VirtualServer code that is
+- * rehydrating dehydrated item objects. 
+- *
+- * @scope    protected instance method
+- * @param    inTimestamp    A Date object with the creation timestamp for this item. 
+- * @param    inUserstamp    The user who created this item. 
+- */
+-Item.prototype._rehydrate = function (inTimestamp, inUserstamp) {
+-  this.__myProvisionalFlag = false;
+-  this._rehydrateContentRecord(inTimestamp, inUserstamp);
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // Entry adding methods
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/LintTest.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -37,6 +37,7 @@
+     &quot;Ordinal.js&quot;,
+     &quot;Vote.js&quot;,
+     &quot;ContentRecord.js&quot;,
++    &quot;Record.js&quot;,
+     &quot;Item.js&quot;,
+     &quot;Entry.js&quot;,
+     &quot;Transaction.js&quot;,
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/ModelTest.html	2005-06-16 22:25:02 UTC (rev 151)
+@@ -16,6 +16,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ContentRecord.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/Ordinal.js
+===================================================================
+--- trunk/source/model/Ordinal.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/Ordinal.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -40,37 +40,38 @@
+  * a user set an ordinal number for an item or a entry of an item.
+  *
+  * @scope    public instance constructor
+- * @param    inContentRecord    The item or entry that this vote is attached to. 
+- * @param    inUser    The user who voted. 
++ * @param    world    The world that this Ordinal is a part of. 
++ * @param    uuid    The UUID for this Ordinal. 
++ * @param    contentRecord    The item or entry that this ordinal is attached to. 
+  * @param    inOrdinalNumber    The ordinal number itself. 
+- * @param    inTimestamp    Optional. The time the vote was made. 
+  */
+-function Ordinal(inContentRecord, inUser, inOrdinalNumber, inTimestamp) {
+-  this.__myContentRecord = inContentRecord;
+-  this.__myUserstamp = inUser;
+-  this.__myOrdinalNumber = inOrdinalNumber;
+-  if (inTimestamp) {
+-    this.__myTimestamp = inTimestamp;
+-  } else {
+-    this.__myTimestamp = new Date();
+-  }
+-  this.__myContentRecord._addOrdinal(this);
++Ordinal.prototype = new Record();  // makes Ordinal be a subclass of Record
++function Ordinal(world, uuid, contentRecord, ordinalNumber) {
++  this._contentRecord = contentRecord;
++  this._ordinalNumber = ordinalNumber;
++  this._contentRecord._addOrdinal(this);
+ }
+ 
++
++/**
++ * Returns the item or entry that this ordinal applies to.
++ *
++ * @scope    public instance method
++ * @return   An item or entry.
++ */
+ Ordinal.prototype.getContentRecord = function () {
+-  return this.__myContentRecord;
++  return this._contentRecord;
+ };
+ 
+-Ordinal.prototype.getTimestamp = function () {
+-  return this.__myTimestamp;
+-};
+ 
+-Ordinal.prototype.getUserstamp = function () {
+-  return this.__myUserstamp;
+-};
+-
++/**
++ * Returns an ordinal number.
++ *
++ * @scope    public instance method
++ * @return   An ordinal number.
++ */
+ Ordinal.prototype.getOrdinalNumber = function () {
+-  return this.__myOrdinalNumber;
++  return this._ordinalNumber;
+ };
+ 
+ 
+
+Added: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/Record.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -0,0 +1,180 @@
++/*****************************************************************************
++ Record.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
++    
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++/**
++ * The Record class serves as an abstract superclass for the classes Vote,
++ * Ordinal, and ContentRecord.  ContentRecord is the abstract superclass
++ * for Item and Entry.
++ *
++ * @scope    public instance constructor
++ * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ */
++function Record() {
++  // Don't create these properties until we know we need them.
++  // this._creationTimestamp = null;
++  // this._creationUserstamp = null;
++}
++
++
++// -------------------------------------------------------------------
++// Package/module methods           
++// -------------------------------------------------------------------
++
++/**
++ * Called from the constructor function of each subclass of Record.
++ *
++ * @scope    protected instance method
++ * @param    world    The world that this Record is a part of. 
++ * @param    uuid    The UUID for this Record. 
++ */
++Record.prototype._Record = function(world, uuid) {
++  Util.assert(Util.isUuid(uuid));
++  
++  this._world = world;
++  this._uuid = uuid;
++};
++
++
++
++// -------------------------------------------------------------------
++// Simple accessor methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the world that this item was created in.
++ *
++ * @scope    public instance method
++ * @return   A world object.
++ */
++Record.prototype.getWorld = function() {
++  return this._world;
++};
++
++
++/**
++ * Returns a string which can be used as a unique key in a hash table. 
++ *
++ * @scope    public instance method
++ * @return   A string which can serve as a unique key.
++ */
++Record.prototype.getUniqueKeyString = function() {
++  return this._uuid;
++};
++
++
++/**
++ * Returns the item representing the user who created this item.
++ *
++ * @scope    public instance method
++ * @return   A user item.
++ */
++Record.prototype.getUserstamp = function() {
++  if (this._creationUserstamp) {
++    return this._creationUserstamp;
++  }
++  var allUsers = this._world.getUsers();
++  var myPseudonode = this._uuid.split('-')[4];
++  for (key in allUsers) {
++    var usersPseudonode = allUsers[key]._getUuid().split('-')[4];
++    if (usersPseudonode == myPseudonode) {
++      this._creationUserstamp = allUsers[key];
++      return this._creationUserstamp;
++    }
++  }
++  throw new Error(&quot;We ran into item or entry that has a UUID which was not created by any known user.  The database may be corrupted.&quot;);
++};
++
++
++/**
++ * Returns a Date object with the creation timestamp for this item.
++ *
++ * @scope    public instance method
++ * @return   A Date object.
++ */
++Record.prototype.getTimestamp = function() {
++  if (this._creationTimestamp) {
++    // This case is now here only for the (temporary) benefit of _rehydrateContentRecord.
++    return this._creationTimestamp;
++  }
++  var hexTimeLow = this._uuid.split('-')[0];
++  var hexTimeMid = this._uuid.split('-')[1];
++  var hexTimeHigh = this._uuid.split('-')[2];
++  var timeLow = parseInt(hexTimeLow, Util.HEX_RADIX);
++  var timeMid = parseInt(hexTimeMid, Util.HEX_RADIX);
++  var timeHigh = parseInt(hexTimeHigh, Util.HEX_RADIX);
++  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
++  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
++  hundredNanosecondIntervalsSince1582 += timeMid;
++  // What we really want to do next is shift left 32 bits, but the result will be too big
++  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
++  hundredNanosecondIntervalsSince1582 *= 0x100000000;
++  hundredNanosecondIntervalsSince1582 += timeLow;
++  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
++
++  // Again, this will be a floating point approximation.
++  // We can make things exact later if we need to.
++  var secondsPerHour = 60 * 60;
++  var hoursBetween1582and1970 = Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
++  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
++  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
++
++  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
++  return millisecondsSince1970;
++};
++
++
++// -------------------------------------------------------------------
++// Package/module methods           
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item. 
++ *
++ * WARNING: This method should be called ONLY from a 
++ * VirtualServer implementation.
++ *
++ * If you're writing code in the view layer, call
++ * item.getUniqueKeyString() instead of item._getUuid();
++ *
++ * @scope    protected instance method
++ * @return   The UUID of the item.
++ */
++Record.prototype._getUuid = function() {
++  return this._uuid;
++};
++
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/StubVirtualServer.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -38,7 +38,6 @@
+ //   Ordinal.js
+ //   Entry.js
+ //   Vote.js
+-//   Vote.js
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -225,7 +224,6 @@
+  */
+ StubVirtualServer.prototype._provisionalItemJustBecameReal = function (inItem) {
+   this._currentTransaction.addRecord(inItem);
+-  // this.__myChronologicalListOfNewlyCreatedRecords.push(inItem);
+ };
+ 
+ 
+@@ -245,11 +243,10 @@
+   var entry = new Entry(this.__myWorld, uuid);
+   entry._initialize(inItemOrEntry, inAttribute, inValue, inType);
+   var item = inItemOrEntry instanceof Item ? inItemOrEntry : inItemOrEntry.getItem();
+-  item.__addEntryToListOfEntriesForAttribute(entry); // PENDING eeks calling a protected method!
++  item.__addEntryToListOfEntriesForAttribute(entry);
+   
+   this.__myHashTableOfEntriesKeyedByUuid[uuid] = entry;
+   this._currentTransaction.addRecord(entry);
+-  // this.__myChronologicalListOfNewlyCreatedRecords.push(entry);
+   return entry;
+ };
+  
+@@ -265,9 +262,9 @@
+  */
+ StubVirtualServer.prototype.newOrdinal = function (inContentRecord, inOrdinalNumber) {
+   this._throwErrorIfNoUserIsLoggedIn();
+-  var ordinal = new Ordinal(inContentRecord, this.__myWorld.getCurrentUser(), inOrdinalNumber);
++  var uuid = this._getNewUuid();
++  var ordinal = new Ordinal(this.__myWorld, uuid, inContentRecord, inOrdinalNumber);
+   this._currentTransaction.addRecord(ordinal);
+-  // this.__myChronologicalListOfNewlyCreatedRecords.push(ordinal);
+   return ordinal;
+ };
+ 
+@@ -283,9 +280,10 @@
+  */
+ StubVirtualServer.prototype.newVote = function (inContentRecord, inRetainFlag) {
+   this._throwErrorIfNoUserIsLoggedIn();
+-  var vote = new Vote(inContentRecord, this.__myWorld.getCurrentUser(), inRetainFlag);
++  var uuid = this._getNewUuid();
++  // var vote = new Vote(inContentRecord, this.__myWorld.getCurrentUser(), inRetainFlag);
++  var vote = new Vote(this.__myWorld, uuid, inContentRecord, inRetainFlag);
+   this._currentTransaction.addRecord(vote);
+-  // this.__myChronologicalListOfNewlyCreatedRecords.push(vote);
+   return vote;
+ };
+ 
+@@ -461,7 +459,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ StubVirtualServer.prototype.getItemFromUuid = function (inUuid, inObserver) {
+-  // Util.assert(Util.isUuid(inUuid));
++  Util.assert(Util.isUuid(inUuid));
+   
+   var item = this.__myHashTableOfItemsKeyedByUuid[inUuid];
+   if (item &amp;&amp; inObserver) {
+
+Modified: trunk/source/model/Vote.js
+===================================================================
+--- trunk/source/model/Vote.js	2005-06-16 21:29:37 UTC (rev 150)
++++ trunk/source/model/Vote.js	2005-06-16 22:25:02 UTC (rev 151)
+@@ -40,39 +40,44 @@
+  * an item or a entry of an item.
+  *
+  * @scope    public instance constructor
+- * @param    inContentRecord    The item or entry that this vote is attached to. 
+- * @param    inUser    The user who voted. 
+- * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
+- * @param    inTimestamp    Optional. The time the vote was made. 
++ * @param    world    The world that this Vote is a part of. 
++ * @param    uuid    The UUID for this Vote. 
++ * @param    contentRecord    The item or entry that this vote is attached to. 
++ * @param    retainFlag    True if this is a vote to retain. False if this is a vote to delete. 
+  */
+-function Vote(inContentRecord, inUser, inRetainFlag, inTimestamp) {
+-  this.__myContentRecord = inContentRecord;
+-  this.__myUserstamp = inUser;
+-  this.__myRetainFlag = inRetainFlag;
+-  if (inTimestamp) {
+-    this.__myTimestamp = inTimestamp;
+-  } else {
+-    this.__myTimestamp = new Date();
+-  }
+-  this.__myContentRecord._addVote(this);
++Vote.prototype = new Record();  // makes Vote be a subclass of Record
++function Vote(world, uuid, contentRecord, retainFlag) {
++  this._Record(world, uuid);
++
++  this._contentRecord = contentRecord;
++  this._retainFlag = retainFlag;
++  this._contentRecord._addVote(this);
+ }
+ 
++
++/**
++ * Returns the item or entry that this vote applies to.
++ *
++ * @scope    public instance method
++ * @return   An item or entry.
++ */
+ Vote.prototype.getContentRecord = function () {
+-  return this.__myContentRecord;
++  return this._contentRecord;
+ };
+ 
+-Vote.prototype.getTimestamp = function () {
+-  return this.__myTimestamp;
+-};
+ 
+-Vote.prototype.getUserstamp = function () {
+-  return this.__myUserstamp;
+-};
+-
++/**
++ * Returns a boolean value that tells whether this is a vote to retain or a 
++ * vote to delete.
++ *
++ * @scope    public instance method
++ * @return   A boolean. True if this is a vote to retain, or false if this is a vote to delete.
++ */
+ Vote.prototype.getRetainFlag = function () {
+-  return this.__myRetainFlag;
++  return this._retainFlag;
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000136.html">[openrecord-svn] r150 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000138.html">[openrecord-svn] r152 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#137">[ date ]</a>
+              <a href="thread.html#137">[ thread ]</a>
+              <a href="subject.html#137">[ subject ]</a>
+              <a href="author.html#137">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

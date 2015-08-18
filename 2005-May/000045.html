@@ -1,0 +1,865 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r53 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r53%20-%20trunk/source/model&In-Reply-To=%3C200505040541.j445faZ8028697%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000044.html">
+   <LINK REL="Next"  HREF="000046.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r53 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r53%20-%20trunk/source/model&In-Reply-To=%3C200505040541.j445faZ8028697%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r53 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed May  4 07:41:36 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000044.html">[openrecord-svn] r52 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000046.html">[openrecord-svn] r54 - in trunk: documentation source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#45">[ date ]</a>
+              <a href="thread.html#45">[ thread ]</a>
+              <a href="subject.html#45">[ subject ]</a>
+              <a href="author.html#45">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-04 07:41:35 +0200 (Wed, 04 May 2005)
+New Revision: 53
+
+Modified:
+   trunk/source/model/BigLumpVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/READ_ME.txt
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+More clean-up work on the data model terminology.
+
+Modified: trunk/source/model/BigLumpVirtualServer.js
+===================================================================
+--- trunk/source/model/BigLumpVirtualServer.js	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/BigLumpVirtualServer.js	2005-05-04 05:41:35 UTC (rev 53)
+@@ -220,7 +220,7 @@
+                 break;
+             }
+             var attribute = this.getItemFromUuid(attributeUuid);
+-            item.addAttributeEntry(attribute, finalValue);
++            item.addEntryForAttribute(attribute, finalValue);
+           }
+         }
+       }
+@@ -454,7 +454,7 @@
+       if (previousEntry) {
+         listOfStrings.push('          &quot;' + BigLumpVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n');
+       }
+-      var contentData = entry.getContentData();
++      var contentData = entry.getValue();
+       var pickleString = &quot;&quot;;
+       var typeString = null;
+       var valueString = null;
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/Entry.js	2005-05-04 05:41:35 UTC (rev 53)
+@@ -60,7 +60,7 @@
+   this.__myItem = null;
+ 
+   this.__myAttribute = null;
+-  this.__myContentData = null;
++  this.__myValue = null;
+ }
+ 
+ 
+@@ -77,9 +77,9 @@
+  * @scope    protected instance method
+  * @param    inItemOrEntry    The item that this is a entry of, or the old entry that this entry replaces. 
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+- * @param    inContentData    The content data to initialize the entry with. 
++ * @param    inValue    The value to initialize the entry with. 
+  */
+-Entry.prototype._initialize = function (inItemOrEntry, inAttribute, inContentData) {
++Entry.prototype._initialize = function (inItemOrEntry, inAttribute, inValue) {
+   this._initializeIdentifiedRecord();
+ 
+   if (inItemOrEntry instanceof Entry) {
+@@ -93,10 +93,10 @@
+   
+   this.__myAttribute = inAttribute;
+ 
+-  if (Util.isString(inContentData)) {
+-    this.__myContentData = Util.getCleanString(inContentData);
++  if (Util.isString(inValue)) {
++    this.__myValue = Util.getCleanString(inValue);
+   } else {
+-    this.__myContentData = inContentData;
++    this.__myValue = inValue;
+   }
+ };
+ 
+@@ -113,11 +113,11 @@
+  * @scope    protected instance method
+  * @param    inItemOrEntry    The item that this is a entry of, or the old entry that this entry replaces. 
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+- * @param    inContentData    The content data to initialize the entry with. 
++ * @param    inValue    The value to initialize the entry with. 
+  * @param    inTimestamp    A Date object with the creation timestamp for this entry. 
+  * @param    inUserstamp    The user who created this entry. 
+  */
+-Entry.prototype._rehydrate = function (inItemOrEntry, inAttribute, inContentData, inTimestamp, inUserstamp) {
++Entry.prototype._rehydrate = function (inItemOrEntry, inAttribute, inValue, inTimestamp, inUserstamp) {
+   this._rehydrateIdentifiedRecord(inTimestamp, inUserstamp);
+ 
+   if (inItemOrEntry instanceof Entry) {
+@@ -130,7 +130,7 @@
+   }
+ 
+   this.__myAttribute = inAttribute;
+-  this.__myContentData = inContentData;
++  this.__myValue = inValue;
+ 
+   this.__myItem._addRehydratedEntry(this);
+ };
+@@ -175,28 +175,28 @@
+ 
+ 
+ /**
+- * Returns the content data that this entry holds.
++ * Returns the value that this entry holds.
+  *
+  * @scope    public instance method
+- * @return   The content data this entry was initialized to hold.
++ * @return   The value this entry was initialized to hold.
+  */
+-Entry.prototype.getContentData = function () {
+-  return this.__myContentData;
++Entry.prototype.getValue = function () {
++  return this.__myValue;
+ };
+ 
+ 
+ /**
+- * Returns the content data of this entry as a string.
++ * Returns the value of this entry as a string.
+  *
+  * @scope    public instance method
+  * @return   A string representing the literal data in this entry.
+  */
+ Entry.prototype.getDisplayString = function () {
+   var returnString = &quot;&quot;;
+-  if (this.__myContentData instanceof Item) {
+-    returnString += this.__myContentData.getDisplayName();
++  if (this.__myValue instanceof Item) {
++    returnString += this.__myValue.getDisplayName();
+   } else {
+-    returnString += &quot;&quot; + this.__myContentData;
++    returnString += &quot;&quot; + this.__myValue;
+   }
+   return returnString;
+ };
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/Item.js	2005-05-04 05:41:35 UTC (rev 53)
+@@ -112,38 +112,38 @@
+  * list of entries.
+  *
+  * @scope    public instance method
+- * @param    inContentData    The content data to initialize the entry to.
++ * @param    inValue    The value to initialize the entry to.
+  * @return   An entry object.
+  */
+-Item.prototype.addEntry = function (inContentData) {
++Item.prototype.addEntry = function (inValue) {
+   var attributeCalledUnfiled = this.getWorld().getAttributeCalledUnfiled();
+-  return this.addAttributeEntry(attributeCalledUnfiled, inContentData);
++  return this.addEntryForAttribute(attributeCalledUnfiled, inValue);
+ };
+ 
+ 
+ /**
+  * Assigns an entry to an attribute in this item.
+  *
+- * Given an attribute and content data, creates an entry object with the 
+- * content data, and sets the item's attribute to the new entry.
++ * Given an attribute and value, creates an entry object with the 
++ * value, and sets the item's attribute to the new entry.
+  * For example, to make a Kermit green:
+  * &lt;pre&gt;
+- *    kermit.addAttributeEntry(color, &quot;green&quot;);
++ *    kermit.addEntryForAttribute(color, &quot;green&quot;);
+  * &lt;/pre&gt;
+  * Attributes can always have more than one assigned entry, so
+  * you can make Kermit be both blue and green by doing:
+  * &lt;pre&gt;
+- *    kermit.addAttributeEntry(color, &quot;green&quot;);
+- *    kermit.addAttributeEntry(color, &quot;blue&quot;);
++ *    kermit.addEntryForAttribute(color, &quot;green&quot;);
++ *    kermit.addEntryForAttribute(color, &quot;blue&quot;);
+  * &lt;/pre&gt;
+  *
+  * @scope    public instance method
+  * @param    inAttribute    The attribute to assign the entry to. 
+- * @param    inContentData    The content data to initialize the entry with.
++ * @param    inValue    The value to initialize the entry with.
+  * @return   An entry object.
+  */
+-Item.prototype.addAttributeEntry = function (inAttribute, inContentData) {
+-  return this.replaceEntryWithAttributeEntry(null, inAttribute, inContentData);
++Item.prototype.addEntryForAttribute = function (inAttribute, inValue) {
++  return this.replaceEntryWithEntryForAttribute(null, inAttribute, inValue);
+ };
+ 
+ 
+@@ -152,12 +152,12 @@
+  *
+  * @scope    public instance method
+  * @param    inEntry    The old entry to be replaced.
+- * @param    inContentData    The content data to initialize the new entry to.
++ * @param    inValue    The value to initialize the new entry to.
+  * @return   The new replacement entry object.
+  */
+-Item.prototype.replaceEntry = function (inEntry, inContentData) {
++Item.prototype.replaceEntry = function (inEntry, inValue) {
+   var attribute = inEntry.getAttribute();
+-  return this.replaceEntryWithAttributeEntry(inEntry, attribute, inContentData);
++  return this.replaceEntryWithEntryForAttribute(inEntry, attribute, inValue);
+ };
+ 
+ 
+@@ -168,12 +168,12 @@
+  * @scope    public instance method
+  * @param    inEntry    The old entry to be replaced.
+  * @param    inAttribute    The attribute to assign the entry to. 
+- * @param    inContentData    The content data to initialize the new entry to.
++ * @param    inValue    The value to initialize the new entry to.
+  * @return   The new replacement entry object.
+  */
+-Item.prototype.replaceEntryWithAttributeEntry = function (inEntry, inAttribute, inContentData) {
++Item.prototype.replaceEntryWithEntryForAttribute = function (inEntry, inAttribute, inValue) {
+   var itemOrEntry = inEntry || this;
+-  var entry = this.getWorld()._newEntry(itemOrEntry, inAttribute, inContentData);
++  var entry = this.getWorld()._newEntry(itemOrEntry, inAttribute, inValue);
+   this.__myListOfEntries.push(entry);
+   return entry;
+ };
+@@ -289,7 +289,7 @@
+  */
+ Item.prototype.getDisplayName = function (inDefaultString) {
+   var displayName = inDefaultString || &quot;(no name)&quot;;
+-  var listOfNameEntries = this.getName();
++  var listOfNameEntries = this.getNameEntries();
+   if (listOfNameEntries.length &gt; 0) {
+     var primaryName = listOfNameEntries[0];
+     displayName = primaryName.getDisplayString();
+@@ -304,7 +304,7 @@
+  * @scope    public instance method
+  * @return   A list of the entries assigned to the &quot;name&quot; attribute.
+  */
+-Item.prototype.getName = function (inDefaultString) {
++Item.prototype.getNameEntries = function (inDefaultString) {
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   return this.getEntriesForAttribute(attributeCalledName);
+ };
+@@ -316,7 +316,7 @@
+  * @scope    public instance method
+  * @return   A list of the entries assigned to the &quot;short name&quot; attribute.
+  */
+-Item.prototype.getShortName = function (inDefaultString) {
++Item.prototype.getShortNameEntries = function (inDefaultString) {
+   var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+   return this.getEntriesForAttribute(attributeCalledShortName);
+ };
+@@ -368,7 +368,7 @@
+   // look at all the categories this item is assigned to, and see if one of them is &quot;inCategory&quot;
+   for (key in entryList) {
+     entry = entryList[key];
+-    if (entry.getContentData() == inCategory) {
++    if (entry.getValue() == inCategory) {
+       return true;
+     }
+   }
+@@ -385,7 +385,7 @@
+     //   Do we also need to register as an observer of something, so that if we later
+     //   become a member of that category in question, then we can notify whoever
+     //   is observing us?
+-    if ((entry.getContentData() != this) &amp;&amp; (entry.getContentData().isInCategory(inCategory))) {
++    if ((entry.getValue() != this) &amp;&amp; (entry.getValue().isInCategory(inCategory))) {
+       return true;
+     }
+   }
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/ModelTest.js	2005-05-04 05:41:35 UTC (rev 53)
+@@ -90,7 +90,7 @@
+   listOfAttributes.push(world.getAttributeCalledCategory());
+   for (key in listOfAttributes) {
+     item = listOfAttributes[key];
+-    listOfAssignedNames = item.getName();
++    listOfAssignedNames = item.getNameEntries();
+     assertTrue('Every axiomatic attribute has an array of names', Util.isArray(listOfAssignedNames));
+     assertTrue('Every axiomatic attribute has one name assigned', listOfAssignedNames.length == 1);
+     nameEntry = listOfAssignedNames[0];
+@@ -103,7 +103,7 @@
+   listOfCategories.push(world.getCategoryCalledCategory());
+   for (key in listOfCategories) {
+     item = listOfCategories[key];
+-    listOfAssignedNames = item.getName();
++    listOfAssignedNames = item.getNameEntries();
+     assertTrue('Every axiomatic category has an array of names', Util.isArray(listOfAssignedNames));
+     assertTrue('Every axiomatic category has one name assigned', listOfAssignedNames.length == 1);
+     nameEntry = listOfAssignedNames[0];
+@@ -136,8 +136,8 @@
+   var starWars = world.newItem(&quot;Star Wars&quot;);
+   assertTrue('getDisplayName() works for &quot;Star Wars&quot;', (starWars.getDisplayName() == &quot;Star Wars&quot;));
+ 
+-  var luck = starWars.addAttributeEntry(characterAttribute, &quot;Luck Skywalker&quot;);
+-  var c3po = starWars.addAttributeEntry(characterAttribute, &quot;C3PO&quot;);
++  var luck = starWars.addEntryForAttribute(characterAttribute, &quot;Luck Skywalker&quot;);
++  var c3po = starWars.addEntryForAttribute(characterAttribute, &quot;C3PO&quot;);
+   var r2d2 = starWars.addEntry(&quot;R2D2&quot;);
+   assertTrue('&quot;Star Wars&quot; has not been deleted', !starWars.hasBeenDeleted());
+   assertTrue('&quot;R2D2&quot; has not been deleted', !r2d2.hasBeenDeleted());
+@@ -194,7 +194,7 @@
+   var userChris = world.newUser(&quot;Chris Kringle&quot;, passwordForChris);
+   world.login(userChris, passwordForChris);
+ 
+-  r2d2 = starWars.replaceEntryWithAttributeEntry(r2d2, characterAttribute, &quot;R2D2&quot;);
++  r2d2 = starWars.replaceEntryWithEntryForAttribute(r2d2, characterAttribute, &quot;R2D2&quot;);
+   assertTrue('&quot;R2D2&quot; is now character', r2d2.getAttribute() == characterAttribute);
+   
+   listOfCharacters = starWars.getEntriesForAttribute(characterAttribute);
+@@ -206,12 +206,12 @@
+   
+   var attributeCalledName = world.getAttributeCalledName();
+   var theHobbit = world.newItem(&quot;The Hobbit&quot;);
+-  theHobbit.addAttributeEntry(attributeCalledName, &quot;There and Back Again&quot;);
++  theHobbit.addEntryForAttribute(attributeCalledName, &quot;There and Back Again&quot;);
+   listOfEntries = theHobbit.getEntriesForAttribute(attributeCalledName);
+   assertTrue('&quot;The Hobbit&quot; has two names', listOfEntries.length == 2);
+   assertTrue('getDisplayName() returns the first name', (starWars.getDisplayName() == &quot;Star Wars&quot;));
+-  listOfNames = theHobbit.getName();
+-  assertTrue('getContentData() returns a string', listOfNames[0].getContentData() == &quot;The Hobbit&quot;);
++  listOfNames = theHobbit.getNameEntries();
++  assertTrue('getContentData() returns a string', listOfNames[0].getValue() == &quot;The Hobbit&quot;);
+   hasAll = Util.areObjectsInSet(listOfNames, listOfEntries);
+   hasAll = hasAll &amp;&amp; Util.areObjectsInSet(listOfEntries, listOfNames);
+   assertTrue('getName() matches getEntriesForAttribute(attributeCalledName)', hasAll);
+@@ -246,13 +246,13 @@
+   isInCategory = theHobbit.isInCategory(categoryCalledBook);
+   assertTrue('&quot;The Hobbit&quot; is NOT in the category &quot;Book&quot;', !isInCategory);
+   
+-  theHobbit.addAttributeEntry(attributeCalledCategory, categoryCalledBook);
+-  theWisdomOfCrowds.addAttributeEntry(attributeCalledCategory, categoryCalledBook);
+-  theTransparentSociety.addAttributeEntry(attributeCalledCategory, categoryCalledBook);
++  theHobbit.addEntryForAttribute(attributeCalledCategory, categoryCalledBook);
++  theWisdomOfCrowds.addEntryForAttribute(attributeCalledCategory, categoryCalledBook);
++  theTransparentSociety.addEntryForAttribute(attributeCalledCategory, categoryCalledBook);
+   isInCategory = theHobbit.isInCategory(categoryCalledBook);
+   assertTrue('&quot;The Hobbit&quot; is in the category &quot;Book&quot;', isInCategory);
+  
+-  var allBooks = world.getListOfItemsInCategory(categoryCalledBook);
++  var allBooks = world.getItemsInCategory(categoryCalledBook);
+   var hasAll = Util.areObjectsInSet([theHobbit, theWisdomOfCrowds, theTransparentSociety], allBooks);
+   assertTrue('All three books are in the category &quot;Book&quot;', hasAll);
+   
+@@ -273,29 +273,29 @@
+   var brownie = world.newItem(&quot;Brownie&quot;);  
+ 
+   var categoryCalledFood = world.newCategory(&quot;Food&quot;);
+-  apple.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
+-  cupcake.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
+-  brownie.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
++  apple.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  cupcake.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  brownie.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+ 
+-  var foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  var foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Apple starts out first in the list&quot;', foodItems[0] == apple);
+   assertTrue('Cupcake starts out second in the list&quot;', foodItems[1] == cupcake);
+   assertTrue('Brownie starts out second in the list&quot;', foodItems[2] == brownie);
+ 
+   brownie.reorderBetween(apple, cupcake);
+-  foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+   assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
+   assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
+ 
+   cupcake.reorderBetween(null, apple);
+-  foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Cupcake is now first in the list&quot;', foodItems[0] == cupcake);
+   assertTrue('Apple is now second in the list&quot;', foodItems[1] == apple);
+   assertTrue('Brownie is now third in the list&quot;', foodItems[2] == brownie);
+ 
+   cupcake.reorderBetween(brownie, null);
+-  foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+   assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
+   assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
+@@ -395,9 +395,9 @@
+   var cupcake = world.newItem(&quot;Cupcake&quot;);
+ 
+   var categoryCalledFood = world.newCategory(&quot;Food&quot;);
+-  apple.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
+-  brownie.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
+-  cupcake.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
++  apple.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  brownie.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  cupcake.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+ 
+   var tokyo = world.newItem(&quot;Tokyo&quot;);
+   var seattle = world.newItem(&quot;Seattle&quot;);
+@@ -407,13 +407,13 @@
+   foodObserverObject.observedListHasChanged = function (inList, inListOfChangeReports) {
+     changesObservedByObject = inListOfChangeReports;
+   };
+-  var foodItems = world.getListOfItemsInCategory(categoryCalledFood, foodObserverObject);
++  var foodItems = world.getItemsInCategory(categoryCalledFood, foodObserverObject);
+ 
+   var changesObservedByFunction = null;
+   var foodObserverFunction = function (inList, inListOfChangeReports) {
+     changesObservedByFunction = inListOfChangeReports;
+   };
+-  var alsoFoodItems = world.getListOfItemsInCategory(categoryCalledFood, foodObserverFunction);
++  var alsoFoodItems = world.getItemsInCategory(categoryCalledFood, foodObserverFunction);
+   
+   apple.addEntry(&quot;Red&quot;);
+   assertTrue('foodObserverObject sees a change to apple', (changesObservedByObject != null));
+@@ -449,9 +449,9 @@
+ 
+   var categoryCalledFood = world.newCategory(&quot;Food&quot;);
+   assertTrue('The category &quot;Food&quot; is an item', (categoryCalledFood instanceof Item));
+-  apple.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
+-  brownie.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
+-  cupcake.addAttributeEntry(attributeCalledCategory, categoryCalledFood);
++  apple.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  brownie.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  cupcake.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+ 
+   var tokyo = world.newItem(&quot;Tokyo&quot;);
+   var seattle = world.newItem(&quot;Seattle&quot;);
+@@ -460,12 +460,12 @@
+   var queryForFoods = world.newQueryForItemsByCategory(categoryCalledFood);
+   var queryForCities = world.newQueryForSpecificItems([tokyo, seattle]);
+   
+-  var listOfFoods = world.getListOfResultItemsForQuery(queryForFoods);
++  var listOfFoods = world.getResultItemsForQuery(queryForFoods);
+   hasAll = Util.areObjectsInSet([apple, brownie, cupcake], listOfFoods);
+   assertTrue('Food query returns 3 foods', listOfFoods.length == 3);
+   assertTrue('Food query returns all 3 foods', hasAll);
+ 
+-  var listOfCities = world.getListOfResultItemsForQuery(queryForCities);
++  var listOfCities = world.getResultItemsForQuery(queryForCities);
+   hasAll = Util.areObjectsInSet([tokyo, seattle], listOfCities);
+   assertTrue('City query returns 2 cities', listOfCities.length == 2);
+   assertTrue('City query returns all cities', hasAll);
+@@ -473,7 +473,7 @@
+   world.setItemToBeIncludedInQueryResultList(tokyo, queryForFoods);
+   assertTrue('Tokyo is now a food', tokyo.isInCategory(categoryCalledFood));
+ 
+-  listOfFoods = world.getListOfResultItemsForQuery(queryForFoods);
++  listOfFoods = world.getResultItemsForQuery(queryForFoods);
+   hasAll = Util.areObjectsInSet([apple, brownie, cupcake, tokyo], listOfFoods);
+   assertTrue('Food query returns 4 foods', listOfFoods.length == 4);
+   assertTrue('Food query returns all 4 foods', hasAll);
+
+Modified: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/READ_ME.txt	2005-05-04 05:41:35 UTC (rev 53)
+@@ -12,12 +12,13 @@
+ ---------------------------------
+ Here's a quick overview of the terminology and concepts...
+ 
+-Item -- items have attribute values
+-Value -- an attribute value attached to an item
+-  
+-Entry -- the abstract superclass for Item and Value
+-Ordinal -- keeps track of where an Entry should appear in a list
+-Vote -- keeps track of who thinks an Entry should be replaced/deleted
++Item -- items can have values assigned to their attributes
++Entry -- a value that has been assigned to an attribute of an item
++value -- the literal value held in an Entry, or a reference value held in an Entry
++
++IdentifiedRecord -- the abstract superclass for Item and Entry
++Ordinal -- keeps track of where an IdentifiedRecord should appear in a list
++Vote -- keeps track of who thinks an IdentifiedRecord should be replaced/deleted
+ Record -- an Item, Value, Ordinal, or Vote -- things that have to be recorded
+ 
+ World -- a set of items, like the &quot;OpenAgenda&quot; world or the &quot;CoolChaser&quot; world
+@@ -34,18 +35,18 @@
+ 
+ Item methods --------------------
+ 
+-  item.addAttributeValue()      --- change to .addEntryForAttribute() ?
+-  item.addValue()               --- change to .addEntry() ?
+-  item.replaceValue()           --- change to .replaceEntry() ?
+-  item.replaceValueWithAttributeValue()
++  item.addEntryForAttribute() 
++  item.addEntry()
++  item.replaceEntry()
++  item.replaceEntryWithEntryForAttribute()
+   
+   item.getAttributes()
+-  item.getValuesForAttribute()  --- change to .getEntriesForAttribute() ?
+-  item.getValues()              --- change to .getEntries() ?
++  item.getEntriesForAttribute()
++  item.getEntries()
+   
+   item.getDisplayName()
+-  item.getName()                --- change to .getNameEntries() ?
+-  item.getShortName()           --- change to .getShortNameEntries() ?
++  item.getNameEntries()
++  item.getShortNameEntries()
+   
+   item.isInCategory()
+   item.reorderBetween()
+@@ -58,14 +59,21 @@
+   item.removeObserver()
+ 
+   
+-Value methods ------------------- 
++Entry methods ------------------- 
+ 
+-  value.hasBeenReplaced()
+-  value.getPreviousValue()
+-  value.getAttribute()
+-  value.getItem()
+-  value.getContentData()
++  entry.getValue()
++  entry.getAttribute()
++  entry.getItem()
+ 
++  entry.reorderBetween()
++
++  entry.hasBeenReplaced()
++  entry.getPreviousEntry()
++  entry.hasBeenDeleted()
++
++  entry.voteToDelete()
++  entry.voteToRetain()
++
+   
+ World methods ------------------- 
+ 
+@@ -73,7 +81,7 @@
+   world.logout()
+   
+   world.getUsers()
+-  world.getCurrentUser()       --- change to .getLoggedInUser() ?
++  world.getCurrentUser()
+   world.newUser()
+   
+   world.newItem()
+@@ -81,8 +89,9 @@
+   world.newCategory()
+   world.newQueryForItemsByCategory()
+   world.newQueryForSpecificItems()
+-  world.getListOfItemsInCategory()     --- change to getItemsInCategory() ?
+-  world.getListOfResultItemsForQuery() --- change to getResultItemsForQuery() ?
++  
++  world.getItemsInCategory()
++  world.getResultItemsForQuery() 
+   world.setItemToBeIncludedInQueryResultList()
+   world.removeListObserver()
+   world.addItemObserver()
+@@ -109,14 +118,17 @@
+   Table
+   Class
+   
+-Value ----- example: &quot;1938&quot;
++Category ----- examples: &quot;Book&quot;, &quot;Movie&quot;, &quot;Person&quot;
++  Tag
++  
++Entry ----- example: (&quot;1938&quot; is the value of the attribute &quot;Publication Date&quot; for the item &quot;The Hobbit&quot;)
+   Assignement
+   Datum
+   AttributeValue
+   Aspect
+   
+-Data ----- example: &quot;1938&quot;
+-  Value
++Value ----- example: &quot;1938&quot;
++  Data
+   Datum
+ 
+ Relationship ----- example: &quot;hobbit.author &lt;--&gt; tolkien.books&quot;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/StubVirtualServer.js	2005-05-04 05:41:35 UTC (rev 53)
+@@ -106,7 +106,7 @@
+   this.__myChronologicalListOfNewlyCreatedRecords.push(item);
+   if (inName) { 
+     var attributeCalledName = this.__myWorld.getAttributeCalledName();
+-    item.addAttributeEntry(attributeCalledName, inName);
++    item.addEntryForAttribute(attributeCalledName, inName);
+   }
+   return item;
+ };
+@@ -118,13 +118,13 @@
+  * @scope    public instance method
+  * @param    inItemOrEntry    The item that this is a entry of, or the old entry that this entry is replacing. 
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+- * @param    inContentData    The content datat to initialize the entry with. 
++ * @param    inValue    The value to initialize the entry with. 
+  * @return   A newly created entry.
+  */
+-StubVirtualServer.prototype.newEntry = function (inItemOrEntry, inAttribute, inContentData) {
++StubVirtualServer.prototype.newEntry = function (inItemOrEntry, inAttribute, inValue) {
+   var uuid = this.__getNewUuid();
+   var entry = new Entry(this.__myWorld, uuid);
+-  entry._initialize(inItemOrEntry, inAttribute, inContentData);
++  entry._initialize(inItemOrEntry, inAttribute, inValue);
+   this.__myHashTableOfEntriesKeyedByUuid[uuid] = entry;
+   this.__myChronologicalListOfNewlyCreatedRecords.push(entry);
+   return entry;
+@@ -181,7 +181,7 @@
+   this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = inAuthentication;
+   if (inName) { 
+     var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-    var entry = newUser.addAttributeEntry(attributeCalledName, inName);
++    var entry = newUser.addEntryForAttribute(attributeCalledName, inName);
+     entry.__myCreationUserstamp = newUser;
+   }
+   return newUser;
+@@ -313,7 +313,7 @@
+  * @param    inQuery    A query item. 
+  * @return   A list of items.
+  */
+-StubVirtualServer.prototype.getListOfResultItemsForQuery = function (inQuery, inObserver) {
++StubVirtualServer.prototype.getResultItemsForQuery = function (inQuery, inObserver) {
+   Util.assert(inQuery instanceof Item);
+   
+   var attributeCalledQueryMatchingCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+@@ -333,7 +333,7 @@
+   if (isItemMatchingQuery) {
+     for (key in listOfMatchingItems) {
+       var itemEntry = listOfMatchingItems[key];
+-      item = itemEntry.getContentData();
++      item = itemEntry.getValue();
+       listOfQueryResultItems.push(item);
+     }
+   }
+@@ -347,7 +347,7 @@
+         var includeItem = true;
+         for (key in listOfMatchingCategories) {
+           var categoryEntry = listOfMatchingCategories[key];
+-          var category = categoryEntry.getContentData();
++          var category = categoryEntry.getValue();
+           if (includeItem &amp;&amp; !(item.isInCategory(category))) {
+             includeItem = false;
+           }
+@@ -398,16 +398,16 @@
+   Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
+ 
+   if (isItemMatchingQuery) {
+-    inQuery.addAttributeEntry(attributeCalledQueryMatchingItem, inItem);
++    inQuery.addEntryForAttribute(attributeCalledQueryMatchingItem, inItem);
+   }
+   
+   var attributeCalledCategory = this.__myWorld.getAttributeCalledCategory();
+   if (isCategoryMatchingQuery) {
+     for (var key in listOfMatchingCategories) {
+       var categoryEntry = listOfMatchingCategories[key];
+-      var category = categoryEntry.getContentData();
++      var category = categoryEntry.getValue();
+       if (!(inItem.isInCategory(category))) {
+-        inItem.addAttributeEntry(attributeCalledCategory, category);
++        inItem.addEntryForAttribute(attributeCalledCategory, category);
+       }
+     }
+   }
+@@ -422,7 +422,7 @@
+  * @param    inCategory    A category item. 
+  * @return   A list of items.
+  */
+-StubVirtualServer.prototype.getListOfItemsInCategory = function (inCategory) {
++StubVirtualServer.prototype.getItemsInCategory = function (inCategory) {
+   Util.assert(inCategory instanceof Item);
+ 
+   var listOfItems = [];
+@@ -560,7 +560,7 @@
+  
+   // set the name of the axiomaticUser
+   var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-  axiomaticUser.addAttributeEntry(attributeCalledName, &quot;Amy ex machina&quot;);
++  axiomaticUser.addEntryForAttribute(attributeCalledName, &quot;Amy ex machina&quot;);
+   
+   // set the names of all the attributes, and put them in the category called &quot;Attribute&quot;
+   var categoryCalledAttribute = this.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+@@ -568,8 +568,8 @@
+   for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
+     item = this.getItemFromUuid(uuid);
+     name = hashTableOfAttributeNamesKeyedByUuid[uuid];
+-    item.addAttributeEntry(attributeCalledName, name);
+-    item.addAttributeEntry(attributeCalledCategory, categoryCalledAttribute);
++    item.addEntryForAttribute(attributeCalledName, name);
++    item.addEntryForAttribute(attributeCalledCategory, categoryCalledAttribute);
+   }
+   
+   // set the names of all the categories, and put them in the category called &quot;Category&quot;
+@@ -577,8 +577,8 @@
+   for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
+     item = this.getItemFromUuid(uuid);
+     name = hashTableOfCategoryNamesKeyedByUuid[uuid];
+-    item.addAttributeEntry(attributeCalledName, name);
+-    item.addAttributeEntry(attributeCalledCategory, categoryCalledCategory);
++    item.addEntryForAttribute(attributeCalledName, name);
++    item.addEntryForAttribute(attributeCalledCategory, categoryCalledCategory);
+   }
+   
+   this.__myCurrentUser = null;
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-05-04 04:53:34 UTC (rev 52)
++++ trunk/source/model/World.js	2005-05-04 05:41:35 UTC (rev 53)
+@@ -488,7 +488,7 @@
+   var item = this.__myVirtualServer.newItem(inName, inObserver);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+-  item.addAttributeEntry(attributeCalledCategory, categoryCalledAttribute);
++  item.addEntryForAttribute(attributeCalledCategory, categoryCalledAttribute);
+   this.endTransaction();
+   return item;
+ };
+@@ -507,7 +507,7 @@
+   var item = this.__myVirtualServer.newItem(inName, inObserver);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+-  item.addAttributeEntry(attributeCalledCategory, categoryCalledCategory);
++  item.addEntryForAttribute(attributeCalledCategory, categoryCalledCategory);
+   this.endTransaction();
+   return item;
+ };
+@@ -525,18 +525,18 @@
+   var item = this.__myVirtualServer.newItem(&quot;A query&quot;);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+-  item.addAttributeEntry(attributeCalledCategory, categoryCalledQuery);
++  item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+ 
+   var attributeCalledQueryMatchingCategory = this.getAttributeCalledQueryMatchingCategory();
+   if (inCategory) {
+     if (inCategory instanceof Item) {
+-      item.addAttributeEntry(attributeCalledQueryMatchingCategory, inCategory);
++      item.addEntryForAttribute(attributeCalledQueryMatchingCategory, inCategory);
+     }
+     if (Util.isArray(inCategory)) {
+       var listOfCategories = inCategory;
+       for (var key in listOfCategories) {
+         var category = listOfCategories[key];
+-        item.addAttributeEntry(attributeCalledQueryMatchingCategory, category);
++        item.addEntryForAttribute(attributeCalledQueryMatchingCategory, category);
+       }
+     }
+   }
+@@ -558,18 +558,18 @@
+   var item = this.__myVirtualServer.newItem(&quot;A query&quot;);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+-  item.addAttributeEntry(attributeCalledCategory, categoryCalledQuery);
++  item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+ 
+   var attributeCalledQueryMatchingItem = this.getAttributeCalledQueryMatchingItem();
+   if (inItems) {
+     if (inItems instanceof Item) {
+-      item.addAttributeEntry(attributeCalledQueryMatchingItem, inItems);
++      item.addEntryForAttribute(attributeCalledQueryMatchingItem, inItems);
+     }
+     if (Util.isArray(inItems)) {
+       var listOfItems = inItems;
+       for (var key in listOfItems) {
+         var matchingItem = listOfItems[key];
+-        item.addAttributeEntry(attributeCalledQueryMatchingItem, matchingItem);
++        item.addEntryForAttribute(attributeCalledQueryMatchingItem, matchingItem);
+       }
+     }
+   }
+@@ -585,12 +585,12 @@
+  * @scope    public instance method
+  * @param    inItemOrEntry    The item that this is a entry of, or the old entry that this entry is replacing. 
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+- * @param    inContentData    The content data to initialize the entry with. 
++ * @param    inValue    The value to initialize the entry with. 
+  * @return   A newly created entry.
+  */
+-World.prototype._newEntry = function (inItemOrEntry, inAttribute, inContentData) {
++World.prototype._newEntry = function (inItemOrEntry, inAttribute, inValue) {
+   this.beginTransaction();
+-  var entry = this.__myVirtualServer.newEntry(inItemOrEntry, inAttribute, inContentData);
++  var entry = this.__myVirtualServer.newEntry(inItemOrEntry, inAttribute, inValue);
+   this.endTransaction();
+   return entry;
+ };
+@@ -654,8 +654,8 @@
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A list of items.
+  */
+-World.prototype.getListOfResultItemsForQuery = function (inQuery, inObserver) {
+-  var listOfItems = this.__myVirtualServer.getListOfResultItemsForQuery(inQuery);
++World.prototype.getResultItemsForQuery = function (inQuery, inObserver) {
++  var listOfItems = this.__myVirtualServer.getResultItemsForQuery(inQuery);
+   this.__addListObserver(listOfItems, inObserver);
+   return listOfItems;
+ };
+@@ -684,8 +684,8 @@
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A list of items.
+  */
+-World.prototype.getListOfItemsInCategory = function (inCategory, inObserver) {
+-  var listOfItems = this.__myVirtualServer.getListOfItemsInCategory(inCategory);
++World.prototype.getItemsInCategory = function (inCategory, inObserver) {
++  var listOfItems = this.__myVirtualServer.getItemsInCategory(inCategory);
+   this.__addListObserver(listOfItems, inObserver);
+   return listOfItems;
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000044.html">[openrecord-svn] r52 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000046.html">[openrecord-svn] r54 - in trunk: documentation source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#45">[ date ]</a>
+              <a href="thread.html#45">[ thread ]</a>
+              <a href="subject.html#45">[ subject ]</a>
+              <a href="author.html#45">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

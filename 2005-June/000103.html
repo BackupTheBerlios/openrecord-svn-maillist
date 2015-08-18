@@ -1,0 +1,297 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r116 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r116%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506030432.j534WbaA007076%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000102.html">
+   <LINK REL="Next"  HREF="000104.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r116 - in trunk: documentation source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r116%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506030432.j534WbaA007076%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r116 - in trunk: documentation source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun  3 06:32:37 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000102.html">[openrecord-svn] r115 - trunk/source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000104.html">[openrecord-svn] r117 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#103">[ date ]</a>
+              <a href="thread.html#103">[ thread ]</a>
+              <a href="subject.html#103">[ subject ]</a>
+              <a href="author.html#103">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-03 06:32:21 +0200 (Fri, 03 Jun 2005)
+New Revision: 116
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/TablePlugin.js
+Log:
+Added &quot;new section&quot; capability in edit mode.
+Some minor clean-up.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-02 19:31:12 UTC (rev 115)
++++ trunk/documentation/release_planning.txt	2005-06-03 04:32:21 UTC (rev 116)
+@@ -104,7 +104,9 @@
+ Who    | Priority | Estimate| Task
+ -------+----------+---------+----------------------------------------------
+  Chao  |   done   | 0   ied | Re-implement UI for entering a new row in a table (1.5 ied actual)
++ Chao  |   done   |         | Refactor TablePlugin to DOM Level 2 (1.5 ied actual)
+ Brian  |   done   | 1   ied | Ensure that UUIDs are unique in multi-user use case
++Chao   |   Medium | 1   ied | Refactor plugin class, pass a query to plugin, create Plugin base class
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -114,8 +116,8 @@
+ Who    | Priority | Estimate| Task
+ -------+----------+---------+----------------------------------------------
+ Mignon |   Low    |         | Generate time-based UUIDs (&quot;version 1&quot; UUIDs)
+-Chao   | High     | 1   ied | Allow users to view multiple entries in a table plugin cell
+-Chao   | High     | 2   ied | Allow users to enter/edit multiple entries in a table plugin cell
++Chao   | Done     | 1   ied | Allow users to view multiple entries in a table plugin cell (0.5 ied actual)
++Chao   | Done     | 2   ied | Allow users to enter/edit multiple entries in a table plugin cell (1 ied actual)
+ -------+----------+---------+----------------------------------------------
+  
+ 
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-02 19:31:12 UTC (rev 115)
++++ trunk/source/PageView.js	2005-06-03 04:32:21 UTC (rev 116)
+@@ -48,6 +48,31 @@
+ //PageView.UUID_FOR_ATTRIBUTE_SECTION = 108;
+ PageView.UUID_FOR_ATTRIBUTE_SECTION = &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
++/**
++ * Creates a new section in the repository
++ * @scope public function
++ * @param inPage  Page Item to insert new section
++ * @param isNewTransaction  should new section be wrapped in a transaction?
++ */
++PageView.newSection = function (repository, inPage, isNewTransaction) {
++  var attributeCalledCategory = repository.getAttributeCalledCategory();
++  var attributeCalledQuery = repository.getAttributeCalledQuery();
++  var categoryCalledQuery = repository.getCategoryCalledQuery();
++  var attributeCalledPluginName = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
++  var attributeCalledSection = repository.getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTION);
++  var categoryCalledSection = repository.getItemFromUuid(RootView.UUID_FOR_CATEGORY_SECTION);
++  
++  if (isNewTransaction) {repository.beginTransaction();}
++  var newSection = repository.newItem(&quot;New Section&quot;);
++  newSection.addEntryForAttribute(attributeCalledCategory, categoryCalledSection);
++  inPage.addEntryForAttribute(attributeCalledSection, newSection);
++  newSection.addEntryForAttribute(attributeCalledPluginName, SectionView.PLUGIN_TABLE);
++  var newQuery = repository.newItem(&quot;New Query&quot;);
++  newQuery.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
++  newSection.addEntryForAttribute(attributeCalledQuery, newQuery);
++  if (isNewTransaction) {repository.endTransaction();}
++  return newSection;
++};
+ 
+ /**
+  * The RootView uses an instance of a PageView to display a Page in the
+@@ -108,6 +133,7 @@
+       var sectionView = this.myListOfSectionViews[key];      
+       sectionView.refresh();
+     }
++    this._refreshEditModeControls();
+   }
+ };
+ 
+@@ -142,16 +168,84 @@
+   for (var key in listOfEntriesForSections) {
+     var entryForSection = listOfEntriesForSections[key];
+     var section = entryForSection.getValue();
+-    var sectionViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+-    var sectionView = new SectionView(this, sectionViewDiv, section, sectionNumber);
+-    sectionNumber += 1;
+-    this.myListOfSectionViews.push(sectionView);
++    this._buildNewSection(section);
+   }
++  this._wasInEditMode = this.isInEditMode();
++  if (this._wasInEditMode) {this._buildEditControls();}
+   this._myHasEverBeenDisplayedFlag = true;
+   this.refresh();
+ };
+ 
++/**
++ * Creates a new section in this page.
++ *
++ * @param  inSection newSection item
++ * @param  inBeforeElt (optional) if specified, section view to be inserted before this elt
++ * @scope    private instance method
++ */
++PageView.prototype._buildNewSection = function(inSection, inBeforeElt) {
++  var pageDivElement = this.getHTMLElement();
++  var sectionViewDiv = document.createElement(&quot;div&quot;);
++  var sectionView = new SectionView(this, sectionViewDiv, inSection, this.myListOfSectionViews.length);
++  if (inBeforeElt) {
++    pageDivElement.insertBefore(sectionViewDiv, inBeforeElt);
++  }
++  else {
++    pageDivElement.appendChild(sectionViewDiv);
++  }
++  this.myListOfSectionViews.push(sectionView);
++  return sectionView;
++}
+ 
++/**
++ * Called when the user clicks on the &quot;New Section&quot; button.
++ *
++ * @scope    private instance method
++ */
++PageView.prototype._addNewSection = function() {
++  var newSection = PageView.newSection(this.getWorld(), this.myPage ,true);
++  this._buildNewSection(newSection, this._editModeDiv).refresh();
++};
++
++/**
++ * Create the &quot;new section&quot; button in EditMode.
++ *
++ * @scope    private instance method
++ */
++PageView.prototype._buildEditControls = function() {
++  if (!this._editModeDiv) {
++    var pageDivElement = this.getHTMLElement();
++    this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, SectionView.ELEMENT_CLASS_SECTION);
++    View.createAndAppendElement(this._editModeDiv,&quot;br&quot;);
++    var editButton = View.createAndAppendElement(this._editModeDiv, &quot;input&quot;, 
++      RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++    editButton.type = &quot;Button&quot;;
++    editButton.value = &quot;New Section&quot;;
++    editButton.onclick = this._addNewSection.bindAsEventListener(this);
++  }
++  else {
++    this._editModeDiv.display = &quot;Block&quot;;
++  }
++};
++
++/**
++ * Called when edit controls need to be refreshed
++ *
++ * @scope    private instance method
++ */
++PageView.prototype._refreshEditModeControls = function() {
++  if (this._wasInEditMode != this.isInEditMode()) {
++    this._wasInEditMode = this.isInEditMode();
++    if (this.isInEditMode()) {
++      this._buildEditControls();
++    }
++    else {
++      this.getHTMLElement().removeChild(this._editModeDiv);
++      //Pending: why does hiding _editModeDiv still leave a blue line, gotta ask Brian about CSS
++      this._editModeDiv = null;
++    }
++  }
++};
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-02 19:31:12 UTC (rev 115)
++++ trunk/source/RootView.js	2005-06-03 04:32:21 UTC (rev 116)
+@@ -350,28 +350,18 @@
+  * @return   The newly created page item.
+  */
+ RootView.prototype.newPage = function () {
+-  this.getWorld().beginTransaction();
+-  var newPage = this.getWorld().newItem(&quot;New Page&quot;);
+-  // var shortName = this.getWorld().getAttributeCalledShortName();
+-  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+-  var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
+-  var categoryCalledQuery = this.getWorld().getCategoryCalledQuery();
+-  var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+-  var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+-  var attributeCalledSection = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTION);
+-  var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+-  var categoryCalledSection = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_SECTION);
++  var repository = this.getWorld();
++  repository.beginTransaction();
++  var newPage = repository.newItem(&quot;New Page&quot;);
++  // var shortName = repository.getAttributeCalledShortName();
++  var attributeCalledCategory = repository.getAttributeCalledCategory();
++  var attributeCalledSummary = repository.getAttributeCalledSummary();
++  var categoryCalledPage = repository.getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   // newPage.addEntryForAttribute(shortName, &quot;New Page&quot;);
+   newPage.addEntryForAttribute(attributeCalledCategory, categoryCalledPage);
+   newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
+-  var newSection = this.getWorld().newItem(&quot;New Section&quot;);
+-  newSection.addEntryForAttribute(attributeCalledCategory, categoryCalledSection);
+-  newPage.addEntryForAttribute(attributeCalledSection, newSection);
+-  newSection.addEntryForAttribute(attributeCalledPluginName, SectionView.PLUGIN_TABLE);
+-  var newQuery = this.getWorld().newItem(&quot;New Query&quot;);
+-  newQuery.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+-  newSection.addEntryForAttribute(attributeCalledQuery, newQuery);
+-  this.getWorld().endTransaction();
++  PageView.newSection(repository,newPage,false);
++  repository.endTransaction();
+   
+   this.myHashTableOfPagesKeyedByUuid[newPage._getUuid()] = newPage;
+   
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-02 19:31:12 UTC (rev 115)
++++ trunk/source/TablePlugin.js	2005-06-03 04:32:21 UTC (rev 116)
+@@ -339,12 +339,9 @@
+  * @scope    public instance method
+  */
+ TablePlugin.prototype.refresh = function () {
+-  if (!this._myHasEverBeenDisplayedFlag) {
+-    this._buildTable();
+-  } else {
+-    var a = 1;
++  // PENDING new table is constantly rebuilt currently
+   // PENDING new content model with observable queries
+-  }
++  this._buildTable();
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000102.html">[openrecord-svn] r115 - trunk/source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000104.html">[openrecord-svn] r117 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#103">[ date ]</a>
+              <a href="thread.html#103">[ thread ]</a>
+              <a href="subject.html#103">[ subject ]</a>
+              <a href="author.html#103">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

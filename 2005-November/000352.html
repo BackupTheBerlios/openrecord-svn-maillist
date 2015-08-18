@@ -1,0 +1,228 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r370 - trunk/source/storage
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r370%20-%20trunk/source/storage&In-Reply-To=%3C200511010416.jA14GOEW012633%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000351.html">
+   <LINK REL="Next"  HREF="000353.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r370 - trunk/source/storage</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r370%20-%20trunk/source/storage&In-Reply-To=%3C200511010416.jA14GOEW012633%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r370 - trunk/source/storage">skinner at berlios.de
+       </A><BR>
+    <I>Tue Nov  1 05:16:24 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000351.html">[openrecord-svn] r369 - trunk/tests/storage
+</A></li>
+        <LI>Next message: <A HREF="000353.html">[openrecord-svn] r371 - in trunk: source source/archive source/model source/storage source/util source/view tests tests/archive tests/dom tests/lang tests/model tests/storage tests/util tests/uuid
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#352">[ date ]</a>
+              <a href="thread.html#352">[ thread ]</a>
+              <a href="subject.html#352">[ subject ]</a>
+              <a href="author.html#352">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-11-01 05:16:22 +0100 (Tue, 01 Nov 2005)
+New Revision: 370
+
+Added:
+   trunk/source/storage/fileProtocolUtil.js
+Log:
+Checkin of only fileProtocolUtil.js
+
+Added: trunk/source/storage/fileProtocolUtil.js
+===================================================================
+--- trunk/source/storage/fileProtocolUtil.js	2005-11-01 02:17:03 UTC (rev 369)
++++ trunk/source/storage/fileProtocolUtil.js	2005-11-01 04:16:22 UTC (rev 370)
+@@ -0,0 +1,152 @@
++/*****************************************************************************
++ fileProtocolUtil.js
++ 
++******************************************************************************
++ The code in this file is a heavily modified version of code that was copied
++ from the TiddlyWiki and GTDTiddlyWiki code base.
++ 
++ The original code is Copyright (c) Osmosoft Limited.  The original copyright 
++ notice is included below, along with the license conditions and disclaimer.  
++ 
++ OpenRecord modifications by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++
++ For the OpenRecord modifications, the Copyright rights are relinquished under  
++ the Creative Commons Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++
++******************************************************************************
++TiddlyWiki 1.2.6 by Jeremy Ruston, (jeremy [at] osmosoft [dot] com)
++Incorporating improvements by Isao Sonobe, <A HREF="http://www-gauge.scphys.kyoto-u.ac.jp/~sonobe/OgreKit/OgreKitWiki.html">http://www-gauge.scphys.kyoto-u.ac.jp/~sonobe/OgreKit/OgreKitWiki.html</A>
++GTDTiddlyWiki modification by Nathan Bowers, (wiki [at] snapgrid [dot] com)
++Safari Compatability by Jonathan Paisley at <A HREF="http://www.dcs.gla.ac.uk/~jp/">http://www.dcs.gla.ac.uk/~jp/</A>
++
++Copyright (c) Osmosoft Limited, 14 April 2005
++
++All rights reserved.
++
++Redistribution and use in source and binary forms, with or without modification,
++are permitted provided that the following conditions are met:
++
++Redistributions of source code must retain the above copyright notice, this
++list of conditions and the following disclaimer.
++
++Redistributions in binary form must reproduce the above copyright notice, this
++list of conditions and the following disclaimer in the documentation and/or other
++materials provided with the distribution.
++
++Neither the name of the Osmosoft Limited nor the names of its contributors may be
++used to endorse or promote products derived from this software without specific
++prior written permission.
++
++THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY
++EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
++SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
++TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
++DAMAGE.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.storage.fileProtocolUtil&quot;);
++
++
++/**
++ * This function looks at the URL value in the window.location property,
++ * strips the filename off the end, appends any given path elements,
++ * converts the whole thing to a format that is compatible with the 
++ * local file system, and returns the new local path.
++ *
++ * @scope    public function
++ * @return   Returns a full local pathname.
++ */
++orp.storage.getLocalPathFromWindowLocation = function(listOfAdditions) {
++  // Example location:
++  //   location.href     == <A HREF="file:///D:/amy/openrecord/foo.html#bar">file:///D:/amy/openrecord/foo.html#bar</A>
++  //   location.protocol == file:
++  //   location.pathname ==        /D:/amy/openrecord/foo.html
++  //   location.hash     ==                                   #bar
++
++  // Get the URL of the document
++  var pathname = window.location.pathname;
++  
++  
++  // Step 1: Make the requested additions to the pathname
++  var arrayOfParts = pathname.split('/');
++  arrayOfParts.pop();  // get rid of the final &quot;/foo.html&quot; part
++  for (var i in listOfAdditions) {
++    var additionalPart = listOfAdditions[i];
++    arrayOfParts.push(additionalPart);
++  }
++  pathname = arrayOfParts.join('/');
++
++  
++  // Step 2: Figure out what type of URL we're working with
++  // Constants
++  var PathType = {
++    LOCAL_PC:        &quot;LOCAL_PC&quot;,          // &quot;<A HREF="file:///x:/path/path...">file:///x:/path/path...</A>&quot; 
++    LOCAL_UNIX_MAC:  &quot;LOCAL_UNIX_MAC&quot;,    // &quot;<A HREF="file:///path/path...">file:///path/path...</A>&quot;
++    NETWORK_PC:      &quot;NETWORK_PC&quot;,        // &quot;<A HREF="file://server/share/path/path...">file://server/share/path/path...</A>&quot;
++    NETWORK_FIREFOX: &quot;NETWORK_FIREFOX&quot; }; // &quot;<A HREF="file://///server/share/path/path...">file://///server/share/path/path...</A>&quot;
++  // &quot;<A HREF="file:///x:/path/path...">file:///x:/path/path...</A>&quot;             == PathType.LOCAL_PC        --&gt; &quot;x:\path\path...&quot;
++  // &quot;<A HREF="file:///path/path...">file:///path/path...</A>&quot;                == PathType.LOCAL_UNIX_MAC  --&gt; &quot;/path/path...&quot;
++  // &quot;<A HREF="file://server/share/path/path...">file://server/share/path/path...</A>&quot;    == PathType.NETWORK_PC      --&gt; &quot;\\server\share\path\path...&quot;
++  // &quot;<A HREF="file://///server/share/path/path...">file://///server/share/path/path...</A>&quot; == PathType.NETWORK_FIREFOX --&gt; &quot;\\server\share\path\path...&quot;
++
++  var pathType = null;
++  if (pathname.charAt(2) == &quot;:&quot;) {
++    pathType = PathType.LOCAL_PC;
++  } else if (pathname.indexOf(&quot;///&quot;) === 0) {
++    pathType = PathType.NETWORK_FIREFOX;
++  } else if (pathname.indexOf(&quot;/&quot;) === 0) {
++    pathType = PathType.LOCAL_UNIX_MAC;
++  } else {
++    pathType = PathType.NETWORK_PC;
++  }
++
++
++  // Step 3: Convert the URL to a file path
++  var localPath = pathname;
++  switch (pathType) {
++    case PathType.LOCAL_PC:
++      // example: &quot;/x:/path/path...&quot;
++      localPath = localPath.substring(1);  // get rid of initial '/'
++      localPath = unescape(localPath);
++      localPath = localPath.replace(new RegExp(&quot;/&quot;,&quot;g&quot;),&quot;\\&quot;);
++      // result: &quot;x:\path\path...&quot;
++      break;
++    case PathType.LOCAL_UNIX_MAC:         
++      // example: &quot;/path/path...&quot;
++      localPath = unescape(localPath);
++      // result: &quot;/path/path...&quot;
++      break;
++    case PathType.NETWORK_FIREFOX:
++      // example: &quot;///server/share/path/path...&quot;
++      localPath = localPath.substring(3);  // get rid of initial '///'
++      localPath = unescape(localPath);
++      localPath = localPath.replace(new RegExp(&quot;/&quot;,&quot;g&quot;),&quot;\\&quot;);
++      localPath = &quot;\\\\&quot; + localPath;      
++      // result: &quot;\\server\share\path\path...&quot;
++      break;
++    case PathType.NETWORK_PC:
++      // example: &quot;server/share/path/path...&quot;
++      localPath = unescape(localPath);
++      localPath = localPath.replace(new RegExp(&quot;/&quot;,&quot;g&quot;),&quot;\\&quot;);
++      localPath = &quot;\\\\&quot; + localPath;      
++      // result: &quot;\\server\share\path\path...&quot;
++      break;
++  }
++
++  return localPath;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000351.html">[openrecord-svn] r369 - trunk/tests/storage
+</A></li>
+	<LI>Next message: <A HREF="000353.html">[openrecord-svn] r371 - in trunk: source source/archive source/model source/storage source/util source/view tests tests/archive tests/dom tests/lang tests/model tests/storage tests/util tests/uuid
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#352">[ date ]</a>
+              <a href="thread.html#352">[ thread ]</a>
+              <a href="subject.html#352">[ subject ]</a>
+              <a href="author.html#352">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

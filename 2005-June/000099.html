@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r112 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r112%20-%20trunk/source&In-Reply-To=%3C200506020634.j526Y2Lw001731%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000098.html">
+   <LINK REL="Next"  HREF="000100.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r112 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r112%20-%20trunk/source&In-Reply-To=%3C200506020634.j526Y2Lw001731%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r112 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  2 08:34:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000098.html">[openrecord-svn] r111 - in trunk/source: . model repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000100.html">[openrecord-svn] r113 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-02 08:34:00 +0200 (Thu, 02 Jun 2005)
+New Revision: 112
+
+Modified:
+   trunk/source/SectionView.js
+   trunk/source/base_style.css
+Log:
+An early experiment with a new look for the SectionView editing controls.
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-02 06:16:32 UTC (rev 111)
++++ trunk/source/SectionView.js	2005-06-02 06:34:00 UTC (rev 112)
+@@ -249,10 +249,14 @@
+     this.mySection.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+-  // create the plugin editing controls, if we're in edit mode
++  // create the editing controls, if we're in edit mode
++  var controlArea = View.createAndAppendElement(outerDiv, &quot;p&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++  var textShowMeA = document.createTextNode(&quot;Show me a &quot;);
++  controlArea.appendChild(textShowMeA);
++
+   // PENDING: We shouldn't call the private method _getUuid()
+   var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this.mySection._getUuid();
+-  var selectElement = View.createAndAppendElement(outerDiv, &quot;select&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL, selectMenuId);
++  var selectElement = View.createAndAppendElement(controlArea, &quot;select&quot;, null, selectMenuId);
+   var optionElement;
+   var listener;
+   selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+@@ -266,9 +270,12 @@
+     Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
+     optionElement.innerHTML = pluginName;
+   }
++  
++  var textOf = document.createTextNode(&quot; of &quot;);
++  controlArea.appendChild(textOf);
+ 
+   if (isCategoryMatchingQuery || isEmptyQuery) {
+-    var querySelectElement = View.createAndAppendElement(outerDiv, &quot;select&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++    var querySelectElement = View.createAndAppendElement(controlArea, &quot;select&quot;);
+     var listOfCategories = this.getWorld().getCategories();
+     for (var key in listOfCategories) {
+       var category = listOfCategories[key];
+@@ -279,8 +286,14 @@
+       Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
+       optionElement.innerHTML = category.getDisplayName();
+     }
++  } else {
++    var textTheGiven = document.createTextNode(&quot; the given&quot;);
++    controlArea.appendChild(textTheGiven);
+   }
+ 
++  var textItems = document.createTextNode(&quot; items.&quot;);
++  controlArea.appendChild(textItems);
++
+   // create a div element for the plugin class to use
+   this._myPluginDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+   this._myPlugin = this.getPluginFromPluginName(selectedPluginName, this._myPluginDiv);
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-02 06:16:32 UTC (rev 111)
++++ trunk/source/base_style.css	2005-06-02 06:34:00 UTC (rev 112)
+@@ -233,6 +233,7 @@
+ }
+ 
+ div.editmode .edit_mode_only_control {
++  background-color: rgb(100%, 100%, 40%);
+   display: block;
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000098.html">[openrecord-svn] r111 - in trunk/source: . model repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000100.html">[openrecord-svn] r113 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#99">[ date ]</a>
+              <a href="thread.html#99">[ thread ]</a>
+              <a href="subject.html#99">[ subject ]</a>
+              <a href="author.html#99">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

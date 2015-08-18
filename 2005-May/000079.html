@@ -1,0 +1,303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r90 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r90%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505280414.j4S4Esw5007129%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000078.html">
+   <LINK REL="Next"  HREF="000080.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r90 - in trunk/source: . model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r90%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505280414.j4S4Esw5007129%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r90 - in trunk/source: . model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 28 06:14:54 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000078.html">[openrecord-svn] r89 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000080.html">[openrecord-svn] r91 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-05-28 06:14:51 +0200 (Sat, 28 May 2005)
+New Revision: 90
+
+Modified:
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/model/Item.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+1) Adds new row for TablePlugin, when ProvisionalItem row becomes real item, using Brian's cool observable feature
+2) Plugin constructor now takes a query
+PENDING: still need to make this work for other plugins
+3) Fixed a glitched in observable where client still doesn't think that an item's entry has been set.
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-05-27 22:18:13 UTC (rev 89)
++++ trunk/source/SectionView.js	2005-05-28 04:14:51 UTC (rev 90)
+@@ -154,7 +154,7 @@
+   var newPlugin = null;
+   var pluginClass = SectionView.ourHashTableOfPluginClassesKeyedByPluginName[inPluginName];
+   if (pluginClass) {
+-    newPlugin = new pluginClass(this, inPluginDiv);
++    newPlugin = new pluginClass(this, inPluginDiv, this.getQuery());
+   }
+   return newPlugin;
+ };
+@@ -163,6 +163,7 @@
+ /**
+  * Returns a list of content items to be displayed in this SectionView.
+  *
++ * @deprecated WILL BE REMOVED ONCE ALL PLUGINS ARE CONVERTED TO RECEIVE A QUERY
+  * @scope    public instance method
+  * @return   A list of content items.
+  */
+@@ -178,6 +179,17 @@
+   return this.myListOfContentItems;
+ };
+ 
++/**
++ * Returns query associated to this section.
++ *
++ * @scope    public instance method
++ * @return   query associated to this section.
++ */
++SectionView.prototype.getQuery = function () {
++  var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
++  var listOfEntries = this.mySection.getEntriesForAttribute(attributeCalledQuery);
++  return (listOfEntries &amp;&amp; listOfEntries[0]) ? listOfEntries[0].getValue() : null;
++};
+ 
+ /**
+  * Updates the HTML elements in this view to reflect any changes in 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-27 22:18:13 UTC (rev 89)
++++ trunk/source/TablePlugin.js	2005-05-28 04:14:51 UTC (rev 90)
+@@ -63,7 +63,7 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  */
+ TablePlugin.prototype = new View();  // makes TablePlugin be a subclass of View
+-function TablePlugin(inSectionView, inHTMLElement, inCellPrefix, inClassType, inCellClass) {
++function TablePlugin(inSectionView, inHTMLElement, inQuery, inCellPrefix, inClassType, inCellClass) {
+   this.setSuperview(inSectionView);
+   this.setHTMLElement(inHTMLElement);  
+ 
+@@ -71,6 +71,7 @@
+   this.myClass = inClassType || SectionView.ELEMENT_CLASS_SIMPLE_TABLE;
+   this.myCellClass = inCellClass || SectionView.ELEMENT_CLASS_PLAIN;
+   this.myTable = null;
++  this._query = inQuery;
+   this._sortAttribute = null;
+   this._ascendingOrder = true;
+ }
+@@ -112,8 +113,7 @@
+  * @scope    PENDING
+  */
+ TablePlugin.prototype.fetchItems = function() {
+-  // PENDING: how do we know our superview responds to getthis._listOfItems()? 
+-  this._listOfItems = this.getSuperview().getListOfContentItems();
++  this._listOfItems = this._query ? this.getWorld().getResultItemsForQuery(this._query) : [];
+ };
+ 
+ 
+@@ -153,6 +153,7 @@
+     var attribute = this._hashTableOfAttributes[lKey];
+     this._insertCell(aRow, ++columnCount, contentItem, attribute);
+   }
++  return aRow;
+ };
+ 
+ /**
+@@ -170,11 +171,26 @@
+   
+   if (this.isInEditMode()) {
+     // add one more row to allow users to add a new item to the table
+-    var newItem = this.getWorld().newProvisionalItem();
++    var newItem = this.getWorld().newProvisionalItem(this);
+     this._insertRow(newItem, ++numRows, true);
+   }
+ };
+ 
++TablePlugin.prototype.observedItemHasChanged = function(item) {
++  // called when a provisional item becomes a real item
++  item.removeObserver(this); //now that provisional item is real, we stop observing it
++  this.getWorld().setItemToBeIncludedInQueryResultList(item,this._query);
++  this._listOfItems.push(item);
++  var newItem = this.getWorld().newProvisionalItem(this);
++  var aRow = this._insertRow(newItem, this._listOfItems.length+1, true);
++  if (this._selectProvisionalCell) {
++    // select the newly created provisional item, usually when return or tab was typed on attribute of old provisional item
++    this._selectProvisionalCell = false;
++    selectCell = aRow.cells[0];
++    var selectTextView = selectCell.or_textView;
++    selectTextView.startEditing();
++  }
++};
+ 
+ /**
+  * Constructs the table header 
+@@ -208,7 +224,7 @@
+  *
+  * @scope    public instance method
+  */
+-TablePlugin.prototype.doInitialDisplay = function() {
++TablePlugin.prototype._buildTable = function() {
+   // get list of items and attributes
+   this.fetchItems();
+   this._buildAttributeHash();
+@@ -241,7 +257,7 @@
+  */
+ TablePlugin.prototype.refresh = function () {
+   if (!this._myHasEverBeenDisplayedFlag) {
+-    this.doInitialDisplay();
++    this._buildTable();
+   } else {
+     var a = 1;
+   // PENDING new content model with obversable queries
+@@ -307,7 +323,7 @@
+   else {
+     this._sortAttribute = clickAttribute;
+   }
+-  this.doInitialDisplay();
++  this._buildTable();
+ };
+   
+ 
+@@ -359,6 +375,8 @@
+   if (move) {
+     Util.isNumber(this._numberOfColumns);
+     Util.isArray(this._listOfItems);
++    aTextView.stopEditing(); // need to be called because provisional item may create new row
++
+     var cellElement = aTextView.getHTMLElement();
+     var userHitReturnInLastRow = false;
+     var shiftBy;
+@@ -368,6 +386,7 @@
+     var nextCell;
+     var htmlRow = cellElement.parentNode;
+     
++
+     if (move == MOVE_LEFT || move == MOVE_RIGHT) {
+       shiftBy = (move == MOVE_LEFT) ? -1 : 1;
+       var nextColumnNumber = (cellElement.cellIndex + shiftBy);
+@@ -388,6 +407,12 @@
+         nextRowNumber = numRows;
+       }
+       else if (nextRowNumber &gt; numRows) {
++/*        if (this.isInEditMode()) {
++          // let observable handle editMode changes
++          // so don't do anything here
++          this._selectProvisionalCell = true;
++          return false;
++        }*/
+         nextRowNumber = 1;
+         userHitReturnInLastRow = true;
+       }
+@@ -395,7 +420,6 @@
+     nextCell = nextRow.cells[cellElement.cellIndex];
+     }
+     
+-    aTextView.stopEditing();
+     var nextTextView = nextCell.or_textView;
+     nextTextView.startEditing();
+ /*    if (userHitReturnInLastRow &amp;&amp; tablePlugin.myNewItemCreatedFlag) {
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-05-27 22:18:13 UTC (rev 89)
++++ trunk/source/TextView.js	2005-05-28 04:14:51 UTC (rev 90)
+@@ -200,6 +200,8 @@
+     var newText = this._editField.value;
+     var htmlElement = this.getHTMLElement();
+     
++    this._isEditing = false;
++    
+     if (this._isProvisional &amp;&amp; newText === '') {
+       newText = this._provisionalText;
+     }
+@@ -216,10 +218,8 @@
+         }
+       }
+     }
+-    
+     this.textNode.data = newText;
+     this.getHTMLElement().replaceChild(this.textNode, this._editField);
+-    this._isEditing = false;
+   }
+ };
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-27 22:18:13 UTC (rev 89)
++++ trunk/source/model/Item.js	2005-05-28 04:14:51 UTC (rev 90)
+@@ -197,7 +197,6 @@
+   
+   var itemOrEntry = inEntry || this;
+   var entry = this.getWorld()._newEntry(itemOrEntry, inAttribute, inValue);
+-  this.__addEntryToListOfEntriesForAttribute(entry);
+   return entry;
+ };
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-27 22:18:13 UTC (rev 89)
++++ trunk/source/model/StubVirtualServer.js	2005-05-28 04:14:51 UTC (rev 90)
+@@ -189,6 +189,9 @@
+   var uuid = this.__getNewUuid();
+   var entry = new Entry(this.__myWorld, uuid);
+   entry._initialize(inItemOrEntry, inAttribute, inValue);
++  var item = inItemOrEntry instanceof Item ? inItemOrEntry : inItemOrEntry.getItem();
++  item.__addEntryToListOfEntriesForAttribute(entry); // PENDING eeks calling a protected method!
++  
+   this.__myHashTableOfEntriesKeyedByUuid[uuid] = entry;
+   this.__myChronologicalListOfNewlyCreatedRecords.push(entry);
+   return entry;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000078.html">[openrecord-svn] r89 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000080.html">[openrecord-svn] r91 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#79">[ date ]</a>
+              <a href="thread.html#79">[ thread ]</a>
+              <a href="subject.html#79">[ subject ]</a>
+              <a href="author.html#79">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

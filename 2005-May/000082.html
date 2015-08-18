@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r95 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r95%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505310648.j4V6mwYR029192%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000081.html">
+   <LINK REL="Next"  HREF="000083.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r95 - in trunk/source: . model</H1>
+    <B>Mignon Belongie at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r95%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505310648.j4V6mwYR029192%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r95 - in trunk/source: . model">mignon at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 31 08:48:58 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000081.html">[openrecord-svn] r94 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000083.html">[openrecord-svn] r96 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-05-31 08:48:56 +0200 (Tue, 31 May 2005)
+New Revision: 95
+
+Modified:
+   trunk/source/RootView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/base_style.css
+   trunk/source/model/READ_ME.txt
+Log:
+Added a button to create a new page.  Fixed a bunch of typos.
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-31 05:43:26 UTC (rev 94)
++++ trunk/source/RootView.js	2005-05-31 06:48:56 UTC (rev 95)
+@@ -53,6 +53,7 @@
+ 
+ RootView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
+ RootView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
++RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL = &quot;edit_mode_only_control&quot;;
+ 
+ RootView.CONTROL_SPAN_CLASS = &quot;control_span&quot;;
+ 
+@@ -194,7 +195,6 @@
+     if (window.location.hash) {
+       var originalHash = window.location.hash;
+       var uuidText = null;
+-      var uuidNumber = null;
+       var pageFromUuid = null;
+       var itemFromUuid = null;
+       var divElement = null;
+@@ -202,29 +202,27 @@
+       var isUrlForItem = (originalHash.indexOf(RootView.URL_HASH_ITEM_PREFIX) != -1);
+       if (isUrlForItem) {
+         uuidText = originalHash.replace(RootView.URL_HASH_ITEM_PREFIX, &quot;&quot;);
+-        uuidNumber = parseInt(uuidText);
+-        contentViewToSwitchTo = this._myHashTableOfItemViewsKeyedByUuid[uuidNumber];
++        contentViewToSwitchTo = this._myHashTableOfItemViewsKeyedByUuid[uuidText];
+         if (!contentViewToSwitchTo) {
+-          itemFromUuid = this._myWorld.getItemFromUuid(uuidNumber);
++          itemFromUuid = this._myWorld.getItemFromUuid(uuidText);
+           if (itemFromUuid) {
+             divElement = window.document.createElement(&quot;div&quot;); 
+             this._myContentViewDivElement.appendChild(divElement);
+             contentViewToSwitchTo = new ItemView(this, divElement, itemFromUuid);
+-            this._myHashTableOfItemViewsKeyedByUuid[uuidNumber] = contentViewToSwitchTo;
++            this._myHashTableOfItemViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
+           }
+         }
+       } else {
+         if (isUrlForPage) {
+           uuidText = originalHash.replace(RootView.URL_HASH_PAGE_PREFIX, &quot;&quot;);
+-          uuidNumber = parseInt(uuidText);
+-          contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[uuidNumber];
++          contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[uuidText];
+           if (!contentViewToSwitchTo) {
+-            pageFromUuid = this.myHashTableOfPagesKeyedByUuid[uuidNumber];
++            pageFromUuid = this.myHashTableOfPagesKeyedByUuid[uuidText];
+             if (pageFromUuid) {
+               divElement = window.document.createElement(&quot;div&quot;); 
+               this._myContentViewDivElement.appendChild(divElement);
+               contentViewToSwitchTo = new PageView(this, divElement, pageFromUuid);
+-              this._myHashTableOfPageViewsKeyedByUuid[uuidNumber] = contentViewToSwitchTo;
++              this._myHashTableOfPageViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
+             }
+           }
+         } 
+@@ -275,7 +273,59 @@
+     this.loginView.refresh();
+   }
+ };
++
++
+ /**
++ * Called when the user clicks on the &quot;Create New Page&quot; button.
++ *
++ * @scope    private instance method
++ */
++RootView.prototype._clickOnNewPageButton = function(inEventObject, button) {
++  this.getWorld().beginTransaction();
++  var newPage = this.getWorld().newItem(&quot;new page&quot;);
++  var shortName = this.getWorld().getAttributeCalledShortName();
++  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++  var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
++  var categoryCalledQuery = this.getWorld().getCategoryCalledQuery();
++  var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
++  var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
++  var attributeCalledSection = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTION);
++  var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
++  var categoryCalledSection = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_SECTION);
++  newPage.addEntryForAttribute(shortName, &quot;new page&quot;);
++  newPage.addEntryForAttribute(attributeCalledCategory, categoryCalledPage);
++  newPage.addEntryForAttribute(attributeCalledSummary, &quot;this is a new page&quot;);
++  var newSection = this.getWorld().newItem(&quot;new section&quot;);
++  newSection.addEntryForAttribute(attributeCalledCategory, categoryCalledSection);
++  newPage.addEntryForAttribute(attributeCalledSection, newSection);
++  newSection.addEntryForAttribute(attributeCalledPluginName, SectionView.PLUGIN_TABLE);
++  var newQuery = this.getWorld().newItem(&quot;new query&quot;);
++  newQuery.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
++  newSection.addEntryForAttribute(attributeCalledQuery, newQuery);
++  this.getWorld().endTransaction();
++  
++  this.myHashTableOfPagesKeyedByUuid[newPage._getUuid()] = newPage;
++  window.location = this.getUrl(newPage);
++  RootView.ourSingleInstance.setCurrentContentViewFromUrl();
++};
++
++
++RootView.prototype.getUrl = function (item) {
++  Util.assert(item instanceof Item);
++  var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
++  var prefix;
++  if (item.isInCategory(categoryCalledPage)) {
++    prefix = RootView.URL_HASH_PAGE_PREFIX;
++  }
++  else {
++    prefix = RootView.URL_HASH_ITEM_PREFIX;
++  }
++  var url = prefix + item._getUuid();
++  return url;
++};
++
++
++/**
+  * Re-creates the HTML for the Navbar, and hands the HTML to the browser 
+  * to be re-drawn.
+  *
+@@ -302,6 +352,11 @@
+   // write out the new control span content 
+   var finalString = listOfStrings.join(&quot;&quot;);
+   this.myNavbarDivElement.innerHTML = finalString;
++  
++  var newPageButton = View.createAndAppendElement(this.myNavbarDivElement, &quot;input&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++  newPageButton.type = &quot;button&quot;;
++  newPageButton.value = &quot;Create New Page&quot;;
++  newPageButton.onclick = this._clickOnNewPageButton.bindAsEventListener(this, newPageButton);
+ };
+ 
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-05-31 05:43:26 UTC (rev 94)
++++ trunk/source/SectionView.js	2005-05-31 06:48:56 UTC (rev 95)
+@@ -48,7 +48,6 @@
+ SectionView.PLUGIN_BAR_CHART = &quot;Bar Chart&quot;;
+ 
+ SectionView.ELEMENT_CLASS_SECTION = &quot;section&quot;;
+-SectionView.ELEMENT_CLASS_SECTION_PLUGIN_MENU = &quot;section_plugin_menu&quot;;
+ SectionView.ELEMENT_CLASS_SIMPLE_TABLE = &quot;simple_table&quot;;
+ SectionView.ELEMENT_CLASS_NEW_ITEM = &quot;newitem&quot;;
+ SectionView.ELEMENT_CLASS_PLAIN = &quot;plain&quot;;
+@@ -241,7 +240,7 @@
+   // create the plugin editing controls, if we're in edit mode
+   // PENDING: We shouldn't call the private method _getUuid()
+   var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this.mySection._getUuid();
+-  var selectElement = View.createAndAppendElement(outerDiv, &quot;select&quot;, SectionView.ELEMENT_CLASS_SECTION_PLUGIN_MENU, selectMenuId);
++  var selectElement = View.createAndAppendElement(outerDiv, &quot;select&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL, selectMenuId);
+   selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+   selectElement.setAttribute(SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER, this.mySectionNumber);
+   for (var pluginName in SectionView.ourHashTableOfPluginClassesKeyedByPluginName) {
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-31 05:43:26 UTC (rev 94)
++++ trunk/source/TablePlugin.js	2005-05-31 06:48:56 UTC (rev 95)
+@@ -279,7 +279,7 @@
+     this._buildTable();
+   } else {
+     var a = 1;
+-  // PENDING new content model with obversable queries
++  // PENDING new content model with observable queries
+   }
+ };
+ 
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-05-31 05:43:26 UTC (rev 94)
++++ trunk/source/TextView.js	2005-05-31 06:48:56 UTC (rev 95)
+@@ -42,7 +42,7 @@
+ // TextView public class constants
+ // -------------------------------------------------------------------
+ TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;; 
+-TextView.PROVISIOINAL_COLOR = '#999999';
++TextView.PROVISIONAL_COLOR = '#999999';
+ 
+ 
+ /**
+@@ -127,7 +127,7 @@
+   
+   if (this._isProvisional) {
+     this._oldColor = htmlElement.style.color;
+-    htmlElement.style.color = TextView.PROVISIOINAL_COLOR;
++    htmlElement.style.color = TextView.PROVISIONAL_COLOR;
+   }
+   this.textNode = document.createTextNode(textString);
+   htmlElement.appendChild(this.textNode);
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-05-31 05:43:26 UTC (rev 94)
++++ trunk/source/base_style.css	2005-05-31 06:48:56 UTC (rev 95)
+@@ -232,11 +232,11 @@
+   float: right;
+ }
+ 
+-div.editmode .section_plugin_menu {
++div.editmode .edit_mode_only_control {
+   display: block;
+ }
+ 
+-div.viewmode .section_plugin_menu {
++div.viewmode .edit_mode_only_control {
+   display: none;
+ }
+ 
+
+Modified: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2005-05-31 05:43:26 UTC (rev 94)
++++ trunk/source/model/READ_ME.txt	2005-05-31 06:48:56 UTC (rev 95)
+@@ -126,7 +126,7 @@
+   Tag
+   
+ Entry ----- example: (&quot;1938&quot; is the value of the attribute &quot;Publication Date&quot; for the item &quot;The Hobbit&quot;)
+-  Assignement
++  Assignment
+   Datum
+   AttributeValue
+   Aspect
+@@ -160,7 +160,7 @@
+ Spare words
+   Axiom
+   Axiomatic Item
+-  Assignement
++  Assignment
+   Aspect
+   Datum
+   Entry
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000081.html">[openrecord-svn] r94 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000083.html">[openrecord-svn] r96 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#82">[ date ]</a>
+              <a href="thread.html#82">[ thread ]</a>
+              <a href="subject.html#82">[ subject ]</a>
+              <a href="author.html#82">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

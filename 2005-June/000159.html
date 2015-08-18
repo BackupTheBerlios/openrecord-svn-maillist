@@ -1,0 +1,691 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r173 - in trunk: . source source/model source/repositories source/repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r173%20-%20in%20trunk%3A%20.%20source%20source/model%20source/repositories%20source/repositories/demo_page&In-Reply-To=%3C200506232205.j5NM5wtC029515%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000158.html">
+   <LINK REL="Next"  HREF="000160.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r173 - in trunk: . source source/model source/repositories source/repositories/demo_page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r173%20-%20in%20trunk%3A%20.%20source%20source/model%20source/repositories%20source/repositories/demo_page&In-Reply-To=%3C200506232205.j5NM5wtC029515%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r173 - in trunk: . source source/model source/repositories source/repositories/demo_page">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 24 00:05:58 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000158.html">[openrecord-svn] r172 - in trunk: documentation source source/model
+</A></li>
+        <LI>Next message: <A HREF="000160.html">[openrecord-svn] r174 - in trunk: . source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-24 00:05:57 +0200 (Fri, 24 Jun 2005)
+New Revision: 173
+
+Added:
+   trunk/dogfood.html
+   trunk/dogfood.js
+   trunk/source/repositories/demo_page.json
+   trunk/source/repositories/dogfood.json
+Removed:
+   trunk/source/repositories/demo_page/2005_june_chronological_list.json
+Modified:
+   trunk/source/demo_page.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/append_to_repository_file.php
+Log:
+Set things up so that we can have one server installation that can serve N different pages, each one running against its own repository.  Created a new dogfood.html page and dogfood repository.
+
+Added: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/dogfood.html	2005-06-23 22:05:57 UTC (rev 173)
+@@ -0,0 +1,77 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;openrecord.org - Dogfood Page&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;source/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/View.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/RootView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/ItemView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/PageView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/SectionView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/LoginView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/MultiEntriesView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/NavbarView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/TextView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/PluginView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/TablePlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/OutlinePlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/DetailPlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/BarChartPlugin.js&quot;&gt;&lt;/script&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Record.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Vote.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/ContentRecord.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/World.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
++    
++    &lt;script type=&quot;text/javascript&quot; src=&quot;dogfood.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
++    This page won't display correctly.&lt;/p&gt;
++    
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++
+
+Added: trunk/dogfood.js
+===================================================================
+--- trunk/dogfood.js	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/dogfood.js	2005-06-23 22:05:57 UTC (rev 173)
+@@ -0,0 +1,86 @@
++/*****************************************************************************
++ dogfood_page.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   World.js
++//   RootView.js
++// -------------------------------------------------------------------
++
++/**
++ * Called when the window first loads. Calls all the functions that do 
++ * initialization when the page is loaded.
++ *
++ * @scope    global function
++ */
++window.doOnloadActions = function() {  
++  var repositoryName = &quot;dogfood&quot;;
++  var deltaVirtualServer = new DeltaVirtualServer(repositoryName);
++  var world = new World(deltaVirtualServer);
++  window.rootView = new RootView(world);
++  
++  Util.setTargetsForExternalLinks();
++};
++
++
++/**
++ * Called when the user leaves the browser window.  Save any unsaved changes,
++ * and prepare to exit.
++ *
++ * @scope    global function
++ */
++window.doOnunloadActions = function() {
++  // world.saveChanges();
++};
++
++window.doOnfocusActions = function() {
++  // window.rootView.displayTextInDebugTextarea(&quot;onfocus&quot;);
++};
++
++window.doOnblurActions = function() {
++  // window.rootView.displayTextInDebugTextarea(&quot;onblur&quot;);
++};
++
++
++// -------------------------------------------------------------------
++// Register for window events
++// -------------------------------------------------------------------
++window.onload = window.doOnloadActions;
++window.onunload = window.doOnunloadActions;
++window.onerror = Util.handleError;
++window.onfocus = window.doOnfocusActions;
++window.onblur = window.doOnblurActions;
++// window.onresize = window.doOnresizeActions;
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/demo_page.js
+===================================================================
+--- trunk/source/demo_page.js	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/demo_page.js	2005-06-23 22:05:57 UTC (rev 173)
+@@ -42,25 +42,9 @@
+  * @scope    global function
+  */
+ window.doOnloadActions = function() {  
+-  
+-  var pathToDemoRepository = &quot;repositories/demo_page/&quot;;
+-  
+-  var repositoryFileName = &quot;2005_june_chronological_list.json&quot;;
+-  var repositoryUrl = pathToDemoRepository + repositoryFileName;
+-  var repositoryContentString = Util.getStringContentsOfFileAtURL(repositoryUrl);
+-  repositoryContentString += &quot; ] }&quot;;
+-  
+-  // var userListFileName = &quot;2005_may_user_list.json&quot;;
+-  // var userListUrl = pathToDemoRepository + userListFileName;
+-  // var userListContentString = Util.getStringContentsOfFileAtURL(userListUrl);
+-  
+-  // Create a World and a DeltaVirtualServer, and have the 
+-  // DeltaVirtualServer rehydrate all the dehydrated items 
+-  // contained in the fileContentString.  
+-  var axiomaticItemsFileName = &quot;2005_june_axiomatic_items.json&quot;;
+-  var axiomaticItemsUrl = &quot;model/&quot; + axiomaticItemsFileName;
+-  
+-  var deltaVirtualServer = new DeltaVirtualServer(axiomaticItemsUrl, repositoryContentString);
++  var pathToTrunkDirectory = &quot;../&quot;;
++  var repositoryName = &quot;demo_page&quot;;
++  var deltaVirtualServer = new DeltaVirtualServer(repositoryName, pathToTrunkDirectory);
+   var world = new World(deltaVirtualServer);
+   window.rootView = new RootView(world);
+   
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-23 22:05:57 UTC (rev 173)
+@@ -48,9 +48,20 @@
+  * @param    inJsonRepositoryString    A JSON string literal representing the world of items. 
+  */
+ DeltaVirtualServer.prototype = new StubVirtualServer();  // makes DeltaVirtualServer be a subclass of StubVirtualServer
+-function DeltaVirtualServer(inJsonAxiomsFileURL, inJsonRepositoryString) {
+-  this._myDehydratedAxiomFileURL = inJsonAxiomsFileURL;
+-  this._myDehydratedWorld = inJsonRepositoryString;
++function DeltaVirtualServer(repositoryName, pathToTrunkDirectory) {
++
++  this._pathToTrunkDirectory = &quot;&quot;;
++  if (pathToTrunkDirectory) {
++    this._pathToTrunkDirectory = pathToTrunkDirectory;
++  }
++  
++  var axiomaticFileName = &quot;2005_june_axiomatic_items.json&quot;;
++  var urlForAxiomaticFile = this._pathToTrunkDirectory + &quot;source/model/&quot; + axiomaticFileName;
++  
++  this._myDehydratedAxiomFileURL = urlForAxiomaticFile;  
++  
++  this._repositoryName = repositoryName;
++  
+   this._myHasEverFailedToSaveFlag = false;
+ }
+ 
+@@ -66,7 +77,14 @@
+   this._initialize(inWorld);
+   this._buildTypeHashTable();
+   this._loadAxiomaticItemsFromFileAtURL(this._myDehydratedAxiomFileURL);
+-  this._loadWorldFromJsonString(this._myDehydratedWorld);
++
++  var pathToRepositoryDirectory = &quot;source/repositories/&quot;;
++  var repositoryFileName = this._repositoryName + &quot;.json&quot;;
++  var repositoryUrl = this._pathToTrunkDirectory + pathToRepositoryDirectory + repositoryFileName;
++  var repositoryContentString = Util.getStringContentsOfFileAtURL(repositoryUrl);
++  repositoryContentString += &quot; ] }&quot;;
++
++  this._loadWorldFromJsonString(repositoryContentString);
+ };
+ 
+ // -------------------------------------------------------------------
+@@ -335,7 +353,7 @@
+   }
+ 
+   if (saveChanges) {
+-    var url = &quot;model/append_to_repository_file.php&quot;;
++    var url = this._pathToTrunkDirectory + &quot;source/model/append_to_repository_file.php?file=&quot; + this._repositoryName;
+     var textToAppend = &quot;,\n&quot; + this._getJsonStringRepresentingTransaction(currentTransaction);
+     var asynchronous;
+     asynchronous = true;
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/model/ModelTest.js	2005-06-23 22:05:57 UTC (rev 173)
+@@ -34,9 +34,8 @@
+ function setUp() {
+   ModelTestVars = {};
+ 
+-  var fileName = &quot;2005_june_axiomatic_items.json&quot;;
+-  var url = &quot;../../../source/model/&quot; + fileName;
+-  var stubVirtualServer = new StubVirtualServer(url);
++  var pathToTrunkDirectory = &quot;../../../&quot;;
++  var stubVirtualServer = new StubVirtualServer(pathToTrunkDirectory);
+   world = new World(stubVirtualServer);
+ }
+ 
+@@ -76,7 +75,6 @@
+ }
+ 
+ function testGetTimestamp() {
+-  // var world = new World();
+   var tZero = new Date();
+   var janesPassword = &quot;jane's password&quot;;
+   waitForNextMillisecond();
+@@ -98,7 +96,6 @@
+ }
+ 
+ function testLoginLogout() {
+-  // var world = new World();
+   var listOfUsers;
+   var loginSuccess;
+   
+@@ -156,7 +153,6 @@
+ function testAccessorsForAxiomaticItems() {
+   var key;
+   var item;
+-  // var world = new World();
+   var listOfAssignedNames;
+   var nameEntry;
+   
+@@ -191,7 +187,6 @@
+ 
+   
+ function noyet_testAdditionsAndRetrievals() {
+-  // var world = new World();
+   var nameAttribute = world.getAttributeCalledName();
+   
+   var janesPassword = &quot;jane's password&quot;;
+@@ -302,7 +297,6 @@
+ 
+ 
+ function testCategories() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+@@ -343,7 +337,6 @@
+ /*
+ PENDING: the ordinal implementation was broken by the new UUID code
+ function testOrdinals() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+@@ -387,7 +380,6 @@
+ */
+   
+ function testDeletion() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+@@ -408,7 +400,6 @@
+ 
+ 
+ function testItemObservation() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+@@ -465,7 +456,6 @@
+ 
+ 
+ function testListObservation() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+@@ -518,7 +508,6 @@
+ 
+ 
+ function testQueries() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+@@ -600,7 +589,6 @@
+ Tests World._getFilteredList, via World.getUsers and World.getCategories.
+ */
+ function testFilteredLists() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);  
+   var listOfUsers = world.getUsers();
+@@ -620,7 +608,6 @@
+ }
+ 
+ function testItemTypes() {
+-  // var world = new World();
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/model/StubVirtualServer.js	2005-06-23 22:05:57 UTC (rev 173)
+@@ -95,8 +95,15 @@
+  *
+  * @scope    public instance constructor
+  */
+-function StubVirtualServer(inJsonAxiomsFileURL) {
+-  this._myDehydratedAxiomFileURL = inJsonAxiomsFileURL;
++function StubVirtualServer(pathToTrunkDirectory) {
++  var fileName = &quot;2005_june_axiomatic_items.json&quot;;
++  var urlForAxiomaticFile = &quot;&quot;;
++  if (pathToTrunkDirectory) {
++    urlForAxiomaticFile = pathToTrunkDirectory;
++  }
++  urlForAxiomaticFile += &quot;source/model/&quot; + fileName;
++  
++  this._myDehydratedAxiomFileURL = urlForAxiomaticFile;
+ }
+ 
+ 
+@@ -115,7 +122,6 @@
+   this.__myHashTableOfItemsKeyedByUuid = {};
+   this.__myHashTableOfEntriesKeyedByUuid = {};
+   this.__myChronologicalListOfRecords = [];
+-  // this.__myChronologicalListOfNewlyCreatedRecords = [];
+   
+   this.__myListOfUsers = [];
+   this.__myHashTableOfUserAuthenticationInfo = {};
+@@ -359,7 +365,6 @@
+ StubVirtualServer.prototype.newVote = function (inContentRecord, inRetainFlag) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
+-  // var vote = new Vote(inContentRecord, this.__myWorld.getCurrentUser(), inRetainFlag);
+   var vote = new Vote(this.__myWorld, uuid, inContentRecord, inRetainFlag);
+   this._currentTransaction.addRecord(vote);
+   return vote;
+
+Modified: trunk/source/model/append_to_repository_file.php
+===================================================================
+--- trunk/source/model/append_to_repository_file.php	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/model/append_to_repository_file.php	2005-06-23 22:05:57 UTC (rev 173)
+@@ -1,22 +1,34 @@
+ &lt;?php
+-$filename = &quot;../repositories/demo_page/2005_june_chronological_list.json&quot;;
+ $contentToWrite = &quot;&quot; . $HTTP_RAW_POST_DATA . &quot;&quot;;
+-if (is_writable($filename)) {
+-  echo &quot;$filename is writable.&quot;;
+-  if ($fileHandle = fopen($filename, &quot;ab&quot;)) { /* ab == append in binary mode */
++
++$url_of_this_php_script = $_SERVER['REQUEST_URI'];
++$array_of_url_parts = explode(&quot;?&quot;, $url_of_this_php_script);
++$search_part = $array_of_url_parts[1];
++$array_of_search_parts = explode(&quot;=&quot;, $search_part);
++$file_name_parameter = $array_of_search_parts[1];
++$array_of_file_name_parameter_parts = explode(&quot;/&quot;, $file_name_parameter);
++$safe_file_name_with_no_path_exploits = $array_of_file_name_parameter_parts[0];
++
++$file_path = &quot;../repositories/&quot;;
++$file_suffix = &quot;.json&quot;;
++$repository_file_name = $file_path . $safe_file_name_with_no_path_exploits . $file_suffix;
++
++if (is_writable($repository_file_name)) {
++  echo &quot;$repository_file_name is writable.&quot;;
++  if ($fileHandle = fopen($repository_file_name, &quot;ab&quot;)) { /* ab == append in binary mode */
+     if (fwrite($fileHandle, $contentToWrite)) {
+       fclose($fileHandle);
+-      echo &quot;Appended to file ($filename)&quot;;
++      echo &quot;Appended to file ($repository_file_name)&quot;;
+     } else {
+-      echo &quot;Unable to write to file ($filename)&quot;;
++      echo &quot;Unable to write to file ($repository_file_name)&quot;;
+       exit;
+     }
+   } else {
+-    echo &quot;Unable to open file: $filename&quot;;
++    echo &quot;Unable to open file: $repository_file_name&quot;;
+     exit(&quot;Unable to open file.&quot;); 
+   }
+ } else {
+-  echo &quot;The file $filename is not writable.&quot;;
++  echo &quot;The file $repository_file_name is not writable.&quot;;
+ }
+ ?&gt;
+ 
+
+Deleted: trunk/source/repositories/demo_page/2005_june_chronological_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_june_chronological_list.json	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/repositories/demo_page/2005_june_chronological_list.json	2005-06-23 22:05:57 UTC (rev 173)
+@@ -1,42 +0,0 @@
+-// Repository records, in JSON format
+-{ &quot;format&quot;: &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot;, 
+-  &quot;records&quot;: [
+-  // =======================================================================
+-  { &quot;Transaction&quot;: [  // Home Page  
+-    // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Welcome to the OpenRecord d...
+-             &quot;uuid&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Page
+-             &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
+-            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // 1. Welcome!
+-             &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;TextValue&quot;,
+-            &quot;value&quot;: &quot;1. Welcome!&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Welcome to the OpenRecord d...
+-             &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;TextValue&quot;,
+-            &quot;value&quot;: &quot;Welcome to the OpenRecord demo!&quot; }
+-    },
+-    // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // This web site is a demo of ...
+-             &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;TextValue&quot;,
+-            &quot;value&quot;: &quot;This web site is a demo of the OpenRecord prototype. OpenRecord is a collaborative content management system. OpenRecord is a lot like a wiki, but with twist. Most wikis are designed to let you view and edit pages of text, like a web-based word processor. OpenRecord is designed to let you view and edit items in a database, rather than pages of text. So if a wiki is a web-based collaborative word-processor, then OpenRecord is a web-based collaborative database, like Lotus Agenda.&quot; }
+-    } ]
+-  }
+\ No newline at end of file
+
+Added: trunk/source/repositories/demo_page.json
+===================================================================
+--- trunk/source/repositories/demo_page.json	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/repositories/demo_page.json	2005-06-23 22:05:57 UTC (rev 173)
+@@ -0,0 +1,42 @@
++// Repository records, in JSON format
++{ &quot;format&quot;: &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot;, 
++  &quot;records&quot;: [
++  // =======================================================================
++  { &quot;Transaction&quot;: [  // Home Page  
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Welcome to the OpenRecord d...
++             &quot;uuid&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Page
++             &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;type&quot;: &quot;RelatedUuid&quot;,
++            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // 1. Welcome!
++             &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;1. Welcome!&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Welcome to the OpenRecord d...
++             &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;Welcome to the OpenRecord demo!&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // This web site is a demo of ...
++             &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;This web site is a demo of the OpenRecord prototype. OpenRecord is a collaborative content management system. OpenRecord is a lot like a wiki, but with twist. Most wikis are designed to let you view and edit pages of text, like a web-based word processor. OpenRecord is designed to let you view and edit items in a database, rather than pages of text. So if a wiki is a web-based collaborative word-processor, then OpenRecord is a web-based collaborative database, like Lotus Agenda.&quot; }
++    } ]
++  }
+\ No newline at end of file
+
+Added: trunk/source/repositories/dogfood.json
+===================================================================
+--- trunk/source/repositories/dogfood.json	2005-06-23 20:42:41 UTC (rev 172)
++++ trunk/source/repositories/dogfood.json	2005-06-23 22:05:57 UTC (rev 173)
+@@ -0,0 +1,42 @@
++// Repository records, in JSON format
++{ &quot;format&quot;: &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot;, 
++  &quot;records&quot;: [
++  // =======================================================================
++  { &quot;Transaction&quot;: [  // Home Page  
++    // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // The OpenRecord Dogfood Site
++             &quot;uuid&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Page
++             &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;type&quot;: &quot;RelatedUuid&quot;,
++            &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Dogfood
++             &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;Dogfood&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // The OpenRecord Dogfood Site
++             &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;The OpenRecord Dogfood Site&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // This web site is a demo of ...
++             &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
++             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;type&quot;: &quot;TextValue&quot;,
++            &quot;value&quot;: &quot;This web site is where people working on OpenRecord keep track of the work being done.&quot; }
++    } ]
++  }
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000158.html">[openrecord-svn] r172 - in trunk: documentation source source/model
+</A></li>
+	<LI>Next message: <A HREF="000160.html">[openrecord-svn] r174 - in trunk: . source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

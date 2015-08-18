@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r248 - in trunk/source: . view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r248%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507141758.j6EHwY9d013328%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000233.html">
+   <LINK REL="Next"  HREF="000235.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r248 - in trunk/source: . view</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r248%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507141758.j6EHwY9d013328%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r248 - in trunk/source: . view">chaolam at berlios.de
+       </A><BR>
+    <I>Thu Jul 14 19:58:34 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000233.html">[openrecord-svn] r247 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000235.html">[openrecord-svn] r250 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-07-14 19:58:33 +0200 (Thu, 14 Jul 2005)
+New Revision: 248
+
+Modified:
+   trunk/source/base_style.css
+   trunk/source/view/SuggestionBox.js
+Log:
+css fixes from Mimi
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-14 00:31:04 UTC (rev 247)
++++ trunk/source/base_style.css	2005-07-14 17:58:33 UTC (rev 248)
+@@ -130,7 +130,7 @@
+   text-decoration: none;
+   border-bottom-style: solid;
+   border-bottom-width: 1pt;
+-  background: #99CCFF;
++  background: #A4BDEC;
+ }
+ 
+ a.anchor {
+@@ -153,7 +153,7 @@
+   text-decoration: none;
+   border-bottom-style: solid;
+   border-bottom-width: 1pt;
+-  background: #99CCFF;
++  background: #DEE7F8;
+ }
+ 
+ a.more {
+@@ -288,7 +288,7 @@
+ }
+ 
+ .menu_item a:hover {
+-  background-color: #99CCFF;
++  background-color: #DEE7F8;
+   width: 100%;
+   border-left: solid 1pt #6699FF;
+   border-bottom-style: none;
+@@ -456,7 +456,7 @@
+ .simple_table th {
+   padding: 0.3em;
+   color: #000000;
+-  background: #99CCFF;
++  background: #BBCEF1;
+   font-size: 0.8em;
+   text-align: left;
+   border: 1pt solid rgb(70%, 70%, 70%);
+@@ -467,7 +467,7 @@
+ }
+ 
+ /*.viewmode .simple_table tr:hover {
+-  background: #99CCFF;
++  background: #DEE7F8;
+ }*/
+ 
+ .simple_table td {
+@@ -508,7 +508,8 @@
+ 
+ td.title {
+   font-weight: bold;  
+-  background: #FFFFFF;
++  color: #000000;
++  background: #BBCEF1;
+ }
+ 
+ td.label {
+@@ -541,7 +542,7 @@
+ }
+ 
+ /*.editmode .simple_table td:hover {
+-  background: #99CCFF;
++  background: #DEE7F8;
+ }*/
+ 
+ td.newitem {
+@@ -551,7 +552,7 @@
+ 
+ .editmode .simple_table td.selected {
+   /* padding: 0px 0px; */
+-  background: #99CCFF;
++  background: #DEE7F8;
+ }
+ 
+ 
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-07-14 00:31:04 UTC (rev 247)
++++ trunk/source/view/SuggestionBox.js	2005-07-14 17:58:33 UTC (rev 248)
+@@ -51,7 +51,7 @@
+   this._inputField = htmlInputField;
+   this._listOfSuggestedItems = listOfItems.sort(SuggestionBox._compareItemDisplayStrings);
+   this._selectedItem = null;
+-  this._shouldHide = htmlInputField.value.length === 0;
++  this._shouldHide = true; //htmlInputField.value.length === 0;
+   
+   this._suggestionBoxDivElement = View.appendNewElement(document.body, &quot;div&quot;, &quot;SuggestionBox&quot;);
+   this._suggestionBoxDivElement.style.zIndex = 11;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000233.html">[openrecord-svn] r247 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000235.html">[openrecord-svn] r250 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

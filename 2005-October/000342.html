@@ -1,0 +1,1290 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r360 - in trunk: . documentation source source/archive source/lang source/model source/storage source/util source/uuid source/view tests tests/archive tests/dojo tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r360%20-%20in%20trunk%3A%20.%20documentation%20source%20source/archive%20source/lang%20source/model%20source/storage%20source/util%20source/uuid%20source/view%20tests%20tests/archive%20tests/dojo%20tests/lang%20tests/model%20tests/storage%20tests/tests_of_external_code%20tests/util%20tests/uuid%20tests/view&In-Reply-To=%3C200510140237.j9E2b1nk010176%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000341.html">
+   <LINK REL="Next"  HREF="000343.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r360 - in trunk: . documentation source source/archive source/lang source/model source/storage source/util source/uuid source/view tests tests/archive tests/dojo tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r360%20-%20in%20trunk%3A%20.%20documentation%20source%20source/archive%20source/lang%20source/model%20source/storage%20source/util%20source/uuid%20source/view%20tests%20tests/archive%20tests/dojo%20tests/lang%20tests/model%20tests/storage%20tests/tests_of_external_code%20tests/util%20tests/uuid%20tests/view&In-Reply-To=%3C200510140237.j9E2b1nk010176%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r360 - in trunk: . documentation source source/archive source/lang source/model source/storage source/util source/uuid source/view tests tests/archive tests/dojo tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view">skinner at berlios.de
+       </A><BR>
+    <I>Fri Oct 14 04:37:01 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000341.html">[openrecord-svn] r358 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000343.html">[openrecord-svn] r361 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#342">[ date ]</a>
+              <a href="thread.html#342">[ thread ]</a>
+              <a href="subject.html#342">[ subject ]</a>
+              <a href="author.html#342">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-14 04:36:44 +0200 (Fri, 14 Oct 2005)
+New Revision: 360
+
+Added:
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/OpenRecordLoaderStepTwo.js
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/documentation/release_planning.txt
+   trunk/dogfood.html
+   trunk/open_agenda.html
+   trunk/sandbox.html
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/OpenRecordLoader.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/TablePlugin.js
+   trunk/source/archive/DeltaArchive.js
+   trunk/source/archive/JsonDeserializer.js
+   trunk/source/archive/JsonSerializer.js
+   trunk/source/lang/Lang.js
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/Ordinal.js
+   trunk/source/model/Record.js
+   trunk/source/model/Vote.js
+   trunk/source/model/World.js
+   trunk/source/storage/FakeStorage.js
+   trunk/source/storage/FileStorage.js
+   trunk/source/storage/HttpStorage.js
+   trunk/source/util/Util.js
+   trunk/source/uuid/RandomUuid.js
+   trunk/source/uuid/TimeBasedUuid.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/ItemView.js
+   trunk/source/view/LoginView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/NavbarView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/PluginView.js
+   trunk/source/view/SectionView.js
+   trunk/tests/LintTest.html
+   trunk/tests/LintTest.js
+   trunk/tests/archive/LintTest.html
+   trunk/tests/dojo/SimpleDojoTest.html
+   trunk/tests/lang/LangTest.html
+   trunk/tests/model/LintTest.html
+   trunk/tests/model/ModelTest.html
+   trunk/tests/model/RepositoryWritingTest.html
+   trunk/tests/model/TestReorderingForSpecialCases.html
+   trunk/tests/model/TestReorderingForTypicalOrdinals.html
+   trunk/tests/storage/LintTest.html
+   trunk/tests/tests_of_external_code/TimingTest.html
+   trunk/tests/util/CsvParserTest.html
+   trunk/tests/util/DateValueTest.html
+   trunk/tests/util/LintTest.html
+   trunk/tests/util/UtilTest.html
+   trunk/tests/util/XmlConverterMultiplePassesTest.html
+   trunk/tests/util/XmlConverterTest.html
+   trunk/tests/uuid/LintTest.html
+   trunk/tests/uuid/UuidTest.html
+   trunk/tests/view/LintTest.html
+   trunk/tobacco.html
+   trunk/tuscany.html
+Log:
+Switched all of our code over from dojo-0.1.0 to dojo-rev1759.  Also did some work on OpenRecordLoader.js so that (a) it takes care of loading dojo.js for you, and (b) it works correctly with the Dojo djConfig flag &quot;debugAtAllCosts&quot;.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/dashboard.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,6 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;Dashboard Demo Page&lt;/title&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/demo_page.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,6 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Demo Page&lt;/title&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/documentation/release_planning.txt	2005-10-14 02:36:44 UTC (rev 360)
+@@ -428,7 +428,8 @@
+        |          |         | 22. try to replace remaining Util.js functions with dojo.lang functions
+        |          |         | 23. try using Ant and the Dojo build system to build OpenRecord into a single-file 
+        |          |         | 24. move XmlConverter.js out of util, because it depends on model code
+-brian  |          |         | 25. Decide whether or not to replace bi-directional connection entries with twin-entries
++brian  |          | 0.75 IED| 25. Decide whether or not to replace bi-directional connection entries with twin-entries
++brian  |          | 0.5  IED|     Write initial code to augment bi-directional connection entries with twin ProxyEntries
+        |          |         | 26. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+        |          |         | 27. Pick one file, and do a group code review on it
+        |          |         | 28. Implement a good URL-to-content mapping, so that URLs won't go bad in future releases
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/dogfood.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,6 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Dogfood Page&lt;/title&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/open_agenda.html
+===================================================================
+--- trunk/open_agenda.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/open_agenda.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,6 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;Collaborative Philanthropy&lt;/title&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/sandbox.html
+===================================================================
+--- trunk/sandbox.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/sandbox.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,6 +12,8 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Sandbox Page&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
++&lt;!-- 
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;source/base_style.css&quot;&gt;&lt;/link&gt;
+     &lt;script&gt;
+       djConfig = {
+@@ -23,20 +25,25 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/scriptaculous/prototype.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/scriptaculous/effects.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/scriptaculous/dragdrop.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script&gt;
+-      dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/dojo-0.1.0/src&quot;);
+-      dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      // dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/dojo-rev1759/src&quot;);
++      dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);  // path relative to dojo
+       dojo.require(&quot;orp.model.World&quot;);
+       dojo.require(&quot;orp.view.RootView&quot;);
+       dojo.hostenv.writeIncludes(); // needed when using &quot;debugAtAllCosts: true&quot;
+     &lt;/script&gt;
+     &lt;script&gt;
+       window.onload = function() { 
+-        var world = new orp.model.World();
+-        new orp.view.RootView(world);
++        try {
++          var world = new orp.model.World();
++          new orp.view.RootView(world);
++        } catch(e) {
++          alert(e);
++        }
+       };    
+     &lt;/script&gt;
++--&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/BarChartPlugin.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -65,7 +65,7 @@
+   orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;BarChartPlugin&quot;);
+ };
+ 
+-dj_inherits(orp.BarChartPlugin, orp.view.PluginView);  // makes BarChartPlugin be a subclass of PluginView
++dojo.inherits(orp.BarChartPlugin, orp.view.PluginView);  // makes BarChartPlugin be a subclass of PluginView
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/DetailPlugin.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -68,7 +68,7 @@
+   orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;DetailPlugin&quot;);
+ };
+ 
+-dj_inherits(orp.DetailPlugin, orp.view.PluginView);  // makes DetailPlugin be a subclass of PluginView
++dojo.inherits(orp.DetailPlugin, orp.view.PluginView);  // makes DetailPlugin be a subclass of PluginView
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/OpenRecordLoader.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -28,122 +28,81 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
+-
+ /**
+- * The OpenRecordLoader class bootstraps the OpenRecord by loading all the
+- * other files in the OpenRecord app.
++ * OpenRecordLoader bootstraps OpenRecord by loading all the files required
++ * by the OpenRecord app: all the OpenRecord JavaScript files, plus third
++ * party libraries, plus the OpenRecord stylesheet file.  
+  *
+- * There is no need to ever call this constructor.  All the OpenRecordLoader
+- * methods are class methods, not instance methods, and the only reason
+- * this constructor exists is to cause the name &quot;OpenRecordLoader&quot; to be a 
+- * globally-scoped class name, which the class methods can then be 
+- * attached to.
+- *
+- * @scope    public instance constructor
+- * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ * OpenRecordLoader.js relies on two follow-up files, OpenRecordLoaderStepTwo.js
++ * and OpenRecordLoaderStepThree.js.  It would be nice if we could merge these
++ * all into one file, but unfortunately they need to be loaded separately
++ * so that we get all the files evaluated in the right order -- first 
++ * OpenRecordLoader.js and then dojo.js, and only after dojo is loaded, then 
++ * OpenRecordLoaderStepThree.js, which uses dojo to load orp.model.World
++ * and orp.model.RootView.
+  */
+-function OpenRecordLoader() {
+-  throw new Error(&quot;OpenRecord is a static class. You can't create instances of it.&quot;);
+-}
++var orp = {};
++orp.loader = {};
+ 
+ 
+ /**
+- * Given the URL of a stylesheet file, this method loads the stylesheet
+- * by creating a new link element that points to the stylesheet. 
+- *
+- * @scope    public class method
+- * @param    stylesheetUrl    A string with the URL of a file containing the stylesheet. 
+- */
+-OpenRecordLoader.loadStylesheet = function(stylesheetUrl) {
+-  var stylesheetElement = document.createElement('link');
+-  stylesheetElement.setAttribute('rel', 'stylesheet');
+-  stylesheetElement.type = 'text/css';
+-  stylesheetElement.href = stylesheetUrl;
+-  document.getElementsByTagName('head')[0].appendChild(stylesheetElement);  
+-};
+-
+-
+-/**
+- * Given the URL of a JavaScript file, this method loads the JavaScript file
++ * Given the URL of a JavaScript file, this function loads the JavaScript file
+  * by creating a new script element that points to the file. 
+  *
+- * @scope    public class method
+  * @param    sourceUrl    A string with the URL of a file containing the JavaScript code. 
+  */
+-OpenRecordLoader.loadSingleScript = function(sourceUrl) {
+-  var scriptElement = document.createElement('script');
+-  document.getElementsByTagName('head')[0].appendChild(scriptElement);
+-  scriptElement.language = 'javascript';
+-  scriptElement.type = 'text/javascript';
+-  scriptElement.src = sourceUrl;
++orp.loader.loadScript = function(sourceUrl) {
++  try {
++		document.write(&quot;&lt;script type='text/javascript' src='&quot; + sourceUrl + &quot;'&gt;&lt;/script&gt;&quot;);
++  } catch(e) {
++    var scriptElement = document.createElement('script');
++    scriptElement.language = 'javascript';
++    scriptElement.type = 'text/javascript';
++    scriptElement.src = sourceUrl;
++    var headElement = document.getElementsByTagName(&quot;head&quot;)[0];
++    headElement.appendChild(scriptElement);
++  }
+ };
+ 
+ 
+ /**
+- * Given the path to the trunk directory of the OpenRecord code base,
+- * this method loads the OpenRecord stylesheet and all of the OpenRecord
+- * JavaScript files.
++ * Given the URL of a stylesheet file, this function loads the stylesheet
++ * by creating a new link element that points to the stylesheet. 
+  *
+- * @scope    public class method
+- * @param    path    A string with the path to the trunk directory of the OpenRecord code base. 
++ * @param    stylesheetUrl    A string with the URL of a file containing the stylesheet. 
+  */
+-OpenRecordLoader.loadEverything = function(path) {
+-  path = path || &quot;&quot;;
+-  OpenRecordLoader.loadStylesheet(path + &quot;source/base_style.css&quot;); 
+-  var listOfSourceCodeFiles = [
+-    // third_party
+-    &quot;third_party/md5/md5.js&quot;,
+-    /* &quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;, */
+-    &quot;third_party/scriptaculous/prototype.js&quot;,
+-    &quot;third_party/scriptaculous/effects.js&quot;,
+-    &quot;third_party/scriptaculous/dragdrop.js&quot;];
+-  for (var i in listOfSourceCodeFiles) {
+-    var fileName = listOfSourceCodeFiles[i];
+-    var url = path + fileName;
+-    OpenRecordLoader.loadSingleScript(url);
++orp.loader.loadStylesheet = function(stylesheetUrl) {
++  try {
++    document.write(&quot;&lt;link rel='stylesheet' type='text/css' href='&quot; + stylesheetUrl + &quot;'&gt;&lt;/link&gt;&quot;);
++  } catch(e) {
++    var stylesheetElement = document.createElement('link');
++    stylesheetElement.setAttribute('rel', 'stylesheet');
++    stylesheetElement.type = 'text/css';
++    stylesheetElement.href = stylesheetUrl;
++    var headElement = document.getElementsByTagName(&quot;head&quot;)[0];
++    headElement.appendChild(stylesheetElement);
+   }
+ };
+ 
+-
+ // -------------------------------------------------------------------
+ // This code is immediately executed when this file is first loaded.
+ // -------------------------------------------------------------------
+-djConfig = {
+-  isDebug: true,
+-  debugAtAllCosts: true };
+-  
+-dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/dojo-0.1.0/src&quot;);
+-dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);
++var djConfig = {
++  isDebug: true, 
++  debugAtAllCosts: true
++};
+ 
+-OpenRecordLoader.loadEverything();
++orp.loader.loadStylesheet(&quot;source/base_style.css&quot;);
+ 
+-dojo.require(&quot;orp.model.World&quot;);
+-dojo.require(&quot;orp.view.RootView&quot;);
++orp.loader.loadScript(&quot;third_party/dojo/dojo-rev1759/dojo.js&quot;);
++orp.loader.loadScript(&quot;third_party/md5/md5.js&quot;);
++orp.loader.loadScript(&quot;third_party/scriptaculous/prototype.js&quot;);
++orp.loader.loadScript(&quot;third_party/scriptaculous/effects.js&quot;);
++orp.loader.loadScript(&quot;third_party/scriptaculous/dragdrop.js&quot;);
+ 
+-dojo.hostenv.writeIncludes(); // needed when using &quot;debugAtAllCosts: true&quot;
++orp.loader.loadScript(&quot;source/OpenRecordLoaderStepTwo.js&quot;);
+ 
+-window.onload = function() { 
+-  // figure out if we're running in IE or Firefox
+-  var firefox = true;  // PENDING: hack!
+-  var errorMessage;
+-  if (!firefox) {
+-    errorMessage = &quot;IE error message&quot;;
+-    // display errorMessage
+-    return;
+-  }
+-  if (firefox) {
+-    errorMessage = &quot;Loading...&quot;;
+-    // display errorMessage
+-    try {
+-      var world = new orp.model.World();
+-      new orp.view.RootView(world);
+-    } catch (e) {
+-      alert(e);
+-    }
+-  }
+-};    
+ 
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Added: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/OpenRecordLoaderStepThree.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -0,0 +1,66 @@
++/*****************************************************************************
++ OpenRecordLoaderStepThree.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);  // path relative to dojo
++
++dojo.require(&quot;orp.model.World&quot;);
++dojo.require(&quot;orp.view.RootView&quot;);
++
++if (djConfig.debugAtAllCosts) {
++  dojo.hostenv.writeIncludes(); // needed when using &quot;debugAtAllCosts: true&quot;
++}
++
++function onload(){
++  // figure out if we're running in IE or Firefox
++  var firefox = true;  // PENDING: hack!
++  var errorMessage;
++  if (!firefox) {
++    errorMessage = &quot;IE error message&quot;;
++    // display errorMessage
++    return;
++  }
++  if (firefox) {
++    errorMessage = &quot;Loading...&quot;;
++    // display errorMessage
++    try {
++      var world = new orp.model.World();
++      new orp.view.RootView(world);
++    } catch (e) {
++      alert(e);
++    }
++  }
++}
++
++dojo.hostenv.modulesLoadedListeners.push(onload);
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/OpenRecordLoaderStepTwo.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepTwo.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/OpenRecordLoaderStepTwo.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -0,0 +1,36 @@
++/*****************************************************************************
++ OpenRecordLoaderStepTwo.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++document.write('&lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoaderStepThree.js&quot;&gt;&lt;/script&gt;');
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/OutlinePlugin.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -64,7 +64,7 @@
+   orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;OutlinePlugin&quot;);
+ };
+ 
+-dj_inherits(orp.OutlinePlugin, orp.view.PluginView);  // makes OutlinePlugin be a subclass of PluginView
++dojo.inherits(orp.OutlinePlugin, orp.view.PluginView);  // makes OutlinePlugin be a subclass of PluginView
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/TablePlugin.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -80,7 +80,7 @@
+   this._ascendingOrder = true;
+ };
+ 
+-dj_inherits(orp.TablePlugin, orp.view.PluginView);  // makes TablePlugin be a subclass of PluginView
++dojo.inherits(orp.TablePlugin, orp.view.PluginView);  // makes TablePlugin be a subclass of PluginView
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/archive/DeltaArchive.js
+===================================================================
+--- trunk/source/archive/DeltaArchive.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/archive/DeltaArchive.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -73,7 +73,7 @@
+   this._hasEverFailedToSaveFlag = false;
+ };
+ 
+-dj_inherits(orp.archive.DeltaArchive, orp.archive.StubArchive);  // makes DeltaArchive be a subclass of StubArchive
++dojo.inherits(orp.archive.DeltaArchive, orp.archive.StubArchive);  // makes DeltaArchive be a subclass of StubArchive
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/archive/JsonDeserializer.js
+===================================================================
+--- trunk/source/archive/JsonDeserializer.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/archive/JsonDeserializer.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -57,7 +57,7 @@
+   this._archiveLoader = archiveLoader;
+ };
+ 
+-dj_inherits(orp.archive.JsonDeserializer, orp.archive.JsonFormat);  // makes JsonDeserializer be a subclass of JsonFormat
++dojo.inherits(orp.archive.JsonDeserializer, orp.archive.JsonFormat);  // makes JsonDeserializer be a subclass of JsonFormat
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/archive/JsonSerializer.js
+===================================================================
+--- trunk/source/archive/JsonSerializer.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/archive/JsonSerializer.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -56,7 +56,7 @@
+   this._archive = archive;  // FIXME: we should try to remove this dependency on orp.archive.StubArchive
+ };
+ 
+-dj_inherits(orp.archive.JsonSerializer, orp.archive.JsonFormat);  // makes JsonSerializer be a subclass of JsonFormat
++dojo.inherits(orp.archive.JsonSerializer, orp.archive.JsonFormat);  // makes JsonSerializer be a subclass of JsonFormat
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/lang/Lang.js
+===================================================================
+--- trunk/source/lang/Lang.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/lang/Lang.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -32,7 +32,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.lang.Lang&quot;);
+-dojo.require(&quot;dojo.lang.Lang&quot;);
++dojo.require(&quot;dojo.lang.*&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -164,7 +164,7 @@
+  * @param    type    A class of object, or a literal type.
+  */
+ orp.lang.assertTypeForOptionalValue = function(value, type) {
+-  if (!dojo.lang.isUndefined(value)) {
++  if (!dojo.lang.isUndefined(value) &amp;&amp; (value !== null)) {
+     orp.lang.assertType(value, type);
+   }
+ };
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/ContentRecord.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -67,7 +67,7 @@
+   // this._setOfOrdinals = null;
+ };
+ 
+-dj_inherits(orp.model.ContentRecord, orp.model.Record);  // makes ContentRecord be a subclass of Record
++dojo.inherits(orp.model.ContentRecord, orp.model.Record);  // makes ContentRecord be a subclass of Record
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/Entry.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -77,7 +77,7 @@
+   this._type = null;
+ };
+ 
+-dj_inherits(orp.model.Entry, orp.model.ContentRecord);  // makes Entry be a subclass of ContentRecord
++dojo.inherits(orp.model.Entry, orp.model.ContentRecord);  // makes Entry be a subclass of ContentRecord
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/Item.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -74,7 +74,7 @@
+   this._noteChanges(null);
+ };
+ 
+-dj_inherits(orp.model.Item, orp.model.ContentRecord);  // makes Item be a subclass of ContentRecord
++dojo.inherits(orp.model.Item, orp.model.ContentRecord);  // makes Item be a subclass of ContentRecord
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/Ordinal.js
+===================================================================
+--- trunk/source/model/Ordinal.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/Ordinal.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -63,7 +63,7 @@
+   this._contentRecord._addOrdinal(this);
+ };
+ 
+-dj_inherits(orp.model.Ordinal, orp.model.Record);  // makes Ordinal be a subclass of Record
++dojo.inherits(orp.model.Ordinal, orp.model.Record);  // makes Ordinal be a subclass of Record
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/Record.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -65,7 +65,7 @@
+   }
+ 
+   // Unfortunately, we need to treat 'world' and 'uuid' as 'Optional'. 
+-  // I think this constructor is invoked by dj_inherits() calls 
++  // I think this constructor is invoked by dojo.inherits() calls 
+   // (in ContentRecord, Vote, and Ordinal), which do not pass
+   // in any values for world and uuid.
+   orp.lang.assertTypeForOptionalValue(uuid, orp.uuid.TimeBasedUuid);
+
+Modified: trunk/source/model/Vote.js
+===================================================================
+--- trunk/source/model/Vote.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/Vote.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -63,7 +63,7 @@
+   this._contentRecord._addVote(this);
+ };
+ 
+-dj_inherits(orp.model.Vote, orp.model.Record);  // makes Vote be a subclass of Record
++dojo.inherits(orp.model.Vote, orp.model.Record);  // makes Vote be a subclass of Record
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/model/World.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -540,6 +540,9 @@
+ };
+ 
+ orp.model.World.prototype.getTypeCalledConnection = function() {
++  if (!this._typeCalledConnection) {
++    this._typeCalledConnection = this._archive.getItemFromUuid(orp.model.World.UUID.TYPE_CONNECTION);
++  }
+   return this._typeCalledConnection;
+ };
+ 
+
+Modified: trunk/source/storage/FakeStorage.js
+===================================================================
+--- trunk/source/storage/FakeStorage.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/storage/FakeStorage.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -53,7 +53,7 @@
+   this._fakeFileContents = &quot;&quot;;
+ };
+ 
+-dj_inherits(orp.storage.FakeStorage, orp.storage.Storage);  // makes FakeStorage be a subclass of Storage
++dojo.inherits(orp.storage.FakeStorage, orp.storage.Storage);  // makes FakeStorage be a subclass of Storage
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/storage/FileStorage.js
+===================================================================
+--- trunk/source/storage/FileStorage.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/storage/FileStorage.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -96,7 +96,7 @@
+   this._fileUrl = this._getLocalPathFromWindowLocation(listOfAdditions);
+ };
+ 
+-dj_inherits(orp.storage.FileStorage, orp.storage.Storage);  // makes FileStorage be a subclass of Storage
++dojo.inherits(orp.storage.FileStorage, orp.storage.Storage);  // makes FileStorage be a subclass of Storage
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/storage/HttpStorage.js
+===================================================================
+--- trunk/source/storage/HttpStorage.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/storage/HttpStorage.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -61,7 +61,7 @@
+   }
+ };
+ 
+-dj_inherits(orp.storage.HttpStorage, orp.storage.Storage);  // makes HttpStorage be a subclass of Storage
++dojo.inherits(orp.storage.HttpStorage, orp.storage.Storage);  // makes HttpStorage be a subclass of Storage
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/util/Util.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -118,6 +118,7 @@
+  * @param    line    The line number where the error was found.
+  */
+ orp.util.handleError = function(message, url, line) {
++  // orp.lang.assert(false);
+   orp.util.ourErrorReporter(&quot;orp.util.handleError()\n&quot; + message + &quot;\nline: &quot; + line + &quot;\nURL: &quot; + url);
+ };
+ 
+
+Modified: trunk/source/uuid/RandomUuid.js
+===================================================================
+--- trunk/source/uuid/RandomUuid.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/uuid/RandomUuid.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -90,7 +90,7 @@
+   orp.lang.assert(this.getVersion() == orp.uuid.Uuid.Version.RANDOM);
+ };
+ 
+-dj_inherits(orp.uuid.RandomUuid, orp.uuid.Uuid);  // makes RandomUuid be a subclass of Uuid
++dojo.inherits(orp.uuid.RandomUuid, orp.uuid.Uuid);  // makes RandomUuid be a subclass of Uuid
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/uuid/TimeBasedUuid.js
+===================================================================
+--- trunk/source/uuid/TimeBasedUuid.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/uuid/TimeBasedUuid.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -126,7 +126,7 @@
+   orp.lang.assert(this.getVersion() == orp.uuid.Uuid.Version.TIME_BASED);
+ };
+ 
+-dj_inherits(orp.uuid.TimeBasedUuid, orp.uuid.Uuid);  // makes TimeBasedUuid be a subclass of Uuid
++dojo.inherits(orp.uuid.TimeBasedUuid, orp.uuid.Uuid);  // makes TimeBasedUuid be a subclass of Uuid
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/EntryView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -104,7 +104,7 @@
+   }
+ };
+ 
+-dj_inherits(orp.view.EntryView, orp.view.View);  // makes EntryView be a subclass of View
++dojo.inherits(orp.view.EntryView, orp.view.View);  // makes EntryView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -801,6 +801,9 @@
+  * @return   A string with the CSS className for that type.
+  */
+ orp.view.EntryView.prototype._getClassNameFromType = function(type) {
++  // if (!type) {
++  //   orp.lang.assert(false);
++  // }
+   if (!orp.view.EntryView._ourHashTableOfClassNamesKeyedByTypeUuid) {
+     this._buildTypeHashTable();
+   }
+
+Modified: trunk/source/view/ItemView.js
+===================================================================
+--- trunk/source/view/ItemView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/ItemView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -75,7 +75,7 @@
+   this._pluginView = null;
+ };
+ 
+-dj_inherits(orp.view.ItemView, orp.view.View);  // makes ItemView be a subclass of View
++dojo.inherits(orp.view.ItemView, orp.view.View);  // makes ItemView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/LoginView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -78,7 +78,7 @@
+   this._cookie.load();
+ };
+ 
+-dj_inherits(orp.view.LoginView, orp.view.View);  // makes LoginView be a subclass of View
++dojo.inherits(orp.view.LoginView, orp.view.View);  // makes LoginView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/MultiEntriesView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -79,7 +79,7 @@
+   this._listOfSuggestions = null;
+ };
+ 
+-dj_inherits(orp.view.MultiEntriesView, orp.view.View);  // makes MultiEntriesView be a subclass of View
++dojo.inherits(orp.view.MultiEntriesView, orp.view.View);  // makes MultiEntriesView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/NavbarView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -69,7 +69,7 @@
+   this._builtForEditMode = false;
+ };
+ 
+-dj_inherits(orp.view.NavbarView, orp.view.View);  // makes NavbarView be a subclass of View
++dojo.inherits(orp.view.NavbarView, orp.view.View);  // makes NavbarView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/PageView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -80,7 +80,7 @@
+   this._listOfSectionViews = [];
+ };
+ 
+-dj_inherits(orp.view.PageView, orp.view.View);  // makes PageView be a subclass of View
++dojo.inherits(orp.view.PageView, orp.view.View);  // makes PageView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/PluginView.js
+===================================================================
+--- trunk/source/view/PluginView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/PluginView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -68,7 +68,7 @@
+   this._pluginItem = null;
+ };
+ 
+-dj_inherits(orp.view.PluginView, orp.view.View);  // makes PluginView be a subclass of View
++dojo.inherits(orp.view.PluginView, orp.view.View);  // makes PluginView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/source/view/SectionView.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -112,7 +112,7 @@
+   }
+ };
+ 
+-dj_inherits(orp.view.SectionView, orp.view.View);  // makes SectionView be a subclass of View
++dojo.inherits(orp.view.SectionView, orp.view.View);  // makes SectionView be a subclass of View
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -501,10 +501,8 @@
+   }
+   if (matchingAttribute.getDisplayString() != newChoiceName) {
+     if (listOfMatchingAttrs.length === 0) {
+-      // myQuery.addEntryForAttribute(attributeCalledQueryMatchingAttribute, newQueryMatchingAttribute);
+       myQuery.addEntry({attribute:attributeCalledQueryMatchingAttribute, value:newQueryMatchingAttribute});
+     } else {
+-      // myQuery.replaceEntry(listOfMatchingAttrs[0], newQueryMatchingAttribute);
+       myQuery.replaceEntry({previousEntry:listOfMatchingAttrs[0], value:newQueryMatchingAttribute});
+     }
+ 
+
+Modified: trunk/tests/LintTest.html
+===================================================================
+--- trunk/tests/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/LintTest.js
+===================================================================
+--- trunk/tests/LintTest.js	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/LintTest.js	2005-10-14 02:36:44 UTC (rev 360)
+@@ -71,7 +71,7 @@
+ 
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
+-    &quot;OpenRecordLoader.js&quot;,
++    &quot;OpenRecordLoaderStepThree.js&quot;,
+     &quot;TablePlugin.js&quot;,
+     &quot;OutlinePlugin.js&quot;,
+     &quot;DetailPlugin.js&quot;,
+
+Modified: trunk/tests/archive/LintTest.html
+===================================================================
+--- trunk/tests/archive/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/archive/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/dojo/SimpleDojoTest.html
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/dojo/SimpleDojoTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit test - Dojo code availability&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;SimpleDojoTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/lang/LangTest.html
+===================================================================
+--- trunk/tests/lang/LangTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/lang/LangTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for Lang.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LangTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/LintTest.html
+===================================================================
+--- trunk/tests/model/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/model/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/ModelTest.html
+===================================================================
+--- trunk/tests/model/ModelTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/model/ModelTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ModelTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/RepositoryWritingTest.html
+===================================================================
+--- trunk/tests/model/RepositoryWritingTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/model/RepositoryWritingTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test writing to repositories&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;RepositoryWritingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/TestReorderingForSpecialCases.html
+===================================================================
+--- trunk/tests/model/TestReorderingForSpecialCases.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/model/TestReorderingForSpecialCases.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test reordering of items for special cases of the corresponding ordinals (via a mock)&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForSpecialCases.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/tests/model/TestReorderingForTypicalOrdinals.html
+===================================================================
+--- trunk/tests/model/TestReorderingForTypicalOrdinals.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/model/TestReorderingForTypicalOrdinals.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test reordering items with typical ordinals (via a mock)&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForTypicalOrdinals.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/tests/storage/LintTest.html
+===================================================================
+--- trunk/tests/storage/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/storage/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/tests_of_external_code/TimingTest.html
+===================================================================
+--- trunk/tests/tests_of_external_code/TimingTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/tests_of_external_code/TimingTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;JavaScript timing tests&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TimingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/CsvParserTest.html
+===================================================================
+--- trunk/tests/util/CsvParserTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/util/CsvParserTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for CsvParser.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;CsvParserTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/DateValueTest.html
+===================================================================
+--- trunk/tests/util/DateValueTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/util/DateValueTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for DateValue.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DateValueTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/LintTest.html
+===================================================================
+--- trunk/tests/util/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/util/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/util/UtilTest.html
+===================================================================
+--- trunk/tests/util/UtilTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/util/UtilTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/util/XmlConverterMultiplePassesTest.html
+===================================================================
+--- trunk/tests/util/XmlConverterMultiplePassesTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/util/XmlConverterMultiplePassesTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Additional unit tests for XmlConverter.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverterMultiplePassesTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/util/XmlConverterTest.html
+===================================================================
+--- trunk/tests/util/XmlConverterTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/util/XmlConverterTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for XmlConverter.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverterTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/uuid/LintTest.html
+===================================================================
+--- trunk/tests/uuid/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/uuid/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/uuid/UuidTest.html
+===================================================================
+--- trunk/tests/uuid/UuidTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/uuid/UuidTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for UUIDs&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UuidTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/view/LintTest.html
+===================================================================
+--- trunk/tests/view/LintTest.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tests/view/LintTest.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tobacco.html
+===================================================================
+--- trunk/tobacco.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tobacco.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,6 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Tobacco Control&lt;/title&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tuscany.html
+===================================================================
+--- trunk/tuscany.html	2005-10-14 02:30:33 UTC (rev 359)
++++ trunk/tuscany.html	2005-10-14 02:36:44 UTC (rev 360)
+@@ -12,7 +12,6 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Tuscany&lt;/title&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000341.html">[openrecord-svn] r358 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000343.html">[openrecord-svn] r361 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#342">[ date ]</a>
+              <a href="thread.html#342">[ thread ]</a>
+              <a href="subject.html#342">[ subject ]</a>
+              <a href="author.html#342">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

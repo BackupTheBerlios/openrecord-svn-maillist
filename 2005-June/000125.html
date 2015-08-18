@@ -1,0 +1,950 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r139 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r139%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506142339.j5ENdog7029616%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000124.html">
+   <LINK REL="Next"  HREF="000126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r139 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r139%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506142339.j5ENdog7029616%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r139 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 15 01:39:50 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000124.html">[openrecord-svn] r138 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000126.html">[openrecord-svn] r140 - in trunk: documentation source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-15 01:39:49 +0200 (Wed, 15 Jun 2005)
+New Revision: 139
+
+Added:
+   trunk/source/model/Transaction.js
+Modified:
+   trunk/source/Util.js
+   trunk/source/demo_page.html
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Item.js
+   trunk/source/model/LintTest.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+In the JSON file, we now save the records within the context of the transaction they were created in.
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/Util.js	2005-06-14 23:39:49 UTC (rev 139)
+@@ -308,7 +308,7 @@
+  *
+  * @scope    public class method
+  * @param    inValue    Any object or literal value. 
+- * @return   A boolean value. True if inValue is aDate.
++ * @return   A boolean value. True if inValue is a Date.
+  */
+ Util.isDate = function (inValue) {
+   return (inValue instanceof Date);
+@@ -316,6 +316,25 @@
+ 
+ 
+ /**
++ * Returns true if the given value is a UUID. Here's an example of
++ * a valid UUID: &quot;e3bf3e14-e8f4-43e2-866c-121c5ab70c0b&quot;.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a UUID.
++ */
++Util.isUuid = function (inValue) {
++  // PENDING: 
++  // We should include more rigorous tests, to make sure this
++  // is really a UUID, not just a string with 36 characters.
++  if ((typeof inValue) != &quot;string&quot;) {
++    return false;
++  }
++  return (uuid.length == 36);  
++};
++
++
++/**
+  * Returns true if the given value is an array.
+  *
+  * @scope    public class method
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/demo_page.html	2005-06-14 23:39:49 UTC (rev 139)
+@@ -37,6 +37,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/IdentifiedRecord.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/Item.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/Transaction.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/World.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-14 23:39:49 UTC (rev 139)
+@@ -65,13 +65,14 @@
+ DeltaVirtualServer.JSON_TYPE_CHECKMARK_VALUE = &quot;CheckMarkValue&quot;;
+ DeltaVirtualServer.JSON_TYPE_URL_VALUE = &quot;UrlValue&quot;;
+ 
+-DeltaVirtualServer.JSON_MEMBER_WUID = &quot;uuid&quot;;
++DeltaVirtualServer.JSON_MEMBER_UUID = &quot;uuid&quot;;
+ DeltaVirtualServer.JSON_MEMBER_PASSWORD = &quot;password&quot;;
+ 
+ DeltaVirtualServer.JSON_MEMBER_ITEM_CLASS = &quot;Item&quot;;
+ DeltaVirtualServer.JSON_MEMBER_ENTRY_CLASS = &quot;Entry&quot;;
+ DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS = &quot;Vote&quot;;
+ DeltaVirtualServer.JSON_MEMBER_ORDINAL_CLASS = &quot;Ordinal&quot;;
++DeltaVirtualServer.JSON_MEMBER_TRANSACTION_CLASS = &quot;Transaction&quot;;
+ 
+ DeltaVirtualServer.JSON_MEMBER_ATTRIBUTE = &quot;attribute&quot;;
+ DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE = &quot;previousEntry&quot;;
+@@ -185,24 +186,10 @@
+  * @param    inUuid    The UUID of the item to be returned. 
+  * @return   The item identified by the given UUID.
+  */
+-StubVirtualServer.prototype.__getItemFromUuidOrBootstrapItem = function (inUuid) {
++DeltaVirtualServer.prototype.__getItemFromUuidOrBootstrapItem = function (inUuid) {
+   var item = this.getItemFromUuid(inUuid);
+   if (!item) {
+-    /*
+-    var uuidAsInt = null;
+-    if (Util.isNumber(inUuid)) {
+-      uuidAsInt = inUuid;
+-    } else {
+-      if (Util.isString(inUuid) &amp;&amp; Util.isNumeric(inUuid)) {
+-        uuidAsInt = parseInt(inUuid);
+-      }
+-    }
+-    if (uuidAsInt) {
+-      Util.assert(Util.isNumber(uuidAsInt));
+-      this.__myNextAvailableUuid = Math.max(this.__myNextAvailableUuid, (uuidAsInt + 1));   
+-    }
+-    */
+-    item = new Item(this.__myWorld, inUuid);
++    item = new Item(this.getWorld(), inUuid);
+     this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
+   }
+   return item;
+@@ -217,24 +204,10 @@
+  * @param    inUuid    The UUID of the entry to be returned. 
+  * @return   The entry identified by the given UUID.
+  */
+-StubVirtualServer.prototype.__getEntryFromUuidOrBootstrapEntry = function (inUuid) {
++DeltaVirtualServer.prototype.__getEntryFromUuidOrBootstrapEntry = function (inUuid) {
+   var entry = this.__myHashTableOfEntriesKeyedByUuid[inUuid];
+   if (!entry) {
+-    /*
+-    var uuidAsInt = null;
+-    if (Util.isNumber(inUuid)) {
+-      uuidAsInt = inUuid;
+-    } else {
+-      if (Util.isString(inUuid) &amp;&amp; Util.isNumeric(inUuid)) {
+-        uuidAsInt = parseInt(inUuid);
+-      }
+-    }
+-    if (uuidAsInt) {
+-      Util.assert(Util.isNumber(uuidAsInt));
+-      this.__myNextAvailableUuid = Math.max(this.__myNextAvailableUuid, (uuidAsInt + 1));   
+-    }
+-    */
+-    entry = new Entry(this.__myWorld, inUuid);
++    entry = new Entry(this.getWorld(), inUuid);
+     this.__myHashTableOfEntriesKeyedByUuid[inUuid] = entry;
+   }
+   return entry;
+@@ -242,13 +215,12 @@
+ 
+ 
+ /**
+- * Loads a world of items from a dehydrated list of entries, where those
+- * entries may represent items, entries, votes, or ordinal settings.
++ * Given a dehydrated list of records, rehydrates each of the records.
+  *
+  * @scope    private instance method
+- * @param    inJsonString    A JSON string literal representing the world of items. 
++ * @param    inListOfRecords    A list of dehydrated records. 
+  */
+-DeltaVirtualServer.prototype.__loadWorldFromListOfRecordsAndUsers = function (inListOfRecords, inListOfUsers) {
++DeltaVirtualServer.prototype._rehydrateRecords = function (inListOfRecords) {
+   var key;
+   var itemUuid;
+   var item;
+@@ -258,79 +230,99 @@
+   for (key in inListOfRecords) {
+     var dehydratedRecord = inListOfRecords[key];
+ 
+-    var dehydratedItem = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_ITEM_CLASS];
+-    var dehydratedVote = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS];
+-    var dehydratedOrdinal = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_ORDINAL_CLASS];
+-    var dehydratedEntry = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_ENTRY_CLASS];
+-
+-    var contents = dehydratedItem || dehydratedVote || dehydratedOrdinal || dehydratedEntry;
+-
+-    var timestampString = contents[DeltaVirtualServer.JSON_MEMBER_TIMESTAMP];
+-    var userstampUuid = contents[DeltaVirtualServer.JSON_MEMBER_USERSTAMP];
+-    var timestamp = new Date(new Number(timestampString));
+-    var userstamp = this.__getItemFromUuidOrBootstrapItem(userstampUuid);
+-
+-    if (dehydratedItem) {
+-      itemUuid = dehydratedItem[DeltaVirtualServer.JSON_MEMBER_WUID];
+-      item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
+-      item._rehydrate(timestamp, userstamp);
+-      this.__myChronologicalListOfRecords.push(item);
+-    }
+-    if (dehydratedVote) {
+-      var retainFlag = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG];
+-      identifiedRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
+-      identifiedRecord = this._getIdentifiedRecordFromUuid(identifiedRecordUuid);
+-      var vote = new Vote(identifiedRecord, userstamp, retainFlag, timestamp);
+-      this.__myChronologicalListOfRecords.push(vote);
+-    }
+-    if (dehydratedOrdinal) {
+-      var ordinalNumber = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
+-      identifiedRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
+-      identifiedRecord = this._getIdentifiedRecordFromUuid(identifiedRecordUuid);
+-      var ordinal = new Ordinal(identifiedRecord, userstamp, ordinalNumber, timestamp);
+-      this.__myChronologicalListOfRecords.push(ordinal);
+-    }
+-    if (dehydratedEntry) {
+-      var entryUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_WUID];
+-      itemUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_ITEM];
+-      item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
+-      var attributeUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_ATTRIBUTE];
+-      var attribute = null;
+-      if (attributeUuid) {
+-        attribute = this.__getItemFromUuidOrBootstrapItem(attributeUuid);
++    var dehydratedTransaction = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_TRANSACTION_CLASS];
++    if (dehydratedTransaction) {
++      var listOfRecordsInTransaction = dehydratedTransaction;
++      this._rehydrateRecords(listOfRecordsInTransaction);
++    } else {
++      var dehydratedItem = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_ITEM_CLASS];
++      var dehydratedVote = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS];
++      var dehydratedOrdinal = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_ORDINAL_CLASS];
++      var dehydratedEntry = dehydratedRecord[DeltaVirtualServer.JSON_MEMBER_ENTRY_CLASS];
++  
++      var contents = dehydratedItem || dehydratedVote || dehydratedOrdinal || dehydratedEntry;
++  
++      var timestampString = contents[DeltaVirtualServer.JSON_MEMBER_TIMESTAMP];
++      var userstampUuid = contents[DeltaVirtualServer.JSON_MEMBER_USERSTAMP];
++      var timestamp = new Date(new Number(timestampString));
++      var userstamp = this.__getItemFromUuidOrBootstrapItem(userstampUuid);
++  
++      if (dehydratedItem) {
++        itemUuid = dehydratedItem[DeltaVirtualServer.JSON_MEMBER_UUID];
++        item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
++        item._rehydrate(timestamp, userstamp);
++        this.__myChronologicalListOfRecords.push(item);
+       }
+-      var previousEntryUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE];
+-      var previousEntry = null;
+-      if (previousEntryUuid) {
+-        previousEntry = this.__getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
++      if (dehydratedVote) {
++        var retainFlag = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG];
++        identifiedRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
++        identifiedRecord = this._getIdentifiedRecordFromUuid(identifiedRecordUuid);
++        var vote = new Vote(identifiedRecord, userstamp, retainFlag, timestamp);
++        this.__myChronologicalListOfRecords.push(vote);
+       }
+-      var rawData = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_VALUE];
+-      var dataTypeToken = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_TYPE];
+-      var dataType = this._getTypeFromTypeToken(dataTypeToken);
+-      var finalData = null;
+-      switch (dataTypeToken) {
+-        case DeltaVirtualServer.JSON_TYPE_RELATED_UUID:
+-          finalData = this.__getItemFromUuidOrBootstrapItem(rawData);
+-          break;
+-        case DeltaVirtualServer.JSON_TYPE_STRING_VALUE:
+-          finalData = rawData;
+-          break;
+-        case DeltaVirtualServer.JSON_TYPE_NUMBER_VALUE:
+-          finalData = rawData;
+-          break;
+-        case DeltaVirtualServer.JSON_TYPE_Date_VALUE:
+-          finalData = new Date(rawData);
+-          break;
++      if (dehydratedOrdinal) {
++        var ordinalNumber = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
++        identifiedRecordUuid = dehydratedVote[DeltaVirtualServer.JSON_MEMBER_RECORD];
++        identifiedRecord = this._getIdentifiedRecordFromUuid(identifiedRecordUuid);
++        var ordinal = new Ordinal(identifiedRecord, userstamp, ordinalNumber, timestamp);
++        this.__myChronologicalListOfRecords.push(ordinal);
+       }
+-      var entry = this.__getEntryFromUuidOrBootstrapEntry(entryUuid);
+-      var itemOrEntry = previousEntry || item;
+-      entry._rehydrate(itemOrEntry, attribute, finalData, timestamp, userstamp, dataType);
+-      this.__myChronologicalListOfRecords.push(entry);
++      if (dehydratedEntry) {
++        var entryUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_UUID];
++        itemUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_ITEM];
++        item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
++        var attributeUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_ATTRIBUTE];
++        var attribute = null;
++        if (attributeUuid) {
++          attribute = this.__getItemFromUuidOrBootstrapItem(attributeUuid);
++        }
++        var previousEntryUuid = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE];
++        var previousEntry = null;
++        if (previousEntryUuid) {
++          previousEntry = this.__getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
++        }
++        var rawData = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_VALUE];
++        var dataTypeToken = dehydratedEntry[DeltaVirtualServer.JSON_MEMBER_TYPE];
++        var dataType = this._getTypeFromTypeToken(dataTypeToken);
++        var finalData = null;
++        switch (dataTypeToken) {
++          case DeltaVirtualServer.JSON_TYPE_RELATED_UUID:
++            finalData = this.__getItemFromUuidOrBootstrapItem(rawData);
++            break;
++          case DeltaVirtualServer.JSON_TYPE_STRING_VALUE:
++            finalData = rawData;
++            break;
++          case DeltaVirtualServer.JSON_TYPE_NUMBER_VALUE:
++            finalData = rawData;
++            break;
++          case DeltaVirtualServer.JSON_TYPE_Date_VALUE:
++            finalData = new Date(rawData);
++            break;
++        }
++        var entry = this.__getEntryFromUuidOrBootstrapEntry(entryUuid);
++        var itemOrEntry = previousEntry || item;
++        entry._rehydrate(itemOrEntry, attribute, finalData, timestamp, userstamp, dataType);
++        this.__myChronologicalListOfRecords.push(entry);
++      }
+     }
+   }
+-  for (key in inListOfUsers) {
++};
++
++
++/**
++ * Loads a world of items from a dehydrated list of entries, where those
++ * entries may represent items, entries, votes, or ordinal settings.
++ *
++ * @scope    private instance method
++ * @param    inListOfRecords    A list of dehydrated records. 
++ * @param    inListOfUsers    A list of dehydrated users. 
++ */
++DeltaVirtualServer.prototype.__loadWorldFromListOfRecordsAndUsers = function (inListOfRecords, inListOfUsers) {
++  this._rehydrateRecords(inListOfRecords);
++  
++  for (var key in inListOfUsers) {
+     var dehydratedUserData = inListOfUsers[key];
+-    var userUuid = dehydratedUserData[DeltaVirtualServer.JSON_MEMBER_WUID];
++    var userUuid = dehydratedUserData[DeltaVirtualServer.JSON_MEMBER_UUID];
+     var userPassword = dehydratedUserData[DeltaVirtualServer.JSON_MEMBER_PASSWORD];
+     
+     var user = this.getItemFromUuid(userUuid);
+@@ -360,8 +352,16 @@
+   }
+ };
+ 
++
++/**
++ * Given an item that represents that represents a basic data type, this method
++ * returns the corresponding string token that represents the same data type.
++ *
++ * @scope    private instance method
++ * @param    inType    An item that represents a basic data type, like Text, Number, or URL. 
++ * @return   A string token that represents a basic data type.
++ */
+ DeltaVirtualServer.prototype._getTypeTokenFromType = function (inType) {
+-
+   for (var token in this._myHashTableOfTypesKeyedByToken) {
+     typeItem = this._myHashTableOfTypesKeyedByToken[token];
+     if (inType == typeItem) {
+@@ -371,20 +371,64 @@
+   Util.assert(false, &quot;no such type: &quot; + inType.getDisplayName());
+ };
+ 
++
++/**
++ * Given a string token that represents a basic data type, this method
++ * returns the corresponding item that represents the same data type.
++ *
++ * @scope    private instance method
++ * @param    inToken    A string token that represents a basic data type.
++ * @return   An item that represents a basic data type, like Text, Number, or URL. 
++ */
+ DeltaVirtualServer.prototype._getTypeFromTypeToken = function (inToken) {
+   return this._myHashTableOfTypesKeyedByToken[inToken];
+ };
+ 
++
+ /**
+  * Returns a big string, containing JavaScript &quot;object literal&quot;
++ * representations of all of the records in a Transaction.
++ *
++ * @scope    private instance method
++ * @param    inTransaction    A transaction object.
++ * @return   A JSON string literal, representing the records in the transaction. 
++ */
++DeltaVirtualServer.prototype._getJsonStringRepresentingTransaction = function (inTransaction) {
++  var indent = &quot;  &quot;;
++  var listOfRecords = inTransaction.getRecords();
++  if (!listOfRecords || listOfRecords.length === 0) {
++    return &quot;&quot;;
++  }
++  
++  if (listOfRecords.length == 1) {
++    return this._getJsonStringRepresentingRecords(listOfRecords, indent);
++  } else {
++    indent = &quot;    &quot;;
++    var listOfStrings = [];
++    listOfStrings.push(&quot;  // =======================================================================\n&quot;);
++    listOfStrings.push('  { &quot;' + DeltaVirtualServer.JSON_MEMBER_TRANSACTION_CLASS + '&quot;: [\n');
++    var content = this._getJsonStringRepresentingRecords(inTransaction.getRecords(), indent);
++    listOfStrings.push(content);
++    listOfStrings.push('  ]\n');
++    listOfStrings.push('  }');
++    
++    var finalString = listOfStrings.join(&quot;&quot;);
++    return finalString;
++  }
++};
++
++
++/**
++ * Returns a big string, containing JavaScript &quot;object literal&quot;
+  * representations of the records.
+  *
+  * @scope    private instance method
+  * @param    inListOfRecords    A list of the records to include in the JSON string.
++ * @param    inIndent    Optional. A string of spaces to prepend to each line.
+  * @return   A JSON string literal, representing the records. 
+  */
+-DeltaVirtualServer.prototype.__getJsonStringRepresentingRecords = function (inListOfRecords) {
+-
++DeltaVirtualServer.prototype._getJsonStringRepresentingRecords = function (inListOfRecords, inIndent) {
++  var indent = inIndent || &quot;&quot;;
+   var key;
+   var listOfStrings = [];
+   var firstIdentifiedRecord = true;
+@@ -397,50 +441,50 @@
+     } else {
+       listOfStrings.push(',\n');
+     }
+-    listOfStrings.push('  // -----------------------------------------------------------------------\n');
++    listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
+     if (record instanceof Item) {
+       var item = record;
+-      listOfStrings.push('  { &quot;' + DeltaVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ' + '{');
++      listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ' + '{');
+       itemDisplayNameSubstring = this.truncateString(item.getDisplayName());
+-      listOfStrings.push('                             // ' + itemDisplayNameSubstring + '\n');
+-      listOfStrings.push('           &quot;' + DeltaVirtualServer.JSON_MEMBER_WUID + '&quot;: &quot;' + item._getUuid() + '&quot;,\n');
++      listOfStrings.push('                                               // ' + itemDisplayNameSubstring + '\n');
++      listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + item._getUuid() + '&quot;,\n');
+     }
+     if (record instanceof Vote) {
+       var vote = record;
+-      listOfStrings.push('  { &quot;' + DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{' + '\n');
+-      listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getIdentifiedRecord()._getUuid() + '&quot;,\n');
+-      listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;,\n');
++      listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{' + '\n');
++      listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getIdentifiedRecord()._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;,\n');
+     }
+     if (record instanceof Ordinal) {
+       var ordinal = record;
+-      listOfStrings.push('  { &quot;' + DeltaVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+-      listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getIdentifiedRecord()._getUuid() + '&quot;,\n');
+-      listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;,\n');
++      listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
++      listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getIdentifiedRecord()._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;,\n');
+     }
+     if (record instanceof Entry) {
+       var entry = record;
+-      listOfStrings.push('  { &quot;' + DeltaVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{');
++      listOfStrings.push(indent + '{ &quot;' + DeltaVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{');
+       var entryDisplayNameSubstring = this.truncateString(entry.getDisplayString());
+-      listOfStrings.push('                             // ' + entryDisplayNameSubstring + '\n');
+-      listOfStrings.push('           &quot;' + DeltaVirtualServer.JSON_MEMBER_WUID + '&quot;: &quot;' + entry._getUuid() + '&quot;,\n');
++      listOfStrings.push('                                              // ' + entryDisplayNameSubstring + '\n');
++      listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + entry._getUuid() + '&quot;,\n');
+       var attribute = entry.getAttribute();
+       if (attribute) {
+         var attributeName = attribute.getDisplayName();
+-        listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: &quot;' + attribute._getUuid() + '&quot;,');
++        listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: &quot;' + attribute._getUuid() + '&quot;,');
+         var attributeNameSubstring = this.truncateString(attributeName);
+-        listOfStrings.push('                // ' + attributeNameSubstring + '\n');
++        listOfStrings.push('  // ' + attributeNameSubstring + '\n');
+       }
+-      listOfStrings.push('           &quot;' + DeltaVirtualServer.JSON_MEMBER_ITEM + '&quot;: &quot;' + entry.getItem()._getUuid() + '&quot;,');
++      listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_ITEM + '&quot;: &quot;' + entry.getItem()._getUuid() + '&quot;,');
+       itemDisplayNameSubstring = this.truncateString(entry.getItem().getDisplayName());
+-      listOfStrings.push('                // ' + itemDisplayNameSubstring + '\n');
++      listOfStrings.push('  // ' + itemDisplayNameSubstring + '\n');
+       var previousEntry = entry.getPreviousEntry();
+       if (previousEntry) {
+-        listOfStrings.push('  &quot;' + DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n');
++        listOfStrings.push(indent + '&quot;' + DeltaVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n');
+       }
+       var contentData = entry.getValue();
+       var entryType = entry.getType();
+       var typeToken = this._getTypeTokenFromType(entryType);
+-      listOfStrings.push('           &quot;' + DeltaVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeToken + '&quot;,\n');
++      listOfStrings.push(indent + '         &quot;' + DeltaVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeToken + '&quot;,\n');
+       
+       var valueString = null;
+       switch (typeToken) {
+@@ -459,15 +503,15 @@
+         default:
+           Util.assert(false, &quot;no such type: &quot; + typeToken);
+       }
+-      listOfStrings.push('          &quot;' + DeltaVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + ',\n');
++      listOfStrings.push(indent + '        &quot;' + DeltaVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + ',\n');
+     }
+     Util.assert(record.getUserstamp() !== null);
+-    listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_USERSTAMP + '&quot;: &quot;' + record.getUserstamp()._getUuid() + '&quot;,');
++    listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_USERSTAMP + '&quot;: &quot;' + record.getUserstamp()._getUuid() + '&quot;,');
+     var userDisplayName = record.getUserstamp().getDisplayName();
+     var userDisplayNameSubstring = this.truncateString(userDisplayName);
+-    listOfStrings.push('                // by (' + userDisplayNameSubstring + ')\n');
+-    listOfStrings.push('      &quot;' + DeltaVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().valueOf() + '&quot; }\n');
+-    listOfStrings.push('  }');
++    listOfStrings.push('  // by (' + userDisplayNameSubstring + ')\n');
++    listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().valueOf() + '&quot; }\n');
++    listOfStrings.push(indent + '}');
+   }
+   
+   var finalString = listOfStrings.join(&quot;&quot;);
+@@ -507,7 +551,7 @@
+     if (password) {
+       passwordString = '&quot;' + password + '&quot;';
+     }
+-    listOfStrings.push('    { &quot;' + DeltaVirtualServer.JSON_MEMBER_WUID + '&quot;: &quot;' + user._getUuid() + '&quot;, ');
++    listOfStrings.push('    { &quot;' + DeltaVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + user._getUuid() + '&quot;, ');
+     listOfStrings.push('&quot;' + DeltaVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }');
+   }
+   listOfStrings.push(&quot; ]\n&quot;);
+@@ -536,7 +580,8 @@
+   listOfStrings.push('&quot;' + DeltaVirtualServer.JSON_MEMBER_FORMAT + '&quot;: &quot;' + DeltaVirtualServer.JSON_FORMAT_2005_APRIL + '&quot;, ' + '\n');
+   listOfStrings.push('  &quot;' + DeltaVirtualServer.JSON_MEMBER_DATA + '&quot;: ' + '[' + '\n');
+ 
+-  var jsonStringForRecords = this.__getJsonStringRepresentingRecords(this.__myChronologicalListOfRecords);
++  var indent = &quot;  &quot;;
++  var jsonStringForRecords = this._getJsonStringRepresentingRecords(this.__myChronologicalListOfRecords, indent);
+   listOfStrings.push(jsonStringForRecords);
+ 
+   listOfStrings.push(&quot;  ], \n&quot;);
+@@ -561,9 +606,9 @@
+  * @return   The list of changes made. 
+  */
+ DeltaVirtualServer.prototype.saveChangesToServer = function (forceSave) {
+-  var listOfChangesMade;
+-  if (!forceSave &amp;&amp; this.__myChronologicalListOfNewlyCreatedRecords.length === 0) {
+-    listOfChangesMade = [];
++  var currentTransaction = this.getCurrentTransaction();
++  var listOfChangesMade = currentTransaction.getRecords();
++  if (!forceSave &amp;&amp; listOfChangesMade.length === 0) {
+     return listOfChangesMade;
+   }
+   
+@@ -582,15 +627,15 @@
+   
+   var key;
+   var newRecord;
+-  for (key in this.__myChronologicalListOfNewlyCreatedRecords) {
+-    newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
++  for (key in listOfChangesMade) {
++    newRecord = listOfChangesMade[key];
+     this.__myChronologicalListOfRecords.push(newRecord);
+   }
+   
+   var saveListOfUsers = false;
+   var listOfUsers = this.getUsers();
+-  for (key in this.__myChronologicalListOfNewlyCreatedRecords) {
+-    newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
++  for (key in listOfChangesMade) {
++    newRecord = listOfChangesMade[key];
+     if (Util.isObjectInSet(newRecord, listOfUsers)) {
+       saveListOfUsers = true;
+       break;
+@@ -599,7 +644,6 @@
+  
+   if (saveChanges) {
+     var url;
+-    var recordsToAppend;
+     var textToAppend;
+     
+     // OLD: used for saving a the entire world as one lump
+@@ -610,8 +654,7 @@
+     
+     // NEW: used for saving just the changes
+     url = &quot;model/append_to_repository_file.php&quot;;
+-    recordsToAppend = this.__myChronologicalListOfNewlyCreatedRecords;
+-    textToAppend = &quot;,\n&quot; + this.__getJsonStringRepresentingRecords(recordsToAppend);
++    textToAppend = &quot;,\n&quot; + this._getJsonStringRepresentingTransaction(currentTransaction);
+     var asynchronous;
+     asynchronous = true;
+     
+@@ -647,8 +690,7 @@
+     }
+   }
+   
+-  listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
+-  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  this._currentTransaction = null;
+   return listOfChangesMade;
+ };
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/model/Item.js	2005-06-14 23:39:49 UTC (rev 139)
+@@ -190,6 +190,7 @@
+     }
+   }
+   
++  this.getWorld().beginTransaction();
+   if (this.__myProvisionalFlag) {
+     this.__myProvisionalFlag = false;
+     this.getWorld()._provisionalItemJustBecameReal(this);
+@@ -197,6 +198,7 @@
+   
+   var itemOrEntry = inEntry || this;
+   var entry = this.getWorld()._newEntry(itemOrEntry, inAttribute, inValue, inType);
++  this.getWorld().endTransaction();
+   return entry;
+ };
+ 
+
+Modified: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/model/LintTest.js	2005-06-14 23:39:49 UTC (rev 139)
+@@ -39,6 +39,7 @@
+     &quot;IdentifiedRecord.js&quot;,
+     &quot;Item.js&quot;,
+     &quot;Entry.js&quot;,
++    &quot;Transaction.js&quot;,
+     &quot;World.js&quot;,
+     &quot;StubVirtualServer.js&quot;,
+     &quot;DeltaVirtualServer.js&quot;];
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/model/StubVirtualServer.js	2005-06-14 23:39:49 UTC (rev 139)
+@@ -64,11 +64,10 @@
+   this._countOfNestedTransactions = 0;
+   this._currentTransaction = null;
+ 
+-  // this.__myNextAvailableUuid = 1;
+   this.__myHashTableOfItemsKeyedByUuid = {};
+   this.__myHashTableOfEntriesKeyedByUuid = {};
+   this.__myChronologicalListOfRecords = [];
+-  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  // this.__myChronologicalListOfNewlyCreatedRecords = [];
+   
+   this.__myListOfUsers = [];
+   this.__myHashTableOfUserAuthenticationInfo = {};
+@@ -88,13 +87,18 @@
+   this._loadAxiomaticItems();
+ };
+ 
++
+ /**
++ * Returns the World instance that this virtual server is using.
+  *
++ * @scope    public instance method
++ * @return   A World object. 
+  */
+ StubVirtualServer.prototype.getWorld = function () {
+   return this.__myWorld;
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // Transaction Methods
+ // -------------------------------------------------------------------
+@@ -111,8 +115,7 @@
+  */
+ StubVirtualServer.prototype.beginTransaction = function() {
+   if (this._countOfNestedTransactions === 0) {
+-    // PENDING: create a new transaction object
+-    // this._currentTransaction = new Transaction();
++    this._currentTransaction = new Transaction();
+   }
+   this._countOfNestedTransactions += 1;
+ };
+@@ -129,6 +132,7 @@
+ 
+   if (this._countOfNestedTransactions === 0) {
+     var listOfChangesMade = this.saveChangesToServer();
++    this._currentTransaction = null;
+     if (listOfChangesMade.length &gt; 0) {
+       // alert(listOfChangesMade.length + &quot; changes made&quot;);
+       // Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
+@@ -138,6 +142,17 @@
+ };
+ 
+ 
++/**
++ * Returns the Transaction object for the current transaction.
++ *
++ * @scope    public instance method
++ * @return   A Transaction object, or null if there is no transaction in progress. 
++ */
++StubVirtualServer.prototype.getCurrentTransaction = function () {
++  return this._currentTransaction;
++};
++
++
+ // -------------------------------------------------------------------
+ // Methods for creating and changing items
+ // -------------------------------------------------------------------
+@@ -195,7 +210,8 @@
+   item._initialize(inObserver, inProvisionalFlag);
+   this.__myHashTableOfItemsKeyedByUuid[uuid] = item;
+   if (!inProvisionalFlag) {
+-    this.__myChronologicalListOfNewlyCreatedRecords.push(item);
++    this._currentTransaction.addRecord(item);
++    // this.__myChronologicalListOfNewlyCreatedRecords.push(item);
+   }
+   return item;
+ };
+@@ -208,7 +224,8 @@
+  * @param    inItem    The item that was provisional and just became real. 
+  */
+ StubVirtualServer.prototype._provisionalItemJustBecameReal = function (inItem) {
+-  this.__myChronologicalListOfNewlyCreatedRecords.push(inItem);
++  this._currentTransaction.addRecord(inItem);
++  // this.__myChronologicalListOfNewlyCreatedRecords.push(inItem);
+ };
+ 
+ 
+@@ -231,7 +248,8 @@
+   item.__addEntryToListOfEntriesForAttribute(entry); // PENDING eeks calling a protected method!
+   
+   this.__myHashTableOfEntriesKeyedByUuid[uuid] = entry;
+-  this.__myChronologicalListOfNewlyCreatedRecords.push(entry);
++  this._currentTransaction.addRecord(entry);
++  // this.__myChronologicalListOfNewlyCreatedRecords.push(entry);
+   return entry;
+ };
+  
+@@ -248,7 +266,8 @@
+ StubVirtualServer.prototype.newOrdinal = function (inIdentifiedRecord, inOrdinalNumber) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var ordinal = new Ordinal(inIdentifiedRecord, this.__myWorld.getCurrentUser(), inOrdinalNumber);
+-  this.__myChronologicalListOfNewlyCreatedRecords.push(ordinal);
++  this._currentTransaction.addRecord(ordinal);
++  // this.__myChronologicalListOfNewlyCreatedRecords.push(ordinal);
+   return ordinal;
+ };
+ 
+@@ -265,7 +284,8 @@
+ StubVirtualServer.prototype.newVote = function (inIdentifiedRecord, inRetainFlag) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var vote = new Vote(inIdentifiedRecord, this.__myWorld.getCurrentUser(), inRetainFlag);
+-  this.__myChronologicalListOfNewlyCreatedRecords.push(vote);
++  this._currentTransaction.addRecord(vote);
++  // this.__myChronologicalListOfNewlyCreatedRecords.push(vote);
+   return vote;
+ };
+ 
+@@ -304,7 +324,6 @@
+     this.__myCurrentUser = newUser;
+     var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+     var entry = newUser.addEntryForAttribute(attributeCalledName, inName);
+-    // entry.__myCreationUserstamp = newUser;
+     this.__myCurrentUser = null;
+   }
+   return newUser;
+@@ -429,7 +448,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ StubVirtualServer.prototype.getItemFromUuid = function (inUuid, inObserver) {
+-  // Util.assert(Util.isNumeric(inUuid));
++  // Util.assert(Util.isUuid(inUuid));
+   
+   var item = this.__myHashTableOfItemsKeyedByUuid[inUuid];
+   if (item &amp;&amp; inObserver) {
+@@ -449,8 +468,10 @@
+   // The StubVirtualServer doesn't ever actually talk to a server.
+   // Other VirtualServer implementations would be expected to actually
+   // implement this method such that it saves changes to the server
+-  var listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
+-  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  var listOfChangesMade = this._currentTransaction.getRecords();
++  this._currentTransaction = null;
++  // var listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
++  // this.__myChronologicalListOfNewlyCreatedRecords = [];
+   return listOfChangesMade;
+ };
+   
+@@ -655,25 +676,11 @@
+ StubVirtualServer.prototype._getItemFromUuidOrCreateNewItem = function (inUuid) {
+   var item = this.getItemFromUuid(inUuid);
+   if (!item) {
+-    /*
+-    var uuidAsInt = null;
+-    if (Util.isNumber(inUuid)) {
+-      uuidAsInt = inUuid;
+-    } else {
+-      if (Util.isString(inUuid) &amp;&amp; Util.isNumeric(inUuid)) {
+-        uuidAsInt = parseInt(inUuid);
+-      }
+-    }
+-    if (uuidAsInt) {
+-      Util.assert(Util.isNumber(uuidAsInt));
+-      this.__myNextAvailableUuid = Math.max(this.__myNextAvailableUuid, (uuidAsInt + 1));   
+-    }
+-    */
+-
+     item = new Item(this.__myWorld, inUuid);
+     item._initialize();
+     this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
+-    this.__myChronologicalListOfNewlyCreatedRecords.push(item);
++    this._currentTransaction.addRecord(item);
++    // this.__myChronologicalListOfNewlyCreatedRecords.push(item);
+   }
+   return item;
+ };
+@@ -801,12 +808,12 @@
+ 
+   this.__myCurrentUser = null;
+ 
+-  for (key in this.__myChronologicalListOfNewlyCreatedRecords) {
+-    var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
++  var listOfNewlyCreatedRecords = this._currentTransaction.getRecords();
++  for (key in listOfNewlyCreatedRecords) {
++    var newRecord = listOfNewlyCreatedRecords[key];
+     this.__myChronologicalListOfRecords.push(newRecord);
+   }
+-  var listOfNewlyCreatedRecords = this.__myChronologicalListOfNewlyCreatedRecords;
+-  this.__myChronologicalListOfNewlyCreatedRecords = [];
++  this._currentTransaction._listOfRecords = [];
+   this.__myWorld.endTransaction();
+   return listOfNewlyCreatedRecords;
+ };
+
+Added: trunk/source/model/Transaction.js
+===================================================================
+--- trunk/source/model/Transaction.js	2005-06-14 20:34:24 UTC (rev 138)
++++ trunk/source/model/Transaction.js	2005-06-14 23:39:49 UTC (rev 139)
+@@ -0,0 +1,67 @@
++/*****************************************************************************
++ Transaction.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++/**
++ * A Transaction object represents a database transaction.  Each Transaction
++ * contains a list of the records that were created during the transaction.
++ *
++ * @scope    public instance constructor
++ */
++function Transaction() {
++  this._listOfRecords = [];
++}
++
++
++/**
++ * Records the fact that a record was created during the transaction.
++ *
++ * @scope    public instance method
++ * @param    newRecord    A record created during the transaction. 
++ */
++Transaction.prototype.addRecord = function(newRecord) {
++  this._listOfRecords.push(newRecord);
++};
++
++
++/**
++ * Returns a list of all the records created during the transaction.
++ *
++ * @scope    public instance method
++ * @return   A list of records. 
++ */
++Transaction.prototype.getRecords = function() {
++  return this._listOfRecords;
++};
++
++    
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000124.html">[openrecord-svn] r138 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000126.html">[openrecord-svn] r140 - in trunk: documentation source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#125">[ date ]</a>
+              <a href="thread.html#125">[ thread ]</a>
+              <a href="subject.html#125">[ subject ]</a>
+              <a href="author.html#125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,179 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r27 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r27%20-%20trunk/source&In-Reply-To=%3C200504061947.j36Jl2gX010884%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000020.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r27 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r27%20-%20trunk/source&In-Reply-To=%3C200504061947.j36Jl2gX010884%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r27 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr  6 21:47:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000020.html">[openrecord-svn] r26 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[openrecord-svn] r28 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-06 21:47:01 +0200 (Wed, 06 Apr 2005)
+New Revision: 27
+
+Modified:
+   trunk/source/TextView.js
+   trunk/source/base_style.css
+Log:
+Tried, and failed, to get TextView to automatically grow taller as the user types.
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-04-05 23:41:39 UTC (rev 26)
++++ trunk/source/TextView.js	2005-04-06 19:47:01 UTC (rev 27)
+@@ -103,9 +103,13 @@
+   divElement.className = TextView.ELEMENT_CLASS_TEXT_BLOCK;
+   var textList = this.textItem.getValueListFromAttribute(this.attribute);
+   var textString = &quot;&quot;;
+-  for (var i in textList) {
+-    textString = textList[i] + &quot;\n&quot; + textString;
+-  };
++  if (textList &amp;&amp; textList[0]) {
++    textString = textList[0];
++  }
++  // PENDING: need to deal with multi valued attrs
++  // for (var i in textList) {
++  //   textString = textList[i] + &quot;\n&quot; + textString;
++  // };
+   
+   this.textNode = document.createTextNode(textString);
+   divElement.appendChild(this.textNode);
+@@ -131,6 +135,7 @@
+       //editField.cols=80; now using css style sheet &quot;text_view&quot;
+       var listener = this; 
+       Util.addEventListener(editField, &quot;blur&quot;, function(event) {listener.onBlur(event);});
++      Util.addEventListener(editField, &quot;keypress&quot;, function(event) {listener.onKeyPress(event);});
+       editField.defaultValue = this.textNode.data;
+     }
+     editField.style.height = this.getDivElement().offsetHeight + &quot;px&quot;;
+@@ -182,6 +187,57 @@
+ };
+ 
+ 
++/**
++ * Called when the user types in editField
++ *
++ * @scope    public instance method
++ * @param    inEventObject    An event object. 
++ */
++TextView.prototype.onKeyPress = function(inEventObject) {
++  var editField = this.editField;
++
++  // PENDING: 
++  // Here are some failed attempts at trying to get the editField to 
++  // automatically grow taller as the user types more text into it.
++  // The idea was to avoid having the editField ever show its scroll 
++  // bar. The user shouldn't feel like they're filling in a form; 
++  // they should feel like they're typing a paragraph in a word
++  // processor, and the paragraph grows naturally as they type, 
++  // with all the paragraphs beneath it getting pushed down the page.
++  
++  // ATTEMPT #0: 
++  // Display diagnostic info...
++  // Initially editField.scrollHeight and editField.clientHeight are equal.  
++  // As you type scrollHeight grows. editField.rows is always -1.
++  /*
++  RootView.displayStatusBlurb(&quot;editField.scrollHeight: &quot; + editField.scrollHeight + &quot;, &quot; +
++    &quot;editField.clientHeight: &quot; + editField.clientHeight + &quot;, &quot; +
++    &quot;editField.rows: &quot; + editField.rows);
++  */
++
++  // ATTEMPT #1: 
++  // causes infinite loop -- adding rows doesn't change editField.clientHeight
++  /*
++  while (editField.scrollHeight &gt; editField.clientHeight) {
++    editField.rows += 1;
++  }
++  */
++
++  // ATTEMPT #2: has no impact
++  /*
++  if (editField.scrollHeight &gt; editField.clientHeight) {
++    editField.style.height = editField.scrollHeight;
++  }
++  */
++
++  // ATTEMPT #3: has no impact
++  /*
++  if (editField.scrollHeight &gt; editField.clientHeight) {
++    editField.clientHeight = editField.scrollHeight;
++  }
++  */
++};
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-04-05 23:41:39 UTC (rev 26)
++++ trunk/source/base_style.css	2005-04-06 19:47:01 UTC (rev 27)
+@@ -528,12 +528,13 @@
+ /* Text view styles                     */
+ 
+ .text_view {
+-  height: 100%;
++  /* height: 100%; */
+   width: 100%;
+   font-family: Arial, Verdana, sans-serif;
+   color: rgb(0%, 0%, 0%);
+   background: rgb(100%, 100%, 40%);
+   border: none; 
++  /* overflow: visible; */
+ }
+ 
+ div.editmode .text_block:hover {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000020.html">[openrecord-svn] r26 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[openrecord-svn] r28 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#21">[ date ]</a>
+              <a href="thread.html#21">[ thread ]</a>
+              <a href="subject.html#21">[ subject ]</a>
+              <a href="author.html#21">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

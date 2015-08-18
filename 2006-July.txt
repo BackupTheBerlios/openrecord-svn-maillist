@@ -1,0 +1,2232 @@
+From hiran at berlios.de  Thu Jul 13 07:02:44 2006
+From: hiran at berlios.de (hiran at berlios.de)
+Date: Thu, 13 Jul 2006 07:02:44 +0200
+Subject: [openrecord-svn] r479 - trunk/source
+Message-ID: <200607130502.k6D52itu022592@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-13 07:01:54 +0200 (Thu, 13 Jul 2006)
+New Revision: 479
+
+Modified:
+   trunk/source/base_style.css
+Log:
+
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2006-06-20 22:44:47 UTC (rev 478)
++++ trunk/source/base_style.css	2006-07-13 05:01:54 UTC (rev 479)
+@@ -837,5 +837,88 @@
+ }
+ 
+ /****************************************/
++/* BarChartPrototype styles */
++
++.positive_bar
++{
++	border-style: solid;
++	border-width: 0px 5px 0px 0px;
++	margin: 0px;
++	padding: 0px;
++	cursor: w-resize;
++	height: 20px;	
++}
++
++.negative_bar
++{
++	border-style: solid;
++	border-width: 0px 0px 0px 5px;
++	margin: 0px;
++	padding: 0px;
++	cursor: w-resize;
++	height: 20px;
++}
++
++.inside_bar_text
++{
++	color: #ffffff;
++	font-family: Arial, Verdana, sans-serif;
++}
++
++.outside_bar_text
++{
++	color: #000000;
++	font-family: Arial, Verdana, sans-serif;
++}
++
++.first_row_break
++{
++	border-top: 1px solid #000000;
++	border-bottom: 1px solid #000000;
++	padding: 0;
++	margin: 0;
++}
++
++.row_break
++{	
++	border-bottom: 1px solid #000000;
++	padding: 0;
++	margin: 0;
++}
++
++.color_table
++{
++	border-style: solid;
++	border-width: 1px;
++}
++
++.color_cell
++{
++	height: 20px;
++	width: 20px;
++	cursor: hand;
++}
++
++/****************************************/
++/* ScatterPlot styles */
++
++.chart_container
++{
++	border:1px solid black;
++	width:600px;
++	background-color:#ededde;
++}
++
++.select_container
++{
++	padding: 0px 0px 0px 0px;
++}
++
++.empty_column
++{
++	width: 3%;
++}
++
++/****************************************/
+ /* END                                  */
+ /****************************************/
+
+
+
+From hiran at berlios.de  Thu Jul 13 07:19:09 2006
+From: hiran at berlios.de (hiran at berlios.de)
+Date: Thu, 13 Jul 2006 07:19:09 +0200
+Subject: [openrecord-svn] r480 - trunk/source/plugins
+Message-ID: <200607130519.k6D5J9Tj026891@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-13 07:18:59 +0200 (Thu, 13 Jul 2006)
+New Revision: 480
+
+Added:
+   trunk/source/plugins/ScatterPlot.js
+Log:
+New plugin for scatter plot.
+
+Added: trunk/source/plugins/ScatterPlot.js
+===================================================================
+--- trunk/source/plugins/ScatterPlot.js	2006-07-13 05:01:54 UTC (rev 479)
++++ trunk/source/plugins/ScatterPlot.js	2006-07-13 05:18:59 UTC (rev 480)
+@@ -0,0 +1,610 @@
++// ScatterPlot.js
++// Created by Hiran Ganegedara
++
++// Dojo Package System "provide" and "require" statements
++dojo.provide("orp.plugins.ScatterPlot");
++dojo.require("orp.view.PluginView");
++dojo.require("dojo.lang.*");
++dojo.require("dojo.widget.Chart");
++dojo.require("dojo.widget.ColorPalette");
++
++/**
++ * The ScatterPlot view displays a set of content items.
++ *
++ * @scope    public instance constructor
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view.
++ * @param    htmlElement    The HTMLElement to display this view in.
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    An item that can be used to store layout data (like table column order).
++ */
++orp.plugins.ScatterPlot = function(superview, htmlElement, querySpec, layoutItem) {
++	orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, "ScatterPlot");
++	this._hashTableOfAttributesKeyedByUuid = {};
++	this._listOfAxisAttributes = [];
++	this._numberOfSelectableAttributes = 0;
++	this._MAXIMUM_BUBBLE_SIZE = 10;
++	this._colorElement = null;
++};
++
++
++dojo.inherits(orp.plugins.ScatterPlot, orp.view.PluginView);  // makes ScatterPlot be a subclass of PluginView
++
++// -------------------------------------------------------------------
++// Public constants
++// -------------------------------------------------------------------
++	orp.plugins.ScatterPlot.cssClass = {
++	CHARTDIV: "chart_container",
++	SELECTCONTAINER: "select_container",
++	BLANKCOLUMN: "empty_column"};
++// -------------------------------------------------------------------
++// Register this plugin in the SectionView registry
++// -------------------------------------------------------------------
++orp.plugins.ScatterPlot.UUID = "1189c400-0b1d-11db-a93c-0011111f4abe";
++orp.view.SectionView.registerPlugin(orp.plugins.ScatterPlot);
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item that represents this class of plugin.
++ *
++ * @scope    public class method
++ * @return   The UUID of the item that represents this class of plugin.
++ */
++orp.plugins.ScatterPlot.getPluginItemUuid = function() {
++	return orp.plugins.ScatterPlot.UUID;
++};
++
++/**
++ * Returns a list of anonymous objects representing Entries that describe the plugin.
++ *
++ * @scope    public class method
++ * @return   A list of anonymous objects representing Entries that describe the plugin.
++ */
++orp.plugins.ScatterPlot.getEntriesForItemRepresentingPluginClass = function(pluginItem, world) {
++	return [
++		{	uuid: "1189c401-0b1d-11db-a93c-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledName(),
++			value: "Scatter Plot" },
++		{	uuid: "1189c402-0b1d-11db-a93c-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledShortName(),
++			value: "ScatterPlot" },
++		{	uuid: "1189c403-0b1d-11db-a93c-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledClassName(),
++			value: "ScatterPlot" },
++		{	uuid: "118c3500-0b1d-11db-a93c-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledCategory(),
++			inverseAttribute: world.getAttributeCalledItemsInCategory(),
++			value: world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_PLUGIN_VIEW) }
++	];
++};
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the class of this instance.
++ *
++ * @scope    public instance method
++ * @return   A JavaScript class.
++ */
++orp.plugins.ScatterPlot.prototype.getClass = function() {
++	return orp.plugins.ScatterPlot;
++};
++
++/**
++ * This method is called whenever the ScatterPlot plugin is used to
++ * display the results of a query.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.ScatterPlot.prototype.refresh = function() {
++	var pluginDiv = this.getHtmlElement();
++	orp.view.View.removeChildrenOfElement(pluginDiv);
++	pluginDiv.appendChild(this._setElementsForSelection());
++	var divForChartWidget = orp.view.View.newElement("div");
++	divForChartWidget.innerHTML = this._getHtmlTextForChart();
++
++	var parser = new dojo.xml.Parse();
++	var fragment = parser.parseElement(divForChartWidget, null, true);
++	dojo.widget.getParser().createComponents(fragment);  
++	pluginDiv.appendChild(divForChartWidget);
++};
++
++/**
++ * This method sets the attribute selection drop downs and radio buttons.
++ *
++ * @scope    private instance method
++ */
++orp.plugins.ScatterPlot.prototype._setElementsForSelection = function() {
++	var isComplete = false;
++	var isBubblePlot = false;
++	var listOfContentItems = [];
++	var hasStoredAttributes = false;
++	this._listOfAxisAttributes = [];
++	
++	// Check for stored attributes
++	var world = this.getWorld();
++	var createNewLayoutItemIfNecessary;
++	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++	if (layoutItem) {
++		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++		var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
++		if (listOfSelectedAttributes.length == 3) {
++			isComplete = true;
++			isBubblePlot = true;
++			hasStoredAttributes = true;
++		} else if (listOfSelectedAttributes.length == 2) {
++			isComplete = true;
++			isBubblePlot = false;
++			hasStoredAttributes = true;
++		}
++		for(var i in listOfSelectedAttributes) {
++			this._listOfAxisAttributes.push(listOfSelectedAttributes[i].getValue());
++		}
++	}
++	
++	// Load attribute data to drop down lists
++	var hashTableOfAttributesKeyedByUuid = {};
++	var contentItem;
++	// Calculate the number of numeric instances for
++	listOfContentItems = this.fetchItems();	
++	for (var iKey in listOfContentItems) {
++		contentItem = listOfContentItems[iKey];
++		var listOfAttributesForItem = contentItem.getAttributes();
++		for (var j in listOfAttributesForItem) {
++			var temporaryAttribute = listOfAttributesForItem[j];
++			var attributeUuid = temporaryAttribute.getUuid();			
++			var listOfValues = contentItem.getValuesForAttribute(temporaryAttribute);
++			if (listOfValues.length > 0) {
++				firstValue = listOfValues[0];
++				if (dojo.lang.isNumber(firstValue)) {
++					this._hashTableOfAttributesKeyedByUuid[attributeUuid] = temporaryAttribute;						
++				} 				
++			}
++		}
++	}
++	this._numberOfSelectableAttributes = 0;
++	for(var tempAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
++		this._numberOfSelectableAttributes = this._numberOfSelectableAttributes + 1;
++	}
++	if(this._numberOfSelectableAttributes < 2) {				
++		var displayString = "Sorry, the number of attributes with numeric instances are insufficient to display the scatter plot";
++		var spanObject = orp.view.View.newElement("span", null, null, displayString);
++		return spanObject;
++	} else {
++		if(!hasStoredAttributes) {		
++			for (var plotAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
++				this._listOfAxisAttributes.push(this._hashTableOfAttributesKeyedByUuid[plotAttributeUuid]);
++			}			
++			world = this.getWorld();
++			layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++			attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++			if(layoutItem) {
++				listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
++				if(listOfSelectedAttributes) {
++					for (var key in listOfSelectedAttributes) {
++						listOfEntriesForSelectedAttribute[key].voteToDelete();
++					}
++				}
++				typeCalledItem = world.getTypeCalledItem();
++				layoutItem.addEntry({attribute: attributeCalledSelectedAttribute, value: this._listOfAxisAttributes[0], type: typeCalledItem});
++				layoutItem.addEntry({attribute: attributeCalledSelectedAttribute, value: this._listOfAxisAttributes[1], type: typeCalledItem});
++			}
++			isBubblePlot = false;
++		}
++	}
++	
++	var containerTableForDropDowns = orp.view.View.newElement("table");
++	containerTableForDropDowns.className = orp.plugins.ScatterPlot.cssClass.SELECTCONTAINER;
++	var containerRowForDropDowns = orp.view.View.appendNewElement(containerTableForDropDowns, "tr");
++	var xAxisDropDown = orp.view.View.newElement("select");
++	xAxisDropDown.id = "0";
++	var yAxisDropDown = orp.view.View.newElement("select");
++	yAxisDropDown.id = "1";
++	var zAxisDropDown = orp.view.View.newElement("select");
++	zAxisDropDown.id = "2";
++	
++	if(this._numberOfSelectableAttributes >= 2) {
++		for (var newAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
++			var currentAttribute = this._hashTableOfAttributesKeyedByUuid[newAttributeUuid];
++			var xAttributeOption = orp.view.View.newElement("option");
++			xAttributeOption.value = currentAttribute.getUuid();
++			xAttributeOption.text = currentAttribute.getDisplayName();
++			var yAttributeOption = orp.view.View.newElement("option");
++			yAttributeOption.value = currentAttribute.getUuid();
++			yAttributeOption.text = currentAttribute.getDisplayName();
++			xAxisDropDown.options[xAxisDropDown.options.length] = xAttributeOption;
++			yAxisDropDown.options[yAxisDropDown.options.length] = yAttributeOption;			
++			
++			if(this._listOfAxisAttributes[0].getUuid() == currentAttribute.getUuid()) {
++				xAxisDropDown.options[xAxisDropDown.options.length-1].selected = true;	
++			} 
++			if(this._listOfAxisAttributes[1].getUuid() == currentAttribute.getUuid()){
++				yAxisDropDown.options[yAxisDropDown.options.length-1].selected = true;
++			}
++			if (this._numberOfSelectableAttributes > 2) {				
++				var zAttributeOption = orp.view.View.newElement("option");
++				zAttributeOption.value = currentAttribute.getUuid();
++				zAttributeOption.text = currentAttribute.getDisplayName();
++				zAxisDropDown.options[zAxisDropDown.options.length] = zAttributeOption;
++				if(this._listOfAxisAttributes[2]) {
++					if(this._listOfAxisAttributes[2].getUuid() == currentAttribute.getUuid()) {
++						zAxisDropDown.options[zAxisDropDown.options.length-1].selected = true;
++					}
++				}
++			}
++		}
++		
++		if(this._numberOfSelectableAttributes > 2) {
++			var tableCellForRadioButtons = orp.view.View.appendNewElement(containerRowForDropDowns, "td");
++			tableCellForRadioButtons.rowSpan = 2;
++			tableCellForRadioButtons.width = "20%";
++			var formObject = orp.view.View.appendNewElement(tableCellForRadioButtons, "form");
++			//var uniqueIdForRadioButtons = 
++			var htmlStringForRadioButtons = '<input type="radio" ID="ScatterPlot" name="radio_button" value="Scatter Plot" checked>Scatter Plot</input><br /><br /><input type="radio" ID="ScatterPlot" name="radio_button" value="Bubble Plot">Bubble Plot</input>';
++			var tableRowForBubblePlot = orp.view.View.appendNewElement(containerTableForDropDowns, "tr");
++			formObject.innerHTML = htmlStringForRadioButtons;
++			orp.view.View.appendNewElement(tableRowForBubblePlot, "td");
++			orp.view.View.appendNewElement(tableRowForBubblePlot, "td", null, null, "z Axis").width="10%";
++			tableCellForzAxisDropDown = orp.view.View.appendNewElement(tableRowForBubblePlot, "td");
++			tableCellForzAxisDropDown.colSpan = 4;
++			tableCellForzAxisDropDown.appendChild(zAxisDropDown);
++			zAxisDropDown.disabled = true;
++			if(isBubblePlot) {
++				zAxisDropDown.disabled = false;
++				formObject.elements[1].checked = true;
++			}			
++			dojo.event.connect(zAxisDropDown, "onchange", this, "_changeAxisAttribute");
++			dojo.event.connect(formObject.elements[0], "onclick", this, "_changeModeToScatterPlot");
++			dojo.event.connect(formObject.elements[1], "onclick", this, "_changeModeToBubblePlot");
++		}
++		orp.view.View.appendNewElement(containerRowForDropDowns, "td", orp.plugins.ScatterPlot.cssClass.BLANKCOLUMN);
++		orp.view.View.appendNewElement(containerRowForDropDowns, "td", null, null, "x Axis").width="10%";		
++		var tableCellForxAxisDropDown = orp.view.View.appendNewElement(containerRowForDropDowns, "td");
++		tableCellForxAxisDropDown.appendChild(xAxisDropDown);
++		orp.view.View.appendNewElement(containerRowForDropDowns, "td", orp.plugins.ScatterPlot.cssClass.BLANKCOLUMN);
++		orp.view.View.appendNewElement(containerRowForDropDowns, "td", null, null, "y Axis").width="10%";		
++		var tableCellForyAxisDropDown = orp.view.View.appendNewElement(containerRowForDropDowns, "td");
++		tableCellForyAxisDropDown.appendChild(yAxisDropDown);
++		var tableRowForColorpalette = orp.view.View.appendNewElement(containerTableForDropDowns, "tr");
++		var tableCellForColorPicker = orp.view.View.appendNewElement(tableRowForColorpalette, "td");
++		tableCellForColorPicker.colSpan = 7;
++		var anchorObject = orp.view.View.appendNewElement(tableCellForColorPicker, "a", null, null, "Color");
++		dojo.event.connect(anchorObject, "onclick", this, "_displayColorPalette");
++		dojo.event.connect(xAxisDropDown, "onchange", this, "_changeAxisAttribute");
++		dojo.event.connect(yAxisDropDown, "onchange", this, "_changeAxisAttribute");
++		return containerTableForDropDowns;
++	}
++};
++
++/**
++ * This method compares the current maximum and minimum with a give value and
++ * palces it in the right place if is either greater than the currnt maximum or 
++ * or less than the current minimum and returns the updated list
++ *
++ * @scope    private instance method
++ * @param	 listOfMaxAndMin 	A list containing the current minimum and the current maximum respectively
++ * @param	 newValue			The potential maximum or minimum
++ * @return	 The updated list
++ */
++orp.plugins.ScatterPlot.prototype._checkForMaxOrMin = function(listOfMaxAndMin, newValue) {
++	listOfMaxAndMin[0] = Math.min(listOfMaxAndMin[0], newValue);
++	listOfMaxAndMin[1] = Math.max(listOfMaxAndMin[1], newValue);
++	return listOfMaxAndMin;
++};
++
++/**
++ * This method caluculates the range for each axis based on the maximum and minimum
++ * each axis and returns the range list
++ *
++ * @scope    private instance method
++ * @param	 arrayOfMaxAndMinValues		A two dimensional array containing the maximum and minimum of each axis
++ * @return	 A two dimensional array of upper bound and lower bould for the range of each axis
++ */
++orp.plugins.ScatterPlot.prototype._calculateRangesForAxes = function(arrayOfMaxAndMinValues) {
++	var stringForNumber;
++	var numberOfCharactersInString;
++	var arrayOfRangesForValues = new Array();
++	
++	for (var key in arrayOfMaxAndMinValues) {
++		var minRange = 0;
++		var maxRange = 0;
++		var temporaryValue;
++		if(arrayOfMaxAndMinValues[key][0] < 0) {
++			stringForNumber = arrayOfMaxAndMinValues[key][0].toString();
++			var exponentToTheBase10 = stringForNumber.length - 2;
++			temporaryValue = Math.ceil(arrayOfMaxAndMinValues[key][0] / Math.pow(10, exponentToTheBase10));
++			if(arrayOfMaxAndMinValues[key][0] == (temporaryValue*Math.pow(10, exponentToTheBase10))) {
++				minRange = arrayOfMaxAndMinValues[key][0];
++			} else if(arrayOfMaxAndMinValues[key][0] > ((temporaryValue - 0.5)*Math.pow(10, exponentToTheBase10))){
++				minRange = (temporaryValue - 0.5)*Math.pow(10, exponentToTheBase10);
++			} else {
++				minRange = (temporaryValue - 1)*Math.pow(10, exponentToTheBase10);
++			}
++		}
++		if(arrayOfMaxAndMinValues[key][1] > 0) {
++			stringForNumber = arrayOfMaxAndMinValues[key][1].toString();
++			exponentToTheBase10 = stringForNumber.length - 1;
++			temporaryValue = Math.floor(arrayOfMaxAndMinValues[key][1] / Math.pow(10, exponentToTheBase10));
++			if(arrayOfMaxAndMinValues[key][1] == (temporaryValue*Math.pow(10, exponentToTheBase10))) {
++				maxRange = arrayOfMaxAndMinValues[key][1];
++			} else if(arrayOfMaxAndMinValues[key][1] < ((temporaryValue + 0.5)*Math.pow(10, exponentToTheBase10))){
++				maxRange = (temporaryValue + 0.5)*Math.pow(10, exponentToTheBase10);
++			} else {
++				maxRange = (temporaryValue + 1)*Math.pow(10, exponentToTheBase10);
++			}
++		}
++		
++		arrayOfRangesForValues.push(minRange + " " +maxRange);
++	}
++	return arrayOfRangesForValues;
++};
++			
++/**
++ * This method returns the string for the HTML table that is drawn to provide
++ * data for the chart widget.
++ *
++ * @scope    public instance method
++ * @return	 The HTML string
++ */
++orp.plugins.ScatterPlot.prototype._getHtmlTextForChart = function() {
++	
++	var isComplete = false;
++	var isBubblePlot = false;
++	var listOfAttributesForAxes = [];
++	var arrayOfMaxAndMinValues = new Array();
++	
++	var world = this.getWorld();
++	var createNewLayoutItemIfNecessary;
++	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++	if (layoutItem) {
++		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++		var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
++		alert(listOfSelectedAttributes);
++		if (listOfSelectedAttributes.length == 3) {
++			isComplete = true;
++			isBubblePlot = true;
++			listOfAttributesForAxes = listOfSelectedAttributes;
++			arrayOfMaxAndMinValues[0] = [0, 0];
++			arrayOfMaxAndMinValues[1] = [0, 0];
++			arrayOfMaxAndMinValues[2] = [0, 0];
++		} else if (listOfSelectedAttributes.length == 2) {
++			isComplete = true;
++			isBubblePlot = false;
++			listOfAttributesForAxes = listOfSelectedAttributes;
++			arrayOfMaxAndMinValues[0] = [0, 0];
++			arrayOfMaxAndMinValues[1] = [0, 0];
++		}
++		// Calculate maximum and minimum for each selected attribute
++		var listOfContentItems = [];
++		listOfContentItems = this.fetchItems();				
++		for(var key in listOfContentItems) {
++			var contentItem = listOfContentItems[key];
++			var listOfAttributesForItem = contentItem.getAttributes();
++			for (var aKey in this._listOfAxisAttributes) {					
++				var listOfValues = contentItem.getValuesForAttribute(this._listOfAxisAttributes[aKey]);
++				if (listOfValues.length > 0) {
++					firstValue = listOfValues[0];
++					if (dojo.lang.isNumber(firstValue)) {
++						arrayOfMaxAndMinValues[aKey] = this._checkForMaxOrMin(arrayOfMaxAndMinValues[aKey], firstValue);
++					}
++				}
++			}
++		}
++		// Calculate the range for each attribute
++		var arrayOfRangesForAxes = this._calculateRangesForAxes(arrayOfMaxAndMinValues);			
++	}
++	
++	var difference;
++	if(isBubblePlot) {
++		difference = arrayOfMaxAndMinValues[2][1] - arrayOfMaxAndMinValues[2][0];
++	}
++	var plotType;
++	if(isBubblePlot) {
++		plotType = "bubble";
++	} else {
++		plotType = "scatter";
++	}
++	var xAxisLocation = 0;
++	if((arrayOfMaxAndMinValues[0][0] < 0) && (arrayOfMaxAndMinValues[0][1] === 0)) {
++		xAxisLocation = arrayOfMaxAndMinValues[0][0];
++	}
++	var axisLocation = "0 " + xAxisLocation;
++	var listOfHtmlStrings = [];
++	listOfHtmlStrings.push('<div dojoType="chart" class="' + orp.plugins.ScatterPlot.cssClass.CHARTDIV+ '">');
++	listOfHtmlStrings.push('<table width="550" height="400" padding="24" plotType="line" axisAt="' + axisLocation + '" rangeX="' + arrayOfRangesForAxes[0] + '" rangeY="' + arrayOfRangesForAxes[1] +'">');
++	listOfHtmlStrings.push('<thead>');
++	listOfHtmlStrings.push('<tr>');
++	listOfHtmlStrings.push('<th>X</th>');
++	listOfHtmlStrings.push('<th plotType="' + plotType + '" color="' + this._getColorOfPoints() + '">Series A</th>');
++	listOfHtmlStrings.push('</tr>');
++	listOfHtmlStrings.push('</thead>');
++
++	listOfHtmlStrings.push('<tbody>');
++	
++	for(var cKey in listOfContentItems) {
++		var newContentItem = listOfContentItems[cKey];
++		var newListOfAttributesForItem = contentItem.getAttributes();
++		var newListOfAttributeValues = [];
++		for (var j in this._listOfAxisAttributes) {					
++			var newListOfValues = newContentItem.getValuesForAttribute(this._listOfAxisAttributes[j]);
++			if (newListOfValues.length > 0) {
++				firstValue = newListOfValues[0];
++				if (dojo.lang.isNumber(firstValue)) {
++					newListOfAttributeValues.push(firstValue);						
++				}
++			}
++		}
++		if((newListOfAttributeValues.length == 2) && !isBubblePlot) {
++			listOfHtmlStrings.push('<tr><td>' + newListOfAttributeValues[0] + '</td><td>' + newListOfAttributeValues[1] + '</td></tr>');
++		} else if((newListOfAttributeValues.length == 3) && isBubblePlot) {
++			var size = 0;
++			if(difference !== 0) {
++				size = Math.abs(newListOfAttributeValues[2]/difference*this._MAXIMUM_BUBBLE_SIZE);
++				listOfHtmlStrings.push('<tr><td>' + newListOfAttributeValues[0] + '</td><td size=' + size + '>' + newListOfAttributeValues[1] + '</td></tr>');
++			}
++		}	
++	}
++	listOfHtmlStrings.push('</tbody>');
++	listOfHtmlStrings.push('</table>');
++	listOfHtmlStrings.push('</div>');
++	return listOfHtmlStrings.join("\n");
++};
++
++/**
++ * This method checks for stored color values for the selected attributes and returns the color for the plot
++ *
++ * @scope    private instance method
++ * @return	 The color value
++ */
++orp.plugins.ScatterPlot.prototype._getColorOfPoints = function () {
++	var color = "#963";
++	var listOfColorEntries = [];
++	var listOfColorValues = [];
++	var world = this.getWorld();
++	var attributeCalledSelectedColor = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_BACKGROUND_COLOR); 
++	for(var cKey in this._listOfAxisAttributes) {
++		listOfColorEntries = this._listOfAxisAttributes[cKey].getValuesForAttribute(attributeCalledSelectedColor);
++		if(listOfColorEntries[0]) {
++			listOfColorValues.push(listOfColorEntries[0]);
++		}
++	}
++	if((listOfColorValues.length == 3) && (listOfColorValues[0] == listOfColorValues[1]) && (listOfColorValues[1] == listOfColorValues[2])) {
++		color = listOfColorValues[0];
++	} else if ((listOfColorValues.length == 2) && (listOfColorValues[0] == listOfColorValues[1])) {
++		color = listOfColorValues[0];
++	}
++	return color;
++};
++
++/**
++ * This method changes the attribute for a particular axis for which the scatter plot is displayed.
++ *
++ * @scope    event handler
++ * @param	 evt			The event object
++ */
++orp.plugins.ScatterPlot.prototype._changeAxisAttribute = function (evt) {
++	var newAttributeUuid = evt.target.value;
++	var axisIndex = parseInt(evt.target.id);
++	var selectedAttribute = this._hashTableOfAttributesKeyedByUuid[newAttributeUuid];
++	if(this._listOfAxisAttributes[axisIndex]) {
++		this._listOfAxisAttributes[axisIndex] = selectedAttribute;
++	} else {
++		this._listOfAxisAttributes.push(selectedAttribute);
++	}
++	var world = this.getWorld();
++	var createNewLayoutItemIfNecessary;
++	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++	if (layoutItem) {
++		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++		var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
++		for(var i in listOfSelectedAttributes) {
++			listOfSelectedAttributes[i].voteToDelete();
++		}
++		for(var j in this._listOfAxisAttributes) {					
++			var typeCalledItem =  world.getTypeCalledItem();
++			layoutItem.addEntry({attribute: attributeCalledSelectedAttribute, value: this._listOfAxisAttributes[j], type: typeCalledItem});
++		}
++		this.refresh();
++		return;
++	}			
++};
++
++/**
++ * This method changes the plot type to scatter plot.
++ *
++ * @scope    event handler
++ * @param	 evt			The event object
++ */	
++orp.plugins.ScatterPlot.prototype._changeModeToScatterPlot = function (evt) {
++	var containerTableObject = evt.target.parentNode.parentNode.parentNode.parentNode;
++	var zAxisRow = containerTableObject.childNodes[1];
++	var zAxisCell = zAxisRow.childNodes[2];
++	zAxisCell.childNodes[0].disabled = true;
++	var world = this.getWorld();
++	var createNewLayoutItemIfNecessary;
++	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++	if (layoutItem) {
++		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++		var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
++		if(listOfSelectedAttributes[2]) {
++			listOfSelectedAttributes[2].voteToDelete();
++			while(this._listOfAxisAttributes[2]) {
++				this._listOfAxisAttributes.pop();
++			}
++			this.refresh();
++		}
++	}
++};
++
++/**
++ * This method changes the plot type to bubble plot
++ *
++ * @scope    event handler
++ * @param	 evt			The event object
++ */
++orp.plugins.ScatterPlot.prototype._changeModeToBubblePlot = function (evt) {
++	var containerTableObject = evt.target.parentNode.parentNode.parentNode.parentNode;
++	var zAxisRow = containerTableObject.childNodes[1];
++	var zAxisCell = zAxisRow.childNodes[2];
++	zAxisCell.childNodes[0].disabled = false;
++};
++
++/**
++ * This method displays the color palette for the user to select the color for the plot
++ *
++ * @scope    event handler
++ * @param	 evt			The event object
++ */
++orp.plugins.ScatterPlot.prototype._displayColorPalette = function (evt) {
++	this._colorElement = evt.target.parentNode;
++	orp.view.View.removeChildrenOfElement(this._colorElement);
++	var colorPicker = dojo.widget.createWidget("ColorPalette", null, this._colorElement, "last");
++	dojo.event.connect(colorPicker, "click", this, "_colorSelect");
++};
++
++/**
++ * This method handles the color selection of the color palette.
++ *
++ * @scope    event handler
++ * @param	 evt			The event object
++ */
++orp.plugins.ScatterPlot.prototype._colorSelect = function (evt) {	
++  	this._setBackgroundColorForAttribute(evt.target.color);
++	orp.view.View.removeChildrenOfElement(this._colorElement);
++	var anchorObject = orp.view.View.appendNewElement(this._colorElement, "a", null, null, "Color");
++	dojo.event.connect(anchorObject, "onclick", this, "_displayColorPalette");
++};
++
++/**
++ * This method saves the changes made to the color attribute
++ *
++ * @scope    private instance method
++ * @param	 color			The color value
++ */
++orp.plugins.ScatterPlot.prototype._setBackgroundColorForAttribute = function(color) {
++	var world = this.getWorld();
++	var attributeCalledBackgroundColor = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_BACKGROUND_COLOR);
++	for (var key in this._listOfAxisAttributes) {
++		var listOfEntries = this._listOfAxisAttributes[key].getEntriesForAttribute(attributeCalledBackgroundColor);
++		if (listOfEntries[0]) {
++			var affectedEntry = listOfEntries[0];
++			this._listOfAxisAttributes[key].addEntry({attribute: attributeCalledBackgroundColor, previousEntry: affectedEntry, value: color});		
++		} else {
++			var typeCalledText = world.getTypeCalledText();
++			this._listOfAxisAttributes[key].addEntry({attribute: attributeCalledBackgroundColor, value: color, type: typeCalledText});
++		}
++	}
++	this.refresh();
++};
++
++// End of file
+
+
+Property changes on: trunk/source/plugins/ScatterPlot.js
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+
+
+From hiran at berlios.de  Thu Jul 13 07:41:06 2006
+From: hiran at berlios.de (hiran at berlios.de)
+Date: Thu, 13 Jul 2006 07:41:06 +0200
+Subject: [openrecord-svn] r481 - trunk/source/plugins
+Message-ID: <200607130541.k6D5f657002186@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-13 07:40:54 +0200 (Thu, 13 Jul 2006)
+New Revision: 481
+
+Modified:
+   trunk/source/plugins/ScatterPlot.js
+Log:
+Removed some alert statements
+
+Modified: trunk/source/plugins/ScatterPlot.js
+===================================================================
+--- trunk/source/plugins/ScatterPlot.js	2006-07-13 05:18:59 UTC (rev 480)
++++ trunk/source/plugins/ScatterPlot.js	2006-07-13 05:40:54 UTC (rev 481)
+@@ -109,14 +109,21 @@
+ orp.plugins.ScatterPlot.prototype.refresh = function() {
+ 	var pluginDiv = this.getHtmlElement();
+ 	orp.view.View.removeChildrenOfElement(pluginDiv);
+-	pluginDiv.appendChild(this._setElementsForSelection());
+-	var divForChartWidget = orp.view.View.newElement("div");
+-	divForChartWidget.innerHTML = this._getHtmlTextForChart();
+-
+-	var parser = new dojo.xml.Parse();
+-	var fragment = parser.parseElement(divForChartWidget, null, true);
+-	dojo.widget.getParser().createComponents(fragment);  
+-	pluginDiv.appendChild(divForChartWidget);
++	var displayObject = this._setElementsForSelection();
++	if(displayObject) {
++		pluginDiv.appendChild(displayObject);
++		var divForChartWidget = orp.view.View.newElement("div");
++		divForChartWidget.innerHTML = this._getHtmlTextForChart();
++	
++		var parser = new dojo.xml.Parse();
++		var fragment = parser.parseElement(divForChartWidget, null, true);
++		dojo.widget.getParser().createComponents(fragment);  
++		pluginDiv.appendChild(divForChartWidget);
++	} else {						
++		var displayString = "Sorry, the number of attributes with numeric instances are insufficient to display the scatter plot";
++		var spanObject = orp.view.View.newElement("span", null, null, displayString);
++		pluginDiv.appendChild(spanObject);
++	}
+ };
+ 
+ /**
+@@ -176,10 +183,8 @@
+ 	for(var tempAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
+ 		this._numberOfSelectableAttributes = this._numberOfSelectableAttributes + 1;
+ 	}
+-	if(this._numberOfSelectableAttributes < 2) {				
+-		var displayString = "Sorry, the number of attributes with numeric instances are insufficient to display the scatter plot";
+-		var spanObject = orp.view.View.newElement("span", null, null, displayString);
+-		return spanObject;
++	if(this._numberOfSelectableAttributes < 2) {
++		return;
+ 	} else {
+ 		if(!hasStoredAttributes) {		
+ 			for (var plotAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
+@@ -369,7 +374,6 @@
+ 	if (layoutItem) {
+ 		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
+ 		var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
+-		alert(listOfSelectedAttributes);
+ 		if (listOfSelectedAttributes.length == 3) {
+ 			isComplete = true;
+ 			isBubblePlot = true;
+
+
+
+From hiran at berlios.de  Thu Jul 13 08:03:22 2006
+From: hiran at berlios.de (hiran at berlios.de)
+Date: Thu, 13 Jul 2006 08:03:22 +0200
+Subject: [openrecord-svn] r482 - trunk/source/plugins
+Message-ID: <200607130603.k6D63Mbp008101@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-13 08:03:09 +0200 (Thu, 13 Jul 2006)
+New Revision: 482
+
+Modified:
+   trunk/source/plugins/ScatterPlot.js
+Log:
+renamed method _getHtmlTextForChart()
+
+Modified: trunk/source/plugins/ScatterPlot.js
+===================================================================
+--- trunk/source/plugins/ScatterPlot.js	2006-07-13 05:40:54 UTC (rev 481)
++++ trunk/source/plugins/ScatterPlot.js	2006-07-13 06:03:09 UTC (rev 482)
+@@ -583,7 +583,7 @@
+  * @param	 evt			The event object
+  */
+ orp.plugins.ScatterPlot.prototype._colorSelect = function (evt) {	
+-  	this._setBackgroundColorForAttribute(evt.target.color);
++  	this._setPointColorForChart(evt.target.color);
+ 	orp.view.View.removeChildrenOfElement(this._colorElement);
+ 	var anchorObject = orp.view.View.appendNewElement(this._colorElement, "a", null, null, "Color");
+ 	dojo.event.connect(anchorObject, "onclick", this, "_displayColorPalette");
+@@ -595,7 +595,7 @@
+  * @scope    private instance method
+  * @param	 color			The color value
+  */
+-orp.plugins.ScatterPlot.prototype._setBackgroundColorForAttribute = function(color) {
++orp.plugins.ScatterPlot.prototype._setPointColorForChart = function(color) {
+ 	var world = this.getWorld();
+ 	var attributeCalledBackgroundColor = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_BACKGROUND_COLOR);
+ 	for (var key in this._listOfAxisAttributes) {
+
+
+
+From hiran at mail.berlios.de  Thu Jul 13 12:03:51 2006
+From: hiran at mail.berlios.de (hiran at mail.berlios.de)
+Date: Thu, 13 Jul 2006 12:03:51 +0200
+Subject: [openrecord-svn] r484 - trunk/source/plugins
+Message-ID: <200607131003.k6DA3p63002654@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-13 12:03:44 +0200 (Thu, 13 Jul 2006)
+New Revision: 484
+
+Modified:
+   trunk/source/plugins/ScatterPlot.js
+Log:
+Initialization modification
+
+Modified: trunk/source/plugins/ScatterPlot.js
+===================================================================
+--- trunk/source/plugins/ScatterPlot.js	2006-07-13 09:48:37 UTC (rev 483)
++++ trunk/source/plugins/ScatterPlot.js	2006-07-13 10:03:44 UTC (rev 484)
+@@ -365,7 +365,6 @@
+ 	
+ 	var isComplete = false;
+ 	var isBubblePlot = false;
+-	var listOfAttributesForAxes = [];
+ 	var arrayOfMaxAndMinValues = new Array();
+ 	
+ 	var world = this.getWorld();
+@@ -377,17 +376,14 @@
+ 		if (listOfSelectedAttributes.length == 3) {
+ 			isComplete = true;
+ 			isBubblePlot = true;
+-			listOfAttributesForAxes = listOfSelectedAttributes;
+-			arrayOfMaxAndMinValues[0] = [0, 0];
+-			arrayOfMaxAndMinValues[1] = [0, 0];
+-			arrayOfMaxAndMinValues[2] = [0, 0];
++			
+ 		} else if (listOfSelectedAttributes.length == 2) {
+ 			isComplete = true;
+ 			isBubblePlot = false;
+-			listOfAttributesForAxes = listOfSelectedAttributes;
+-			arrayOfMaxAndMinValues[0] = [0, 0];
+-			arrayOfMaxAndMinValues[1] = [0, 0];
+ 		}
++		arrayOfMaxAndMinValues[0] = [0, 0];
++		arrayOfMaxAndMinValues[1] = [0, 0];
++		arrayOfMaxAndMinValues[2] = [0, 0];
+ 		// Calculate maximum and minimum for each selected attribute
+ 		var listOfContentItems = [];
+ 		listOfContentItems = this.fetchItems();				
+
+
+
+From hiran at mail.berlios.de  Thu Jul 13 11:48:45 2006
+From: hiran at mail.berlios.de (hiran at mail.berlios.de)
+Date: Thu, 13 Jul 2006 11:48:45 +0200
+Subject: [openrecord-svn] r483 - trunk/source/plugins
+Message-ID: <200607130948.k6D9mjXb001405@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-13 11:48:37 +0200 (Thu, 13 Jul 2006)
+New Revision: 483
+
+Added:
+   trunk/source/plugins/BarChart.js
+Log:
+Creation
+
+Added: trunk/source/plugins/BarChart.js
+===================================================================
+--- trunk/source/plugins/BarChart.js	2006-07-13 06:03:09 UTC (rev 482)
++++ trunk/source/plugins/BarChart.js	2006-07-13 09:48:37 UTC (rev 483)
+@@ -0,0 +1,889 @@
++// BarChart.js
++// Created by Hiran Ganegedara
++
++// Dojo Package System "provide" and "require" statements
++dojo.provide("orp.plugins.BarChart");
++dojo.require("orp.view.PluginView");
++
++/**
++ * The BarChart view displays a set of content items.
++ *
++ * @scope    public instance constructor
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view.
++ * @param    htmlElement    The HTMLElement to display this view in.
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    An item that can be used to store layout data (like table column order).
++ */
++orp.plugins.BarChart = function(superview, htmlElement, querySpec, layoutItem) {
++	orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, "BarChart");
++	this._arrayOfAttributeValues = new Array();
++	this._arrayOfAttributeLabels = new Array();
++	this._barHeight = 20;
++	this._maxWidth = 500;
++	this._pointerLocation = 0;
++	this._changedValue = 0;
++	this._valueIndex = 0;
++	this._attributeIndex = 0;
++	this._barObject = null;
++	this._maxValue = 0;
++	this._chartAttributes = [];
++	this._listOfContentItems = [];
++	this._colorElement = null;
++	this._barColors = [];	
++	this._hasNegativeValues = false;
++	this._fromNegativeToPositive = false;
++	this._fromPositiveToNegative = false;
++	this._tableRowObject = null;	
++	this._isEnteringOnlyOnce = true;
++};
++
++dojo.inherits(orp.plugins.BarChart, orp.view.PluginView);  // makes BarChart be a subclass of PluginView
++
++// -------------------------------------------------------------------
++// Public constants
++// -------------------------------------------------------------------
++	orp.plugins.BarChart.cssClass = {
++	TABLE: "",
++	PLAIN: "",
++	FRAME: "",
++	BAR: "",
++	POSITIVE: "positive_bar",
++	NEGATIVE: "negative_bar",
++	INSIDEBAR: "inside_bar_text",
++	OUTSIDEBAR: "outside_bar_text",
++	FIRSTBORDER: "first_row_break",
++	ROWBORDER: "row_break",
++	COLORTABLE: "color_table",
++	COLORCELL: "color_cell"};
++	
++// -------------------------------------------------------------------
++// Register this plugin in the SectionView registry
++// -------------------------------------------------------------------
++orp.plugins.BarChart.UUID = "a4d265d0-124f-11db-b5c2-0011111f4abe";
++orp.view.SectionView.registerPlugin(orp.plugins.BarChart);
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item that represents this class of plugin.
++ *
++ * @scope    public class method
++ * @return   The UUID of the item that represents this class of plugin.
++ */
++orp.plugins.BarChart.getPluginItemUuid = function() {
++	return orp.plugins.BarChart.UUID;
++};
++
++/**
++ * Returns a list of anonymous objects representing Entries that describe the plugin.
++ *
++ * @scope    public class method
++ * @return   A list of anonymous objects representing Entries that describe the plugin.
++ */
++orp.plugins.BarChart.getEntriesForItemRepresentingPluginClass = function(pluginItem, world) {
++	return [
++		{	uuid: "a4d265d1-124f-11db-b5c2-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledName(),
++			value: "Bar Chart" },
++		{	uuid: "a4d265d2-124f-11db-b5c2-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledShortName(),
++			value: "BarChart" },
++		{	uuid: "a4d265d3-124f-11db-b5c2-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledClassName(),
++			value: "BarChart" },
++		{	uuid: "a4d265d4-124f-11db-b5c2-0011111f4abe",
++			item: pluginItem,
++			attribute: world.getAttributeCalledCategory(),
++			inverseAttribute: world.getAttributeCalledItemsInCategory(),
++			value: world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_PLUGIN_VIEW) }
++	];
++};
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the class of this instance.
++ *
++ * @scope    public instance method
++ * @return   A JavaScript class.
++ */
++orp.plugins.BarChart.prototype.getClass = function() {
++	return orp.plugins.BarChart;
++};
++
++/**
++ * This method is called whenever the BarChart plugin is used to
++ * display the results of a query.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.BarChart.prototype.refresh = function() {
++	
++	var listOfStrings = [];
++	var contentItem = null;
++	var temporaryAttribute = null;
++	this._chartAttributes = [];
++	this._barColors = [];
++	this._arrayOfAttributeValues = new Array();
++	this._arrayOfAttributeLabels = new Array();
++	this._barObject = null;
++	this._listOfContentItems = [];
++	var listOfValues;
++	var firstValue;	
++	var attributeUuid;
++	var uniqueIdforInstance = dojo.dom.getUniqueId();
++	var hashTableOfNumericValueIncidenceKeyedByUuid = {};
++	var hashTableOfAttributesKeyedByUuid = {};
++	this._listOfContentItems = this.fetchItems();
++	if(this._listOfConentItems) {
++		this._listOfContentItems.sort(orp.plugins.BarChart.compareItemsByName);
++		if(this._hasNegativeValues) {
++			this._hasNegativeValues = false;
++			this._maxWidth = this._maxWidth * 2;
++			
++		}
++		var world = this.getWorld();
++		var createNewLayoutItemIfNecessary;
++		var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++		if (layoutItem) {
++			// for each attribute, count the number of items where that attribute has a numeric value
++			for (var iKey in this._listOfContentItems) {
++				contentItem = this._listOfContentItems[iKey];
++				var listOfAttributesForItem = contentItem.getAttributes();
++				for (var i in listOfAttributesForItem) {
++					temporaryAttribute = listOfAttributesForItem[i];
++					attributeUuid = temporaryAttribute.getUuid();
++					hashTableOfAttributesKeyedByUuid[attributeUuid] = temporaryAttribute;
++					listOfValues = contentItem.getValuesForAttribute(temporaryAttribute);
++					if (listOfValues.length > 0) {
++						firstValue = listOfValues[0];
++						if (dojo.lang.isNumber(firstValue)) {
++							var count = hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid];
++							if (!count) {
++								count = 0;
++							}
++							count += 1;
++							hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid] = count;						
++						} 				
++					}
++				}
++			}
++			
++					// Get the value for the stored attribute for which the chart is drawn.
++			var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++			var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
++			// If the attribute is null then decide for which attribute the chart is going to be drawn.
++			if(listOfSelectedAttributes.length === 0) {
++				
++				// find the attribute for which most of the items have a numeric value
++				var maxIncidence = 0;
++				var selectedAttribute;
++				for (attributeUuid in hashTableOfNumericValueIncidenceKeyedByUuid) {
++					var incidenceOfAttribute = hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid];
++					if (incidenceOfAttribute > maxIncidence) {
++						selectedAttribute = hashTableOfAttributesKeyedByUuid[attributeUuid];
++						maxIncidence = incidenceOfAttribute;
++					}
++				}
++				if(selectedAttribute) {
++					var typeCalledItem = world.getTypeCalledItem();
++					layoutItem.addEntry({attribute: attributeCalledSelectedAttribute, value: selectedAttribute, type: this._typeCalledItem});
++					this._chartAttributes.push(selectedAttribute);
++				}
++			} else {		
++				for(var key in listOfSelectedAttributes) {	
++					this._chartAttributes.push(listOfSelectedAttributes[key].getValue());
++				}
++			}	
++		}
++		// find the maximum value for the selected attributes
++		if (this._chartAttributes[0]) {
++			this._maxValue = 0;
++			for (var jkey in this._listOfContentItems) {
++				contentItem = this._listOfContentItems[jkey];
++				for(var mKey in this._chartAttributes) {
++					listOfValues = contentItem.getValuesForAttribute(this._chartAttributes[mKey]);
++					if (listOfValues.length > 0) {
++						var nextValue = listOfValues[0];
++						if (dojo.lang.isNumber(nextValue)) {					
++							if ((nextValue < 0) && !this._hasNegativeValues) {
++									this._hasNegativeValues = true;
++									this._maxWidth = this._maxWidth/2;
++							}
++							nextValue = Math.abs(nextValue);
++							this._maxValue = Math.abs(Math.max(this._maxValue, nextValue));
++						}
++					}
++				}
++			}
++		}
++		
++		// Set the color of the bars if there is no value, use green.
++		var attributeCalledBackgroundColor = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_BACKGROUND_COLOR);	
++		for (var cKey in this._chartAttributes) {
++			var listOfEntries = this._chartAttributes[cKey].getEntriesForAttribute(attributeCalledBackgroundColor);
++			if (listOfEntries[0]) {
++				this._barColors.push(listOfEntries[0].getValue());
++			} else {
++				this._barColors.push("#00ff00");
++			}
++		}
++		
++		// add the table header row(s)
++		listOfStrings.push("<table class=\"" + orp.plugins.BarChart.cssClass.TABLE + "\">");
++		listOfStrings.push("<tr>");
++		var attributeCalledName = this.getWorld().getAttributeCalledName();
++		listOfStrings.push("<th>" + "" + "</th>"); // listOfStrings.push("<th>" + attributeCalledName.getDisplayName() + "</th>");
++	
++		if (this._chartAttributes[0]) {
++			listOfStrings.push("<th align=left colspan=4>");
++			for(var aKey in this._chartAttributes){
++				if (aKey > 0) {
++					listOfStrings.push(",");
++				}
++				listOfStrings.push(" " + this._chartAttributes[aKey].getDisplayName());
++			}
++			listOfStrings.push("</th>");
++			listOfStrings.push("<tr><td align=right>Select the Attribute</td><td><form method=post action=\"\"><select ID=" + uniqueIdforInstance + " size=2 multiple>");
++			for (attributeUuid in hashTableOfNumericValueIncidenceKeyedByUuid) {
++				var incidence = hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid];
++				if (incidence > 0) {
++					var displayableAttribute = hashTableOfAttributesKeyedByUuid[attributeUuid];
++					listOfStrings.push("<option value="+attributeUuid);
++					for(var sKey in this._chartAttributes) {
++						if(attributeUuid == this._chartAttributes[sKey].getUuid()) {
++							listOfStrings.push(" selected");
++							break;
++						}
++					}
++					listOfStrings.push(">"+displayableAttribute.getDisplayName()+"</option>");
++				}
++			}
++			listOfStrings.push("</select></form></td>");
++		} else {
++			listOfStrings.push("<th>" + "Sorry, there are no attributes with numeric values to chart" + "</th>");
++		}
++		listOfStrings.push("</tr>");
++	
++		var staticThis = this;
++		this._listOfContentItems.sort(orp.plugins.BarChart.compareItemsByName);
++		// add all the table body rows
++		for (var kKey in this._listOfContentItems) {
++			contentItem = this._listOfContentItems[kKey];
++			this._arrayOfAttributeLabels[kKey] = contentItem.getDisplayName("{no name}");		
++			var numericValue = "&nbsp;";
++			if (this._chartAttributes[0]) {
++				listOfStrings.push("<tr>");
++				if(kKey === 0) {
++					listOfStrings.push("<td width=10% align=right rowspan=" + this._chartAttributes.length + " class=\"" + orp.plugins.BarChart.cssClass.FIRSTBORDER + "\">" + contentItem.getDisplayName("{no name}") + "</td>");
++				} else {
++					listOfStrings.push("<td width=10% align=right rowspan=" + this._chartAttributes.length + " class=\"" + orp.plugins.BarChart.cssClass.ROWBORDER + "\">" + contentItem.getDisplayName("{no name}") + "</td>");
++				}
++				for (var index in this._chartAttributes) {
++					if(index > 0) {
++						listOfStrings.push("<tr>");										
++					}
++					listOfValues = contentItem.getValuesForAttribute(this._chartAttributes[index]);
++					if (listOfValues.length > 0) {
++						firstValue = listOfValues[0];
++						if (dojo.lang.isNumber(firstValue)) {
++							numericValue = firstValue;
++							if(this._arrayOfAttributeValues[index]) {
++								this._arrayOfAttributeValues[index].push(numericValue);
++							} else {
++								this._arrayOfAttributeValues[index] = new Array();
++								this._arrayOfAttributeValues[index].push(numericValue);
++							}
++							
++						}else {
++							numericValue = null;
++							if(this._arrayOfAttributeValues[index]) {
++								this._arrayOfAttributeValues[index].push(numericValue);
++							} else {
++								this._arrayOfAttributeValues[index] = new Array();
++								this._arrayOfAttributeValues[index].push(numericValue);
++							}
++						}			
++					}
++					else {
++						if(this._arrayOfAttributeValues[index]) {
++								this._arrayOfAttributeValues[index].push(null);
++						} else {
++							this._arrayOfAttributeValues[index] = new Array();
++							this._arrayOfAttributeValues[index].push(null);
++						}
++					}
++					var width = this._maxWidth;
++					width = Math.abs(Math.round((numericValue / this._maxValue) * this._maxWidth));
++					
++					
++	
++					var tooltip;
++					var onlyForNumericValues = null;
++					var nonNumeric = false;
++					if(this._arrayOfAttributeValues[index][kKey] !== null) {
++						if(dojo.lang.isNumber(this._arrayOfAttributeValues[index][kKey])) {
++							var cssClassName;
++							if (numericValue >= 0) {
++								cssClassName = orp.plugins.BarChart.cssClass.POSITIVE;
++							} else {
++								cssClassName = orp.plugins.BarChart.cssClass.NEGATIVE;
++							}
++							onlyForNumericValues = " bgcolor="+this._barColors[index]+" class=\"" + cssClassName + "\" style=\"border-color: "+this._barColors[index]+"; cursor: w-resize\" cellspacing=0 cellpadding=0 ";
++							toolTip =this._arrayOfAttributeLabels[kKey] +" "+ this._chartAttributes[index].getDisplayName()+ ": "+ numericValue;
++						}
++					}
++					else {
++						toolTip= "Non numeric property";
++						numericValue = "Non numeric value";
++						nonNumeric = true;
++					}
++					var barAlign = "left";
++					var textAlign = "right";
++					if((this._hasNegativeValues && (numericValue >= 0)) || (this._hasNegativeValues && nonNumeric)) {
++						listOfStrings.push("<td></td><td align=right width=1%></td>");
++					}
++					if(this._hasNegativeValues && (numericValue < 0)) {
++						barAlign = "right";
++						textAlign = "left";
++						listOfStrings.push("<td>&nbsp;</td>");
++					}
++					listOfStrings.push("<td align= " + barAlign + "><table ID=\""+ uniqueIdforInstance + "_%_" + index + "_%_" + kKey + "\"");
++					listOfStrings.push(onlyForNumericValues);
++					listOfStrings.push("width=" + width + "><tr style=cursor:default><td title=\"" + toolTip + "\" align=" + textAlign +">" + numericValue + "</td></tr></table></td><td >&nbsp;</td>");
++					if(this._hasNegativeValues && (numericValue < 0)) {
++						listOfStrings.push("<td align=left>&nbsp;</td>");
++					}
++					if(index > 0) {
++						listOfStrings.push("</tr>");
++					}
++				}
++			}
++			onlyForNumericValues = "";
++		}
++		listOfStrings.push("</table>");
++		// return all the new content
++		var finalString = listOfStrings.join("");
++		this.getHtmlElement().innerHTML = finalString;
++		this.getHtmlElement().align = "center";
++		var dropDownObject = document.getElementById(uniqueIdforInstance);
++		dojo.event.connect(dropDownObject, "onchange", this, "chageSelectedAttribute");
++		for (var j in this._arrayOfAttributeValues[0]) {
++			if(this._chartAttributes[0]) {
++				for (var bKey in this._chartAttributes) {
++					var one = 1;
++					var two = 2;
++					var three = 3;
++					var four = 4;
++					if(bKey > 0) {
++						one = 0;
++						two = 1;
++						three = 2;
++						four = 3;
++					}
++					var tableObject = document.getElementById(uniqueIdforInstance+ "_%_" + bKey + "_%_" + j);
++					var tableRow = tableObject.parentNode.parentNode;
++					if(dojo.lang.isNumber(this._arrayOfAttributeValues[bKey][j])) {
++						
++						dojo.event.connect(tableObject, "onmousedown", this, "mouseDown");
++						var spanElement = orp.view.View.newElement("span", "", null, this._arrayOfAttributeValues[bKey][j].toString());
++						this.getHtmlElement().appendChild(spanElement);
++						var elementWidth = spanElement.offsetWidth;
++						this.getHtmlElement().removeChild(spanElement);
++						spanElement.className = orp.plugins.BarChart.cssClass.INSIDEBAR;	
++						var barTableRow = tableObject.rows[0];		
++						if(this._hasNegativeValues) {					
++							if((tableObject.width-5) < elementWidth) {
++								spanElement.className = orp.plugins.BarChart.cssClass.OUTSIDEBAR;
++								if(this._arrayOfAttributeValues[bKey][j] < 0) {							
++									barTableRow.cells[0].innerHTML = "&nbsp;";					
++									tableRow.cells[one].appendChild(spanElement);
++									tableRow.cells[one].align = "right";
++									tableRow.cells[three].colSpan = 2;
++									tableRow.cells[two].width = parseInt(tableObject.width) + 5;
++									tableRow.removeChild(tableRow.cells[four]);							
++								} else {	
++									barTableRow.cells[0].innerHTML = "&nbsp;";					
++									tableRow.cells[four].appendChild(spanElement);
++									tableRow.cells[four].align = "left";
++									tableRow.cells[two].colSpan = 2;
++									tableRow.cells[three].width = parseInt(tableObject.width) + 5;
++									tableRow.removeChild(tableRow.cells[one]);							
++								}
++							} else {
++								barTableRow.cells[0].innerHTML = "";
++								barTableRow.cells[0].appendChild(spanElement);
++								tableRow.cells[three].colSpan = 2;
++								tableRow.removeChild(tableRow.cells[four]);
++								tableRow.cells[two].colSpan = 2;
++								tableRow.removeChild(tableRow.cells[one]);												
++							}
++						} else {
++							if((tableObject.width - 5) < elementWidth) {
++								spanElement.className = orp.plugins.BarChart.cssClass.OUTSIDEBAR;		
++								barTableRow.cells[0].innerHTML = "&nbsp;";
++								tableRow.cells[one].width = parseInt(tableObject.width) + 5;					
++								tableRow.cells[two].appendChild(spanElement);
++								tableRow.cells[two].align = "left";
++								
++							} else {
++								barTableRow.cells[0].innerHTML = "";
++								barTableRow.cells[0].appendChild(spanElement);
++								tableRow.cells[one].colSpan = 2;
++								tableRow.removeChild(tableRow.cells[two]);				
++							}
++						}									
++					} else {
++						if(this._hasNegativeValues) {
++							tableRow.cells[three].colSpan = 2;
++							tableRow.removeChild(tableRow.cells[four]);
++							tableRow.cells[two].colSpan = 2;
++							tableRow.removeChild(tableRow.cells[one]);
++						} else {
++							tableRow.cells[one].colSpan = 2;
++							tableRow.removeChild(tableRow.cells[two]);
++						}
++					}
++				}
++			}
++		}
++		var colorTableObject = orp.view.View.appendNewElement(this.getHtmlElement(), "table", orp.plugins.BarChart.cssClass.COLORTABLE, null, null);
++		for (var colorKey in this._chartAttributes) {
++			var tableRowObject = orp.view.View.appendNewElement(colorTableObject, "tr", null, null, null);
++			var attributeNameCell = orp.view.View.appendNewElement(tableRowObject, "td", null, null, this._chartAttributes[colorKey].getDisplayName());
++			var colorCell = orp.view.View.appendNewElement(tableRowObject, "td", orp.plugins.BarChart.cssClass.COLORCELL, null, null);
++			colorCell.id = colorKey.toString();
++			colorCell.innerHTML = "&nbsp;";
++			colorCell.bgColor = this._barColors[colorKey];
++			dojo.event.connect(colorCell, "onclick", this, "displayColorPalette");
++		}
++	} else {
++		return;
++	}
++};
++
++/**
++ * This method the selection of the drop down list
++ *
++ * @scope    public instance method
++ */
++ 
++orp.plugins.BarChart.prototype.chageSelectedAttribute = function (evt) {
++	var world = this.getWorld();
++	var listOfSelectedAttributes = [];
++	var hashTableOfAttributesKeyedByUuid = {};
++	this._chartAttributes = [];
++	for(var j in evt.target.options) {
++		if(evt.target.options[j].selected) {
++			listOfSelectedAttributes.push(evt.target.options[j].value);
++		}
++	}
++	for (var iKey in this._listOfContentItems) {
++		contentItem = this._listOfContentItems[iKey];
++		var listOfAttributesForItem = contentItem.getAttributes();
++		for (var i in listOfAttributesForItem) {
++			temporaryAttribute = listOfAttributesForItem[i];
++			attributeUuid = temporaryAttribute.getUuid();
++			hashTableOfAttributesKeyedByUuid[attributeUuid] = temporaryAttribute;
++		}
++	}
++	var layoutItem = this.getLayoutItem();
++	var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++	
++	if (layoutItem) {
++		var listOfEntriesForSelectedAttribute = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);			
++		for (var aKey in listOfEntriesForSelectedAttribute) {
++			listOfEntriesForSelectedAttribute[aKey].voteToDelete();
++		}
++		if (listOfSelectedAttributes[0]) {
++			this._chartAttributes = [];
++			for (var index in listOfSelectedAttributes) {	
++				var newSelectedAttribute = hashTableOfAttributesKeyedByUuid[listOfSelectedAttributes[index]];
++				this._chartAttributes.push(newSelectedAttribute);					
++				var typeCalledItem = world.getTypeCalledItem();
++				layoutItem.addEntry({attribute: attributeCalledSelectedAttribute, value: newSelectedAttribute, type: typeCalledItem});
++			}
++		}
++	}
++	this.refresh();	
++};
++
++
++/**
++ * This method is called whenever the mouse is moved after executing the
++ * orp.plugins.BarChart.prototype.mouseDown function.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.BarChart.prototype.mouseMove = function(evt) {	
++	var mouseX = evt.clientX;
++	var barWidth = parseInt(this._barObject.width);
++	var change = mouseX-this._pointerLocation;
++	var barChartRowHtml = [];
++	var newWidth = 0;
++	var newValue = 0;
++	var barTableRow = null;	
++	var spanElement;
++	var elementWidth;
++	var one = 1;
++	var two = 2;
++	var three = 3;
++	var four = 4;
++	if(this._attributeIndex > 0) {
++		one = 0;
++		two = 1;
++		three = 2;
++		four = 3;
++	}
++	barChartRowHtml.push("<tr style=\"cursor:default\"><td bgcolor="+this._barColors[this._attributeIndex]);
++	
++	if(this._changedValue > 0) {
++		newWidth = barWidth + change;
++		if(newWidth > this._maxWidth) {
++			newWidth = this._maxWidth;
++		} else if(newWidth <=0) {
++			newWidth = 0;
++		}		
++		newValue= Math.abs(Math.round(newWidth/this._maxWidth*this._maxValue));
++		spanElement = orp.view.View.newElement("span", "", null, newValue.toString());				
++		this.getHtmlElement().appendChild(spanElement);
++		elementWidth = spanElement.offsetWidth;
++		this.getHtmlElement().removeChild(spanElement);
++		barChartRowHtml.push("  title=\""+this._arrayOfAttributeLabels[this._valueIndex]+": "+this._chartAttributes[this._attributeIndex].getDisplayName()+" is "+newValue+"\" align=right>&nbsp;</td></tr>");
++		this._barObject.innerHTML = barChartRowHtml.join("");		
++		spanElement.className = orp.plugins.BarChart.cssClass.INSIDEBAR;
++		barTableRow = this._barObject.rows[0];
++		if(this._hasNegativeValues) {
++			if((newWidth-5) < elementWidth) {
++				spanElement.className = orp.plugins.BarChart.cssClass.OUTSIDEBAR;
++				if(this._tableRowObject.cells.length == three) {					
++					this._tableRowObject.cells[two].colSpan = 1;
++					this._tableRowObject.insertCell(three);
++				} else if(this._tableRowObject.cells[four]) {
++					this._tableRowObject.removeChild(this._tableRowObject.cells[four]);
++				}	
++				this._barObject.rows[0].cells[0].innerHTML = "&nbsp;";
++				this._tableRowObject.cells[three].innerHTML = "";
++				this._tableRowObject.cells[three].appendChild(spanElement);
++				this._tableRowObject.cells[three].align = "left";
++				this._tableRowObject.cells[two].innerHTML = "";
++				this._tableRowObject.cells[two].appendChild(this._barObject);
++				this._tableRowObject.cells[two].width = newWidth + 5;
++				this._tableRowObject.cells[two].align = "left";				
++			} else {
++				spanElement.className = orp.plugins.BarChart.cssClass.INSIDEBAR;
++				barTableRow.cells[0].innerHTML = "";
++				barTableRow.cells[0].appendChild(spanElement);
++				barTableRow.cells[0].align = "right";
++				this._tableRowObject.cells[two].innerHTML = "";
++				this._tableRowObject.cells[two].appendChild(this._barObject);
++				if(this._tableRowObject.cells[two].colSpan != 2) {
++					this._tableRowObject.removeChild(this._tableRowObject.cells[three]);
++					this._tableRowObject.cells[two].colSpan = 2;
++					this._tableRowObject.cells[two].width = null;
++				}
++			}
++			this._isEnteringOnlyOnce = true;
++			this._fromNegativeToPositive = false;
++			this._fromPositiveToNegative = true;					
++		} else {
++			if((newWidth-5) < elementWidth) {
++				spanElement.className = orp.plugins.BarChart.cssClass.OUTSIDEBAR;
++				if(this._tableRowObject.cells[one].colSpan == 2) {		
++					this._barObject.rows[0].cells[0].innerHTML = "&nbsp;";
++					this._tableRowObject.insertCell(two);
++					this._tableRowObject.cells[one].width = newWidth + 5;
++					this._tableRowObject.cells[one].colSpan = 1;
++					this._tableRowObject.cells[one].innerHTML = "";
++					this._tableRowObject.cells[one].appendChild(this._barObject);
++					this._tableRowObject.cells[two].appendChild(spanElement);
++					this._tableRowObject.cells[two].align = "left";
++				} else {
++					this._tableRowObject.cells[two].innerHTML = "";
++					this._tableRowObject.cells[two].appendChild(spanElement);
++					this._tableRowObject.cells[two].align = "left";
++					this._tableRowObject.cells[one].innerHTML = "";
++					this._tableRowObject.cells[one].appendChild(this._barObject);
++					this._tableRowObject.cells[one].width = newWidth + 5;
++				}
++			} else {	
++				spanElement.className = orp.plugins.BarChart.cssClass.INSIDEBAR;			
++				barTableRow.cells[0].innerHTML = "";
++				barTableRow.cells[0].appendChild(spanElement);
++				barTableRow.cells[0].align = "right";
++				this._tableRowObject.cells[one].innerHTML = "";
++				this._tableRowObject.cells[one].appendChild(this._barObject);
++				if(this._tableRowObject.cells[one].colSpan != 2) {
++					this._tableRowObject.removeChild(this._tableRowObject.cells[two]);
++					this._tableRowObject.cells[one].colSpan = 2;
++					this._tableRowObject.cells[one].width = null;
++				}
++			}
++		}		
++		
++	} else if(this._changedValue <0) {
++		newWidth = barWidth - change;
++		if(newWidth > this._maxWidth) {
++			newWidth = this._maxWidth;
++		} else if(newWidth <=0) {
++			newWidth = 0;
++		}
++		newValue= 0 - Math.round(newWidth/this._maxWidth*this._maxValue);
++		spanElement = orp.view.View.newElement("span", "", null, newValue.toString());				
++		this.getHtmlElement().appendChild(spanElement);
++		elementWidth = spanElement.offsetWidth;
++		this.getHtmlElement().removeChild(spanElement);
++		barChartRowHtml.push("  title=\""+this._arrayOfAttributeLabels[this._valueIndex]+": "+this._chartAttributes[this._attributeIndex].getDisplayName()+" is "+newValue+"\" align=right>&nbsp;</td></tr>");
++		this._barObject.innerHTML = barChartRowHtml.join("");
++		spanElement.className = orp.plugins.BarChart.cssClass.INSIDEBAR;
++		barTableRow = this._barObject.rows[0];
++		if(this._hasNegativeValues) {
++			if((newWidth-5) < elementWidth) {
++				spanElement.className = orp.plugins.BarChart.cssClass.OUTSIDEBAR;
++				if(this._tableRowObject.cells.length == three) {					
++					this._tableRowObject.cells[one].colSpan = 1;
++					this._tableRowObject.insertCell(one);																
++				} else if (this._tableRowObject.cells[four]){
++					this._tableRowObject.removeChild(this._tableRowObject.cells[four]);
++					this._tableRowObject.cells[three].colSpan = 2;
++					this._tableRowObject.cells[three].innerHTML = "";
++				}
++				this._barObject.rows[0].cells[0].innerHTML = "&nbsp;";	
++				this._tableRowObject.cells[two].width = newWidth + 5;
++				this._tableRowObject.cells[two].innerHTML = "";
++				this._tableRowObject.cells[two].appendChild(this._barObject);
++				this._tableRowObject.cells[two].align = "right";
++				this._tableRowObject.cells[one].innerHTML = "";
++				this._tableRowObject.cells[one].appendChild(spanElement);
++				this._tableRowObject.cells[one].align = "right";					
++			
++			} else {	
++				spanElement.className = orp.plugins.BarChart.cssClass.INSIDEBAR;							
++				barTableRow.cells[0].innerHTML = "";
++				barTableRow.cells[0].appendChild(spanElement);
++				barTableRow.cells[0].align = "left";
++				this._tableRowObject.cells[one].innerHTML = "";
++				this._tableRowObject.cells[one].appendChild(this._barObject);
++				if(this._tableRowObject.cells[two].colSpan != 2) {
++					this._tableRowObject.removeChild(this._tableRowObject.cells[two]);
++					this._tableRowObject.cells[one].colSpan = 2;
++				}
++			}									
++		}
++		this._isEnteringOnlyOnce = true;
++		this._fromNegativeToPositive = true;
++		this._fromPositiveToNegative = false;
++	} else {
++		if(!this._isEnteringOnlyOnce) {
++			if(this._fromNegativeToPositive) {
++				this._changedValue = 0.001;
++				this._pointerLocation = mouseX;
++				dojo.event.connect(document, "onmouseup", this, "mouseUp");
++				dojo.event.disconnect(document, "onmousedown", this, "mouseDown");
++				document.ondblclick = null;
++				document.onclick = null;
++				return;
++			}
++			else if(this._fromPositiveToNegative) {
++				this._changedValue = -0.001;
++				this._pointerLocation = mouseX;
++				dojo.event.connect(document, "onmouseup", this, "mouseUp");
++				dojo.event.disconnect(document, "onmousedown", this, "mouseDown");
++				document.ondblclick = null;
++				document.onclick = null;
++				return;
++			}
++		}
++		if (this._fromNegativeToPositive && this._isEnteringOnlyOnce) {
++			this._barObject.className = orp.plugins.BarChart.cssClass.POSITIVE;			
++			newWidth = barWidth + 1;	
++			newValue= Math.round(newWidth/this._maxWidth*this._maxValue);
++			barChartRowHtml.push("  title=\""+this._arrayOfAttributeLabels[this._valueIndex]+": "+this._chartAttributes[this._attributeIndex].getDisplayName()+" is "+newValue+"\" align=right></td></tr>");
++			this._barObject.innerHTML = barChartRowHtml.join("");
++			this._barObject.rows[0].cells[0].innerHTML = "&nbsp;";
++			spanElement = orp.view.View.newElement("span", "", null, newValue.toString());
++			
++			
++			this._tableRowObject.cells[three].colSpan = 1;
++			this._tableRowObject.cells[three].innerHTML = "";	
++			this._tableRowObject.cells[three].width = newWidth;
++			this._tableRowObject.cells[three].appendChild(this._barObject);
++			this._tableRowObject.cells[two].innerHTML = "";
++			this._tableRowObject.cells[two].colSpan = 2;
++			this._tableRowObject.insertCell(four);
++			this._tableRowObject.cells[four].innerHTML = "";
++			this._tableRowObject.cells[four].appendChild(spanElement);
++			this._tableRowObject.removeChild(this._tableRowObject.cells[one]);
++		} else if(this._fromPositiveToNegative && this._isEnteringOnlyOnce) {
++			this._barObject.className = orp.plugins.BarChart.cssClass.NEGATIVE;
++			newWidth = barWidth + 1;
++			newValue= 0 - Math.round(newWidth/this._maxWidth*this._maxValue);
++			barChartRowHtml.push("  title=\""+this._arrayOfAttributeLabels[this._valueIndex]+": "+this._chartAttributes[this._attributeIndex].getDisplayName()+" is "+newValue+"\" align=right></td></tr>");
++			this._barObject.innerHTML = barChartRowHtml.join("");
++			this._barObject.rows[0].cells[0].innerHTML = "&nbsp;";
++			spanElement = orp.view.View.newElement("span", "", null, newValue.toString());
++			
++			this._tableRowObject.cells[one].colSpan = 1;
++			this._tableRowObject.cells[one].innerHTML = "";	
++			this._tableRowObject.cells[one].width = newWidth;
++			this._tableRowObject.cells[one].appendChild(this._barObject);
++			this._tableRowObject.cells[two].innerHTML = "";
++			this._tableRowObject.cells[two].colSpan = 2;
++			this._tableRowObject.removeChild(this._tableRowObject.cells[three]);
++			this._tableRowObject.insertCell(1);
++			this._tableRowObject.cells[one].innerHTML = "";
++			this._tableRowObject.cells[one].align = "right";
++			this._tableRowObject.cells[one].appendChild(spanElement);
++		} else if(!this._hasNegativeValues) {
++			newWidth = barWidth + change;
++			newValue = Math.round(newWidth/this._maxWidth*this._maxValue);
++			barChartRowHtml.push("  title=\""+this._arrayOfAttributeLabels[this._valueIndex]+": "+this._chartAttributes[this._attributeIndex].getDisplayName()+" is "+newValue+"\" align=right>&nbsp;</td></tr>");
++			this._barObject.innerHTML = barChartRowHtml.join("");
++			this._barObject.rows[0].cells[0].innerHTML = "&nbsp;";
++			spanElement = orp.view.View.newElement("span", "", null, newValue.toString());				
++			this.getHtmlElement().appendChild(spanElement);
++			elementWidth = spanElement.offsetWidth;
++			this.getHtmlElement().removeChild(spanElement);
++			this._tableRowObject.cells[one].innerHTML = "";
++			this._tableRowObject.cells[one].appendChild(this._barObject);
++			this._tableRowObject.cells[two].innerHTML = "";
++			this._tableRowObject.cells[two].appendChild(spanElement);
++			this._fromNegativeToPositive = false;
++			this._fromPositiveToNegative = false;
++			this._hasNegativeValues = false;		
++		}
++		this._isEnteringOnlyOnce = false;	
++	}		
++	this._changedValue = newValue;
++	this._barObject.width = Math.abs(newWidth);	
++	this._pointerLocation = mouseX;
++	dojo.event.connect(document, "onmouseup", this, "mouseUp");
++	dojo.event.disconnect(document, "onmousedown", this, "mouseDown");
++	document.ondblclick = null;
++	document.onclick = null;	
++};
++
++/**
++ * This method is called whenever the left mouse button is released after executing the
++ * orp.plugins.BarChart.prototype.mouseMove function.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.BarChart.prototype.mouseUp = function(evt) {
++	if(evt.which==1) {	
++		dojo.event.disconnect(document, "onmousemove", this, "mouseMove");
++		dojo.event.disconnect(document, "onmouseup", this, "mouseUp");
++		var contentItem = this._listOfContentItems[this._valueIndex];
++		var listOfEntries = contentItem.getEntriesForAttribute(this._chartAttributes[this._attributeIndex]);
++		if (listOfEntries[0]) {
++			var affectedEntry = listOfEntries[0];
++			contentItem.replaceEntry({previousEntry: affectedEntry, value: this._changedValue});
++			this._arrayOfAttributeValues[this._attributeIndex][this._valueIndex] = this._changedValue;
++		}
++		dojo.event.connect(this._barObject, "onmousedown", this, "mouseDown");
++		document.ondblclick = null;
++		document.onclick = null;
++		this._fromNegativeToPositive = false;
++		this._fromPositiveToNegative = false;
++		this._barObject = null;
++	}
++};
++
++/**
++ * This method is called whenever the left mouse button is pressed down 
++ * in order ot drag and resize the bars.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.BarChart.prototype.mouseDown = function(evt) {
++	if(evt.target.tagName=="TABLE" && evt.target.style.cursor =="w-resize")	{
++		if(evt.which == 1) {
++			document.onmousedown = orp.plugins.BarChart.nullfunc;
++			document.onclick = null;
++			document.ondblclick = null;
++			this._pointerLocation=evt.clientX;
++			this._barObject = evt.target;
++			var splitArray = this._barObject.id.split("_%_");
++			this._attributeIndex = parseInt(splitArray[1]);
++			this._valueIndex = parseInt(splitArray[2]);
++			var tableDataObject = this._barObject.parentNode;
++			this._tableRowObject = tableDataObject.parentNode;
++			this._isEnteringOnlyOnce = true;
++			this._changedValue = this._arrayOfAttributeValues[this._attributeIndex][this._valueIndex];
++			if(this._hasNegativeValues) {
++				if(this._changedValue > 0) {
++					this._fromPositiveToNegative = true;
++					this._fromNegativeToPositive = false;
++				} else {
++					this._fromNegativeToPositive = true;
++					this._fromPositiveToNegative = false;
++				}
++			} else {
++				this._fromNegativeToPositive = false;
++				this._fromPositiveToNegative = false;
++			}
++			dojo.event.connect(document, "onmousemove", this, "mouseMove");
++			
++		}
++	}
++};
++
++/**
++ * This method is called in order to stop event propegation
++ *
++ * @scope    provate instance method
++ */
++orp.plugins.BarChart.nullfinc = function() {
++	return false;
++};
++
++orp.plugins.BarChart.prototype.displayColorPalette = function (evt) {
++	this._colorElement = evt.target;
++	orp.view.View.removeChildrenOfElement(this._colorElement);
++	this._colorElement.parentNode.insertCell(2);
++	var colorPicker = dojo.widget.createWidget("ColorPalette", null, this._colorElement.parentNode.cells[2], "last");
++	dojo.event.connect(colorPicker, "click", this, "colorSelect");
++};
++
++// Sets the color of the selected attribute
++orp.plugins.BarChart.prototype.colorSelect = function (evt) {
++	
++  	this.setBackgroundColorForAttribute(evt.target.color, this._colorElement.id);
++	this._colorElement.parentNode.removeChild(this._colorElement.parentNode.cells[2]);
++};
++
++// Sets the color of any given attribute
++orp.plugins.BarChart.prototype.setBackgroundColorForAttribute = function(color, attributeIndex) {
++	var world = this.getWorld();
++	var attributeCalledBackgroundColor = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_BACKGROUND_COLOR);	
++	var listOfEntries = this._chartAttributes[attributeIndex].getEntriesForAttribute(attributeCalledBackgroundColor);
++	if (listOfEntries[0]) {
++		var affectedEntry = listOfEntries[0];
++		this._chartAttributes[attributeIndex].addEntry({attribute: attributeCalledBackgroundColor, previousEntry: affectedEntry, value: color});		
++	} else {
++		var typeCalledText = world.getTypeCalledText();
++		this._chartAttributes[attributeIndex].addEntry({attribute: attributeCalledBackgroundColor, value: color, type: typeCalledText});
++	}
++	this.refresh();
++};			
++
++orp.plugins.BarChart.compareItemsByName = function(itemA, itemB) {
++	var strA = itemA.getDisplayName().toLowerCase();
++	var strB = itemB.getDisplayName().toLowerCase();
++	if (strA < strB) {return -1;}
++	if (strA == strB) {return 0;}
++	return 1;
++};
++// End of file
++
++
++// End of file
+
+
+Property changes on: trunk/source/plugins/BarChart.js
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+
+
+From skinner at mail.berlios.de  Sat Jul 15 07:56:29 2006
+From: skinner at mail.berlios.de (skinner at BerliOS)
+Date: Sat, 15 Jul 2006 07:56:29 +0200
+Subject: [openrecord-svn] r485 - trunk/source/model
+Message-ID: <200607150556.k6F5uT0I013930@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-07-15 07:55:30 +0200 (Sat, 15 Jul 2006)
+New Revision: 485
+
+Modified:
+   trunk/source/model/2005_june_axiomatic_items.json
+Log:
+Changed the name of the old Bar Chart plugin from "Bar Chart" to "Old 2005 Bar Chart", to help distinguish it from Hiran's new Bar Chart plugin.  Eventually we should delete the Old 2005 Bar Chart, but we can't easily do that without breaking all the repositories that have references to it.
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2006-07-13 10:03:44 UTC (rev 484)
++++ trunk/source/model/2005_june_axiomatic_items.json	2006-07-15 05:55:30 UTC (rev 485)
+@@ -1081,7 +1081,7 @@
+              "uuid": "00040303-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
+-    { "Item": {                                               // Bar Chart (Plugin View)
++    { "Item": {                                               // Old 2005 Bar Chart (Plugin View)
+              "uuid": "00040304-ce7f-11d9-8cd5-0011113ae5d6" }
+     },
+     // -----------------------------------------------------------------------
+@@ -1663,35 +1663,35 @@
+             "value": "DetailPlugin" }
+     },
+     // -----------------------------------------------------------------------
+-    { "Entry": {                                              // Bar Chart View
++    { "Entry": {                                              // Old 2005 Bar Chart View
+              "uuid": "0040304a-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
+-             "item": "00040304-ce7f-11d9-8cd5-0011113ae5d6",  // Bar Chart View (Plugin View)
++             "item": "00040304-ce7f-11d9-8cd5-0011113ae5d6",  // Old 2005 Bar Chart View (Plugin View)
+              "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
+-            "value": "Bar Chart View" }
++            "value": "Old 2005 Bar Chart View" }
+     },
+     // -----------------------------------------------------------------------
+     { "Entry": {                                              
+-             // in item (Plugin View: Bar Chart View) assign (Attribute: Category) = (Category: Plugin View)
+-             // in item (Category: Plugin View) assign (Attribute: Items in Category) = (Plugin View: Bar Chart View)
++             // in item (Plugin View: Old 2005 Bar Chart View) assign (Attribute: Category) = (Category: Plugin View)
++             // in item (Category: Plugin View) assign (Attribute: Items in Category) = (Plugin View: Old 2005 Bar Chart View)
+              "uuid": "0040304b-ce7f-11d9-8cd5-0011113ae5d6",
+              "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
+              "item": ["00040304-ce7f-11d9-8cd5-0011113ae5d6", "00040201-ce7f-11d9-8cd5-0011113ae5d6"],
+         "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
+     },  
+     // -----------------------------------------------------------------------
+-    { "Entry": {                                              // Bar Chart
++    { "Entry": {                                              // Old 2005 Bar Chart
+              "uuid": "0040304c-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "00001002-ce7f-11d9-8cd5-0011113ae5d6",  // Short Name
+-             "item": "00040304-ce7f-11d9-8cd5-0011113ae5d6",  // Bar Chart View (Plugin View)
++             "item": "00040304-ce7f-11d9-8cd5-0011113ae5d6",  // Old 2005 Bar Chart View (Plugin View)
+              "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
+-            "value": "Bar Chart" }
++            "value": "2005 Bar Chart" }
+     },
+     // -----------------------------------------------------------------------
+     { "Entry": {                                              // BarChartPlugin
+              "uuid": "0040304d-ce7f-11d9-8cd5-0011113ae5d6",
+         "attribute": "0000100f-ce7f-11d9-8cd5-0011113ae5d6",  // attributeCalledClassName
+-             "item": "00040304-ce7f-11d9-8cd5-0011113ae5d6",  // Bar Chart View (Plugin View)
++             "item": "00040304-ce7f-11d9-8cd5-0011113ae5d6",  // Old 2005 Bar Chart View (Plugin View)
+              "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
+             "value": "BarChartPlugin" }
+     } ]
+
+
+
+From mignon at mail.berlios.de  Tue Jul 25 05:21:37 2006
+From: mignon at mail.berlios.de (mignon at BerliOS)
+Date: Tue, 25 Jul 2006 05:21:37 +0200
+Subject: [openrecord-svn] r486 - trunk/source/view
+Message-ID: <200607250321.k6P3LbLs009041@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-07-25 05:21:35 +0200 (Tue, 25 Jul 2006)
+New Revision: 486
+
+Modified:
+   trunk/source/view/SectionView.js
+Log:
+Updated SectionView so that when a user creates a new section, they have to specify a category before they can do anything else.  Also, 'Category' is now the only allowed query matching attribute (at least until such time as we decide what to do with new items when no category is specified.)
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2006-07-15 05:55:30 UTC (rev 485)
++++ trunk/source/view/SectionView.js	2006-07-25 03:21:35 UTC (rev 486)
+@@ -287,6 +287,31 @@
+ 	if (!this.getHtmlElement()) {
+ 		return;
+ 	}
++	var attributeCalledQuerySpec = this.getWorld().getAttributeCalledQuerySpec();
++	var querySpecEntry = this._section.getSingleEntryFromAttribute(attributeCalledQuerySpec);
++	// If querySpecEntry is null, then there is no query for this view to display the results of.
++	orp.lang.assert(querySpecEntry !== null);
++	var query = querySpecEntry.getValue();
++	var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++	var listOfMatchingEntries = query.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++	this._queryHasNoMatchingValueEntries = (listOfMatchingEntries.length == 0);
++	if (this._queryHasNoMatchingValueEntries) {
++		var sectionDiv = this.getHtmlElement();
++		var headerH2 = orp.view.View.appendNewElement(sectionDiv, "h2", null, {'id':this._section.getUuidString()});
++		var attributeCalledName = this.getWorld().getAttributeCalledName();
++		this._headerView = new orp.view.EntryView(
++		                       this, headerH2, this._section, attributeCalledName,
++		                       this._section.getSingleEntryFromAttribute(attributeCalledName));
++		var controlArea = orp.view.View.appendNewElement(sectionDiv, "p", orp.view.RootView.cssClass.EDIT_TOOL, null, "Category: ");
++		var matchingAttribute = this.getWorld().getAttributeCalledCategory();
++		var listOfPossibleEntries = this.getWorld().getSuggestedItemsForAttribute(matchingAttribute);
++		this._queryEditSpan = orp.view.View.appendNewElement(controlArea, "span");
++		var myQuery = this.getQuerySpec();
++		this._buildCategoryComboBox(this._queryEditSpan, listOfPossibleEntries, myQuery);
++		myQuery.addObserver(this);
++		this._headerView.refresh();
++		return;
++	}
+ 	var attributeCalledPluginView = this.getWorld().getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_PLUGIN_VIEW);
+ 	var selectedPluginViewEntry = this._section.getSingleEntryFromAttribute(attributeCalledPluginView);
+ 	var selectedPluginItem;
+@@ -301,19 +326,15 @@
+ 	}
+ 
+ 	var sectionDiv = this.getHtmlElement();
++	orp.view.View.removeChildrenOfElement(sectionDiv);
+ 	var headerH2 = orp.view.View.appendNewElement(sectionDiv, "h2", null, {'id':this._section.getUuidString()});
+ 	var attributeCalledName = this.getWorld().getAttributeCalledName();
+-	// var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+ 	this._headerView = new orp.view.EntryView(
+ 	                       this, headerH2, this._section, attributeCalledName,
+ 	                       this._section.getSingleEntryFromAttribute(attributeCalledName));
+-	// var summaryDiv = orp.view.View.appendNewElement(sectionDiv, "div");
+-	// this._sectionSummaryView = new orp.view.EntryView(this, summaryDiv, this._section, attributeCalledSummary,
+-	//   this._section.getSingleEntryFromAttribute(attributeCalledSummary), true);
+-	// orp.view.View.appendNewElement(sectionDiv, "p");
+ 
+ 	// create the editing controls, if we're in edit mode
+-	var controlArea = orp.view.View.appendNewElement(sectionDiv, "p", orp.view.RootView.cssClass.EDIT_TOOL, null, "Show me a ");
++	var controlArea = orp.view.View.appendNewElement(sectionDiv, "p", orp.view.RootView.cssClass.EDIT_TOOL, null, "View: ");
+ 	var selectElement = orp.view.View.appendNewElement(controlArea, "select");
+ 	var listener;
+ 	for (var key in orp.view.SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid) {
+@@ -326,9 +347,8 @@
+ 		dojo.event.connect(optionElement, "onclick", this, "clickOnPluginSelectionMenu");
+ 	}
+ 	orp.view.View.appendNewElement(controlArea,"br");
+-	orp.view.View.appendNewTextNode(controlArea,"Include items whose ");
++	orp.view.View.appendNewTextNode(controlArea, "Category: ");
+ 	this._queryEditSpan = orp.view.View.appendNewElement(controlArea, "span");
+-	// orp.view.View.appendNewTextNode(controlArea,".");
+ 
+ 	// create a div element for the plugin class to use
+ 	this._pluginDiv = orp.view.View.appendNewElement(sectionDiv, "div");
+@@ -337,7 +357,60 @@
+ 	this.refresh();
+ };
+ 
++/**
++ * Builds a combo box for specifying the category for the query of a new section.
++ *
++ * @scope    private instance method
++ */
++orp.view.SectionView.prototype._buildCategoryComboBox = function(span, listOfSuggestedCategories, query) {
++	var cssClass = "categoryForQuery" + " " + orp.view.RootView.cssClass.EDIT_TOOL;
++	var innerSpan = orp.view.View.appendNewElement(span, "span", cssClass);
++	innerSpan.superView = this;
++	var comboData = new Array();
+ 
++	for (var i in listOfSuggestedCategories) {
++		var category = listOfSuggestedCategories[i];
++		comboData[i] = new Array(category.getDisplayName(), category.getUuidString());
++	}
++	
++	var comboBox = dojo.widget.createWidget("ComboBox", {}, innerSpan, "last");
++	var provider = comboBox.dataProvider;
++	provider.setData(comboData);
++
++	var _this = this;
++	var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++	innerSpan.onComboBoxKeyUp = function(evt) {
++		if (evt.keyCode != orp.util.ASCII.RETURN) {
++			return;
++		}
++		var category = orp.view.SectionView.getCategoryFromComboBoxValue(evt.target.value, this.superView.getWorld());
++		query.addEntry({attribute: attributeCalledQueryMatchingValue, value: category});
++	};
++	dojo.event.connect(comboBox, "onKeyUp", innerSpan, "onComboBoxKeyUp");
++	innerSpan.selectOption = function(evt) {
++		if (evt && evt.type == "click" && evt.target && evt.target.textContent) {
++			var category = orp.view.SectionView.getCategoryFromComboBoxValue(evt.target.textContent, this.superView.getWorld());
++			query.addEntry({attribute: attributeCalledQueryMatchingValue, value: category});
++		}
++	};
++	dojo.event.connect(comboBox, "selectOption", innerSpan, "selectOption");
++};
++
++orp.view.SectionView.getCategoryFromComboBoxValue = function(comboBoxValue, world) {
++	var listOfCategories = world.getCategories();
++	var category;
++	for (var i = 0; i < listOfCategories.length; ++i) {
++		if (listOfCategories[i].getDisplayName() == comboBoxValue) {
++			category = listOfCategories[i];
++			break;
++		}
++	}
++	if (i == listOfCategories.length) {
++		category = world.newCategory(comboBoxValue);
++	}
++	return category;
++};
++
+ /**
+  * Returns a layout item for this section for a particular plugin.
+  *
+@@ -395,8 +468,13 @@
+  */
+ orp.view.SectionView.prototype._refreshQueryEditSpan = function() {
+ 	orp.view.View.removeChildrenOfElement(this._queryEditSpan);
++	var myQuery = this.getQuerySpec();
+ 
+-	var myQuery = this.getQuerySpec();
++	// For now, we will only allow 'Category' as the query matching attribute, until such time as we
++	// decide what to do with new items when no category is specified.
++	// If restoring this code, note that the string "Category: " is also now hardcoded in doInitialDisplay.
++	var matchingAttribute = this.getWorld().getAttributeCalledCategory();
++	/*
+ 	var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+ 	var listOfMatchingAttrs = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+ 	var matchingAttribute;
+@@ -407,11 +485,6 @@
+ 		orp.lang.assert(listOfMatchingAttrs.length == 1, 'more than one matching attributes');
+ 		matchingAttribute = listOfMatchingAttrs[0].getValue();
+ 	}
+-	var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+-	var listOfMatchingEntries = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-	var hasMatchingEntries = (listOfMatchingEntries && (listOfMatchingEntries.length > 0));
+-	var matchingEntry = hasMatchingEntries ? listOfMatchingEntries[0] : null;
+-
+ 	var listOfAttributes = this.getWorld().getAttributes();
+ 	var selectElement = orp.view.View.appendNewElement(this._queryEditSpan, "select");
+ 	for (var key in listOfAttributes) {
+@@ -422,9 +495,14 @@
+ 		dojo.event.connect(optionElement, "onclick", this, "clickOnAttributeMenu");
+ 		optionElement.text = anAttribute.getDisplayString();
+ 	}
+-
+ 	orp.view.View.appendNewTextNode(this._queryEditSpan, " is ");
+-
++	*/
++	
++	var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++	var listOfMatchingEntries = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++	var hasMatchingEntries = (listOfMatchingEntries && (listOfMatchingEntries.length > 0));
++	var matchingEntry = hasMatchingEntries ? listOfMatchingEntries[0] : null;
++	
+ 	var listOfPossibleEntries = this.getWorld().getSuggestedItemsForAttribute(matchingAttribute);
+ 	var entrySpan = orp.view.View.appendNewElement(this._queryEditSpan, "span");
+ 
+@@ -513,9 +591,11 @@
+ 	item.removeObserver(this); //item no longer needs to be observed as query editor span is rebuilt
+ 	var myQuery = this.getQuerySpec();
+ 	orp.lang.assert(item == myQuery);
+-	var pluginItem = this._pluginView.getPluginItem();
+-	this._pluginView.destroy();
+-	this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
++	if (this._pluginView) {
++		var pluginItem = this._pluginView.getPluginItem();
++		this._pluginView.destroy();
++		this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
++	}
+ 	this.refresh();
+ };
+ 
+
+
+
+From mignon at mail.berlios.de  Tue Jul 25 05:29:46 2006
+From: mignon at mail.berlios.de (mignon at BerliOS)
+Date: Tue, 25 Jul 2006 05:29:46 +0200
+Subject: [openrecord-svn] r487 - trunk/source
+Message-ID: <200607250329.k6P3Tk35009439@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-07-25 05:29:45 +0200 (Tue, 25 Jul 2006)
+New Revision: 487
+
+Modified:
+   trunk/source/TablePlugin.js
+Log:
+Modified TablePlugin so that for the column for the attribute 'Name', no expected type field is displayed, because it's very confusing in a new empty table to have the expected type field under 'Name' (and the expected type of 'Name' should always be text anyway.)
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-07-25 03:21:35 UTC (rev 486)
++++ trunk/source/TablePlugin.js	2006-07-25 03:29:45 UTC (rev 487)
+@@ -497,6 +497,11 @@
+ 			headerCellContentSpan.appendChild(this.getSortIcon());
+ 		}
+ 		var FIXME_renderDatatype = true;
++		if (attribute == this.getWorld().getAttributeCalledName()) {
++			// This is a special case, partly because the expected type of 'Name' SHOULD be text, and
++			// partly because it's very confusing in a new empty table to have the expected type field under 'Name'.
++			FIXME_renderDatatype = false;
++		}
+ 		if (FIXME_renderDatatype) {
+ 			var br = orp.view.View.appendNewElement(headerCell, "br");
+ 			var outerSpan = orp.view.View.appendNewElement(headerCell, "span", orp.view.RootView.cssClass.EDIT_TOOL);
+
+
+
+From mignon at mail.berlios.de  Tue Jul 25 05:41:03 2006
+From: mignon at mail.berlios.de (mignon at BerliOS)
+Date: Tue, 25 Jul 2006 05:41:03 +0200
+Subject: [openrecord-svn] r488 - trunk/source
+Message-ID: <200607250341.k6P3f3UG010181@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-07-25 05:41:03 +0200 (Tue, 25 Jul 2006)
+New Revision: 488
+
+Modified:
+   trunk/source/base_style.css
+Log:
+Added a width for the new categoryForQuery ComboBox so it doesn't stretch across the whole page, and also for the old add_column ComboBox, so that recently added attributes like 'Background Color' fit without a line break.
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2006-07-25 03:29:45 UTC (rev 487)
++++ trunk/source/base_style.css	2006-07-25 03:41:03 UTC (rev 488)
+@@ -823,8 +823,13 @@
+ .simple_table th.add_column {
+   height: 100%;
+   padding: 0 0 0 0;
++  width: 12em;
+ }
+ 
++.categoryForQuery {
++  width: 12em;
++}
++
+ table.dojoComboBox {
+   border-collapse: collapse;
+ }
+
+
+
+From hiran at mail.berlios.de  Wed Jul 26 19:39:18 2006
+From: hiran at mail.berlios.de (hiran at mail.berlios.de)
+Date: Wed, 26 Jul 2006 19:39:18 +0200
+Subject: [openrecord-svn] r489 - trunk/source/plugins
+Message-ID: <200607261739.k6QHdIOV015925@sheep.berlios.de>
+
+Author: hiran
+Date: 2006-07-26 19:38:54 +0200 (Wed, 26 Jul 2006)
+New Revision: 489
+
+Modified:
+   trunk/source/plugins/ScatterPlot.js
+Log:
+
+
+Modified: trunk/source/plugins/ScatterPlot.js
+===================================================================
+--- trunk/source/plugins/ScatterPlot.js	2006-07-25 03:41:03 UTC (rev 488)
++++ trunk/source/plugins/ScatterPlot.js	2006-07-26 17:38:54 UTC (rev 489)
+@@ -557,6 +557,23 @@
+ 	var zAxisRow = containerTableObject.childNodes[1];
+ 	var zAxisCell = zAxisRow.childNodes[2];
+ 	zAxisCell.childNodes[0].disabled = false;
++	var newAttributeUuid = zAxisCell.childNodes[0].value;
++	var selectedAttribute = this._hashTableOfAttributesKeyedByUuid[newAttributeUuid];
++	if(this._listOfAxisAttributes[2]) {
++		this._listOfAxisAttributes[2] = selectedAttribute;
++	} else {
++		this._listOfAxisAttributes.push(selectedAttribute);
++	}
++	var world = this.getWorld();
++	var createNewLayoutItemIfNecessary;
++	var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++	if (layoutItem) {
++		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
++		var typeCalledItem =  world.getTypeCalledItem();
++		layoutItem.addEntry({attribute: attributeCalledSelectedAttribute, value: this._listOfAxisAttributes[2], type: typeCalledItem});
++		this.refresh();
++		return;
++	}
+ };
+ 
+ /**
+
+
+

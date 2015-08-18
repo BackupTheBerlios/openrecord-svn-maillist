@@ -1,0 +1,933 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r193 - in trunk: . source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r193%20-%20in%20trunk%3A%20.%20source%20source/model&In-Reply-To=%3C200506292141.j5TLf3pt016075%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000178.html">
+   <LINK REL="Next"  HREF="000180.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r193 - in trunk: . source source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r193%20-%20in%20trunk%3A%20.%20source%20source/model&In-Reply-To=%3C200506292141.j5TLf3pt016075%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r193 - in trunk: . source source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 29 23:41:03 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000178.html">[openrecord-svn] r192 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000180.html">[openrecord-svn] r194 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-29 23:40:59 +0200 (Wed, 29 Jun 2005)
+New Revision: 193
+
+Added:
+   trunk/source/model/QueryRunner.js
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/dogfood.html
+   trunk/source/PluginView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/model/Item.js
+   trunk/source/model/LintTest.js
+   trunk/source/model/ModelTest.html
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Created a new QueryRunner class, and refactored code and tests to run queries via QueryRunners.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/dashboard.html	2005-06-29 21:40:59 UTC (rev 193)
+@@ -39,6 +39,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Item.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Entry.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/QueryRunner.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/World.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/demo_page.html	2005-06-29 21:40:59 UTC (rev 193)
+@@ -39,6 +39,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Item.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Entry.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/QueryRunner.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/World.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/dogfood.html	2005-06-29 21:40:59 UTC (rev 193)
+@@ -39,6 +39,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Item.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Entry.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/QueryRunner.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/World.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/PluginView.js
+===================================================================
+--- trunk/source/PluginView.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/PluginView.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -52,7 +52,8 @@
+   if (!inSuperView) {return;} // initial call that subclasses of PluginViews make without parameters
+   this.setSuperview(inSuperView);
+   this.setHTMLElement(inHTMLElement);
+-  this._query = inQuery;
++  this._querySpec = inQuery;
++  this._queryRunner = this.getWorld().newQueryRunner(this._querySpec, this);
+   this._layout = inLayout;
+   this._pluginItem = null;
+ }
+@@ -70,7 +71,6 @@
+  */
+ PluginView.prototype.getPluginItem = function () {
+   if (!this._pluginItem) {
+-    // alert(this.getPluginName());
+     var pluginClass = this.getClass();
+     // alert(pluginClass);
+     var pluginItemUuid = pluginClass.getPluginItemUuid();
+@@ -86,24 +86,28 @@
+  * @scope    PENDING
+  */
+ PluginView.prototype.fetchItems = function() {
+-  if (Util.isArray(this._query)) {
++  this._listOfItems = this._queryRunner.getResultItems();
++  /*
++  if (Util.isArray(this._querySpec)) {
+     //PENDING hack to allow Plugin to support list of items or query
+-    this._listOfItems = this._query;
++    this._listOfItems = this._querySpec;
+   }
+   else {
+-    this._listOfItems = this._query ? this.getWorld().getResultItemsForQuery(this._query) : [];
++    this._listOfItems = this._querySpec ? this.getWorld().getResultItemsForQuery(this._querySpec) : [];
+   }
++  */
+   return this._listOfItems;
+ };
+ 
++
+ /**
+- * Returns the registered name of this PluginView.
++ * Returns the query spec item used to populate this plugin view.
+  *
+  * @scope    public instance method
+- * @return   A string.
++ * @return   A query spec item.
+  */
+-PluginView.prototype.getPluginName = function () {
+-  Util.assert(false);
++PluginView.prototype.getQuerySpec = function () {
++  return this._querySpec;
+ };
+ 
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/SectionView.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -170,7 +170,7 @@
+   if (pluginClass) {
+     var pluginType = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+     var layoutData = this._getLayoutDataForPlugin(pluginType);
+-    newPlugin = new pluginClass(this, pluginDiv, this.getQuery(), layoutData);
++    newPlugin = new pluginClass(this, pluginDiv, this.getQuerySpec(), layoutData);
+   }
+   return newPlugin;
+ };
+@@ -182,7 +182,7 @@
+  * @scope    public instance method
+  * @return   query associated to this section.
+  */
+-SectionView.prototype.getQuery = function () {
++SectionView.prototype.getQuerySpec = function () {
+   var attributeCalledQuerySpec = this.getWorld().getAttributeCalledQuerySpec();
+   var queryEntry = this.mySection.getSingleEntryFromAttribute(attributeCalledQuerySpec);
+   if (queryEntry) {
+@@ -328,7 +328,7 @@
+ SectionView.prototype._refreshQueryEditSpan = function () {
+   this._queryEditSpan.innerHTML = '';
+   
+-  var myQuery = this.getQuery();
++  var myQuery = this.getQuerySpec();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+   var listOfMatchingAttrs = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+   var matchingAttribute;
+@@ -402,7 +402,7 @@
+  */
+ SectionView.prototype.observedItemHasChanged = function(item) {
+   item.removeObserver(this); //item no longer needs to be observed as query editor span is rebuilt
+-  var myQuery = this.getQuery();
++  var myQuery = this.getQuerySpec();
+   Util.assert(item == myQuery);
+   var pluginItem = this._myPlugin.getPluginItem();
+   this._myPlugin.endOfLife();
+@@ -473,7 +473,7 @@
+   var newQueryMatchingAttribute = this.getWorld().getItemFromUuid(newChoiceUuid);
+   var newChoiceName = newQueryMatchingAttribute.getDisplayString();
+   
+-  var myQuery = this.getQuery();
++  var myQuery = this.getQuerySpec();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+   var listOfMatchingAttrs = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+   var matchingAttribute;
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/TablePlugin.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -269,7 +269,7 @@
+  * @param    item      The Item which just became real. 
+  */
+ TablePlugin.prototype._provisionalItemJustBecomeReal = function(item) {
+-  this.getWorld().setItemToBeIncludedInQueryResultList(item, this._query);
++  this.getWorld().setItemToBeIncludedInQueryResultList(item, this.getQuerySpec());
+ };
+ 
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/Item.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -542,7 +542,6 @@
+  * @return Boolean. True if this item has an attribute with the entry
+  */
+ Item.prototype.hasAttributeValue = function (inAttribute, inValue) {
+-  // Util.assert(inAttribute instanceof Item, inAttribute + ' is not an item');
+   Util.assert(inAttribute instanceof Item);
+   var entryList = this.getEntriesForAttribute(inAttribute);
+ 
+@@ -569,30 +568,6 @@
+ 
+   var categoryAttribute = this.getWorld().getAttributeCalledCategory();
+   return this.hasAttributeValue(categoryAttribute, inCategory);
+-  
+-  /*
+-   * Also returns true if the item has been assigned to some category which is in
+-   * turn assigned to the given category, and so on, up the chain of category 
+-   * assignments.
+-   *
+-  // look at all the categories this item is assigned to, and see if one of them
+-  // is in turn in the category &quot;inCategory&quot;
+-  for (key in entryList) {
+-    entry = entryList[key];
+-    // PENDING: 
+-    //   This will go into an infinite loop if there is ever a cycle in the category 
+-    //   assignments, like: A is in category B, and B is in C, and C is in A.
+-    //   We need to use a non-recursive search of the graph.
+-    // PENDING:
+-    //   Do we also need to register as an observer of something, so that if we later
+-    //   become a member of that category in question, then we can notify whoever
+-    //   is observing us?
+-    if ((entry.getValue() != this) &amp;&amp; (entry.getValue().isInCategory(inCategory))) {
+-      return true;
+-    }
+-  }
+-  return false;
+-  */
+ };
+  
+ 
+
+Modified: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/LintTest.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -41,6 +41,7 @@
+     &quot;Item.js&quot;,
+     &quot;Entry.js&quot;,
+     &quot;Transaction.js&quot;,
++    &quot;QueryRunner.js&quot;,
+     &quot;World.js&quot;,
+     &quot;StubVirtualServer.js&quot;,
+     &quot;DeltaVirtualServer.js&quot;];
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/ModelTest.html	2005-06-29 21:40:59 UTC (rev 193)
+@@ -23,6 +23,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Entry.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;QueryRunner.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;World.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/ModelTest.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -321,9 +321,9 @@
+   isInCategory = theHobbit.isInCategory(categoryCalledBook);
+   assertTrue('&quot;The Hobbit&quot; is NOT in the category &quot;Book&quot;', !isInCategory);
+   
+-  theHobbit.addEntryForAttribute(attributeCalledCategory, categoryCalledBook);
+-  theWisdomOfCrowds.addEntryForAttribute(attributeCalledCategory, categoryCalledBook);
+-  theTransparentSociety.addEntryForAttribute(attributeCalledCategory, categoryCalledBook);
++  theHobbit.assignToCategory(categoryCalledBook);
++  theWisdomOfCrowds.assignToCategory(categoryCalledBook);
++  theTransparentSociety.assignToCategory(categoryCalledBook);
+   isInCategory = theHobbit.isInCategory(categoryCalledBook);
+   assertTrue('&quot;The Hobbit&quot; is in the category &quot;Book&quot;', isInCategory);
+  
+@@ -334,8 +334,6 @@
+   world.logout();
+ }
+ 
+-/*
+-PENDING: the ordinal implementation was broken by the new UUID code
+ function testOrdinals() {
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+@@ -348,15 +346,17 @@
+   var brownie = world.newItem(&quot;Brownie&quot;);  
+ 
+   var categoryCalledFood = world.newCategory(&quot;Food&quot;);
+-  apple.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+-  cupcake.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+-  brownie.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  apple.assignToCategory(categoryCalledFood);
++  cupcake.assignToCategory(categoryCalledFood);
++  brownie.assignToCategory(categoryCalledFood);
+ 
+   var foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Apple starts out first in the list&quot;', foodItems[0] == apple);
+   assertTrue('Cupcake starts out second in the list&quot;', foodItems[1] == cupcake);
+   assertTrue('Brownie starts out second in the list&quot;', foodItems[2] == brownie);
+ 
++/*
++PENDING: the ordinal implementation was broken by the new UUID code
+   brownie.reorderBetween(apple, cupcake);
+   foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+@@ -374,10 +374,10 @@
+   assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+   assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
+   assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
++*/
+   
+   world.logout();
+ }
+-*/
+   
+ function testDeletion() {
+   var janesPassword = &quot;jane's password&quot;;
+@@ -467,9 +467,9 @@
+   var cupcake = world.newItem(&quot;Cupcake&quot;);
+ 
+   var categoryCalledFood = world.newCategory(&quot;Food&quot;);
+-  apple.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+-  brownie.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+-  cupcake.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  apple.assignToCategory(categoryCalledFood);
++  brownie.assignToCategory(categoryCalledFood);
++  cupcake.assignToCategory(categoryCalledFood);
+ 
+   var tokyo = world.newItem(&quot;Tokyo&quot;);
+   var seattle = world.newItem(&quot;Seattle&quot;);
+@@ -520,17 +520,18 @@
+ 
+   var categoryCalledFood = world.newCategory(&quot;Food&quot;);
+   assertTrue('The category &quot;Food&quot; is an item', (categoryCalledFood instanceof Item));
+-  apple.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+-  brownie.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
+-  cupcake.addEntryForAttribute(attributeCalledCategory, categoryCalledFood);
++  apple.assignToCategory(categoryCalledFood);
++  brownie.assignToCategory(categoryCalledFood);
++  cupcake.assignToCategory(categoryCalledFood);
+ 
+   var tokyo = world.newItem(&quot;Tokyo&quot;);
+   var seattle = world.newItem(&quot;Seattle&quot;);
+ 
+   var hasAll;
+   var queryForFoods = world.newQueryForItemsByCategory(categoryCalledFood);
++  var queryRunnerForFoods = world.newQueryRunner(queryForFoods);
++  var listOfFoods = queryRunnerForFoods.getResultItems();
+   
+-  var listOfFoods = world.getResultItemsForQuery(queryForFoods);
+   hasAll = Util.areObjectsInSet([apple, brownie, cupcake], listOfFoods);
+   assertTrue('Food query returns 3 foods', listOfFoods.length == 3);
+   assertTrue('Food query returns all 3 foods', hasAll);
+@@ -545,7 +546,7 @@
+   world.setItemToBeIncludedInQueryResultList(tokyo, queryForFoods);
+   assertTrue('Tokyo is now a food', tokyo.isInCategory(categoryCalledFood));
+ 
+-  listOfFoods = world.getResultItemsForQuery(queryForFoods);
++  listOfFoods = queryRunnerForFoods.getResultItems();
+   hasAll = Util.areObjectsInSet([apple, brownie, cupcake, tokyo], listOfFoods);
+   assertTrue('Food query returns 4 foods', listOfFoods.length == 4);
+   assertTrue('Food query returns all 4 foods', hasAll);
+@@ -556,30 +557,38 @@
+   var beijing = world.newItem(&quot;Beijing&quot;);
+   beijing.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
+   var seattleEntry = seattle.addEntryForAttribute(attributeCalledContinent, &quot;North America&quot;);
+-  var asiaQuery = world.newQuery(attributeCalledContinent, &quot;Asia&quot;)
+-  var listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  // var asiaQuery = world.newQuery(attributeCalledContinent, &quot;Asia&quot;)
++  // var listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  var queryRunnerForAsia = world.newQueryRunner([attributeCalledContinent, &quot;Asia&quot;]);
++  var listOfCountries = queryRunnerForAsia.getResultItems();
++  
+   assertTrue('Asia query returns 2 countries', listOfCountries.length == 2);
+   hasAll = Util.areObjectsInSet([tokyo,beijing], listOfCountries);
+   assertTrue('Asia query returns all 2 countries', hasAll);
+   
+   var northAmericaQuery = world.newQuery(attributeCalledContinent, &quot;North America&quot;);
+-  listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  // listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  var queryRunnerForNorthAmerica = world.newQueryRunner(northAmericaQuery);
++  var listOfCountries = queryRunnerForNorthAmerica.getResultItems();
+   assertTrue('North America query returned only Seattle',
+   listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
+     
+   seattle.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
+-  listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  // listOfCountries = world.getResultItemsForQuery(asiaQuery);
++  listOfCountries = queryRunnerForAsia.getResultItems();
+   assertTrue('Asia query returns 3 countries', listOfCountries.length == 3);
+   hasAll = Util.areObjectsInSet([tokyo,beijing,seattle], listOfCountries);
+   assertTrue('Asia query returns all 3 countries', hasAll);
+   
+   world.setItemToBeIncludedInQueryResultList(beijing, northAmericaQuery);
+-  listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
+-  assertTrue('Beijing is now in North America',Util.isObjectInSet(beijing,listOfCountries));
+-  assertTrue('North America query returns 2 countries',listOfCountries.length == 2);
++  // listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  listOfCountries = queryRunnerForNorthAmerica.getResultItems();
++  assertTrue('Beijing is now in North America',Util.isObjectInSet(beijing, listOfCountries));
++  assertTrue('North America query returns 2 countries', listOfCountries.length == 2);
+   world.setItemToBeIncludedInQueryResultList(seattle, northAmericaQuery);
+-  listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
+-  assertTrue('North America still returns only 2 countries',listOfCountries.length == 2);
++  // listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
++  listOfCountries = queryRunnerForNorthAmerica.getResultItems();
++  assertTrue('North America still returns only 2 countries', listOfCountries.length == 2);
+   
+   world.logout();
+ }
+
+Added: trunk/source/model/QueryRunner.js
+===================================================================
+--- trunk/source/model/QueryRunner.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/QueryRunner.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -0,0 +1,254 @@
++/*****************************************************************************
++ QueryRunner.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++/**
++ * A QueryRunner is used to run a query.  A QueryRunner can be initialized with a
++ * query spec item, so that when the QueryRunner is executed it will return the
++ * item specified by the query spec.
++ *
++ * @scope    public instance constructor
++ * @param    world    The World of items this query will search within. 
++ * @param    querySpec    Optional. A query spec item, or an ad-hoc query. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the query. 
++ */
++function QueryRunner(world, querySpec, observer) {
++  Util.assert(world instanceof World);
++  
++  this._world = world;
++  this._querySpec = querySpec;
++  this._observer = observer;
++  
++  this._listOfResultItems = null;
++  this._matchingAttribute = null;
++  this._listOfMatchingValues = null;
++  
++  if (this._querySpec) {
++    if (this._querySpec instanceof Item) {
++      this._querySpec.addObserver(this);
++    }
++    this._readQuerySpec();
++    this._runQuery();
++  }
++  this.getWorld()._registerQueryRunner(this);
++}
++
++
++// -------------------------------------------------------------------
++// Public methods 
++// -------------------------------------------------------------------
++
++/**
++ * Returns the World instance that this QueryRunner is using.
++ *
++ * @scope    public instance method
++ * @return   A World object. 
++ */
++QueryRunner.prototype.getWorld = function () {
++  return this._world;
++};
++
++
++/**
++ * Returns the attribute item that this query evaluates against.
++ *
++ * @scope    public instance method
++ * @return   An attribute item. 
++ */
++QueryRunner.prototype.getMatchingAttribute = function () {
++  return this._matchingAttribute;
++};
++
++
++/**
++ * Returns the list of values that this query evaluates against.
++ *
++ * @scope    public instance method
++ * @return   A list of values. 
++ */
++QueryRunner.prototype.getMatchingValues = function () {
++  return this._listOfMatchingValues;
++};
++
++
++/**
++ * Returns the list of items that match the query.
++ *
++ * @scope    public instance method
++ * @return   The list of items in the query result set. 
++ */
++QueryRunner.prototype.getResultItems = function () {
++  return this._listOfResultItems;
++};
++
++
++/**
++ * Returns true if the given item matches the query criteria.
++ *
++ * @scope    public instance method
++ * @param    item    An item to test. 
++ * @return   A boolean value. True if the item matches the query criteria.
++ */
++QueryRunner.prototype.doesItemMatch = function(item) {
++  if (item.hasBeenDeleted()) {
++    return false;
++  }
++  
++  var matchingAttribute = this.getMatchingAttribute();
++  var listOfMatchingValues = this.getMatchingValues();
++  for (var key in listOfMatchingValues) {
++    var matchingValue = listOfMatchingValues[key];
++    if (item.hasAttributeValue(matchingAttribute, matchingValue)) {
++      return true;
++    }
++  }
++  
++  return false;
++};
++
++
++/**
++ * Does final clean-up.
++ *
++ * @scope    public instance method
++ */
++QueryRunner.prototype.endOfLife = function() {
++  this.getWorld()._unregisterQueryRunner(this);
++};
++
++
++// -------------------------------------------------------------------
++// QuerySpec observer method 
++// -------------------------------------------------------------------
++
++/**
++ * Called when there has been a change to the querySpec.
++ *
++ * @scope    public instance method
++ * @param    querySpec    The querySpec that was changed. 
++ * @param    listOfChangeRecords    A list of the records that impacted the querySpec. 
++ */
++QueryRunner.prototype.observedItemHasChanged = function(querySpec, listOfChangeRecords) {
++  Util.assert(querySpec == this._querySpec);
++  this._readQuerySpec();
++  this._runQuery();
++};
++
++
++// -------------------------------------------------------------------
++// Change notification methods 
++// -------------------------------------------------------------------
++
++/**
++ * Called by the world if there has been a change to the result set during
++ * a transaction.
++ *
++ * @scope    package instance method
++ */
++QueryRunner.prototype._resultsHaveChanged = function() {
++  this._runQuery();
++};
++
++
++// -------------------------------------------------------------------
++// Private methods 
++// -------------------------------------------------------------------
++
++/**
++ * Reads the querySpec and sets our own query representation to match
++ * the query spec.
++ *
++ * @scope    public instance method
++ */
++QueryRunner.prototype._readQuerySpec = function() {
++  this._matchingAttribute = null;
++  this._listOfMatchingValues = null;
++  
++  if (!this._querySpec) {
++    return;
++  }
++
++  // Handle the case where we have a query spec item
++  if (this._querySpec instanceof Item) {
++    // read the matching attribute from the query spec
++    var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
++    var listOfMatchingAttributeEntries = this._querySpec.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++    if (listOfMatchingAttributeEntries.length === 0) {
++      // by default the matching attribute is category
++      this._matchingAttribute = this.getWorld().getAttributeCalledCategory();
++    }
++    else {
++      Util.assert(listOfMatchingAttributeEntries.length == 1, 'There should only be one matching attribute on a Query Spec item.');
++      this._matchingAttribute = listOfMatchingAttributeEntries[0].getValue();
++    }
++
++    // read the matching values from the query spec
++    this._listOfMatchingValues = [];
++    var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++    var listOfMatchingEntries = this._querySpec.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++    for (var key in listOfMatchingEntries) {
++      var matchingEntry = listOfMatchingEntries[key];
++      var matchingValue = matchingEntry.getValue();
++      this._listOfMatchingValues.push(matchingValue);
++    }
++  }
++  
++  // Handle the case where we have an ad-hoc query
++  if (Util.isArray(this._querySpec)) {
++    var querySpecArray = this._querySpec;
++    if (querySpecArray.length === 0) {
++      return;
++    }
++    if (querySpecArray.length == 1) {
++      this._matchingAttribute = this.getWorld().getAttributeCalledCategory();
++      this._listOfMatchingValues = querySpecArray;
++    }
++    if (querySpecArray.length &gt; 1) {
++      this._matchingAttribute = querySpecArray.shift();
++      this._listOfMatchingValues = querySpecArray;
++    }
++  }
++  
++};
++
++
++/**
++ * Runs the query.
++ *
++ * @scope    public instance method
++ */
++QueryRunner.prototype._runQuery = function() {
++  this._listOfResultItems = this.getWorld().getResultItemsForQueryRunner(this);
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/StubVirtualServer.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -539,6 +539,7 @@
+  * Given a query item, this method returns a list of all the items that 
+  * match the query criteria.
+  *
++ * @deprecated    PENDING: use getResultItemsForQueryRunner() instead.
+  * @scope    public instance method
+  * @param    inQuery    A query item. 
+  * @return   A list of items.
+@@ -592,7 +593,54 @@
+ };
+ 
+ 
++/**
++ * Given a QueryRunner object, this method returns a list of all the items that 
++ * match the query criteria.
++ *
++ * @scope    public instance method
++ * @param    queryRunner    A QueryRunner object. 
++ * @return   A list of items.
++ */
++StubVirtualServer.prototype.getResultItemsForQueryRunner = function(queryRunner) {
++  var matchingAttribute = queryRunner.getMatchingAttribute();
++  var listOfMatchingValues = queryRunner.getMatchingValues();
++  var listOfQueryResultItems = [];
++  var key;
++  
++  if (!matchingAttribute || !listOfMatchingValues) {
++    return listOfQueryResultItems;
++  }
++    
++  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++  if (matchingAttribute == attributeCalledCategory) {
++    // If this is a query for all the item in a category,
++    // then handle that as a special case, because we can
++    // do that way faster than more general queries.
++    var attributeCalledItemsInCategory = this.getWorld().getAttributeCalledItemsInCategory();
++    for (key in listOfMatchingValues) {
++      var category = listOfMatchingValues[key];
++      var listOfEntriesForItemsInCategory = category.getEntriesForAttribute(attributeCalledItemsInCategory);
++      for (var innerKey in listOfEntriesForItemsInCategory) {
++        var entry = listOfEntriesForItemsInCategory[innerKey];
++        var itemInCategory = entry.getValue(category);
++        Util.addObjectToSet(itemInCategory, listOfQueryResultItems);
++      }
++    }
++  } else {
++    // General case code for any sort of query. 
++    for (var uuid in this.__myHashTableOfItemsKeyedByUuid) {
++      var item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++      var includeItem = queryRunner.doesItemMatch(item);
++      if (includeItem) {
++        listOfQueryResultItems.push(item);
++      }
++    }
++  }
++  listOfQueryResultItems.sort(ContentRecord.compareOrdinals);
++  return listOfQueryResultItems; 
++};
+ 
++
+ /**
+  * Given an item and a query item, this method modifies the attributes 
+  * of the item so that when the query is next evaluated the item will be 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-29 17:33:41 UTC (rev 192)
++++ trunk/source/model/World.js	2005-06-29 21:40:59 UTC (rev 193)
+@@ -103,7 +103,9 @@
+ function World(virtualServer) {
+   this._hashTableOfObserverListsKeyedByItemUuid = {};
+   this._listOfListObserverTuples = [];
+-
++  
++  this._registeredQueryRunners = [];
++  
+   this._currentRetrievalFilter = World.RETRIEVAL_FILTER_LAST_EDIT_WINS;
+ 
+   var server;
+@@ -270,8 +272,8 @@
+   // Look at all the observers who have registered interest in a 
+   // list of items rather than in an individual item.  For each of
+   // those observers, notify them of all the changes to all the items.
+-  for (var ikey in this._listOfListObserverTuples) {
+-    var observerTuple = this._listOfListObserverTuples[ikey];
++  for (var iKey in this._listOfListObserverTuples) {
++    var observerTuple = this._listOfListObserverTuples[iKey];
+     var listBeingObserved = observerTuple[World.__TUPLE_KEY_LIST];
+     var setOfObservers = observerTuple[World.__TUPLE_KEY_OBSERVERS];
+     var listOfItemChangeReports = null;
+@@ -302,6 +304,31 @@
+       }
+     }
+   }
++  
++  // Look at all the QueryRunner objects that are registered, and for
++  // each of the QueryRunners, notify them of changes they care about.
++  for (key in this._registeredQueryRunners) {
++    var queryRunner = this._registeredQueryRunners[key];
++    var oldListOfResultItems = queryRunner.getResultItems();
++    var reportChange = false;
++    for (uuid in hashTableOfNewlyCreatedRecordsKeyedByItemUuid) {
++      item = this.getItemFromUuid(uuid);
++      if (Util.isObjectInSet(item, oldListOfResultItems)) {
++        reportChange = true;
++        break;
++      } else {
++        if (queryRunner.doesItemMatch(item)) {
++          reportChange = true;
++          break;
++        }
++      }
++    }
++    
++    if (reportChange) {
++      queryRunner._resultsHaveChanged();
++    }
++  }
++  
+ };
+ 
+ 
+@@ -709,6 +736,48 @@
+ 
+ 
+ /**
++ * Returns a newly created QueryRunner object.
++ *
++ * @scope    public instance method
++ * @param    querySpec    Optional. A query spec item, or an ad-hoc query. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the query. 
++ * @return   A newly created QueryRunner object.
++ */
++World.prototype.newQueryRunner = function(querySpec, observer) {
++  var queryRunner = new QueryRunner(this, querySpec, observer);
++  return queryRunner;
++};
++
++
++/**
++ * Registers a QueryRunner object, so that the QueryRunner will be
++ * notified of changes to the repository.
++ *
++ * @scope    public instance method
++ * @param    queryRunner    A QueryRunner object. 
++ */
++World.prototype._registerQueryRunner = function(queryRunner) {
++  Util.assert(queryRunner instanceof QueryRunner);
++  var success = Util.addObjectToSet(queryRunner, this._registeredQueryRunners);
++  Util.assert(success);
++};
++
++
++/**
++ * Unregisters a QueryRunner object, so that the QueryRunner will no 
++ * longer be notified of changes to the repository.
++ *
++ * @scope    public instance method
++ * @param    queryRunner    A previously registered QueryRunner object. 
++ */
++World.prototype._unregisterQueryRunner = function(queryRunner) {
++  Util.assert(queryRunner instanceof QueryRunner);
++  var success = Util.removeObjectFromSet(queryRunner, this._registeredQueryRunners);
++  Util.assert(success);
++};
++
++
++/**
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
+@@ -799,6 +868,7 @@
+  * Given a query item, this method returns a list of all the items that 
+  * match the query criteria.
+  *
++ * @deprecated    PENDING: use getResultItemsForQueryRunner() instead.
+  * @scope    public instance method
+  * @param    query    A query item. 
+  * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+@@ -812,6 +882,20 @@
+ 
+ 
+ /**
++ * Given a QueryRunner object, this method returns a list of all the items that 
++ * match the query criteria.
++ *
++ * @scope    public instance method
++ * @param    queryRunner    A QueryRunner object. 
++ * @return   A list of items.
++ */
++World.prototype.getResultItemsForQueryRunner = function(queryRunner) {
++  var listOfItems = this._virtualServer.getResultItemsForQueryRunner(queryRunner);
++  return listOfItems;
++};
++
++
++/**
+  * Given an item and a query item, this method modifies the attributes 
+  * of the item so that when the query is next evaluated the item will be 
+  * included in query result list.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000178.html">[openrecord-svn] r192 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000180.html">[openrecord-svn] r194 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#179">[ date ]</a>
+              <a href="thread.html#179">[ thread ]</a>
+              <a href="subject.html#179">[ subject ]</a>
+              <a href="author.html#179">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

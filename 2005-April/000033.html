@@ -1,0 +1,501 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r40 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r40%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200504270426.j3R4Q9Y0009130%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000032.html">
+   <LINK REL="Next"  HREF="000034.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r40 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r40%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200504270426.j3R4Q9Y0009130%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r40 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Apr 27 06:26:09 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000032.html">[openrecord-svn] r39 - in trunk/source: . model
+</A></li>
+        <LI>Next message: <A HREF="000034.html">[openrecord-svn] r41 - in trunk/source: . model scrap_yard
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-27 06:26:02 +0200 (Wed, 27 Apr 2005)
+New Revision: 40
+
+Modified:
+   trunk/source/Util.js
+   trunk/source/UtilTest.js
+   trunk/source/model/BigLumpVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/READ_ME.txt
+   trunk/source/model/World.js
+Log:
+Added more unit tests, and fixed bugs so that the code passes the new tests.
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/Util.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -318,6 +318,29 @@
+ 
+ 
+ /**
++ * Returns true if each of the given objects is a member of the set.  
++ * 
++ * @scope    public class method
++ * @param    inArray    An array of objects to look for. 
++ * @param    inSet    The Array to look for the objects in. 
++ * @return   Returns true if each of the objects was found in the set.
++ */
++Util.areObjectsInSet = function (inArray, inSet) {
++  Util.assert(Util.isArray(inArray));
++  Util.assert(Util.isArray(inSet));
++  
++  for (var key in inArray) {
++    var object = inArray[key];
++    var objectIsInSet = Util.isObjectInSet(object, inSet);
++    if (!objectIsInSet) {
++      return false;
++    }
++  }
++  return true;
++};
++
++
++/**
+  * Removes an object from an array.  
+  * 
+  * @scope    public class method
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/UtilTest.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -50,14 +50,21 @@
+ }
+ 
+ function testMethodsThatOperateOnSets() {
+-  var aSet = [];
++  var aTinySet = [];
+   var theHobbit = UtilTestVars.theHobbit;
+-  assertFalse('&quot;The Hobbit&quot; is not in an empty set', Util.isObjectInSet(theHobbit, aSet));
+-  assertTrue('&quot;The Hobbit&quot; can be added to an empty set', Util.addObjectToSet(theHobbit, aSet));
+-  assertTrue('&quot;The Hobbit&quot; is in the set after being added', Util.isObjectInSet(theHobbit, aSet));
+-  assertTrue('&quot;The Hobbit&quot; can be removed from a set it is in', Util.removeObjectFromSet(theHobbit, aSet));
+-  assertFalse('&quot;The Hobbit&quot; is no longer in a set it was removed from', Util.isObjectInSet(theHobbit, aSet));
+-  assertFalse('&quot;The Hobbit&quot; can not be removed twice', Util.removeObjectFromSet(theHobbit, aSet));
++  assertFalse('&quot;The Hobbit&quot; is not in an empty set', Util.isObjectInSet(theHobbit, aTinySet));
++  assertTrue('&quot;The Hobbit&quot; can be added to an empty set', Util.addObjectToSet(theHobbit, aTinySet));
++  assertTrue('&quot;The Hobbit&quot; is in the set after being added', Util.isObjectInSet(theHobbit, aTinySet));
++  assertTrue('&quot;The Hobbit&quot; can be removed from a set it is in', Util.removeObjectFromSet(theHobbit, aTinySet));
++  assertFalse('&quot;The Hobbit&quot; is no longer in a set it was removed from', Util.isObjectInSet(theHobbit, aTinySet));
++  assertFalse('&quot;The Hobbit&quot; can not be removed twice', Util.removeObjectFromSet(theHobbit, aTinySet));
++
++  setNumber2 = [123, &quot;456&quot;, 78.9, new Date(), theHobbit];
++  assertTrue('&quot;The Hobbit&quot; is in setNumber2', Util.isObjectInSet(theHobbit, setNumber2));
++  assertTrue('78.9 is in setNumber2', Util.isObjectInSet(78.9, setNumber2));
++  assertTrue('78.9 and &quot;The Hobbit&quot; is in setNumber2', Util.areObjectsInSet([78.9, theHobbit], setNumber2));
++  assertTrue('All members of setNumber2 are in setNumber2', Util.areObjectsInSet(setNumber2, setNumber2));
++  
+ }
+ 
+ function tearDown() {
+
+Modified: trunk/source/model/BigLumpVirtualServer.js
+===================================================================
+--- trunk/source/model/BigLumpVirtualServer.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/model/BigLumpVirtualServer.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -258,7 +258,7 @@
+ 
+     var timestampString = contents[BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP];
+     var userstampUuid = contents[BigLumpVirtualServer.JSON_MEMBER_USERSTAMP];
+-    var timestamp = new Date(timestampString);
++    var timestamp = new Date(new Number(timestampString));
+     var userstamp = this.__getItemFromUuidOrBootstrapItem(userstampUuid);
+ 
+     if (dehydratedItem) {
+@@ -399,7 +399,7 @@
+       pickleString = '{ &quot;' + BigLumpVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeString + '&quot;, &quot;' + BigLumpVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + ' }';
+       listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_DATA + '&quot;: ' + pickleString + ',\n');
+     }
+-    listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().getUTCMilliseconds() + '&quot;,\n');
++    listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().valueOf() + '&quot;,\n');
+     listOfStrings.push('    &quot;' + BigLumpVirtualServer.JSON_MEMBER_USERSTAMP + '&quot;: &quot;' + record.getUserstamp()._getUuid() + '&quot;}\n');
+     listOfStrings.push('  }');
+   }
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/model/Entry.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -202,7 +202,7 @@
+  * @return   A number.
+  */
+ Entry.prototype.getOrdinalNumberAtCreation = function () {
+-  return (0 - this.__myCreationTimestamp.getUTCMilliseconds());
++  return (0 - this.__myCreationTimestamp.valueOf());
+ };
+ 
+ 
+@@ -322,9 +322,11 @@
+   
+   if (inEntryFirst) {
+     firstOrdinalNumber = inEntryFirst.getOrdinalNumber();
++    alert(&quot;firstOrdinalNumber:&quot; + firstOrdinalNumber);
+   }
+   if (inEntryThird) {
+     thirdOrdinalNumber = inEntryThird.getOrdinalNumber();
++    alert(&quot;thirdOrdinalNumber:&quot; + thirdOrdinalNumber);
+   }
+   
+   if (firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/model/Item.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -156,7 +156,8 @@
+  * @return   The new replacement value object.
+  */
+ Item.prototype.replaceValue = function (inValue, inContentData) {
+-  return this.replaceValueWithAttributeValue(inValue, null, inContentData);
++  var attribute = inValue.getAttribute();
++  return this.replaceValueWithAttributeValue(inValue, attribute, inContentData);
+ };
+ 
+ 
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/model/ModelTest.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -30,10 +30,12 @@
+  
+ var ModelTestVars = null;
+ 
++
+ function setUp() {
+   ModelTestVars = {};
+ }
+ 
++
+ function testLoginLogout() {
+   var world = new World();
+   var listOfUsers;
+@@ -123,11 +125,16 @@
+   var hasAll;
+   
+   var tZero = new Date();
++  
++  
++  // operations done by Jane
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+   world.login(userJane, janesPassword);
+ 
+   var characterAttribute = world.newAttribute(&quot;Characters&quot;);
+   var starWars = world.newItem(&quot;Star Wars&quot;);
++  assertTrue('getDisplayName() works for &quot;Star Wars&quot;', (starWars.getDisplayName() == &quot;Star Wars&quot;));
++
+   var luck = starWars.addAttributeValue(characterAttribute, &quot;Luck Skywalker&quot;);
+   var c3po = starWars.addAttributeValue(characterAttribute, &quot;C3PO&quot;);
+   var r2d2 = starWars.addValue(&quot;R2D2&quot;);
+@@ -136,17 +143,12 @@
+   assertTrue('&quot;R2D2&quot; has not been replaced', !r2d2.hasBeenReplaced());
+ 
+   listOfCharacters = starWars.getValuesForAttribute(characterAttribute);
+-  hasAll = true;
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(luck, listOfCharacters);
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(c3po, listOfCharacters);
++  hasAll = Util.areObjectsInSet([luck, c3po], listOfCharacters);
+   assertTrue('&quot;Star Wars&quot; has characters: luck, c3po', hasAll);
+   assertTrue('Exactly 2 characters in the star wars', listOfCharacters.length == 2);
+ 
+   listOfValues = starWars.getValues();
+-  hasAll = true;
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(luck, listOfCharacters);
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(c3po, listOfCharacters);
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(r2d2, listOfValues);
++  hasAll = Util.areObjectsInSet([luck, c3po, r2d2], listOfValues);
+   assertTrue('&quot;Star Wars&quot; has values: luck, c3po, r2d2', hasAll);  
+   
+   var ordinalA = starWars.getOrdinalNumberAtCreation();
+@@ -163,10 +165,8 @@
+   assertTrue('&quot;Star Wars&quot; was made by Jane', starWarsUserstamp == userJane);    
+ 
+   listOfAttributes = starWars.getAttributes();
+-  hasAll = true;
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(nameAttribute, listOfAttributes);
+-  hasAll = hasAll &amp;&amp;  Util.isObjectInSet(characterAttribute, listOfAttributes);
+-  assertTrue('&quot;Star Wars&quot; has all 5 expected attributes', hasAll);
++  hasAll = Util.areObjectsInSet([nameAttribute, characterAttribute], listOfAttributes);
++  assertTrue('&quot;Star Wars&quot; has both expected attributes', hasAll);
+   
+   worldRetrievalFilter = world.getRetrievalFilter();
+   assertTrue('Default retrieval filter is &quot;last edit wins&quot;', worldRetrievalFilter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS);
+@@ -174,28 +174,149 @@
+   var luke = starWars.replaceValue(luck, &quot;Luke Skywalker&quot;);
+   var previousValue = luke.getPreviousValue();
+   assertTrue('&quot;Luke&quot; has the previous version &quot;Luck&quot;', previousValue !== null);
++  assertTrue('&quot;Luck&quot; has been replaced', luck.hasBeenReplaced());
++  assertTrue('&quot;Luke&quot; is a value in &quot;Star Wars&quot;', luck.getItem() == starWars);
+ 
++  listOfValues = starWars.getValues();
++  hasAll = Util.areObjectsInSet([luke, c3po, r2d2], listOfValues);
++  assertTrue('&quot;Star Wars&quot; has values: luke, c3po, r2d2', hasAll);  
++
++  listOfCharacters = starWars.getValuesForAttribute(characterAttribute);
++  hasAll = Util.areObjectsInSet([luke, c3po], listOfCharacters);
++  assertTrue('&quot;Star Wars&quot; has characters: luke, c3po', hasAll);
++  assertTrue('Exactly 2 characters in the star wars', listOfCharacters.length == 2);
++
+   world.logout();
+   
++  // operations done by Chris
+   var passwordForChris = &quot;Kringlishous!&quot;;
+   var userChris = world.newUser(&quot;Chris Kringle&quot;, passwordForChris);
+   world.login(userChris, passwordForChris);
+ 
+   r2d2 = starWars.replaceValueWithAttributeValue(r2d2, characterAttribute, &quot;R2D2&quot;);
+-  var hasR2d2;
++  assertTrue('&quot;R2D2&quot; is now character', r2d2.getAttribute() == characterAttribute);
+   
+   listOfCharacters = starWars.getValuesForAttribute(characterAttribute);
+-  hasR2d2 = Util.isObjectInSet(r2d2, listOfCharacters);
++  var hasR2d2 = Util.isObjectInSet(r2d2, listOfCharacters);
++  hasAll = Util.areObjectsInSet([luke, c3po, r2d2], listOfCharacters);
+   assertTrue('Chris sees R2D2 as a character', hasR2d2);
++  assertTrue('Chris sees characters: luke, c3po, r2d2', hasAll);
++  assertTrue('Chris sees 3 characters in &quot;Star Wars&quot;', listOfCharacters.length == 3);
+   
++  var attributeCalledName = world.getAttributeCalledName();
++  var theHobbit = world.newItem(&quot;The Hobbit&quot;);
++  theHobbit.addAttributeValue(attributeCalledName, &quot;There and Back Again&quot;);
++  listOfValues = theHobbit.getValuesForAttribute(attributeCalledName);
++  assertTrue('&quot;The Hobbit&quot; has two names', listOfValues.length == 2);
++  assertTrue('getDisplayName() returns the first name', (starWars.getDisplayName() == &quot;Star Wars&quot;));
++  listOfNames = theHobbit.getName();
++  assertTrue('getContentData() returns a string', listOfNames[0].getContentData() == &quot;The Hobbit&quot;);
++  hasAll = Util.areObjectsInSet(listOfNames, listOfValues);
++  hasAll = hasAll &amp;&amp; Util.areObjectsInSet(listOfValues, listOfNames);
++  assertTrue('getName() matches getValuesForAttribute(attributeCalledName)', hasAll);
++  
+   world.logout();
+ }
+ 
+ 
++function testCategories() {
++  var world = new World();
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++
++  var attributeCalledCategory = world.getAttributeCalledCategory();
++  var attributeCalledName = world.getAttributeCalledName();
++  var categoryCalledAttribute = world.getCategoryCalledAttribute();
++
++  var isInCategory;
++  isInCategory = attributeCalledName.isInCategory(categoryCalledAttribute);
++  assertTrue('The attribute &quot;Name&quot; is in the category &quot;Attribute&quot;', isInCategory);
++  isInCategory = categoryCalledAttribute.isInCategory(categoryCalledAttribute);
++  assertTrue('The category &quot;Attribute&quot; is NOT in the category &quot;Attribute&quot;', !isInCategory);
++  
++  var theHobbit = world.newItem(&quot;The Hobbit&quot;);
++  var theWisdomOfCrowds = world.newItem(&quot;The Wisdom of Crowds&quot;);
++  var theTransparentSociety = world.newItem(&quot;The Transparent Society&quot;);
++  isInCategory = theHobbit.isInCategory(categoryCalledAttribute);
++  assertTrue('&quot;The Hobbit&quot; is NOT in the category &quot;Attribute&quot;', !isInCategory);
++  
++  var categoryCalledBook = world.newCategory(&quot;Book&quot;);
++  isInCategory = theHobbit.isInCategory(categoryCalledBook);
++  assertTrue('&quot;The Hobbit&quot; is NOT in the category &quot;Book&quot;', !isInCategory);
++  
++  theHobbit.addAttributeValue(attributeCalledCategory, categoryCalledBook);
++  theWisdomOfCrowds.addAttributeValue(attributeCalledCategory, categoryCalledBook);
++  theTransparentSociety.addAttributeValue(attributeCalledCategory, categoryCalledBook);
++  isInCategory = theHobbit.isInCategory(categoryCalledBook);
++  assertTrue('&quot;The Hobbit&quot; is in the category &quot;Book&quot;', isInCategory);
++ 
++  var allBooks = world.getListOfItemsInCategory(categoryCalledBook);
++  var hasAll = Util.areObjectsInSet([theHobbit, theWisdomOfCrowds, theTransparentSociety], allBooks);
++  assertTrue('All three books are in the category &quot;Book&quot;', hasAll);
++  
++  world.logout();
++}
++
++
++function testOrdinals() {
++  var world = new World();
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++  
++  var attributeCalledCategory = world.getAttributeCalledCategory();
++  
++  var apple = world.newItem(&quot;Apple&quot;);
++  var cupcake = world.newItem(&quot;Cupcake&quot;);
++  var brownie = world.newItem(&quot;Brownie&quot;);  
++
++  var categoryCalledFood = world.newCategory(&quot;Food&quot;);
++  apple.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++  cupcake.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++  brownie.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++
++  var foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  assertTrue('Apple starts out first in the list&quot;', foodItems[0] == apple);
++  assertTrue('Cupcake starts out second in the list&quot;', foodItems[1] == cupcake);
++  assertTrue('Brownie starts out second in the list&quot;', foodItems[2] == brownie);
++
++  // PENDING: this doesn't work yet
++  // 
++  // brownie.reorderBetween(apple, cupcake);
++  // foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  // assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
++  // assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
++  // assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
++  
++  world.logout();
++}
++  
++
+ function tearDown() {
+   ModelTestVars = null;
+ }
+ 
++/*********************************************************************
++Methods that we don't yet have tests for:
++  
++  item.reorderBetween()
++  
++  item.hasBeenDeleted()
++  item.voteToDelete()
++  item.voteToRetain()
++  
++  item.addObserver()
++  item.removeObserver()
++  world.beginTransaction()
++  world.endTransaction()
++
++  world.getListOfResultItemsForQuery()
++  world.setItemToBeIncludedInQueryResultList()
++  world.removeObserverOfList()
++  
++*********************************************************************/
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/model/READ_ME.txt	2005-04-27 04:26:02 UTC (rev 40)
+@@ -77,6 +77,8 @@
+   world.newUser()
+   
+   world.newItem()
++  world.newAttribute()
++  world.newCategory()
+   world.getListOfItemsInCategory()
+   world.getListOfResultItemsForQuery()
+   world.setItemToBeIncludedInQueryResultList()
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-04-26 22:59:20 UTC (rev 39)
++++ trunk/source/model/World.js	2005-04-27 04:26:02 UTC (rev 40)
+@@ -464,12 +464,12 @@
+ 
+ 
+ /**
+- * Returns a newly created attribute item.
++ * Returns a newly created item representing an attribute.
+  *
+  * @scope    public instance method
+  * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+- * @return   A newly created attribute item.
++ * @return   A newly created item representing an attribute.
+  */
+ World.prototype.newAttribute = function (inName, inObserver) {
+   this.beginTransaction();
+@@ -483,6 +483,25 @@
+ 
+ 
+ /**
++ * Returns a newly created item representing a category.
++ *
++ * @scope    public instance method
++ * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created item representing a category.
++ */
++World.prototype.newCategory = function (inName, inObserver) {
++  this.beginTransaction();
++  var item = this.__myVirtualServer.newItem(inName, inObserver);
++  var attributeCalledCategory = this.getAttributeCalledCategory();
++  var categoryCalledCategory = this.getCategoryCalledCategory();
++  item.addAttributeValue(attributeCalledCategory, categoryCalledCategory);
++  this.endTransaction();
++  return item;
++};
++
++
++/**
+  * Returns a newly created value.
+  *
+  * @scope    public instance method
+@@ -608,6 +627,10 @@
+  * @param    inObserver    An object or method to be registered as an observer of the item. 
+  */
+ World.prototype.__addListObserver = function (inList, inObserver) {
++  var observerWasAdded = false;
++  if (!inObserver) {
++    return observerWasAdded;
++  }
+   var weNeedToMakeANewTupleForThisList = true;
+   var observerWasAdded = false;
+   var listOfTuples = this.__myListOfListObserverTuples;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000032.html">[openrecord-svn] r39 - in trunk/source: . model
+</A></li>
+	<LI>Next message: <A HREF="000034.html">[openrecord-svn] r41 - in trunk/source: . model scrap_yard
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#33">[ date ]</a>
+              <a href="thread.html#33">[ thread ]</a>
+              <a href="subject.html#33">[ subject ]</a>
+              <a href="author.html#33">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

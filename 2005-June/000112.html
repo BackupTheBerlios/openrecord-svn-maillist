@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r125 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r125%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506061700.j56H00aL029986%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000111.html">
+   <LINK REL="Next"  HREF="000113.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r125 - in trunk: documentation source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r125%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506061700.j56H00aL029986%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r125 - in trunk: documentation source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jun  6 19:00:00 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000111.html">[openrecord-svn] r124 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000113.html">[openrecord-svn] r126 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#112">[ date ]</a>
+              <a href="thread.html#112">[ thread ]</a>
+              <a href="subject.html#112">[ subject ]</a>
+              <a href="author.html#112">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-06 18:59:56 +0200 (Mon, 06 Jun 2005)
+New Revision: 125
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/ORPlugin.js
+   trunk/source/PageView.js
+   trunk/source/SectionView.js
+   trunk/source/Util.js
+   trunk/source/UtilTest.js
+Log:
+Just added some comment lines.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-06 07:00:46 UTC (rev 124)
++++ trunk/documentation/release_planning.txt	2005-06-06 16:59:56 UTC (rev 125)
+@@ -115,7 +115,7 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Priority | Estimate| Task
+ -------+----------+---------+----------------------------------------------
+-Mignon | Low      |         | Generate time-based UUIDs (&quot;version 1&quot; UUIDs)
++Mignon |   done   |         | Generate time-based UUIDs (&quot;version 1&quot; UUIDs)
+ Chao   |   done   | 1   IED | Allow users to view multiple entries in a table plugin cell (0.5 IED actual)
+ Chao   |   done   | 2   IED | Allow users to enter/edit multiple entries in a table plugin cell (1 IED actual)
+ Chao   |   done   |         | Have Escape key undo current editing in active field
+@@ -140,6 +140,8 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Priority | Estimate| Task
+ -------+----------+---------+----------------------------------------------
++       |          |         |     Have identifiedRecord.getTimestamp() get the time from the UUID 
++       |          |         |     Have identifiedRecord.getUserstamp() get the user from the UUID
+        |          |         |  1. Switch data model to use time-based UUIDs for timestamps &amp; userstamps
+        |          |         |  2. Get data model to pass the ordinal unit tests again
+        |          |         |  3. Create provisional item/entry pair in correct order
+
+Modified: trunk/source/ORPlugin.js
+===================================================================
+--- trunk/source/ORPlugin.js	2005-06-06 07:00:46 UTC (rev 124)
++++ trunk/source/ORPlugin.js	2005-06-06 16:59:56 UTC (rev 125)
+@@ -2,7 +2,8 @@
+  ORPlugin.js
+ 
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+ 
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-06 07:00:46 UTC (rev 124)
++++ trunk/source/PageView.js	2005-06-06 16:59:56 UTC (rev 125)
+@@ -2,7 +2,9 @@
+  PageView.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-06 07:00:46 UTC (rev 124)
++++ trunk/source/SectionView.js	2005-06-06 16:59:56 UTC (rev 125)
+@@ -2,7 +2,10 @@
+  SectionView.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
++    Mignon Belongie
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -367,9 +370,19 @@
+     } else {
+       this.getQuery().addEntryForAttribute(attributeCalledQueryMatchingCategory, newQueryMatchingCategory);
+     }
++    // I think we need these next 3 lines in to make sure the view gets updated  
++    // to reflect the new query.  When we get a chance we should probably do 
++    // some refactoring so that the plugin can register as an observer of the
++    // query item, and then the plugin itself can know what to do when the
++    // query item changes.  
+     var pluginName = this._myPlugin.getPluginName();
+     this._myPlugin.endOfLife();
+     this._myPlugin = this.getPluginFromPluginName(pluginName, this._myPluginDiv);
++
++    // PENDING:
++    // These next 8 lines look like a mistake.  Maybe they're a result of a 
++    // copy &amp; paste error.  I think we can just delete them, but I'm not brave
++    // enough right now!
+     var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+     var pluginNameEntries = this.mySection.getEntriesForAttribute(attributeCalledPluginName);
+     if (pluginNameEntries &amp;&amp; pluginNameEntries[0]) {
+@@ -378,6 +391,7 @@
+     } else {
+       this.mySection.addEntryForAttribute(attributeCalledPluginName, pluginName);
+     }
++
+     this.refresh();
+   }
+ };
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-06 07:00:46 UTC (rev 124)
++++ trunk/source/Util.js	2005-06-06 16:59:56 UTC (rev 125)
+@@ -5,6 +5,7 @@
+  Written in 2005 by 
+     Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+     Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
++    Mignon Belongie
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -664,8 +665,19 @@
+     Util.carry(arrayHundredNanosecondIntervalsSince1582);
+     Util._ourNextIntraMillisecondIncrement += 1;
+     if (Util._ourNextIntraMillisecondIncrement == 10000) {
++      // If we've gotten to here, it means we've already generated 10,000
++      // UUIDs in this single milliseconds, which is the most that the UUID
++      // timestamp field allows for.  The only thing to do now is just sit
++      // and wait for a fraction of a millisecond, so that we're working
++      // with a different millisecond value in the timestamp field.
+       while (now.valueOf() == Util._ourDateValueOfPreviousUuid) {
+         now = new Date();
++        // PENDING:
++        // There's a bug here, isn't there?  Now that have a fresh new 
++        // &quot;now&quot; value, we can get a generate a valid timestamp, but we
++        // don't actually do that.  Don't we now need to go back up 30
++        // lines, and start over with all the work to calculate
++        // arrayHundredNanosecondIntervalsSince1582 ?
+       }
+     }
+   }
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-06-06 07:00:46 UTC (rev 124)
++++ trunk/source/UtilTest.js	2005-06-06 16:59:56 UTC (rev 125)
+@@ -2,7 +2,9 @@
+  UtilTest.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000111.html">[openrecord-svn] r124 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000113.html">[openrecord-svn] r126 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#112">[ date ]</a>
+              <a href="thread.html#112">[ thread ]</a>
+              <a href="subject.html#112">[ subject ]</a>
+              <a href="author.html#112">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

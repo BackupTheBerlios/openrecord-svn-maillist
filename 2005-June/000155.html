@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r169 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r169%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506220321.j5M3LJIk030826%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000154.html">
+   <LINK REL="Next"  HREF="000156.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r169 - in trunk: documentation source source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r169%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506220321.j5M3LJIk030826%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r169 - in trunk: documentation source source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 22 05:21:19 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000154.html">[openrecord-svn] r168 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000156.html">[openrecord-svn] r170 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#155">[ date ]</a>
+              <a href="thread.html#155">[ thread ]</a>
+              <a href="subject.html#155">[ subject ]</a>
+              <a href="author.html#155">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-22 05:21:11 +0200 (Wed, 22 Jun 2005)
+New Revision: 169
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/MultiEntriesView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+Log:
+Changes to how view code handles provisional items so as to save the provisional item first and then set the category, in that order, and in one transaction.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-21 18:26:56 UTC (rev 168)
++++ trunk/documentation/release_planning.txt	2005-06-22 03:21:11 UTC (rev 169)
+@@ -162,7 +162,7 @@
+ brian  | 0        | 0.25    |     Get deletion votes working again after switching to time-based UUIDs
+ brian  | 0.5  IED | 0.25    |  4. Store transaction info in repository
+        |          |         |  5. UI for deleting a row from a table
+-brian  | 0.5  IED |         |  6. Save provisional item and then set the category, in that order, and in on transaction
++brian  | 0.5  IED | 0.25    |  6. Save provisional item and then set the category, in that order, and in one transaction
+        |          |         |  7. Fix the bug that happens when you call the PHP server code with no POST data
+ chao   | 0.5  IED | 0.5 IED |  8. UI for entering a number literal (instead of a string literal) in a table [with Brian]
+ chao   | 1    IED | 1   IED |  9. UI for entering a date literal in a table (and data model support) [with Brian]
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-21 18:26:56 UTC (rev 168)
++++ trunk/source/MultiEntriesView.js	2005-06-22 03:21:11 UTC (rev 169)
+@@ -91,6 +91,23 @@
+ 
+ 
+ /**
++ * This method will only ever be called by one of our EntryView subviews.
++ * The EntryView will call this method during the transaction in which
++ * the EntryView is creating the first Entry for a provisional item, 
++ * causing the provisional item to become &quot;real&quot;.
++ * 
++ * @scope    package instance method
++ * @param    item      The Item which just became real. 
++ */
++MultiEntriesView.prototype._provisionalItemJustBecomeReal = function(item) {
++  var superview = this.getSuperview();
++  if (superview._provisionalItemJustBecomeReal) {
++    superview._provisionalItemJustBecomeReal(item);
++  }
++};
++
++
++/**
+  *
+  */
+ MultiEntriesView.prototype.noLongerProvisional = function() {
+@@ -141,6 +158,7 @@
+   this._clickFunction = inClickFunction;
+ };
+ 
++
+ /**
+  *
+  */
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-21 18:26:56 UTC (rev 168)
++++ trunk/source/TablePlugin.js	2005-06-22 03:21:11 UTC (rev 169)
+@@ -253,13 +253,27 @@
+ };
+ 
+ 
++
+ /**
++ * This method will only ever be called by one of our MultiEntriesView 
++ * subviews.  The MultiEntriesView will call this method during the 
++ * transaction in which the first Entry for a provisional item is being
++ * created, causing the provisional item to become &quot;real&quot;.
++ * 
++ * @scope    package instance method
++ * @param    item      The Item which just became real. 
++ */
++TablePlugin.prototype._provisionalItemJustBecomeReal = function(item) {
++  this.getWorld().setItemToBeIncludedInQueryResultList(item, this._query);
++};
++
++
++/**
+  *
+  */
+ TablePlugin.prototype.observedItemHasChanged = function(item) {
+   // called when a provisional item becomes a real item
+   item.removeObserver(this); //now that provisional item is real, we stop observing it
+-  this.getWorld().setItemToBeIncludedInQueryResultList(item,this._query);
+   this._listOfItems.push(item); // moving this line affects code below
+   
+   // tell provisional item views they are no longer provisional
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-21 18:26:56 UTC (rev 168)
++++ trunk/source/TextView.js	2005-06-22 03:21:11 UTC (rev 169)
+@@ -333,6 +333,7 @@
+  */
+ TextView.prototype._writeValue = function(value) {
+   if (value === 0 || value) {
++    this.getWorld().beginTransaction();
+     value = this._transformToExpectedType(value);
+ 
+     var oldValue = null;
+@@ -347,7 +348,12 @@
+       else {
+         this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
+       }
++      var superview = this.getSuperview();
++      if (superview._provisionalItemJustBecomeReal) {
++        superview._provisionalItemJustBecomeReal(this._item);
++      }
+     }    
++    this.getWorld().endTransaction();
+   }
+   this._restoreText(true); // call restore text in case item is transformed (e.g. Dates will be normalized)
+ };
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-21 18:26:56 UTC (rev 168)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-22 03:21:11 UTC (rev 169)
+@@ -145,7 +145,7 @@
+  * @return   A string that is. 
+  */
+ DeltaVirtualServer.prototype.truncateString = function (inString) {
+-  var maxLength = 30;
++  var maxLength = 80;
+   var ellipsis = &quot;...&quot;;
+   if (inString.length &gt; maxLength) {
+     return (inString.substring(0, (maxLength - ellipsis.length)) + ellipsis);
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-21 18:26:56 UTC (rev 168)
++++ trunk/source/model/Entry.js	2005-06-22 03:21:11 UTC (rev 169)
+@@ -311,7 +311,7 @@
+         else {Util.assert(false, &quot;myItem isn't part of this Entry&quot;);}
+       }
+       else {
+-        returnString = &quot;connection between [&quot; + firstItem.getDisplayName() + &quot;] and [&quot; + secondItem.getDisplayName() + &quot;]&quot;;
++        returnString = 'connection between &quot;' + firstItem.getDisplayName() + '&quot; and &quot;' + secondItem.getDisplayName() + '&quot;';
+       }
+       break;
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000154.html">[openrecord-svn] r168 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000156.html">[openrecord-svn] r170 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#155">[ date ]</a>
+              <a href="thread.html#155">[ thread ]</a>
+              <a href="subject.html#155">[ subject ]</a>
+              <a href="author.html#155">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

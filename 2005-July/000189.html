@@ -1,0 +1,1413 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r203 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r203%20-%20trunk/source&In-Reply-To=%3C200507010221.j612Lfm5004316%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000188.html">
+   <LINK REL="Next"  HREF="000190.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r203 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r203%20-%20trunk/source&In-Reply-To=%3C200507010221.j612Lfm5004316%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r203 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul  1 04:21:41 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000188.html">[openrecord-svn] r202 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000190.html">[openrecord-svn] r204 - in trunk/source: . model util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-01 04:21:33 +0200 (Fri, 01 Jul 2005)
+New Revision: 203
+
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/ItemView.js
+   trunk/source/LintTest.js
+   trunk/source/LintTool.js
+   trunk/source/LoginView.js
+   trunk/source/MultiEntriesView.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/PageView.js
+   trunk/source/PluginView.js
+   trunk/source/Rectangle.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/Util.js
+   trunk/source/View.js
+Log:
+compulsive coding-standards clean-up
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/BarChartPlugin.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -30,11 +30,11 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   SectionView.js
+-//   PageView.js
+-//   Util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++/*global SectionView  */
++/*global PluginView  */
+ // -------------------------------------------------------------------
+ 
+ 
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/DetailPlugin.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -30,10 +30,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   SectionView.js
+-//   Util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++/*global Item  */
++/*global SectionView  */
++/*global PluginView  */
+ // -------------------------------------------------------------------
+ 
+ 
+
+Modified: trunk/source/ItemView.js
+===================================================================
+--- trunk/source/ItemView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/ItemView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -30,11 +30,13 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   Util.js
+-//   RootView.js
+-//   DetailPlugin.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global document, HTMLElement  */
++/*global Util  */
++/*global Item  */
++/*global DetailPlugin  */
++/*global RootView  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -63,8 +65,8 @@
+   // instance properties
+   this.setSuperview(inRootView);
+   this.setHTMLElement(inHTMLElement);
+-  this.myItem = inItem;
+-  this.myPlugin = null;
++  this._item = inItem;
++  this._pluginView = null;
+ }
+ 
+ 
+@@ -75,7 +77,7 @@
+  * @return   A string that gives the name of the page.
+  */
+ ItemView.prototype.getPageTitle = function () {
+-  var pageTitle = this.myItem.getDisplayString();
++  var pageTitle = this._item.getDisplayString();
+   return pageTitle;
+ };
+ 
+@@ -87,16 +89,16 @@
+  * @scope    public instance method
+  */
+ ItemView.prototype.refresh = function () {
+-  Util.assert(this.myItem instanceof Item);
++  Util.assert(this._item instanceof Item);
+   
+   // PENDING: this needs to be changed from DOM level 0 to DOM level 2.
+   var listOfStrings = [];
+ 
+   // add an &lt;h1&gt; heading with the name of the page
+-  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this.myItem._getUuid() + &quot;\&quot;&gt;&quot; + this.myItem.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
++  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this._item._getUuid() + &quot;\&quot;&gt;&quot; + this._item.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+ 
+   // add a &lt;div&gt; element for the detail plugin
+-  var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this.myItem._getUuid();
++  var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this._item._getUuid();
+   listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + detailDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+ 
+   // write out all the new content 
+@@ -105,8 +107,8 @@
+ 
+   // let the detailPlugin add its own content
+   var detailPluginElement = document.getElementById(detailDivId);
+-  this.myPlugin = new DetailPlugin(this, detailPluginElement, [this.myItem]);
+-  this.myPlugin.refresh();
++  this._pluginView = new DetailPlugin(this, detailPluginElement, [this._item]);
++  this._pluginView.refresh();
+ };
+ 
+ 
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/LintTest.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -66,6 +66,7 @@
+     &quot;NavbarView.js&quot;,
+     &quot;SectionView.js&quot;,
+     &quot;TextView.js&quot;,
++    &quot;MultiEntriesView.js&quot;,
+     &quot;TablePlugin.js&quot;,
+     &quot;OutlinePlugin.js&quot;,
+     &quot;DetailPlugin.js&quot;,
+
+Modified: trunk/source/LintTool.js
+===================================================================
+--- trunk/source/LintTool.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/LintTool.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -61,10 +61,10 @@
+  * the lint tests.
+  *
+  * @scope    public class method
+- * @param    inString    A string containing JavaScript code. 
++ * @param    stringContainingCode    A string containing JavaScript code. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportForCodeInString = function (inString) {
++LintTool.getErrorReportForCodeInString = function(stringContainingCode) {
+   var errorMessage = &quot;&quot;;
+ 
+   // call jslint, and see if it reported errors
+@@ -72,7 +72,7 @@
+   jslint.plusplus = true;
+   jslint.cap = false;
+   jslint.jscript = false;
+-  jslint(inString);
++  jslint(stringContainingCode);
+   var report = jslint.report();
+   var jslintIsOkay = (report.substr(0, 2) == 'ok');
+   if (!jslintIsOkay) {
+@@ -80,19 +80,19 @@
+   }
+   
+   // now check for tabs, backspaces, etc.
+-  var noTabs = (inString.indexOf(&quot;\t&quot;) == -1);
++  var noTabs = (stringContainingCode.indexOf(&quot;\t&quot;) == -1);
+   if (!noTabs) {
+     errorMessage += &quot;There are tab characters in the file.&quot; + '\n';
+   }
+-  var noBackspaces = (inString.indexOf(&quot;\b&quot;) == -1);
++  var noBackspaces = (stringContainingCode.indexOf(&quot;\b&quot;) == -1);
+   if (!noBackspaces) {
+     errorMessage += &quot;There are backspace characters in the file.&quot; + '\n';
+   }
+-  var noCarriageReturns = (inString.indexOf(&quot;\r&quot;) == -1);
++  var noCarriageReturns = (stringContainingCode.indexOf(&quot;\r&quot;) == -1);
+   if (!noCarriageReturns) {
+     errorMessage += &quot;There are carriage return characters in the file.&quot; + '\n';
+   }
+-  var noFormFeeds = (inString.indexOf(&quot;\f&quot;) == -1);
++  var noFormFeeds = (stringContainingCode.indexOf(&quot;\f&quot;) == -1);
+   if (!noCarriageReturns) {
+     errorMessage += &quot;There are carriage return characters in the file.&quot; + '\n';
+   }
+@@ -106,11 +106,11 @@
+  * the lint tests.
+  *
+  * @scope    public class method
+- * @param    inUrl    A string with the URL of a file containing JavaScript code. 
++ * @param    url    A string with the URL of a file containing JavaScript code. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportForCodeAtUrl = function (inUrl) {
+-  var fileContents = Util.getStringContentsOfFileAtURL(inUrl);
++LintTool.getErrorReportForCodeAtUrl = function(url) {
++  var fileContents = Util.getStringContentsOfFileAtURL(url);
+   return LintTool.getErrorReportForCodeInString(fileContents);
+ };
+ 
+@@ -120,23 +120,23 @@
+  * returns null if the code passes the lint tests.
+  *
+  * @scope    public class method
+- * @param    inListOfFilenames    A list of filename strings. 
+- * @param    inPath    Optional.  A path prefix string to prepend to the filename strings. 
++ * @param    listOfFilenames    A list of filename strings. 
++ * @param    path    Optional.  A path prefix string to prepend to the filename strings. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportFromListOfFilesnames = function (inListOfFilenames, inPath) {
+-  Util.assert(Util.isArray(inListOfFilenames));
+-  if (inPath) {
+-    Util.assert(Util.isString(inPath));
++LintTool.getErrorReportFromListOfFilesnames = function(listOfFilenames, path) {
++  Util.assert(Util.isArray(listOfFilenames));
++  if (path) {
++    Util.assert(Util.isString(path));
+   } else {
+-    inPath = &quot;&quot;;
++    path = &quot;&quot;;
+   }
+   
+   var aggregateErrorReport = &quot;&quot;;
+   var separatorLine = &quot;_____________________________________&quot; + &quot;\n&quot;;
+-  for (var key in inListOfFilenames) {
+-    var filename = inListOfFilenames[key];
+-    var url = inPath + filename;
++  for (var key in listOfFilenames) {
++    var filename = listOfFilenames[key];
++    var url = path + filename;
+     var errorReportForFile = LintTool.getErrorReportForCodeAtUrl(url);
+     if (errorReportForFile) {
+       var message = separatorLine + filename + &quot;\n&quot; + errorReportForFile;
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/LoginView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -32,11 +32,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   Util.js
+-//   LoginView.js
+-//   DetailPlugin.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global document  */
++/*global Util  */
++/*global Cookie  */
++/*global SuggestionBox  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -62,8 +63,8 @@
+   this.setHTMLElement(inHTMLElement);
+   this._isCreatingNewAccount = false;
+   var tenYearCookieExpiration = 10*365*24;   // PENDING: hardcode expiration to 10yrs
+-  this.myCookie = new Cookie(document, LoginView.COOKIE_NAME, tenYearCookieExpiration);
+-  this.myCookie.load();
++  this._cookie = new Cookie(document, LoginView.COOKIE_NAME, tenYearCookieExpiration);
++  this._cookie.load();
+ }
+ 
+ 
+@@ -102,8 +103,8 @@
+   var currentUser = this.getWorld().getCurrentUser();
+   if (!currentUser) {
+     // alert(&quot;displayControlSpan: !currentUser&quot;);
+-    var userUuid = this.myCookie.userUuid;
+-    var password = this.myCookie.password;
++    var userUuid = this._cookie.userUuid;
++    var password = this._cookie.password;
+     // alert(&quot;displayControlSpan: userUuid = &quot; + userUuid);
+     if (userUuid) {
+       var userToLoginAs = this.getWorld().getItemFromUuid(userUuid);
+@@ -112,8 +113,8 @@
+         currentUser = this.getWorld().getCurrentUser();
+       }
+       if (!currentUser) {
+-        this.myCookie.userUuid = null;
+-        this.myCookie.store();
++        this._cookie.userUuid = null;
++        this._cookie.store();
+       }
+     }
+   }
+@@ -222,8 +223,8 @@
+   if (this.isInEditMode()) {
+     this.getRootView().setEditMode(false);
+   }
+-  this.myCookie.userUuid = null;
+-  this.myCookie.store();
++  this._cookie.userUuid = null;
++  this._cookie.store();
+   this.getWorld().logout();
+   this._rebuildView();
+ };
+@@ -346,9 +347,9 @@
+   var loginSuccess = this.getWorld().login(user, password); 
+   if (loginSuccess) {
+     var userUuid = user._getUuid();
+-    this.myCookie.userUuid = userUuid;
+-    this.myCookie.password = password;
+-    this.myCookie.store();
++    this._cookie.userUuid = userUuid;
++    this._cookie.password = password;
++    this._cookie.store();
+     this._rebuildView();
+   } else {
+     this._reportError(&quot;Login failed. Wrong password.&quot;);
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/MultiEntriesView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -32,13 +32,16 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   repository.js
+-//   util.js
+-//   TextView.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global document  */
++/*global Util  */
++/*global Item  */
++/*global TextView  */
+ // -------------------------------------------------------------------
+ 
+ 
++
+ // -------------------------------------------------------------------
+ // MultiEntriesView public class constants
+ // -------------------------------------------------------------------
+@@ -197,7 +200,9 @@
+       }
+       if (inTextView != this._entryViews[this._entryViews.length-1]) {move=1;}
+       break;
+-    default: move = 0; break;
++    default: 
++      move = 0; 
++      break;
+   }
+   if (doCreateNewEntry) {
+     inTextView.stopEditing();
+@@ -205,7 +210,7 @@
+     this._addEntryView(null).startEditing();
+     return true;
+   }
+-  if (move != 0) {
++  if (move !== 0) {
+     var index = Util.getArrayIndex(this._entryViews, inTextView);
+     Util.assert(index != -1);
+     index += move;
+@@ -266,7 +271,7 @@
+   this._entryViews = [];
+   
+   var entries = this._item.getEntriesForAttribute(this._attribute);
+-  if (this._item.isProvisional() || entries.length == 0) {
++  if (this._item.isProvisional() || entries.length === 0) {
+     this._addEntryView(null);
+   }
+   else {
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/OutlinePlugin.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -30,12 +30,15 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   SectionView.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++/*global View  */
++/*global RootView  */
+ // -------------------------------------------------------------------
+ 
+ 
++
+ // -------------------------------------------------------------------
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/PageView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -32,11 +32,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   Util.js
+-//   SectionView.js
+-//   TextView.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global document, HTMLElement  */
++/*global Util  */
++/*global Item  */
++/*global RootView, SectionView, TablePlugin, TextView  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -97,11 +98,11 @@
+   // instance properties
+   this.setSuperview(inRootView);
+   this.setHTMLElement(inHTMLElement);
+-  this.myPage = inPage;
++  this._pageItem = inPage;
+   
+-  this._myPageSummaryView = null;
+-  this._myHeaderText = null;
+-  this.myListOfSectionViews = [];
++  this._pageSummaryView = null;
++  this._headerText = null;
++  this._listOfSectionViews = [];
+ }
+ 
+ 
+@@ -112,7 +113,7 @@
+  * @return   A string that gives the name of the page.
+  */
+ PageView.prototype.getPageTitle = function () {
+-  var pageTitle = this.myPage.getDisplayString();
++  var pageTitle = this._pageItem.getDisplayString();
+   return pageTitle;
+ };
+ 
+@@ -127,10 +128,10 @@
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+-    this._myHeaderText.refresh();
+-    this._myPageSummaryView.refresh();
+-    for (var key in this.myListOfSectionViews) {
+-      var sectionView = this.myListOfSectionViews[key];      
++    this._headerText.refresh();
++    this._pageSummaryView.refresh();
++    for (var key in this._listOfSectionViews) {
++      var sectionView = this._listOfSectionViews[key];      
+       sectionView.refresh();
+     }
+     this._refreshEditModeControls();
+@@ -153,21 +154,21 @@
+   var pageDivElement = this.getHTMLElement();
+   
+   var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
+-  this._myHeaderText = new TextView(this, headerElement, this.myPage, attributeCalledName,
+-    this.myPage.getSingleEntryFromAttribute(attributeCalledName), PageView.CSS_CLASS_PAGE_HEADER, false);
++  this._headerText = new TextView(this, headerElement, this._pageItem, attributeCalledName,
++    this._pageItem.getSingleEntryFromAttribute(attributeCalledName), PageView.CSS_CLASS_PAGE_HEADER, false);
+ 
+   var summaryViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+-  this._myPageSummaryView = new TextView(this, summaryViewDiv, this.myPage, attributeCalledSummary,
+-    this.myPage.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.CSS_CLASS_SUMMARY_TEXT, true);
++  this._pageSummaryView = new TextView(this, summaryViewDiv, this._pageItem, attributeCalledSummary,
++    this._pageItem.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.CSS_CLASS_SUMMARY_TEXT, true);
+ 
+   // add &lt;div&gt; elements for each of the sections on the page
+   // and create a new SectionView for each section
+   var attributeCalledSectionsInPage = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTIONS_IN_PAGE);
+-  var listOfEntriesForSections = this.myPage.getEntriesForAttribute(attributeCalledSectionsInPage);
++  var listOfEntriesForSections = this._pageItem.getEntriesForAttribute(attributeCalledSectionsInPage);
+   
+   for (var key in listOfEntriesForSections) {
+     var entryForSection = listOfEntriesForSections[key];
+-    var section = entryForSection.getConnectedItem(this.myPage);
++    var section = entryForSection.getConnectedItem(this._pageItem);
+     if (section) {
+       this._buildNewSection(section);
+     }
+@@ -189,14 +190,14 @@
+ PageView.prototype._buildNewSection = function(inSection, inBeforeElt) {
+   var pageDivElement = this.getHTMLElement();
+   var sectionViewDiv = document.createElement(&quot;div&quot;);
+-  var sectionView = new SectionView(this, sectionViewDiv, inSection, this.myListOfSectionViews.length);
++  var sectionView = new SectionView(this, sectionViewDiv, inSection, this._listOfSectionViews.length);
+   if (inBeforeElt) {
+     pageDivElement.insertBefore(sectionViewDiv, inBeforeElt);
+   }
+   else {
+     pageDivElement.appendChild(sectionViewDiv);
+   }
+-  this.myListOfSectionViews.push(sectionView);
++  this._listOfSectionViews.push(sectionView);
+   return sectionView;
+ };
+ 
+@@ -207,7 +208,7 @@
+  * @scope    private instance method
+  */
+ PageView.prototype._addNewSection = function() {
+-  var newSection = PageView.newSection(this.getWorld(), this.myPage);
++  var newSection = PageView.newSection(this.getWorld(), this._pageItem);
+   this._buildNewSection(newSection, this._editModeDiv).refresh();
+ };
+ 
+
+Modified: trunk/source/PluginView.js
+===================================================================
+--- trunk/source/PluginView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/PluginView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -31,9 +31,9 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   Util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global View  */
+ // -------------------------------------------------------------------
+ 
+ 
+
+Modified: trunk/source/Rectangle.js
+===================================================================
+--- trunk/source/Rectangle.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/Rectangle.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -67,115 +67,3 @@
+ //    + private instance methods?
+ //    + class methods?
+ // -------------------------------------------------------------------
+-
+-
+-
+-
+-/*****************************************************************************
+- Rectangle.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+-
+-
+-// -------------------------------------------------------------------
+-// Dependencies:
+-//   Line.js
+-// -------------------------------------------------------------------
+-
+-
+-// -------------------------------------------------------------------
+-// Rectangle public class constants
+-// -------------------------------------------------------------------
+-Rectangle.LAYOUT_PORTRAIT = &quot;Portrait&quot;;
+-Rectangle.LAYOUT_LANDSCAPE = &quot;Landscape&quot;;
+-
+-Rectangle.FILL_SOLID = &quot;Solid&quot;;
+-Rectangle.FILL_EMPTY = &quot;Empty&quot;;
+-
+-
+-// -------------------------------------------------------------------
+-// Rectangle class properties
+-// -------------------------------------------------------------------
+-Rectangle.ourHashTableOfColorsKeyedBySize = new Array();
+-
+-
+-/**
+- * Each Rectangle instance represents a single rectangle.
+- *
+- * @scope    public instance constructor
+- * @syntax   var rect = new Rectangle()
+- */
+-function Rectangle() {
+-  // instance properties
+-  this.myWidth = null;
+-  this.myHeight = null;
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Public class methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Given two Rectangle objects, returns new Rectangle large enough
+- * to encompass both of the given Rectangles.
+- *
+- * @scope    public class method
+- * @param    inRectOne    A Rectangle object. 
+- * @param    inRectTwo    A Rectangle object. 
+- * @return   A newly created Rectangle object.
+- */
+-Rectangle.union = function (inRectOne, inRectTwo) {
+-  Util.assert(inRectOne instanceof Rectangle);
+-  Util.assert(inRectTwo instanceof Rectangle);
+-
+-  var newRectangle = new Rectangle();
+-  newRectangle.myWidth = Math.max(inRectOne.myWidth, inRectTwo.myWidth);
+-  newRectangle.myHeight = Math.max(inRectOne.myHeight, inRectTwo.myHeight);
+-  return newRectangle;
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Public instance methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Returns the area of the rectangle.
+- *
+- * @scope    public instance method
+- * @return   A number.
+- */
+-Rectangle.prototype.getArea = function () {
+-  var area = this.myWidth * this.myHeight;
+-  return area;
+-};
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/SectionView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -33,12 +33,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   Util.js
+-//   PageView.js
+-//   TablePlugin.js
+-//   TextView.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window, document  */
++/*global Util  */
++/*global Item  */
++/*global RootView, PageView, TablePlugin, TextView  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -59,16 +59,9 @@
+ SectionView.CSS_CLASS_SUMMARY_TEXT = &quot;summary_text&quot;;
+ 
+ SectionView.ELEMENT_ID_SELECT_MENU_PREFIX = &quot;select_menu_&quot;;
+-// SectionView.ELEMENT_ID_SELECT_MENU_SUFFIX = &quot;_select_menu&quot;;
+-// SectionView.ELEMENT_ID_PLUGIN_DIV_SUFFIX = &quot;_plugin_div&quot;;
+-// SectionView.ELEMENT_ID_CELL_PREFIX = &quot;section_&quot;;
+-// SectionView.ELEMENT_ID_CELL_MIDFIX = &quot;_cell_&quot;;
+-// SectionView.ELEMENT_ID_SUMMARY_DIV_SUFFIX = &quot;_summary_div&quot;;
+ 
+-SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER = &quot;section_number&quot;;
+-// SectionView.ELEMENT_ATTRIBUTE_CELL_NUMBER = &quot;cell_number&quot;;
++// SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER = &quot;section_number&quot;;
+ 
+-// SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME       = &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW       = &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA       = &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN = &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+@@ -109,13 +102,13 @@
+   // PENDING: these should all be private
+   this.setSuperview(inPageView);
+   this.setHTMLElement(inHTMLElement);
+-  this.mySection = inSection;
+-  this.mySectionNumber = inSectionNumber;
++  this._section = inSection;
++  this._sectionNumber = inSectionNumber;
+ 
+-  this._myPlugin = null;
+-  this._myPluginDiv = null;
+-  this._mySectionSummaryView = null;
+-  this._myHeaderView = null;
++  this._pluginView = null;
++  this._pluginDiv = null;
++  this._sectionSummaryView = null;
++  this._headerView = null;
+   this._queryEditSpan = null;
+   
+   if (!SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid) {
+@@ -184,9 +177,9 @@
+  */
+ SectionView.prototype.getQuerySpec = function () {
+   var attributeCalledQuerySpec = this.getWorld().getAttributeCalledQuerySpec();
+-  var queryEntry = this.mySection.getSingleEntryFromAttribute(attributeCalledQuerySpec);
++  var queryEntry = this._section.getSingleEntryFromAttribute(attributeCalledQuerySpec);
+   if (queryEntry) {
+-    return queryEntry.getConnectedItem(this.mySection);
++    return queryEntry.getConnectedItem(this._section);
+   }
+   return null;
+ };
+@@ -202,11 +195,11 @@
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+-    // refresh the &lt;h2&gt; element with the value: this.mySection.getDisplayName();  
++    // refresh the &lt;h2&gt; element with the value: this._section.getDisplayName();  
+     this._refreshQueryEditSpan();
+-    this._mySectionSummaryView.refresh();
+-    this._myPlugin.refresh();
+-    this._myHeaderView.refresh();
++    this._sectionSummaryView.refresh();
++    this._pluginView.refresh();
++    this._headerView.refresh();
+   }
+ };
+ 
+@@ -222,7 +215,7 @@
+     return;
+   }
+   var attributeCalledPluginView = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+-  var selectedPluginViewEntry = this.mySection.getSingleEntryFromAttribute(attributeCalledPluginView);
++  var selectedPluginViewEntry = this._section.getSingleEntryFromAttribute(attributeCalledPluginView);
+   var selectedPluginItem;
+   var selectedPluginClass;
+   if (selectedPluginViewEntry) {
+@@ -237,12 +230,12 @@
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+-  this._myHeaderView = new TextView(this, headerH2, this.mySection, attributeCalledName,
+-    this.mySection.getSingleEntryFromAttribute(attributeCalledName),
++  this._headerView = new TextView(this, headerH2, this._section, attributeCalledName,
++    this._section.getSingleEntryFromAttribute(attributeCalledName),
+     SectionView.CSS_CLASS_SECTION_HEADER);
+   var summaryDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+-  this._mySectionSummaryView = new TextView(this, summaryDiv, this.mySection, attributeCalledSummary,
+-    this.mySection.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.CSS_CLASS_TEXT_VIEW, true);
++  this._sectionSummaryView = new TextView(this, summaryDiv, this._section, attributeCalledSummary,
++    this._section.getSingleEntryFromAttribute(attributeCalledSummary), SectionView.CSS_CLASS_TEXT_VIEW, true);
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+   // create the editing controls, if we're in edit mode
+@@ -251,12 +244,12 @@
+   controlArea.appendChild(textShowMeA);
+ 
+   // PENDING: We shouldn't call the private method _getUuid()
+-  var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this.mySection._getUuid();
++  var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this._section._getUuid();
+   var selectElement = View.createAndAppendElement(controlArea, &quot;select&quot;, null, selectMenuId);
+   var optionElement;
+   var listener;
+   selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+-  selectElement.setAttribute(SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER, this.mySectionNumber);
++  // selectElement.setAttribute(SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER, this._sectionNumber);
+   for (var key in SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid) {
+     var pluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[key];
+     optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
+@@ -276,8 +269,8 @@
+   View.createAndAppendTextNode(controlArea,&quot;.&quot;);
+ 
+   // create a div element for the plugin class to use
+-  this._myPluginDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+-  this._myPlugin = this.getPluginInstanceFromPluginItem(selectedPluginItem, this._myPluginDiv);
++  this._pluginDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
++  this._pluginView = this.getPluginInstanceFromPluginItem(selectedPluginItem, this._pluginDiv);
+   this._myHasEverBeenDisplayedFlag = true;
+   this.refresh();
+ };
+@@ -293,11 +286,11 @@
+ SectionView.prototype._getLayoutDataForPlugin = function (inPluginType) {
+   var repository = this.getWorld();
+   var attrLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA);
+-  var entriesLayoutData = this.mySection.getEntriesForAttribute(attrLayoutData);
++  var entriesLayoutData = this._section.getEntriesForAttribute(attrLayoutData);
+   var attrAppliesToPlugin = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN);
+   if (entriesLayoutData) {
+     for (var i=0; i &lt; entriesLayoutData.length; ++i) {
+-      var layoutItem = entriesLayoutData[i].getConnectedItem(this.mySection);
++      var layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
+       var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attrAppliesToPlugin);
+       Util.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
+       if (entriesAppliesToPlugin[0].getValue() == inPluginType) {
+@@ -310,11 +303,11 @@
+   var categoryCalledLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_CATEGORY_LAYOUT_DATA);
+   var attributeCalledSectionThisLayoutDataBelongsTo = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO);
+   repository.beginTransaction();
+-  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayString() + &quot; of &quot; + this.mySection.getDisplayString());
++  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
+   layoutItem.assignToCategory(categoryCalledLayoutData);
+   layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginType);
+-  // this.mySection.addEntryForAttribute(attrLayoutData, layoutItem, repository.getTypeCalledItem());
+-  this.mySection.addConnectionEntry(attrLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
++  // this._section.addEntryForAttribute(attrLayoutData, layoutItem, repository.getTypeCalledItem());
++  this._section.addConnectionEntry(attrLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
+   repository.endTransaction();
+   return layoutItem;
+ };
+@@ -349,7 +342,7 @@
+   var selectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
+   for (var key in listOfAttributes) {
+     var anAttribute = listOfAttributes[key];
+-    optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
++    var optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (matchingAttribute.getDisplayString() == anAttribute.getDisplayString());
+     optionElement.value = anAttribute._getUuid();
+     optionElement.onclick = this.clickOnAttributeMenu.bindAsEventListener(this);
+@@ -405,9 +398,9 @@
+   item.removeObserver(this); //item no longer needs to be observed as query editor span is rebuilt
+   var myQuery = this.getQuerySpec();
+   Util.assert(item == myQuery);
+-  var pluginItem = this._myPlugin.getPluginItem();
+-  this._myPlugin.endOfLife();
+-  this._myPlugin = this.getPluginInstanceFromPluginItem(pluginItem, this._myPluginDiv);
++  var pluginItem = this._pluginView.getPluginItem();
++  this._pluginView.endOfLife();
++  this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
+   this.refresh();
+ };
+ 
+@@ -430,25 +423,25 @@
+   var attributeCalledPluginView = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+   var newPluginViewItem = this.getWorld().getItemFromUuid(newChoiceUuid);
+  
+-  if (this._myPlugin.getPluginItem() == newPluginViewItem) { 
++  if (this._pluginView.getPluginItem() == newPluginViewItem) { 
+     return;
+   } else {
+-    this._myPlugin.endOfLife();
+-    this._myPlugin = this.getPluginInstanceFromPluginItem(newPluginViewItem, this._myPluginDiv);
++    this._pluginView.endOfLife();
++    this._pluginView = this.getPluginInstanceFromPluginItem(newPluginViewItem, this._pluginDiv);
+ 
+-    var oldEntry = this.mySection.getSingleEntryFromAttribute(attributeCalledPluginView);
++    var oldEntry = this._section.getSingleEntryFromAttribute(attributeCalledPluginView);
+     if (oldEntry) {
+-      this.mySection.replaceEntry(oldEntry, newPluginViewItem);
++      this._section.replaceEntry(oldEntry, newPluginViewItem);
+     } else {
+-      this.mySection.addEntryForAttribute(attributeCalledPluginView, newPluginViewItem);
++      this._section.addEntryForAttribute(attributeCalledPluginView, newPluginViewItem);
+     }
+     /*
+-    var pluginNameEntries = this.mySection.getEntriesForAttribute(attributeCalledPluginName);
++    var pluginNameEntries = this._section.getEntriesForAttribute(attributeCalledPluginName);
+     if (pluginNameEntries &amp;&amp; pluginNameEntries[0]) {
+       var oldEntry = pluginNameEntries[0];
+-      this.mySection.replaceEntry(oldEntry, newChoiceName);
++      this._section.replaceEntry(oldEntry, newChoiceName);
+     } else {
+-      this.mySection.addEntryForAttribute(attributeCalledPluginName, newChoiceName);
++      this._section.addEntryForAttribute(attributeCalledPluginName, newChoiceName);
+     }
+     */
+     this.refresh();
+@@ -509,9 +502,9 @@
+     // some refactoring so that the plugin can register as an observer of the
+     // query item, and then the plugin itself can know what to do when the
+     // query item changes.  
+-    var pluginItem = this._myPlugin.getPluginItem();
+-    this._myPlugin.endOfLife();
+-    this._myPlugin = this.getPluginInstanceFromPluginItem(pluginItem, this._myPluginDiv);
++    var pluginItem = this._pluginView.getPluginItem();
++    this._pluginView.endOfLife();
++    this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
+ 
+     this.refresh();
+   }
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/TablePlugin.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -32,11 +32,12 @@
+ 
+  
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   SectionView.js
+-//   PageView.js
+-//   Util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window, document, HTMLTableRowElement  */
++/*global Util  */
++/*global Item  */
++/*global View, MultiEntriesView  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -69,9 +70,9 @@
+   PluginView.call(this, inSectionView, inHTMLElement, inQuery, inLayout);
+ 
+   // PENDING should probably make this independent of sectionview
+-  this.myClass = SectionView.CSS_CLASS_SIMPLE_TABLE;
+-  this.myCellClass = SectionView.CSS_CLASS_PLAIN;
+-  this.myTable = null;
++  this._cssClass = SectionView.CSS_CLASS_SIMPLE_TABLE;
++  this._cellClass = SectionView.CSS_CLASS_PLAIN;
++  this._table = null;
+   this._sortAttribute = null;
+   this._ascendingOrder = true;
+ }
+@@ -223,7 +224,7 @@
+  * @scope    private instance method
+  */
+ TablePlugin.prototype._insertRow = function(contentItem, rowNum) {
+-  var aRow = this.myTable.insertRow(rowNum); 
++  var aRow = this._table.insertRow(rowNum); 
+   var columnCount = -1;
+   for (var i=0;i&lt;this._displayAttributes.length;++i) {
+     var attribute = this._displayAttributes[i];
+@@ -296,7 +297,7 @@
+   this._listOfItems.push(item); // moving this line affects code below
+   
+   // tell provisional item views they are no longer provisional
+-  var oldProvisionalRow = this.myTable.rows[this._listOfItems.length];
++  var oldProvisionalRow = this._table.rows[this._listOfItems.length];
+   for (var i=0; i &lt; oldProvisionalRow.cells.length; ++i) {
+     var aCell = oldProvisionalRow.cells[i];
+     aCell.or_entriesView.noLongerProvisional();
+@@ -315,7 +316,7 @@
+  */
+ TablePlugin.prototype._buildHeader = function() {
+   // add header row
+-  var headerRow = this.myTable.insertRow(0);
++  var headerRow = this._table.insertRow(0);
+   var numCols = 0;
+   for (var i=0; i&lt;this._displayAttributes.length; ++i) {
+     var attribute = this._displayAttributes[i];
+@@ -349,9 +350,9 @@
+   }
+   
+   //create new table, remove old table if already exists
+-  View.removeChildrenOfElement(this._myHTMLElement);
+-  this.myTable = document.createElement(&quot;table&quot;);
+-  this.myTable.className = this.myClass;
++  View.removeChildrenOfElement(this.getHTMLElement());
++  this._table = document.createElement(&quot;table&quot;);
++  this._table.className = this._cssClass;
+   
+   this._buildHeader();
+ 
+@@ -362,7 +363,7 @@
+ 
+   this._buildTableBody();
+   
+-  this._myHTMLElement.appendChild(this.myTable);
++  this.getHTMLElement().appendChild(this._table);
+   
+   if (this.isInEditMode()) {this._buildAttributeEditor();}
+ };
+@@ -405,8 +406,8 @@
+  */
+ TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
+   var aCell = row.insertCell(col);
+-  aCell.className = this.myCellClass;
+-  var multiEntriesView = new MultiEntriesView(this, aCell, item, attribute, this.myCellClass);
++  aCell.className = this._cellClass;
++  var multiEntriesView = new MultiEntriesView(this, aCell, item, attribute, this._cellClass);
+   aCell.or_entriesView = multiEntriesView;
+   multiEntriesView.refresh();
+   if (this.isInEditMode()) {
+@@ -488,7 +489,7 @@
+         content += line + java.lang.System.getProperty('line.separator');
+       return content;
+     }*/
+-  open('<A HREF="file://">file://</A>'+fileButton.value,'preview');   
++  window.open('<A HREF="file://">file://</A>'+fileButton.value,'preview');   
+ };
+ 
+ /**
+@@ -624,7 +625,7 @@
+         nextRowNumber = 1;
+         userHitReturnInLastRow = true;
+       }
+-      var nextRow = this.myTable.rows[nextRowNumber];
++      var nextRow = this._table.rows[nextRowNumber];
+       this.selectRow(nextRow);
+       nextCell = nextRow.cells[cellElement.cellIndex];
+     }
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/TextView.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -32,9 +32,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   repository.js
+-//   util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global document  */
++/*global Util  */
++/*global Item, Entry  */
++/*global AttributeSuggestionBox  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -163,10 +166,15 @@
+   }
+ };
+ 
++
++/**
++ *
++ */
+ TextView.prototype._isLozenge = function() {
+   return this._valueIsItem &amp;&amp; !this._alwaysUseEditField;
+ };
+ 
++
+ /**
+  * Re-creates all the HTML for the TextView, and hands the HTML to the 
+  * browser to be re-drawn.
+@@ -196,10 +204,15 @@
+   this._myHasEverBeenDisplayedFlag = true;
+ };
+ 
++
++/**
++ *
++ */
+ TextView.prototype._canStartEditing = function() {
+   return (!this._isEditing  &amp;&amp; !(this._valueIsItem &amp;&amp; !this._alwaysUseEditField));
+ };
+ 
++
+ /**
+  * Switch to edit text field for editing.
+  *
+@@ -281,6 +294,7 @@
+   }
+ };
+ 
++
+ /**
+  * Given a value, this function uses hints form this item's attribute to transform
+  * the value to one more suitable for the model. 
+@@ -308,7 +322,7 @@
+     var typeCalledDate = repository.getTypeCalledDate();
+     var typeCalledNumber = repository.getTypeCalledNumber();
+     if (listOfExpectedTypeEntries) {
+-      for (i=0; i&lt;listOfExpectedTypeEntries.length; ++i) {
++      for (var i=0; i&lt;listOfExpectedTypeEntries.length; ++i) {
+         var aType = listOfExpectedTypeEntries[i].getValue();
+         switch (aType) {
+           case typeCalledText:
+@@ -564,6 +578,7 @@
+   }
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // Suggestion box methods
+ // -------------------------------------------------------------------
+@@ -572,20 +587,20 @@
+  *
+  */
+ function AttributeSuggestionBox(inHTMLInputField, listOfItems) {
+-  this._myInputField = inHTMLInputField;
++  this._inputField = inHTMLInputField;
+   this._listOfSuggestedItems = listOfItems.sort(AttributeSuggestionBox._compareItemDisplayNames);
+   this._selectedItem = null;
+   this._shouldHide = inHTMLInputField.value.length === 0;
+   
+-  this._myAttributeSuggestionBoxDivElement = document.createElement('div');
+-  // this._myAttributeSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
+-  this._myAttributeSuggestionBoxDivElement.style.zIndex = 11;
+-  this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+-  document.body.appendChild(this._myAttributeSuggestionBoxDivElement);
++  this._attributeSuggestionBoxDivElement = document.createElement('div');
++  // this._attributeSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
++  this._attributeSuggestionBoxDivElement.style.zIndex = 11;
++  this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++  document.body.appendChild(this._attributeSuggestionBoxDivElement);
+ 
+- /* this._myInputField.onkeyup = this._keyPressOnInputField.bindAsEventListener(this);
+-  this._myInputField.onfocus = this._focusOnInputField.bindAsEventListener(this);
+-  this._myInputField.onblur = this._blurOnInputField.bindAsEventListener(this); */
++ /* this._inputField.onkeyup = this._keyPressOnInputField.bindAsEventListener(this);
++  this._inputField.onfocus = this._focusOnInputField.bindAsEventListener(this);
++  this._inputField.onblur = this._blurOnInputField.bindAsEventListener(this); */
+   //this._keyPressOnInputField();
+ }
+ 
+@@ -596,7 +611,7 @@
+ AttributeSuggestionBox.prototype.getSelectedItem = function () {
+   if (!this._selectedItem) {
+     // check if typed item is identical to suggested item
+-    var editValue = this._myInputField.value;
++    var editValue = this._inputField.value;
+     for (var i = 0; i &lt; this._listOfSuggestedItems.length; ++i) {
+       var item = this._listOfSuggestedItems[i];
+       if (editValue.toLowerCase() == item.getDisplayName().toLowerCase()) {return item;}
+@@ -624,7 +639,6 @@
+  *
+  */
+ AttributeSuggestionBox.prototype._focusOnInputField = function (inEventObject) {
+-  //this._myInputField.value = &quot;&quot;;
+   this._redisplayAttributeSuggestionBox();
+ };
+ 
+@@ -658,7 +672,7 @@
+       }
+       break;
+       case Util.ASCII_VALUE_FOR_TAB:
+-      if (this._myInputField.value.length === 0) {return false;}
++      if (this._inputField.value.length === 0) {return false;}
+       if (!this._selectedItem) {
+         this._selectedItem = this._listOfMatchingItems[0];
+         doSelectItem = true;
+@@ -684,7 +698,7 @@
+     return true;
+   }
+   if (doSelectItem) {
+-    this._myInputField.value = this._selectedItem.getDisplayString();
++    this._inputField.value = this._selectedItem.getDisplayString();
+     this._setShouldHide(true);
+   }
+   return false;
+@@ -704,7 +718,7 @@
+  */
+ AttributeSuggestionBox.prototype._blurOnInputField = function () {
+   // make the suggestion box disappear
+-  this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++  this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+ };
+ 
+ 
+@@ -724,7 +738,7 @@
+   this._shouldHide = shouldHide;
+   this._selectedItem = null;
+   if (shouldHide) {
+-    this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++    this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   }
+   else {
+     this._redisplayAttributeSuggestionBox();
+@@ -738,7 +752,7 @@
+ AttributeSuggestionBox.prototype._redisplayAttributeSuggestionBox = function () {
+   //if (this._shouldHide) {return;} // if SuggestionBox is in hide mode, don't show the box
+   
+-  var partialInputString = this._myInputField.value;
++  var partialInputString = this._inputField.value;
+   var listOfMatchingItems = [];
+   var key;
+   var item;
+@@ -758,9 +772,9 @@
+ 
+   if (this._shouldHide || listOfMatchingItems.length === 0) {
+     // make the suggestion box disappear
+-    this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++    this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+-    View.removeChildrenOfElement(this._myAttributeSuggestionBoxDivElement);
++    View.removeChildrenOfElement(this._attributeSuggestionBoxDivElement);
+     var table = document.createElement('table');
+     var rowNumber = 0;
+     var columnNumber = 0;
+@@ -775,20 +789,20 @@
+       cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, item);
+       rowNumber += 1;
+     }
+-    this._myAttributeSuggestionBoxDivElement.appendChild(table);
++    this._attributeSuggestionBoxDivElement.appendChild(table);
+ 
+     // set-up the suggestion box to open just below the input field it comes from
+-    var AttributeSuggestionBoxTop = Util.getOffsetTopFromElement(this._myInputField) + this._myInputField.offsetHeight;
+-    var AttributeSuggestionBoxLeft = Util.getOffsetLeftFromElement(this._myInputField);
+-    this._myAttributeSuggestionBoxDivElement.style.top = AttributeSuggestionBoxTop + &quot;px&quot;; 
+-    this._myAttributeSuggestionBoxDivElement.style.left = AttributeSuggestionBoxLeft + &quot;px&quot;;
+-    // alert(this._myInputField.offsetWidth);
+-    this._myAttributeSuggestionBoxDivElement.style.width = (this._myInputField.offsetWidth - 2)+ &quot;px&quot;;
++    var AttributeSuggestionBoxTop = Util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
++    var AttributeSuggestionBoxLeft = Util.getOffsetLeftFromElement(this._inputField);
++    this._attributeSuggestionBoxDivElement.style.top = AttributeSuggestionBoxTop + &quot;px&quot;; 
++    this._attributeSuggestionBoxDivElement.style.left = AttributeSuggestionBoxLeft + &quot;px&quot;;
++    // alert(this._inputField.offsetWidth);
++    this._attributeSuggestionBoxDivElement.style.width = (this._inputField.offsetWidth - 2)+ &quot;px&quot;;
+ 
+-    // this._myAttributeSuggestionBoxDivElement.style.zIndex = 11;
+-    this._myAttributeSuggestionBoxDivElement.className = &quot;suggestion_box&quot;;
+-    this._myAttributeSuggestionBoxDivElement.style.visibility = &quot;visible&quot;;
+-    this._myAttributeSuggestionBoxDivElement.style.display = &quot;block&quot;;
++    // this._attributeSuggestionBoxDivElement.style.zIndex = 11;
++    this._attributeSuggestionBoxDivElement.className = &quot;suggestion_box&quot;;
++    this._attributeSuggestionBoxDivElement.style.visibility = &quot;visible&quot;;
++    this._attributeSuggestionBoxDivElement.style.display = &quot;block&quot;;
+   }
+ };
+ 
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/Util.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -34,7 +34,8 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+-/*global window, document, hex_md5 */
++/*global window, document  */
++/*global hex_md5  */
+ // -------------------------------------------------------------------
+ 
+ 
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-07-01 01:31:33 UTC (rev 202)
++++ trunk/source/View.js	2005-07-01 02:21:33 UTC (rev 203)
+@@ -30,8 +30,10 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window, HTMLElement  */
++/*global Util  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -42,9 +44,9 @@
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+ function View() {
+-  this._mySuperview = null;
+-  this._myHTMLElement = null;
+-  this._myHasEverBeenDisplayedFlag = false;
++  this._superview = null;
++  this._htmlElement = null;
++  this._myHasEverBeenDisplayedFlag = false; // PENDING: this is accessed directly by subclasses, which is bad
+ }
+ 
+ 
+@@ -57,7 +59,7 @@
+ View.prototype.setSuperview = function (inSuperview) {
+   // Util.assert(ViewInterface.isImplementedBy(inSuperview));
+ 
+-  this._mySuperview = inSuperview;
++  this._superview = inSuperview;
+ };
+ 
+ 
+@@ -68,7 +70,7 @@
+  * @return   A View object. 
+  */
+ View.prototype.getSuperview = function () {
+-  return this._mySuperview;
++  return this._superview;
+ };
+ 
+ 
+@@ -81,7 +83,7 @@
+ View.prototype.setHTMLElement = function (inHTMLElement) {
+   Util.assert(inHTMLElement instanceof HTMLElement);
+ 
+-  this._myHTMLElement = inHTMLElement;
++  this._htmlElement = inHTMLElement;
+ };
+ 
+ 
+@@ -92,7 +94,7 @@
+  * @return   An HTMLElement. 
+  */
+ View.prototype.getHTMLElement = function () {
+-  return this._myHTMLElement;
++  return this._htmlElement;
+ };
+ 
+ 
+@@ -103,7 +105,7 @@
+  * @return   A World object. 
+  */
+ View.prototype.getWorld = function () {
+-  return this._mySuperview.getWorld();
++  return this._superview.getWorld();
+ };
+ 
+ 
+@@ -129,7 +131,7 @@
+  * @return   A boolean value. True if we are in Edit Mode.
+  */
+ View.prototype.isInEditMode = function () {
+-  return this._mySuperview.isInEditMode();
++  return this._superview.isInEditMode();
+ };
+ 
+ 
+@@ -172,9 +174,9 @@
+ 
+   if (inBoolean) {
+     this.refresh();
+-    this._myHTMLElement.style.display = &quot;block&quot;;
++    this._htmlElement.style.display = &quot;block&quot;;
+   } else {
+-    this._myHTMLElement.style.display = &quot;none&quot;;
++    this._htmlElement.style.display = &quot;none&quot;;
+   }
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000188.html">[openrecord-svn] r202 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000190.html">[openrecord-svn] r204 - in trunk/source: . model util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#189">[ date ]</a>
+              <a href="thread.html#189">[ thread ]</a>
+              <a href="subject.html#189">[ subject ]</a>
+              <a href="author.html#189">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

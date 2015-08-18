@@ -1,0 +1,2826 @@
+From skinner at berlios.de  Mon Jan  2 22:50:45 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 2 Jan 2006 22:50:45 +0100
+Subject: [openrecord-svn] r410 - trunk/documentation
+Message-ID: <200601022150.k02LojLu020161@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-02 22:50:45 +0100 (Mon, 02 Jan 2006)
+New Revision: 410
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+to-do list updates
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2005-12-21 00:30:33 UTC (rev 409)
++++ trunk/documentation/to_do_list.txt	2006-01-02 21:50:45 UTC (rev 410)
+@@ -59,7 +59,7 @@
+        |          |         | 13. Move DOM methods from orp.view.View.xxx to orp.dom.xxx
+        |          |         | 14. Make RootView subclass from View, or add comments explaining why it doesn't
+        |          |         | 15. Rationalize the View API and document public API
+-brian  |          | (0.7+)  | 16. Try to convert one unit test over to the dojo jum framework
++brian  |          | 1    IED| 16. Try to convert one unit test over to the dojo jum framework
+        |          |         | 17. Refactor our observer notification API (and implementation)
+        |          |         | 18. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+ -------+----------+---------+----------------------------------------------
+@@ -102,9 +102,10 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
++brian  |          | 1    IED|  0. move orp.uuid and orp.lang to dojo.uuid and dojo.lang, and offer them to dojo
+        |          |         |  1. try to replace View.appendNewElement() with dojo.xml.domUtil methods
+        |          |         |  2. try to replace orp.util.css_xxx functions with dojo.xml.htmlUtil.xxxClass functions
+-brian  |          | (0.4+)  |  3. try to replace md5.js with dojo.crypto.MD5 methods
++brian  |          | 0.5  IED|  3. try to replace md5.js with dojo.crypto.MD5 methods
+        |          |         |  4. try to replace /source/util/Cookie.js with dojo.io.cookies
+        |          |         |  5. try to replace remaining Util.js functions with dojo.lang functions
+        |          |         |  6. Make DateValue wrap an internal Date object
+@@ -120,6 +121,7 @@
+        |          |         | 16. Start process for doing ongoing code reviews
+        |          |         |     grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
+        |          |         |     Maybe change all our indenting from spaces to tabs, to be in sync with dojo
++       |          |         |     Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+
+
+
+From skinner at berlios.de  Mon Jan  2 23:03:02 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 2 Jan 2006 23:03:02 +0100
+Subject: [openrecord-svn] r411 - trunk/documentation
+Message-ID: <200601022203.k02M326p021711@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-02 23:03:02 +0100 (Mon, 02 Jan 2006)
+New Revision: 411
+
+Modified:
+   trunk/documentation/to_do_history.txt
+   trunk/documentation/to_do_list.txt
+Log:
+closed iteration #8, opened iteration #9
+
+Modified: trunk/documentation/to_do_history.txt
+===================================================================
+--- trunk/documentation/to_do_history.txt	2006-01-02 21:50:45 UTC (rev 410)
++++ trunk/documentation/to_do_history.txt	2006-01-02 22:03:02 UTC (rev 411)
+@@ -445,5 +445,56 @@
+ ################################################################################
+ 
+ 
++---------------------------------------------------------------------------
++   Tasks we originally identified for Iteration #8, in December 2005
++-------+----------+---------+----------------------------------------------
++Who    | Estimate | Actual  | Task
++-------+----------+---------+----------------------------------------------
++brian  |          | 0.1  IED|  2. Change the "node" used in the UUIDs for plugins
++mignon |          | 0.05 IED|  3. Add validation code to create_new_plugin.html to check the supplied ClassName
++mignon |          |0.125 IED|  4. Add instructions on the create_new_plugin.html page
++mignon |          |0.125 IED|  5. Add list of suggested plugins to the create_new_plugin.html page
++brian  |          | 0.05 IED| 11. Make a HelloWorld plugin
++brian  |          | 1    IED| 16. Try to convert one unit test over to the dojo jum framework
++brian  |          | 0.5  IED|  3. try to replace md5.js with dojo.crypto.MD5 methods
++brian  |          | 0.2  IED| 12. move XmlConverter.js out of util, because it depends on model code
++-------+----------+---------+----------------------------------------------
++
++
++---------------------------------------------------------------------------
++   New tasks that we decided to take on for Iteration #8, in December 2005
++-------+----------+---------+----------------------------------------------
++Who    | Estimate | Actual  | Task
++-------+----------+---------+----------------------------------------------
++brian  |          | 0.3  IED|  0. Switch to using Dojo-0.2.0, and have it live directly in .../third_party/dojo
++brian  |          | 1    IED|  0. move orp.uuid and orp.lang to dojo.uuid and dojo.lang, and offer them to dojo
++-------+----------+---------+----------------------------------------------
++
++
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++     Summary of Iteration #8
++          December 2005
++  December 5 to January 2, 2005
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++   8    = number of PLANNED tasks that were finished 
++   2    = number of ADDITIONAL tasks that were finished 
++  ~3.5  = total estimated IEDs for PLANNED and ADDITIONAL tasks that were finished
++   4    = number of weeks in October iteration
++ ~ 0.9  = Velocity (in estimated IEDs per week)
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++
++
++
++################################################################################
++################################################################################
++##                                                                            ##
++##                                Iteration #9                                ##
++##                                January 2006                                ##
++##                                                                            ##
++################################################################################
++################################################################################
++
++
+ ...FIXME...
+ 
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-02 21:50:45 UTC (rev 410)
++++ trunk/documentation/to_do_list.txt	2006-01-02 22:03:02 UTC (rev 411)
+@@ -45,21 +45,15 @@
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+        |          |         |  1. Document the Data model public API
+-brian  |          | 0.1  IED|  2. Change the "node" used in the UUIDs for plugins
+-mignon |          | 0.05 IED|  3. Add validation code to create_new_plugin.html to check the supplied ClassName
+-mignon |          |0.125 IED|  4. Add instructions on the create_new_plugin.html page
+-mignon |          |0.125 IED|  5. Add list of suggested plugins to the create_new_plugin.html page
+        |          |         |  6. Make the 4 original plugins conform to the new plugin API (if possible)
+        |          |         |  7. See if it's possible to simplify the plugin API
+        |          |         |  8. Change "TablePlugin" to "TableView", etc.
+        |          |         |  9. Move the 4 original plugins into the plugins folder
+        |          |         | 10. Remove BarChartView and Outline view from the axiomatic.json file
+-brian  |          | 0.05 IED| 11. Make a HelloWorld plugin
+        |          |         | 12. Have Entry.toSting() return the Entry's UUID -- same for Item.toString()
+        |          |         | 13. Move DOM methods from orp.view.View.xxx to orp.dom.xxx
+        |          |         | 14. Make RootView subclass from View, or add comments explaining why it doesn't
+        |          |         | 15. Rationalize the View API and document public API
+-brian  |          | 1    IED| 16. Try to convert one unit test over to the dojo jum framework
+        |          |         | 17. Refactor our observer notification API (and implementation)
+        |          |         | 18. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+ -------+----------+---------+----------------------------------------------
+@@ -84,7 +78,6 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-brian  |          | 0.3  IED|  0. Switch to using Dojo-0.2.0, and have it live directly in .../third_party/dojo
+        |          |         |     Instead of having a copy of dojo in our SVN archive, link to dojo using SVN "externals"
+                                     see http://svnbook.red-bean.com/en/1.1/ch07s04.html
+                                     see section 5.2.4 of http://tortoisesvn.sourceforge.net/docs/nightly/TortoiseSVN_en.pdf
+@@ -102,10 +95,8 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-brian  |          | 1    IED|  0. move orp.uuid and orp.lang to dojo.uuid and dojo.lang, and offer them to dojo
+        |          |         |  1. try to replace View.appendNewElement() with dojo.xml.domUtil methods
+        |          |         |  2. try to replace orp.util.css_xxx functions with dojo.xml.htmlUtil.xxxClass functions
+-brian  |          | 0.5  IED|  3. try to replace md5.js with dojo.crypto.MD5 methods
+        |          |         |  4. try to replace /source/util/Cookie.js with dojo.io.cookies
+        |          |         |  5. try to replace remaining Util.js functions with dojo.lang functions
+        |          |         |  6. Make DateValue wrap an internal Date object
+@@ -114,7 +105,6 @@
+        |          |         |  9. Pick one file, and do a group code review on it
+ brian  | 1    IED |         | 10. Rationalize our CSS style sheet approach
+        |          |         | 11. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+-brian  |          | 0.2  IED| 12. move XmlConverter.js out of util, because it depends on model code
+        |          |         | 13. Write one unit test that tests GUI code
+        |          |         | 14. Write one performance test that measures the time some code takes
+        |          |         | 15. Convert UI code from DOM level 0 to DOM level 2
+
+
+
+From skinner at berlios.de  Mon Jan  2 23:10:48 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 2 Jan 2006 23:10:48 +0100
+Subject: [openrecord-svn] r412 - trunk/documentation
+Message-ID: <200601022210.k02MAmRM022531@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-02 23:10:47 +0100 (Mon, 02 Jan 2006)
+New Revision: 412
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+renumbered the tasks on the to-do list
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-02 22:03:02 UTC (rev 411)
++++ trunk/documentation/to_do_list.txt	2006-01-02 22:10:47 UTC (rev 412)
+@@ -44,18 +44,19 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  1. Document the Data model public API
+-       |          |         |  6. Make the 4 original plugins conform to the new plugin API (if possible)
+-       |          |         |  7. See if it's possible to simplify the plugin API
+-       |          |         |  8. Change "TablePlugin" to "TableView", etc.
+-       |          |         |  9. Move the 4 original plugins into the plugins folder
+-       |          |         | 10. Remove BarChartView and Outline view from the axiomatic.json file
+-       |          |         | 12. Have Entry.toSting() return the Entry's UUID -- same for Item.toString()
+-       |          |         | 13. Move DOM methods from orp.view.View.xxx to orp.dom.xxx
+-       |          |         | 14. Make RootView subclass from View, or add comments explaining why it doesn't
+-       |          |         | 15. Rationalize the View API and document public API
+-       |          |         | 17. Refactor our observer notification API (and implementation)
+-       |          |         | 18. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
++       |          |         | 101. Document the Data model public API
++       |          |         | 102. Make the 4 original plugins conform to the new plugin API (if possible)
++       |          |         | 103. See if it's possible to simplify the plugin API
++       |          |         | 104. Change "TablePlugin" to "TableView", etc.
++       |          |         | 105. Move the 4 original plugins into the plugins folder
++       |          |         | 106. Remove BarChartView and Outline view from the axiomatic.json file
++       |          |         | 107. Have Entry.toSting() return the Entry's UUID -- same for Item.toString()
++       |          |         | 108. Move DOM methods from orp.view.View.xxx to orp.dom.xxx
++       |          |         | 109. Make RootView subclass from View, or add comments explaining why it doesn't
++       |          |         | 110. Rationalize the View API and document public API
++       |          |         | 111. Refactor our observer notification API (and implementation)
++       |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
++       |          |         | 113. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -64,12 +65,13 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  1. Research standard text representations for DateValues
+-       |          |         |  2. Make DateValue support date ranges
+-       |          |         |  3. Make ordinal value strings not grow long so quickly
+-       |          |         |  4. Make sure view code uses transactions
+-       |          |         |  5. Write concurrency tests 
+-       |          |         |  6. Ensure that PHP scripts and file I/O works for concurrent multi-user access
++       |          |         | 201. Research standard text representations for DateValues
++       |          |         | 202. Make DateValue support date ranges
++       |          |         | 203. Make ordinal value strings not grow long so quickly
++       |          |         | 204. Make sure view code uses transactions
++       |          |         | 205. Write concurrency tests 
++       |          |         | 206. Ensure that PHP scripts and file I/O works for concurrent multi-user access
++       |          |         | 207. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -78,15 +80,16 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |     Instead of having a copy of dojo in our SVN archive, link to dojo using SVN "externals"
++       |          |         | 301. Instead of having a copy of dojo in our SVN archive, link to dojo using SVN "externals"
+                                     see http://svnbook.red-bean.com/en/1.1/ch07s04.html
+                                     see section 5.2.4 of http://tortoisesvn.sourceforge.net/docs/nightly/TortoiseSVN_en.pdf
+-       |          |         |  1. Attempt to embed an OpenRecord view in a MediaWiki page
+-       |          |         |  2. Have a server that supports repositories with thousands of items
+-       |          |         |  3. Look at replacing our notion of Views with Dojo's notion of widgets
+-       |          |         |  4. Run in IE as well as Firefox
+-       |          |         |  5. Add support for repository merging
+-       |          |         |  6. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
++       |          |         | 302. Attempt to embed an OpenRecord view in a MediaWiki page
++       |          |         | 303. Have a server that supports repositories with thousands of items
++       |          |         | 304. Look at replacing our notion of Views with Dojo's notion of widgets
++       |          |         | 305. Run in IE as well as Firefox
++       |          |         | 306. Add support for repository merging
++       |          |         | 307. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
++       |          |         | 308. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -95,23 +98,24 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  1. try to replace View.appendNewElement() with dojo.xml.domUtil methods
+-       |          |         |  2. try to replace orp.util.css_xxx functions with dojo.xml.htmlUtil.xxxClass functions
+-       |          |         |  4. try to replace /source/util/Cookie.js with dojo.io.cookies
+-       |          |         |  5. try to replace remaining Util.js functions with dojo.lang functions
+-       |          |         |  6. Make DateValue wrap an internal Date object
+-       |          |         |  7. merge StubArchive + DeltaArchive, and re-name the result
+-       |          |         |  8. update unit tests to use the FakeStorage instead of StubArchive
+-       |          |         |  9. Pick one file, and do a group code review on it
+-brian  | 1    IED |         | 10. Rationalize our CSS style sheet approach
+-       |          |         | 11. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+-       |          |         | 13. Write one unit test that tests GUI code
+-       |          |         | 14. Write one performance test that measures the time some code takes
+-       |          |         | 15. Convert UI code from DOM level 0 to DOM level 2
+-       |          |         | 16. Start process for doing ongoing code reviews
+-       |          |         |     grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
+-       |          |         |     Maybe change all our indenting from spaces to tabs, to be in sync with dojo
+-       |          |         |     Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
++       |          |         | 401. try to replace View.appendNewElement() with dojo.xml.domUtil methods
++       |          |         | 402. try to replace orp.util.css_xxx functions with dojo.xml.htmlUtil.xxxClass functions
++       |          |         | 404. try to replace /source/util/Cookie.js with dojo.io.cookies
++       |          |         | 405. try to replace remaining Util.js functions with dojo.lang functions
++       |          |         | 406. Make DateValue wrap an internal Date object
++       |          |         | 407. merge StubArchive + DeltaArchive, and re-name the result
++       |          |         | 408. update unit tests to use the FakeStorage instead of StubArchive
++       |          |         | 409. Pick one file, and do a group code review on it
++brian  | 1    IED |         | 410. Rationalize our CSS style sheet approach
++       |          |         | 411. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
++       |          |         | 412. Write one unit test that tests GUI code
++       |          |         | 413. Write one performance test that measures the time some code takes
++       |          |         | 414. Convert UI code from DOM level 0 to DOM level 2
++       |          |         | 415. Start process for doing ongoing code reviews
++       |          |         | 416. grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
++       |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
++       |          |         | 418. Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
++       |          |         | 419. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -120,50 +124,50 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 10. Implement a good URL-to-content mapping, so that URLs won't go bad in future releases
+-       |          |         | 11. Assign system attributes & categories to a "System" category
+-       |          |         | 12. Hide "System" items most of the time
+-       |          |         | 13. improve UI for creating a new category
+-       |          |         | 14. Deal with \n in page name or summary fields
+-       |          |         | 15. be able to select a table row 
+-       |          |         | 16. be able to delete a selected table row 
+-       |          |         | 17. drag-and-drop to re-order table rows
+-       |          |         | 18. improve UI for "add new attribute" in Table View 
+-       |          |         | 19. improve UI for setting the expected data type of an attribute
++       |          |         | 510. Implement a good URL-to-content mapping, so that URLs won't go bad in future releases
++       |          |         | 511. Assign system attributes & categories to a "System" category
++       |          |         | 512. Hide "System" items most of the time
++       |          |         | 513. improve UI for creating a new category
++       |          |         | 514. Deal with \n in page name or summary fields
++       |          |         | 515. be able to select a table row 
++       |          |         | 516. be able to delete a selected table row 
++       |          |         | 517. drag-and-drop to re-order table rows
++       |          |         | 518. improve UI for "add new attribute" in Table View 
++       |          |         | 519. improve UI for setting the expected data type of an attribute
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 20. have Detail View use textarea instead of text input, for long strings
+-       |          |         | 21. make it possible to add a new attribute in Detail View 
+-       |          |         | 22. improve UI for initial "out of the box" experience
+-       |          |         | 23. improve UI for creating a new page
+-       |          |         | 24. improve UI for adding a new section to a page
+-       |          |         | 25. UI to move/delete sections?
+-       |          |         | 26. 
+-       |          |         | 27. Have different documents use different style-sheets
+-       |          |         | 28. Wire up observers & keep views in sync
+-       |          |         | 29. Provide GUI feedback about what's editable
++       |          |         | 520. have Detail View use textarea instead of text input, for long strings
++       |          |         | 521. make it possible to add a new attribute in Detail View 
++       |          |         | 522. improve UI for initial "out of the box" experience
++       |          |         | 523. improve UI for creating a new page
++       |          |         | 524. improve UI for adding a new section to a page
++       |          |         | 525. UI to move/delete sections?
++       |          |         | 526. improve UI for creating a new user
++       |          |         | 527. Have different documents use different style-sheets
++       |          |         | 528. Wire up observers & keep views in sync
++       |          |         | 529. Provide GUI feedback about what's editable
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 30. Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
+-       |          |         | 31. Make currently sorted column have a special CSS class so that it can look different
+-       |          |         | 32. Resolve: How should table cells deal with <enter>, move down a cell or to the right?
+-       |          |         | 33. be able to select a non-lozenge literal entry
+-       |          |         | 34. be able to select the text within an entry
+-       |          |         | 35. Reach consensus on (colors, padding, and borders) and then implement
+-       |          |         | 36. Set up an OpenRecord.org "dogfood" site & hand-copy info into it
+-       |          |         | 37. UI and data model design to support collaboration
+-       |          |         | 38. config option so that only logged-in users have read-access
+-       |          |         | 39. have an "icon" attribute, and use icons in suggestion box and in EntryView
++       |          |         | 530. Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
++       |          |         | 531. Make currently sorted column have a special CSS class so that it can look different
++       |          |         | 532. Resolve: How should table cells deal with <enter>, move down a cell or to the right?
++       |          |         | 533. be able to select a non-lozenge literal entry
++       |          |         | 534. be able to select the text within an entry
++       |          |         | 535. Reach consensus on (colors, padding, and borders) and then implement
++       |          |         | 536. Set up an OpenRecord.org "dogfood" site & hand-copy info into it
++       |          |         | 537. UI and data model design to support collaboration
++       |          |         | 538. config option so that only logged-in users have read-access
++       |          |         | 539. have an "icon" attribute, and use icons in suggestion box and in EntryView
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 40. improve UI for entering references to categories or to other items
+-       |          |         | 41. improve UI for creating a new user
+-       |          |         | 42. BUG: back button is broken
+-       |          |         | 43. BUG: "Waiting for localhost..." (may be related to how we load images)
+-       |          |         | 44. BUG: "Node was not found" exception in EntryView/LoginView?
+-       |          |         | 45. Do some testing to find other existing bugs
+-       |          |         | 46. Have explicit save instead of (or in addition to) autosave
+-       |          |         | 47. Be able to cancel out of creating a new account
+-       |          |         | 48. Save view layout choice and user preferences
+-       |          |         | 49. Write scalability tests 
+-       |          |         | 50. Fix the message that says "Sorry, for some reason OpenRecord was not able to launch."
++       |          |         | 540. improve UI for entering references to categories or to other items
++       |          |         | 541. BUG: back button is broken
++       |          |         | 542. BUG: "Waiting for localhost..." (may be related to how we load images)
++       |          |         | 543. BUG: "Node was not found" exception in EntryView/LoginView?
++       |          |         | 544. Do some testing to find other existing bugs
++       |          |         | 545. Have explicit save instead of (or in addition to) autosave
++       |          |         | 546. Be able to cancel out of creating a new account
++       |          |         | 547. Save view layout choice and user preferences
++       |          |         | 548. Write scalability tests 
++       |          |         | 549. Fix the message that says "Sorry, for some reason OpenRecord was not able to launch."
++       |          |         | 550. (new task...)
+ -------+----------+---------+----------------------------------------------
+                             
+ 
+
+
+
+From skinner at berlios.de  Mon Jan  2 23:30:35 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 2 Jan 2006 23:30:35 +0100
+Subject: [openrecord-svn] r413 - trunk/source/util
+Message-ID: <200601022230.k02MUZmH025295@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-02 23:30:34 +0100 (Mon, 02 Jan 2006)
+New Revision: 413
+
+Modified:
+   trunk/source/util/Util.js
+Log:
+replaced a couple Util.js methods with dojo implementations
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2006-01-02 22:10:47 UTC (rev 412)
++++ trunk/source/util/Util.js	2006-01-02 22:30:34 UTC (rev 413)
+@@ -201,7 +201,7 @@
+ 
+ 
+ orp.util.hasProperty = function(object, property) {
+-  return (object[property] !== undefined);
++  return (object[property] !== undefined); // return (property in object);
+ };
+ 
+ orp.util.hasProperties = function(object, properties) {
+@@ -245,12 +245,13 @@
+  * @return   Returns a number between 0 and array.length, or -1 if the element was not in the array.
+  */
+ orp.util.getArrayIndex = function(array, value) {
+-  for (var i=0; i<array.length; ++i) {
+-    if (array[i] == value) {
+-      return i;
+-    }
+-  }
+-  return -1;
++  return dojo.lang.indexOf(array, value);
++  // for (var i=0; i<array.length; ++i) {
++  //   if (array[i] == value) {
++  //     return i;
++  //   }
++  // }
++  // return -1;
+ };
+ 
+ 
+@@ -268,13 +269,7 @@
+  */
+ orp.util.isObjectInSet = function(object, set) {
+   orp.lang.assertType(set, Array);
+-  
+-  for (var key in set) {
+-    if (set[key] == object) {
+-      return true;
+-    }
+-  }
+-  return false;
++  return dojo.lang.inArray(set, object);
+ };
+ 
+ 
+
+
+
+From skinner at berlios.de  Mon Jan  2 23:31:22 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Mon, 2 Jan 2006 23:31:22 +0100
+Subject: [openrecord-svn] r414 - trunk/documentation
+Message-ID: <200601022231.k02MVM07025442@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-02 23:31:22 +0100 (Mon, 02 Jan 2006)
+New Revision: 414
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+a few more to-do list notes
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-02 22:30:34 UTC (rev 413)
++++ trunk/documentation/to_do_list.txt	2006-01-02 22:31:22 UTC (rev 414)
+@@ -55,7 +55,7 @@
+        |          |         | 109. Make RootView subclass from View, or add comments explaining why it doesn't
+        |          |         | 110. Rationalize the View API and document public API
+        |          |         | 111. Refactor our observer notification API (and implementation)
+-       |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
++(soon) |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+        |          |         | 113. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+@@ -84,11 +84,11 @@
+                                     see http://svnbook.red-bean.com/en/1.1/ch07s04.html
+                                     see section 5.2.4 of http://tortoisesvn.sourceforge.net/docs/nightly/TortoiseSVN_en.pdf
+        |          |         | 302. Attempt to embed an OpenRecord view in a MediaWiki page
+-       |          |         | 303. Have a server that supports repositories with thousands of items
+-       |          |         | 304. Look at replacing our notion of Views with Dojo's notion of widgets
++(soon) |          |         | 303. Have a server that supports repositories with thousands of items
++(soon) |          |         | 304. Look at replacing our notion of Views with Dojo's notion of widgets
+        |          |         | 305. Run in IE as well as Firefox
+        |          |         | 306. Add support for repository merging
+-       |          |         | 307. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
++(soon) |          |         | 307. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
+        |          |         | 308. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+@@ -115,7 +115,8 @@
+        |          |         | 416. grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
+        |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
+        |          |         | 418. Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
+-       |          |         | 419. (new task...)
++(soon) |          |         | 419. Replace scriptaculous/dragdrop.js with dojo.dnd, and remove scriptaculous from our tree
++       |          |         | 420. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+
+
+
+From mignon at berlios.de  Tue Jan  3 00:26:07 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 3 Jan 2006 00:26:07 +0100
+Subject: [openrecord-svn] r415 - trunk/third_party/dojo
+Message-ID: <200601022326.k02NQ7qb001583@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-03 00:26:06 +0100 (Tue, 03 Jan 2006)
+New Revision: 415
+
+Modified:
+   trunk/third_party/dojo/
+Log:
+Test of svn:externals property
+
+
+Property changes on: trunk/third_party/dojo
+___________________________________________________________________
+Name: svn:externals
+   + demos2   http://dojotoolkit.org/svn/dojo/trunk/demos
+
+
+
+
+From mignon at berlios.de  Tue Jan  3 00:41:41 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 3 Jan 2006 00:41:41 +0100
+Subject: [openrecord-svn] r416 - trunk/third_party/dojo
+Message-ID: <200601022341.k02NffqK017090@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-03 00:41:39 +0100 (Tue, 03 Jan 2006)
+New Revision: 416
+
+Modified:
+   trunk/third_party/dojo/
+Log:
+removed svn:externals property (test succeeded)
+
+
+Property changes on: trunk/third_party/dojo
+___________________________________________________________________
+Name: svn:externals
+   - demos2   http://dojotoolkit.org/svn/dojo/trunk/demos
+
+
+
+
+From mignon at berlios.de  Tue Jan  3 00:59:02 2006
+From: mignon at berlios.de (mignon at berlios.de)
+Date: Tue, 3 Jan 2006 00:59:02 +0100
+Subject: [openrecord-svn] r417 - trunk/third_party
+Message-ID: <200601022359.k02Nx245024583@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-03 00:58:46 +0100 (Tue, 03 Jan 2006)
+New Revision: 417
+
+Removed:
+   trunk/third_party/dojo/
+Log:
+removing local copy of dojo
+
+
+
+From mignon at berlios.de  Tue Jan  3 01:10:15 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 3 Jan 2006 01:10:15 +0100
+Subject: [openrecord-svn] r418 - trunk/third_party
+Message-ID: <200601030010.k030AFGA028260@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-03 01:10:13 +0100 (Tue, 03 Jan 2006)
+New Revision: 418
+
+Modified:
+   trunk/third_party/
+Log:
+added svn:externals property for the dojo directory
+
+
+Property changes on: trunk/third_party
+___________________________________________________________________
+Name: svn:externals
+   + dojo   http://dojotoolkit.org/svn/dojo/trunk
+
+
+
+
+From mignon at berlios.de  Tue Jan  3 01:16:08 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 3 Jan 2006 01:16:08 +0100
+Subject: [openrecord-svn] r419 - trunk/third_party
+Message-ID: <200601030016.k030G88C030113@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-03 01:16:03 +0100 (Tue, 03 Jan 2006)
+New Revision: 419
+
+Modified:
+   trunk/third_party/
+Log:
+set revision to 2540 for the svn:externals property for the dojo directory
+
+
+Property changes on: trunk/third_party
+___________________________________________________________________
+Name: svn:externals
+   - dojo   http://dojotoolkit.org/svn/dojo/trunk
+
+   + dojo  -r2540  http://dojotoolkit.org/svn/dojo/trunk
+
+
+
+
+From mignon at berlios.de  Tue Jan  3 01:31:39 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 3 Jan 2006 01:31:39 +0100
+Subject: [openrecord-svn] r420 - trunk/documentation
+Message-ID: <200601030031.k030VdRM002246@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-03 01:31:34 +0100 (Tue, 03 Jan 2006)
+New Revision: 420
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+finished task 301
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-03 00:16:03 UTC (rev 419)
++++ trunk/documentation/to_do_list.txt	2006-01-03 00:31:34 UTC (rev 420)
+@@ -50,7 +50,7 @@
+        |          |         | 104. Change "TablePlugin" to "TableView", etc.
+        |          |         | 105. Move the 4 original plugins into the plugins folder
+        |          |         | 106. Remove BarChartView and Outline view from the axiomatic.json file
+-       |          |         | 107. Have Entry.toSting() return the Entry's UUID -- same for Item.toString()
++       |          |         | 107. Have Entry.toString() return the Entry's UUID -- same for Item.toString()
+        |          |         | 108. Move DOM methods from orp.view.View.xxx to orp.dom.xxx
+        |          |         | 109. Make RootView subclass from View, or add comments explaining why it doesn't
+        |          |         | 110. Rationalize the View API and document public API
+@@ -80,9 +80,7 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 301. Instead of having a copy of dojo in our SVN archive, link to dojo using SVN "externals"
+-                                    see http://svnbook.red-bean.com/en/1.1/ch07s04.html
+-                                    see section 5.2.4 of http://tortoisesvn.sourceforge.net/docs/nightly/TortoiseSVN_en.pdf
++mignon |          |  .25    | 301. Instead of having a copy of dojo in our SVN archive, link to dojo using SVN "externals"
+        |          |         | 302. Attempt to embed an OpenRecord view in a MediaWiki page
+ (soon) |          |         | 303. Have a server that supports repositories with thousands of items
+ (soon) |          |         | 304. Look at replacing our notion of Views with Dojo's notion of widgets
+
+
+
+From skinner at berlios.de  Tue Jan  3 01:55:43 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 3 Jan 2006 01:55:43 +0100
+Subject: [openrecord-svn] r421 - in trunk: documentation source source/plugins
+Message-ID: <200601030055.k030thpl008943@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-03 01:55:34 +0100 (Tue, 03 Jan 2006)
+New Revision: 421
+
+Added:
+   trunk/source/plugins/ButtonView.js
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/OpenRecordLoaderStepThree.js
+Log:
+Created the source/plugins/ButtonView.js plugin, which is our first simple example of using dojo widgets within OpenRecord.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-03 00:31:34 UTC (rev 420)
++++ trunk/documentation/to_do_list.txt	2006-01-03 00:55:34 UTC (rev 421)
+@@ -56,7 +56,8 @@
+        |          |         | 110. Rationalize the View API and document public API
+        |          |         | 111. Refactor our observer notification API (and implementation)
+ (soon) |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+-       |          |         | 113. (new task...)
++       |          |         | 113. BUG: in plugins, dojo.require() statements don't do anything 
++       |          |         | 114. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-01-03 00:31:34 UTC (rev 420)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-01-03 00:55:34 UTC (rev 421)
+@@ -33,6 +33,21 @@
+ dojo.require("orp.model.World");
+ dojo.require("orp.view.RootView");
+ 
++// FIXME:
++// These dojo.require() statements are needed in order to 
++// get plugins/ButtonView.js to work.  Someday we should 
++// delete these next six lines, and instead just have the
++// identical lines in ButtonView.js.  But, for now we can't
++// do that because dojo.require() statements don't work
++// within plugins (see bug #113 in the to_do_list.txt file).
++dojo.require("dojo.widget.*");
++dojo.require("dojo.widget.Button");
++dojo.require("dojo.widget.html.Button");
++dojo.require("dojo.widget.Button2");
++dojo.require("dojo.widget.html.Button2");
++dojo.require("dojo.widget.Menu2");
++
++
+ if (djConfig.debugAtAllCosts) {
+   dojo.hostenv.writeIncludes(); // needed when using "debugAtAllCosts: true"
+ }
+
+Added: trunk/source/plugins/ButtonView.js
+===================================================================
+--- trunk/source/plugins/ButtonView.js	2006-01-03 00:31:34 UTC (rev 420)
++++ trunk/source/plugins/ButtonView.js	2006-01-03 00:55:34 UTC (rev 421)
+@@ -0,0 +1,156 @@
++/*****************************************************************************
++ ButtonView.js
++
++******************************************************************************
++ Created in 2006 by Brian Douglas Skinner <skinner at dojotoolkit.org>
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    http://creativecommons.org/licenses/publicdomain/
++*****************************************************************************/
++
++// Dojo Package System "provide" and "require" statements
++dojo.provide("orp.plugins.ButtonView");
++dojo.require("orp.view.PluginView");
++
++dojo.require("dojo.widget.*");
++dojo.require("dojo.widget.Button");
++dojo.require("dojo.widget.html.Button");
++dojo.require("dojo.widget.Button2");
++dojo.require("dojo.widget.html.Button2");
++dojo.require("dojo.widget.Menu2");
++
++/**
++ * The ButtonView view displays a set of content items. 
++ *
++ * @scope    public instance constructor
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    An item that can be used to store layout data (like table column order). 
++ */
++orp.plugins.ButtonView = function(superview, htmlElement, querySpec, layoutItem) {
++  orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, "ButtonView");
++};
++
++dojo.inherits(orp.plugins.ButtonView, orp.view.PluginView);  // makes ButtonView be a subclass of PluginView
++
++
++// -------------------------------------------------------------------
++// Register this plugin in the SectionView registry
++// -------------------------------------------------------------------
++orp.plugins.ButtonView.UUID = "b8344e10-7bdf-11da-a86a-0011111f4abe";
++orp.view.SectionView.registerPlugin(orp.plugins.ButtonView);
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item that represents this class of plugin.
++ *
++ * @scope    public class method
++ * @return   The UUID of the item that represents this class of plugin.
++ */
++orp.plugins.ButtonView.getPluginItemUuid = function() {
++  return orp.plugins.ButtonView.UUID;
++};
++
++/**
++ * Returns a list of anonymous objects representing Entries that describe the plugin.
++ *
++ * @scope    public class method
++ * @return   A list of anonymous objects representing Entries that describe the plugin.
++ */
++orp.plugins.ButtonView.getEntriesForItemRepresentingPluginClass = function(pluginItem, world) {
++  return [
++    { uuid: "b8344e11-7bdf-11da-a86a-0011111f4abe",
++      item: pluginItem,
++      attribute: world.getAttributeCalledName(),
++      value: "Dojo Button" },
++    { uuid: "b8344e12-7bdf-11da-a86a-0011111f4abe",
++      item: pluginItem,
++      attribute: world.getAttributeCalledShortName(),
++      value: "ButtonView" },
++    { uuid: "b8344e13-7bdf-11da-a86a-0011111f4abe",
++      item: pluginItem,
++      attribute: world.getAttributeCalledClassName(),
++      value: "ButtonView" },
++    { uuid: "b8344e14-7bdf-11da-a86a-0011111f4abe",
++      item: pluginItem,
++      attribute: world.getAttributeCalledCategory(),
++      inverseAttribute: world.getAttributeCalledItemsInCategory(),
++      value: world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_PLUGIN_VIEW) }
++  ];
++};
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the class of this instance.
++ *
++ * @scope    public instance method
++ * @return   A JavaScript class. 
++ */
++orp.plugins.ButtonView.prototype.getClass = function() {
++  return orp.plugins.ButtonView;
++};
++
++/**
++ * This method is called whenever the ButtonView plugin is used to
++ * display the results of a query.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.ButtonView.prototype.refresh = function() {
++  var listOfContentItems = this.fetchItems();
++  var outlineDiv = this.getHtmlElement();
++
++  orp.view.View.removeChildrenOfElement(outlineDiv);
++  var divElement = orp.view.View.appendNewElement(outlineDiv, "div");
++  
++  // This doesn't work yet:
++  // var popupMenu = dojo.widget.fromScript("PopupMenu2", {toggle: "wipe"}, divElement, "last");
++  // var menuItemA = dojo.widget.fromScript("MenuItem2", {caption: "Save", accelKey: "Ctrl+S"}, divElement, "last");
++  // var menuItemB = dojo.widget.fromScript("MenuItem2", {caption: "Save As", accelKey: "Ctrl+A"}, divElement, "last");
++  
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName("{no name}");
++    var button = dojo.widget.fromScript("Button", {label: itemName}, divElement, "last");
++    dojo.event.connect(button, "onClick", this, "buttonClick")
++  }
++  orp.view.View.appendNewElement(divElement, "p");
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName("{no name}");
++    var button2 = dojo.widget.fromScript("Button2", {caption: itemName}, divElement, "last");
++    dojo.event.connect(button2, "onClick", this, "buttonClick")
++  }
++  orp.view.View.appendNewElement(divElement, "p");
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName("{no name}");
++    var dropdown2 = dojo.widget.fromScript("DropDownButton2", {caption: itemName}, divElement, "last");
++    dojo.event.connect(dropdown2, "onClick", this, "buttonClick")
++  }
++  orp.view.View.appendNewElement(divElement, "p");
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName("{no name}");
++    var combo2 = dojo.widget.fromScript("ComboButton2", {caption: itemName}, divElement, "last");
++    dojo.event.connect(combo2, "onClick", this, "buttonClick")
++  }
++
++};
++
++orp.plugins.ButtonView.prototype.buttonClick = function(clickEvent) {
++  var htmlButtonElement = clickEvent.target;
++  var textNode = htmlButtonElement.firstChild;
++  alert(textNode.nodeValue);
++};
++
+
+
+
+From skinner at berlios.de  Tue Jan  3 03:04:45 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 3 Jan 2006 03:04:45 +0100
+Subject: [openrecord-svn] r422 - trunk/documentation
+Message-ID: <200601030204.k0324jFn030089@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-03 03:04:22 +0100 (Tue, 03 Jan 2006)
+New Revision: 422
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+to do list updates
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-03 00:55:34 UTC (rev 421)
++++ trunk/documentation/to_do_list.txt	2006-01-03 02:04:22 UTC (rev 422)
+@@ -84,11 +84,12 @@
+ mignon |          |  .25    | 301. Instead of having a copy of dojo in our SVN archive, link to dojo using SVN "externals"
+        |          |         | 302. Attempt to embed an OpenRecord view in a MediaWiki page
+ (soon) |          |         | 303. Have a server that supports repositories with thousands of items
+-(soon) |          |         | 304. Look at replacing our notion of Views with Dojo's notion of widgets
+-       |          |         | 305. Run in IE as well as Firefox
+-       |          |         | 306. Add support for repository merging
+-(soon) |          |         | 307. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
+-       |          |         | 308. (new task...)
++(soon) |          |         | 304. Change View class so a subview can be either an orp.view.View or a dojo.widget instance
++(soon) |          |         | 305. Look at replacing our notion of Views with Dojo's notion of widgets
++       |          |         | 306. Run in IE as well as Firefox
++       |          |         | 307. Add support for repository merging
++(soon) |          |         | 308. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
++       |          |         | 309. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -182,18 +183,6 @@
+     The browser's back button doesn't work after you click from 
+     page to page in the navbar.
+ ---------------------------------------------------
+- + BUG: problems with HTML in text strings
+-    We still have some problems with handling text strings that 
+-    have HTML in them. If an item has an attribute value with some 
+-    HTML in it, like '<cite>', we incorrectly render it like 
+-    '& lt;cite& gt;' instead of '<cite>'
+----------------------------------------------------
+- + Editable Detail Plugin
+-    Make a new version of the current DetailPlugin.js.  The 
+-    current one just lets the user view the attribute values, 
+-    but we should make a better one that lets the user change 
+-    the values, and add new values, and add new ad-hoc attributes.
+----------------------------------------------------
+  + List/Detail Combo Plugin
+     We could make a plugin that takes a list of items and
+     displays them in a format like what you see in a mail
+
+
+
+From skinner at berlios.de  Tue Jan  3 03:11:21 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 3 Jan 2006 03:11:21 +0100
+Subject: [openrecord-svn] r423 - trunk/source/view
+Message-ID: <200601030211.k032BLkj031611@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-03 03:11:00 +0100 (Tue, 03 Jan 2006)
+New Revision: 423
+
+Modified:
+   trunk/source/view/LoginView.js
+Log:
+In LoginView.js, removed the dependency on third_party/scriptaculous.  Replaced the cool scriptaculous Effect.Shake and Transition.wobble with the somewhat less cool dojo.fx.html.fadeIn()
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2006-01-03 02:04:22 UTC (rev 422)
++++ trunk/source/view/LoginView.js	2006-01-03 02:11:00 UTC (rev 423)
+@@ -2,7 +2,7 @@
+  LoginView.js
+ 
+ ******************************************************************************
+- Written in 2005 by 
++ Written in 2005 and 2006 by 
+     Brian Douglas Skinner <brian.skinner at gumption.org>
+     Chih-Chao Lam <chao at cs.stanford.edu>
+ 
+@@ -39,7 +39,10 @@
+ dojo.require("orp.view.View");
+ dojo.require("orp.util.Cookie");
+ dojo.require("dojo.event.*");
++dojo.require("dojo.html");
++dojo.require("dojo.fx.*");
+ 
++
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+@@ -134,9 +137,11 @@
+   var editMode = currentUser ? true : false;
+   this.getRootView().setEditMode(editMode);
+   
+-  this.errorNode = orp.view.View.appendNewElement(mySpan,"span",null,{id:"login_view_error"});
+-  this.errorNode.style.display = 'None';
+-  this.errorNode.style.color = '#EE0000';
++  this.errorNode = orp.view.View.appendNewElement(mySpan, "span");
++  this.errorNode.style.color = '#FFFFFF';      // white
++  this.errorNode.style.background = '#EE0000'; // red
++  dojo.fx.html.fadeOut(this.errorNode, 1);
++  
+   if (this._isCreatingNewAccount) {
+     // The user wants to create a new account.
+     // Create a line that looks like this:
+@@ -169,7 +174,7 @@
+     // Create a line that looks like this:
+     //   _Create Account_  or sign in:  _username_  _password_  [Sign in]
+     
+-    var createAccountLink = orp.view.View.appendNewElement(mySpan, "a", null, null, "Create Account");
++    var createAccountLink = orp.view.View.appendNewElement(mySpan, "a", null, null, " Create Account");
+     dojo.event.connect(createAccountLink, "onclick", this, "_clickOnCreateAccountLink");
+     orp.view.View.appendNewTextNode(mySpan, " or sign in: ");
+     this.usernameInput = orp.view.View.appendNewElement(mySpan, "input", null, {size:20,value:"Albert Einstein"});
+@@ -343,10 +348,10 @@
+  */
+ orp.view.LoginView.prototype._reportError = function(errorString) {
+   var mySpan = this.getHtmlElement();
+-  Effect.Shake(mySpan);
+   orp.view.View.removeChildrenOfElement(this.errorNode);
+-  orp.view.View.appendNewTextNode(this.errorNode,errorString + ' ');
+-  Effect.Appear(this.errorNode, {duration:2.0, transition:Effect.Transitions.wobble});
++  orp.view.View.appendNewTextNode(this.errorNode, ' ' + errorString + ' ');
++  this.errorNode.style.display = 'inline';
++  dojo.fx.html.fadeIn(this.errorNode, 1000);
+ };
+ 
+ 
+
+
+
+From skinner at berlios.de  Tue Jan  3 04:07:51 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 3 Jan 2006 04:07:51 +0100
+Subject: [openrecord-svn] r424 - trunk/documentation
+Message-ID: <200601030307.k0337pU7016258@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-03 04:07:37 +0100 (Tue, 03 Jan 2006)
+New Revision: 424
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+mignon has signed up for task #419 -- feplace scriptaculous/dragdrop.js with dojo.dnd
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-03 02:11:00 UTC (rev 423)
++++ trunk/documentation/to_do_list.txt	2006-01-03 03:07:37 UTC (rev 424)
+@@ -115,7 +115,7 @@
+        |          |         | 416. grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
+        |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
+        |          |         | 418. Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
+-(soon) |          |         | 419. Replace scriptaculous/dragdrop.js with dojo.dnd, and remove scriptaculous from our tree
++mignon |          |         | 419. Replace scriptaculous/dragdrop.js with dojo.dnd, and remove scriptaculous from our tree
+        |          |         | 420. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+@@ -168,7 +168,8 @@
+        |          |         | 547. Save view layout choice and user preferences
+        |          |         | 548. Write scalability tests 
+        |          |         | 549. Fix the message that says "Sorry, for some reason OpenRecord was not able to launch."
+-       |          |         | 550. (new task...)
++       |          |         | 550. use dojo.fx.html transitions fadeOut/fadeIn or implode/explode for page changes
++       |          |         | 551. (new task...)
+ -------+----------+---------+----------------------------------------------
+                             
+ 
+
+
+
+From skinner at berlios.de  Tue Jan 10 00:52:36 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 10 Jan 2006 00:52:36 +0100
+Subject: [openrecord-svn] r425 - in trunk: documentation source/plugins/create_new_plugin
+Message-ID: <200601092352.k09Nqa8n025467@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-10 00:52:09 +0100 (Tue, 10 Jan 2006)
+New Revision: 425
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+Log:
+Updated to_do_list.txt, and the list of plugin_suggestions.html
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-03 03:07:37 UTC (rev 424)
++++ trunk/documentation/to_do_list.txt	2006-01-09 23:52:09 UTC (rev 425)
+@@ -57,7 +57,10 @@
+        |          |         | 111. Refactor our observer notification API (and implementation)
+ (soon) |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+        |          |         | 113. BUG: in plugins, dojo.require() statements don't do anything 
+-       |          |         | 114. (new task...)
++       |          |         | 114. In OpenRecordLoader.js, add: djConfig.cacheBust = new Date().valueOf().toString();
++       |          |         | 115. Allow a plugin view to register as a default detail view for a category of item
++       |          |         | 116. Have DetailPlugin show tabs, if more than one detail view is available for an item
++       |          |         | 117. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -66,9 +69,9 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 201. Research standard text representations for DateValues
+-       |          |         | 202. Make DateValue support date ranges
+-       |          |         | 203. Make ordinal value strings not grow long so quickly
++(soon) |          |         | 201. Research standard text representations for DateValues
++(soon) |          |         | 202. Make a DateRange data class, for values like "July 2002 - May 2003"
++(soon) |          |         | 203. Make ordinal value strings not grow long so quickly
+        |          |         | 204. Make sure view code uses transactions
+        |          |         | 205. Write concurrency tests 
+        |          |         | 206. Ensure that PHP scripts and file I/O works for concurrent multi-user access
+@@ -88,8 +91,9 @@
+ (soon) |          |         | 305. Look at replacing our notion of Views with Dojo's notion of widgets
+        |          |         | 306. Run in IE as well as Firefox
+        |          |         | 307. Add support for repository merging
+-(soon) |          |         | 308. Use Camtesia Studio to create a screencast about OpenRecord (and plugins)
+-       |          |         | 309. (new task...)
++brian  | 3    IED |         | 308. Use Camtesia Studio to create screencasts about OpenRecord (and plugins)
++       |          |         | 309. Consider implementing a JavaScript file:// version of this: http://lists.berlios.de/pipermail/openrecord-dev/2005-October/000248.html
++       |          |         | 310. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -116,7 +120,9 @@
+        |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
+        |          |         | 418. Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
+ mignon |          |         | 419. Replace scriptaculous/dragdrop.js with dojo.dnd, and remove scriptaculous from our tree
+-       |          |         | 420. (new task...)
++       |          |         | 420. Replace XMLHttpRequest calls with dojo.io.bind() calls
++       |          |         | 421. Consider refactoring orp.storage so that FileProtocolStorage is "behind" dojo.io.bind
++       |          |         | 422. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -147,7 +153,7 @@
+        |          |         | 528. Wire up observers & keep views in sync
+        |          |         | 529. Provide GUI feedback about what's editable
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 530. Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
++(soon) |          |         | 530. Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
+        |          |         | 531. Make currently sorted column have a special CSS class so that it can look different
+        |          |         | 532. Resolve: How should table cells deal with <enter>, move down a cell or to the right?
+        |          |         | 533. be able to select a non-lozenge literal entry
+@@ -169,13 +175,28 @@
+        |          |         | 548. Write scalability tests 
+        |          |         | 549. Fix the message that says "Sorry, for some reason OpenRecord was not able to launch."
+        |          |         | 550. use dojo.fx.html transitions fadeOut/fadeIn or implode/explode for page changes
+-       |          |         | 551. (new task...)
++       |          |         | 551. Make a Quantity class, for representing values like "18 kg"
++       |          |         | 552. (new task...)
+ -------+----------+---------+----------------------------------------------
+                             
+ 
++---------------------------------------------------------------------------
++Plugins to write -- see also: .../source/plugins/create_new_plugin/plugin_suggestions.html
++-------+----------+---------+----------------------------------------------
++Who    | Estimate | Actual  | Task
++-------+----------+---------+----------------------------------------------
++       |          |         | 601. pivot table (Brian Skinner has starter code available.)
++       |          |         | 602. periodic table element -- could make use of features 115 and 116
++       |          |         | 603. scatter plot -- (using dojo.widget.Chart, fallback to html ?)
++       |          |         | 604. bar chart -- (using dojo.widget.Chart, fallback to html ?)
++       |          |         | 605. Gantt chart -- (using dojo.widget.Chart, fallback to html ?)
++       |          |         | 606. some animated view -- e.g. http://weblog.infoworld.com/udell/2005/01/22.html#a1156
++       |          |         | 607. timeline -- like Wikimedia EasyTimeline: http://meta.wikimedia.org/wiki/EasyTimeline
++       |          |         | 608. calendar -- month view, etc. -- with items placed based on date attributes
++-------+----------+---------+----------------------------------------------
+ 
+-   
+   
++  
+ =======================================================
+ More tasks
+ =======================================================
+
+Modified: trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+===================================================================
+--- trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2006-01-03 03:07:37 UTC (rev 424)
++++ trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2006-01-09 23:52:09 UTC (rev 425)
+@@ -20,17 +20,19 @@
+     <div>
+       <h3>Suggestions for OpenRecord Plugins</h3>
+       <ul>
+-      <li> pivot table (<a href="mailto:brian.skinner at gumption.org">Brian Skinner</a>
++      <li> pivot table -- (<a href="mailto:skinner at dojotoolkit.org">Brian Skinner</a>
+            has starter code available for the asking.)
+-      <li> periodic table element
+-      <li> scatter plot
+-      <li> calendar
++      <li> periodic table element -- (maybe something like this <a href="http://education.jlab.org/itselemental/ele013.html">
++           Aluminum example</a>)
++      <li> scatter plot -- (maybe using dojo.widget.Chart, with fallback to html)
++      <li> bar chart -- (maybe using dojo.widget.Chart, with fallback to html)
++      <li> Gantt chart -- (maybe using dojo.widget.Chart, with fallback to html)
++      <li> calendar -- month view, etc. -- with items placed based on date attributes
+       <li> item history
+-      <li> animated history <a href="http://weblog.infoworld.com/udell/gems/umlaut.html">
+-           (example by Jon Udell)</a>
+-      <li> Gantt chart
+-      <li> timeline <a href="http://meta.wikimedia.org/wiki/EasyTimeline">
+-           (Wikimedia examples)</a>
++      <li> some kind of animated view -- (maybe something like <a href="http://weblog.infoworld.com/udell/gems/umlaut.html">
++           Jon Udell's page history animation</a>)
++      <li> timeline -- (like <a href="http://meta.wikimedia.org/wiki/EasyTimeline">
++           the MediaWiki EasyTimeline</a>)
+       </ul>
+     </div>
+     
+
+
+
+From skinner at berlios.de  Tue Jan 10 01:03:40 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 10 Jan 2006 01:03:40 +0100
+Subject: [openrecord-svn] r426 - trunk/source/plugins/create_new_plugin
+Message-ID: <200601100003.k0A03eMp029900@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-10 01:03:38 +0100 (Tue, 10 Jan 2006)
+New Revision: 426
+
+Modified:
+   trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+Log:
+one more plugin idea
+
+Modified: trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+===================================================================
+--- trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2006-01-09 23:52:09 UTC (rev 425)
++++ trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2006-01-10 00:03:38 UTC (rev 426)
+@@ -22,8 +22,6 @@
+       <ul>
+       <li> pivot table -- (<a href="mailto:skinner at dojotoolkit.org">Brian Skinner</a>
+            has starter code available for the asking.)
+-      <li> periodic table element -- (maybe something like this <a href="http://education.jlab.org/itselemental/ele013.html">
+-           Aluminum example</a>)
+       <li> scatter plot -- (maybe using dojo.widget.Chart, with fallback to html)
+       <li> bar chart -- (maybe using dojo.widget.Chart, with fallback to html)
+       <li> Gantt chart -- (maybe using dojo.widget.Chart, with fallback to html)
+@@ -33,6 +31,10 @@
+            Jon Udell's page history animation</a>)
+       <li> timeline -- (like <a href="http://meta.wikimedia.org/wiki/EasyTimeline">
+            the MediaWiki EasyTimeline</a>)
++      <li> periodic table element view -- (maybe something like this <a href="http://education.jlab.org/itselemental/ele013.html">
++           Aluminum example</a>)
++      <li> nutrition facts view -- (<a href="http://www.backpackgeartest.org/reviews/Food/Packaged%20Meals/MaryJanesFarm%20Backcountry%20Foods/Owner%20Review%20by%20Russell%20Curry/B3%20Nutrition%20Label.jpg">example</a>
++           and <a href="http://www.inspection.gc.ca/english/fssa/labeti/guide/images/ch5-8.gif">formatting info</a>)
+       </ul>
+     </div>
+     
+
+
+
+From skinner at berlios.de  Wed Jan 11 04:23:46 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Wed, 11 Jan 2006 04:23:46 +0100
+Subject: [openrecord-svn] r427 - in trunk: documentation source/plugins/create_new_plugin
+Message-ID: <200601110323.k0B3Nk5I020765@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-11 04:23:20 +0100 (Wed, 11 Jan 2006)
+New Revision: 427
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+Log:
+Updated a couple to-do list links.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-10 00:03:38 UTC (rev 426)
++++ trunk/documentation/to_do_list.txt	2006-01-11 03:23:20 UTC (rev 427)
+@@ -185,7 +185,7 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 601. pivot table (Brian Skinner has starter code available.)
++       |          |         | 601. pivot table -- starter code: http://openrecord.org/pivot_table/
+        |          |         | 602. periodic table element -- could make use of features 115 and 116
+        |          |         | 603. scatter plot -- (using dojo.widget.Chart, fallback to html ?)
+        |          |         | 604. bar chart -- (using dojo.widget.Chart, fallback to html ?)
+
+Modified: trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+===================================================================
+--- trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2006-01-10 00:03:38 UTC (rev 426)
++++ trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2006-01-11 03:23:20 UTC (rev 427)
+@@ -20,8 +20,9 @@
+     <div>
+       <h3>Suggestions for OpenRecord Plugins</h3>
+       <ul>
+-      <li> pivot table -- (<a href="mailto:skinner at dojotoolkit.org">Brian Skinner</a>
+-           has starter code available for the asking.)
++      <li> pivot table -- (maybe building on this 
++           <a href="http://openrecord.org/pivot_table/test_page.html">simple example</a> 
++           with code available from <a href="mailto:skinner at dojotoolkit.org">Brian Skinner</a>)
+       <li> scatter plot -- (maybe using dojo.widget.Chart, with fallback to html)
+       <li> bar chart -- (maybe using dojo.widget.Chart, with fallback to html)
+       <li> Gantt chart -- (maybe using dojo.widget.Chart, with fallback to html)
+
+
+
+From skinner at berlios.de  Wed Jan 11 20:40:23 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Wed, 11 Jan 2006 20:40:23 +0100
+Subject: [openrecord-svn] r428 - trunk/meeting_notes
+Message-ID: <200601111940.k0BJeNoJ008965@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-11 20:40:09 +0100 (Wed, 11 Jan 2006)
+New Revision: 428
+
+Added:
+   trunk/meeting_notes/2006-01-09_data_model_comparison.html
+   trunk/meeting_notes/2006-01-09_data_model_comparison.ods
+Log:
+Checked in an initial version of the data_model_comparison table.
+
+Added: trunk/meeting_notes/2006-01-09_data_model_comparison.html
+===================================================================
+--- trunk/meeting_notes/2006-01-09_data_model_comparison.html	2006-01-11 03:23:20 UTC (rev 427)
++++ trunk/meeting_notes/2006-01-09_data_model_comparison.html	2006-01-11 19:40:09 UTC (rev 428)
+@@ -0,0 +1,818 @@
++<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
++
++<HTML>
++<HEAD>
++	
++	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
++	<TITLE></TITLE>
++	<META NAME="GENERATOR" CONTENT="OpenOffice.org 1.9.122  (Win32)">
++	<META NAME="AUTHOR" CONTENT="Brian Skinner">
++	<META NAME="CREATED" CONTENT="20060109;16111500">
++	<META NAME="CHANGEDBY" CONTENT="Brian Skinner">
++	<META NAME="CHANGED" CONTENT="20060111;11373123">
++	<!-- Doc.Information -->
++	<!-- Printed: by Brian Skinner on 01/10/2006, 15:28:25 -->
++	
++	<STYLE>
++		<!-- 
++		BODY,DIV,TABLE,THEAD,TBODY,TFOOT,TR,TH,TD,P { font-family:"Arial"; font-size:x-small }
++		 -->
++	</STYLE>
++	
++</HEAD>
++
++<BODY TEXT="#000000">
++<TABLE FRAME=VOID CELLSPACING=0 COLS=14 RULES=GROUPS BORDER=1>
++	<COLGROUP><COL WIDTH=227><COL WIDTH=94><COL WIDTH=117><COL WIDTH=176><COL WIDTH=146><COL WIDTH=144><COL WIDTH=165><COL WIDTH=156><COL WIDTH=147><COL WIDTH=122><COL WIDTH=159><COL WIDTH=140><COL WIDTH=176><COL WIDTH=174></COLGROUP>
++	<TBODY>
++		<TR>
++			<TD COLSPAN=7 WIDTH=1070 HEIGHT=47 ALIGN=LEFT VALIGN=TOP><B><FONT SIZE=5>Data Model Comparison Table</FONT></B></TD>
++			<TD WIDTH=156 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD WIDTH=147 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD WIDTH=122 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD WIDTH=159 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD WIDTH=140 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD WIDTH=176 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD WIDTH=174 ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD COLSPAN=5 HEIGHT=27 ALIGN=LEFT VALIGN=TOP><FONT COLOR="#808080">Created in 2006 by contributors to the Dojo Foundation: url:<A HREF="http://dojotoolkit.org/">http://dojotoolkit.org/</A></FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><FONT COLOR="#808080"><BR></FONT></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><FONT COLOR="#808080"><BR></FONT></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><FONT COLOR="#808080"><BR></FONT></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><FONT COLOR="#808080"><BR></FONT></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><FONT COLOR="#808080"><BR></FONT></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD COLSPAN=10 HEIGHT=27 ALIGN=LEFT VALIGN=TOP><FONT COLOR="#808080">Copyright rights relinquished under the Creative Commons Public Domain Dedication: url:<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A></FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD COLSPAN=11 HEIGHT=96 ALIGN=LEFT>Status: Only about half of the table is filled in. There are still a lot of completely empty cells, and the cells that do have entries could benefit from some fact-checking and additional detail. If you know some of the details about one of these data stores, you could help by suggesting corrections and additions. It'd be great to get this table posted somewhere where everyone can edit it directly, but until then you can send corrections to Brian Douglas Skinner at <A HREF="mailto:skinner at dojotoolkit.org">mailto:skinner at dojotoolkit.org</A></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><B><BR></B></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER VALIGN=TOP><B>Terminology</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=96 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.Item</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;row&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;object&rdquo; or &ldquo;anonymous object&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;record&rdquo; or  &ldquo;row&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;row&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;page&rdquo; or  &ldquo;node&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;item&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;item&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;content object&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;entry&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;node&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;resource&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;resource&rdquo; or  &ldquo;subject&rdquo;</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=73 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.Attribute</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;field&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;property&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;attribute&rdquo; or  &ldquo;column&rdquo; or  &ldquo;field&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;column&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;attribute&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;attribute&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;attribute&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;attribute&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;field&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;property&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;property&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;property&rdquo; or  &ldquo;predicate&rdquo;</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.Value</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;value&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;value&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;cell&rdquo; / &ldquo;value&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;entry&rdquo; or &ldquo;value&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;value&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;value&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;object&rdquo; or  &ldquo;value&rdquo;</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.ItemType (?)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;class&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;table&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;sheet&rdquo; or  &ldquo;page&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;category&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;category&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;node type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;class&rdquo;</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.Provider (?)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;.json file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;database&rdquo; or &ldquo;connection&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;wiki&rdquo;?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;repository&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;store&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;application&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;workspace&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;model&rdquo; or  &ldquo;graph&rdquo;</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.Type dojo.data.ValueType (?)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;type&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=27 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">dojo.data.Set (?)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;.json file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>&ldquo;result set&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;file&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">&ldquo;query result set&rdquo;</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER VALIGN=TOP><B>Data Types and Values</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">type checking</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>none</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">loosely typed</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>strongly typed</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">loosely typed</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>none?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">loosely typed</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">optional (strong or loose)</TD>
++			<TD ALIGN=LEFT><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">optional (strong or loose)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>loosely typed</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=349 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">built-in types</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>just 1 --- (text)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">about 5 --- (string)  (boolean)  (Date)  (number)  (object pointer) </TD>
++			<TD ALIGN=CENTER VALIGN=TOP>about 30 --- (varchar, text, etc.)  (bit)  (datetime, etc.)  (int, float, etc.)  (money, etc.)  (binary, image, etc.)  (foreign key)  (... etc.)    </TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">about 10 --- (text)  (boolean)  (date / time)  (number)  (fraction)  (percent)  (currency)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">about 8? --- (text, etc.)  (checkbox)  (date, duration)  (integer, float)  (reference?)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">about 9 (planned) --- (text)  (checkbox)  (date (range))  (number (unit))  (URL)  (e-mail address)  (picture)  (item reference)  (item connection)  </TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">about 8 --- (text)  (checkbox)  (date (range))  (number)  (number-unit)  (large text)  (web URL)  (street address)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">about 7 --- (text)   (date/time)  (number)  (money)  (selection list)  (link (entry)) </TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">about 8 --- (string, name)   (date)  (long, double)  (binary)  (reference)  (path)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>proposed ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">at least 40 --- (string, token, etc.)  (boolean) (9 types of dates)  (16 types of number)  (... etc.)  </TD>
++			<TD ALIGN=CENTER VALIGN=TOP>same as XML ?</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">add-on types (zip code, phone #, etc.)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">(yes, planned)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes ?</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=27 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">item-references</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">pointers</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>via foreign keys</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=96 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">automatic inverse references</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>via foreign keys</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes, inverse attributes and connection entries</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=96 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">multi-valued cells</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes, using arrays</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no, single value</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, single value</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no, single value</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes, multi-valued</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes, multi-valued</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">multi-valued only if all values are of the same type</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER><B>Classes</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=73 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">items can have no class</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no, every record is in a table</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, each row is in a sheet</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, every object has a type</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">item can change class</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no, records don't move</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, row fixed in sheet</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, the type is fixed</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">item can belong to N classes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no, each record is in a single table</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, row in single sheet</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes, item can be in N categories</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>1-type?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no, object has one type</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes, via mixins</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>N-classes?</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER VALIGN=TOP><B>Attributes</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=27 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">ad-hoc attributes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">attributes have meta-data</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>name-token type</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">none</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>name-token?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">anything</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>name-token type</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes, lots</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">any</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=73 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">attribute identity and  meta-data spans classes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER VALIGN=TOP><B>Versioning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">you can see old versions of an item</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">optional</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no ?</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">you can see who made changes, and when</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no ? </TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no ?</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER VALIGN=TOP><B>Identifiers</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">for Items</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>row #</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">position</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>key(s)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">row #</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>directory-path</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">UUID</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">UUID or  directory-path</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>directory-path</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>URI</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">for Attributes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>col #</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>tokens: (table, column)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">col #</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">UUID</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">URI</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>URI</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=27 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">for Values</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>(row, col)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">(row, col)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">UUID</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">for ItemTypes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>n/a</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token or pointer</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>table name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">n/a</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">UUID</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">URI</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>URI</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">for Types</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>n/a</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">name-token or pointer</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>name-token</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">n/a</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">UUID</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">ids (unique within a store)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>n/a</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">URI</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>URI</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=25 ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=LEFT VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=52 ALIGN=CENTER><B>Other</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.csv file</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>.json or JavaScript</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>SQL RDBMS or JDBC</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Spreadsheet</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>JotSpot</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>OpenRecord</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Google Base</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Ning</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Dabble DB</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>Jackrabbit</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>WebDAV</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>XML</B></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF"><B>RDF</B></TD>
++		</TR>
++	</TBODY>
++	<TBODY>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">formulas  (derivation rules)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99"><FONT COLOR="#000000">yes</FONT></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">(yes, planned)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">(yes, planned)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP>yes?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">queries</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">none</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>SQL</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">filters</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>XPath ?</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">queries</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">XPath or SQL</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>PROPFIND</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">XPath and  XQuery</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>many query languages</TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">cursors and scrollable result sets</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">no</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++		<TR>
++			<TD HEIGHT=50 ALIGN=CENTER VALIGN=TOP BGCOLOR="#99CCFF">transactions</TD>
++			<TD ALIGN=CENTER VALIGN=TOP>(atomic file write)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">(atomic file write)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6">(atomic file write)</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#FFFF99">yes</TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP BGCOLOR="#E6E6E6"><BR></TD>
++			<TD ALIGN=CENTER VALIGN=TOP><BR></TD>
++		</TR>
++	</TBODY>
++</TABLE>
++<!-- ************************************************************************** -->
++</BODY>
++
++</HTML>
+
+Added: trunk/meeting_notes/2006-01-09_data_model_comparison.ods
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/meeting_notes/2006-01-09_data_model_comparison.ods
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+
+
+From mignon at berlios.de  Tue Jan 17 02:17:58 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 17 Jan 2006 02:17:58 +0100
+Subject: [openrecord-svn] r429 - trunk/third_party
+Message-ID: <200601170117.k0H1Hw0M021462@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-17 02:17:50 +0100 (Tue, 17 Jan 2006)
+New Revision: 429
+
+Modified:
+   trunk/third_party/
+Log:
+updated the svn:externals property for the new dojo subversion repository
+
+
+Property changes on: trunk/third_party
+___________________________________________________________________
+Name: svn:externals
+   - dojo  -r2540  http://dojotoolkit.org/svn/dojo/trunk
+
+   + dojo  -r2540  http://svn.dojotoolkit.org/dojo/trunk
+
+
+
+
+From mignon at berlios.de  Tue Jan 31 00:35:06 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 31 Jan 2006 00:35:06 +0100
+Subject: [openrecord-svn] r430 - in trunk: . images source source/view third_party
+Message-ID: <200601302335.k0UNZ6jx029966@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-01-31 00:35:00 +0100 (Tue, 31 Jan 2006)
+New Revision: 430
+
+Added:
+   trunk/images/squareOfDots.png
+Removed:
+   trunk/third_party/scriptaculous/
+Modified:
+   trunk/sandbox.html
+   trunk/source/OpenRecordLoader.js
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/NavbarView.js
+Log:
+Replaced all the scriptaculous drag-and-drop code with dojo code.  Removed all references to scriptaculous.  Added ugly but functional "grabby handles" to the navbar menu.
+
+
+Added: trunk/images/squareOfDots.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/squareOfDots.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: trunk/sandbox.html
+===================================================================
+--- trunk/sandbox.html	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/sandbox.html	2006-01-30 23:35:00 UTC (rev 430)
+@@ -13,37 +13,6 @@
+   <head>
+     <title>openrecord.org - Sandbox Page</title>
+     <script type="text/javascript" src="source/OpenRecordLoader.js"></script>
+-<!-- 
+-    <link rel="stylesheet" type="text/css" href="source/base_style.css"></link>
+-    <script>
+-      djConfig = {
+-        isDebug: true,
+-        debugAtAllCosts: true
+-      };
+-    </script>
+-    <script type="text/javascript" src="third_party/md5/md5.js"></script>
+-    <script type="text/javascript" src="third_party/scriptaculous/prototype.js"></script>
+-    <script type="text/javascript" src="third_party/scriptaculous/effects.js"></script>
+-    <script type="text/javascript" src="third_party/scriptaculous/dragdrop.js"></script>
+-    <script type="text/javascript" src="third_party/dojo/dojo-rev1759/dojo.js"></script>
+-    <script type="text/javascript">
+-      // dojo.hostenv.setModulePrefix("dojo", "../../dojo/dojo-rev1759/src");
+-      dojo.hostenv.setModulePrefix("orp", "../../../source");  // path relative to dojo
+-      dojo.require("orp.model.World");
+-      dojo.require("orp.view.RootView");
+-      dojo.hostenv.writeIncludes(); // needed when using "debugAtAllCosts: true"
+-    </script>
+-    <script>
+-      window.onload = function() { 
+-        try {
+-          var world = new orp.model.World();
+-          new orp.view.RootView(world);
+-        } catch(e) {
+-          alert(e);
+-        }
+-      };    
+-    </script>
+--->
+   </head>
+   
+   <body>
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/OpenRecordLoader.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -95,9 +95,6 @@
+ orp.loader.loadStylesheet("source/base_style.css");
+ 
+ orp.loader.loadScript("third_party/dojo/dojo.js");
+-orp.loader.loadScript("third_party/scriptaculous/prototype.js");
+-orp.loader.loadScript("third_party/scriptaculous/effects.js");
+-orp.loader.loadScript("third_party/scriptaculous/dragdrop.js");
+ 
+ orp.loader.loadScript("source/OpenRecordLoaderStepTwo.js");
+ 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/TablePlugin.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -43,12 +43,12 @@
+ dojo.require("orp.util.CsvParser");
+ dojo.require("orp.lang.Lang");
+ dojo.require("dojo.event.*");
++dojo.require("dojo.dnd.*");
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+ /*global window, document, HTMLTableRowElement  */
+-/*global Draggable, Droppables,  */
+ /*global Util  */
+ /*global Item  */
+ /*global CsvParser  */
+@@ -352,30 +352,30 @@
+ /**
+  *
+  */
+-orp.TablePlugin.prototype._handleDrop = function(elementThatWasDragged, droppableObject) {
+-  // First figure out what column header was dropped where
++orp.TablePlugin.prototype._handleDrop = function(elementThatWasDragged) {
++  // First figure out which column header was dragged (indexOfDraggedAttribute) 
++  // and where it landed (indexOfDraggedElement).
+   var world = this.getWorld();
+-  var draggedUuid = elementThatWasDragged.getAttribute('uuid');
++  var draggedUuid = elementThatWasDragged.dragObject.domNode.getAttribute('uuid');
+   var draggedAttribute = world.getItemFromUuid(draggedUuid);
+-  var headerCellElement = droppableObject.element;
+-  var headerCellUuid = headerCellElement.getAttribute('uuid');
+-  var droppedOnAttribute = world.getItemFromUuid(headerCellUuid);
+   var indexOfDraggedAttribute = orp.util.getArrayIndex(this._displayAttributes, draggedAttribute);
+-  var indexOfDroppedOnAttribute = orp.util.getArrayIndex(this._displayAttributes, droppedOnAttribute);
+-
++  var headerRow = this._table.rows[0];
++  var headerCells = headerRow.getElementsByTagName("th");
++  var indexOfDraggedElement = -1;
++  for (i = 0; i < headerCells.length; ++i) {
++    if (headerCells[i].getAttribute('uuid') == draggedUuid) {
++      indexOfDraggedElement = i;
++      break;
++    }
++  }
++  orp.lang.assert(indexOfDraggedElement >= 0);
++  
+   // If the user dragged a column header and dropped it on the same column 
+   // header, then we don't need to change the column order.
+-  if (indexOfDraggedAttribute == indexOfDroppedOnAttribute) {
++  if (indexOfDraggedAttribute == indexOfDraggedElement) {
+     return;
+   }
+ 
+-  // This is a little hack that accesses instance variables of the "Draggable"
+-  // object in the script.aculo.us dragdrop.js library.
+-  // We set "revert" to false to prevent the UI animation where the dragged 
+-  // column header goes "flying" home again
+-  var draggable = elementThatWasDragged.orp_draggable;
+-  draggable.options.revert = false;
+-
+   // Now we need to save the new column order to the repository.
+   var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+   world.beginTransaction();
+@@ -386,43 +386,32 @@
+     // If we get here, it means this table has a saved list of user-selected
+     // columns, and we just want to re-order that list.
+     orp.lang.assert(this._displayAttributes.length == listOfTableColumnEntries.length);
++    
++    // Figure out which entry is being reordered between which two entries.
+     var draggedEntry = listOfTableColumnEntries[indexOfDraggedAttribute];
+-    var droppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute];
+-    if (indexOfDraggedAttribute > indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the left
+-      var entryBeforeDroppedOnEntry = null;
+-      if (indexOfDroppedOnAttribute > 0) {
+-        entryBeforeDroppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute-1];
+-      }
+-      draggedEntry.reorderBetween(entryBeforeDroppedOnEntry, droppedOnEntry);
++    var noPreviousEntry = (indexOfDraggedElement == 0);
++    var noFollowingEntry = (indexOfDraggedElement == headerCells.length - 1);
++    var draggedLeft = indexOfDraggedAttribute > indexOfDraggedElement;
++    var entryBeforeDroppedOnEntry = null;
++    if (!noPreviousEntry) {
++      var beforeIndex = draggedLeft? indexOfDraggedElement - 1 : indexOfDraggedElement;
++      entryBeforeDroppedOnEntry = listOfTableColumnEntries[beforeIndex];
+     }
+-    if (indexOfDraggedAttribute < indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the right
+-      var entryAfterDroppedOnEntry = null;
+-      if (indexOfDroppedOnAttribute < (listOfTableColumnEntries.length - 1)) {
+-        entryAfterDroppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute+1];
+-      }
+-      draggedEntry.reorderBetween(droppedOnEntry, entryAfterDroppedOnEntry);
++    var entryAfterDroppedOnEntry = null;
++    if (!noFollowingEntry) {
++      var afterIndex = draggedLeft? indexOfDraggedElement : indexOfDraggedElement + 1;
++      entryAfterDroppedOnEntry = listOfTableColumnEntries[afterIndex];
+     }
++    draggedEntry.reorderBetween(entryBeforeDroppedOnEntry, entryAfterDroppedOnEntry);
+   } else {
+     // If we get here, it means we need to save a newly created list of
+     // user-selected columns.
+     this._displayAttributes.splice(indexOfDraggedAttribute, 1);
+-    if (indexOfDraggedAttribute > indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the left
+-      this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
+-    }
+-    if (indexOfDraggedAttribute < indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the right
+-      this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
+-    }
+-    // alertString = "";
++    this._displayAttributes.splice(indexOfDraggedElement, 0, draggedAttribute);
+     for (var i in this._displayAttributes) {
+       var attribute = this._displayAttributes[i];
+       layoutItem.addEntry({attribute:attributeTableColumns, value:attribute});
+-      // alertString += attribute.getDisplayString() + '\n';
+     }
+-    // alert(alertString);
+   }
+   world.endTransaction();
+   this.refresh();
+@@ -451,17 +440,16 @@
+     dojo.event.connect(headerCell, "onclick", orp.lang.bind(this, "clickOnHeader", attribute));
+     
+     if (this.isInEditMode()) {
+-      var listener = this;
+-      var draggable = new Draggable(headerCellContentSpan, {revert:true});
+-      headerCellContentSpan.orp_draggable = draggable;
+-      Droppables.add(headerCell, {
+-        accept: "headerCellContentSpan",
+-        hoverclass: 'drophover',
+-        onDrop: function(element, droppableObject) {listener._handleDrop(element, droppableObject);}});   
++      new dojo.dnd.HtmlDragSource(headerCell, "headerCell");
+     }
+     ++numCols;
+   }
+   this._numberOfColumns = numCols;
++
++  if (this.isInEditMode()) {
++    var dropTarget = new dojo.dnd.HtmlDropTarget(headerRow, ["headerCell"]);
++    dojo.event.connect(dropTarget, "onDrop", this, "_handleDrop");
++  }
+ };
+ 
+ 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/base_style.css	2006-01-30 23:35:00 UTC (rev 430)
+@@ -265,17 +265,20 @@
+   list-style: none;
+   margin: 0;
+   cursor: move;
++  background-image: url(../images/squareOfDots.png);
++  background-repeat: repeat;
+ }
+ 
+ .menu_item a {
+   display: block;
+-  width: 100%;
++  width: 80%;
+   padding: 5pt 0pt 5pt 5pt;
+-  text-decoration: none; 
++  text-decoration: none;
+   border-left: solid 1pt #CCCCCC;
+   border-top: solid 1pt #CCCCCC;
+   border-bottom: solid 1pt #CCCCCC;
+   color: rgb(0%, 0%, 0%); 
++  background-color: rgb(100%, 100%, 100%);
+ }
+ 
+ .menu_item.selected a{
+@@ -321,7 +324,7 @@
+ 
+ .menu_item a:hover {
+   background-color: #DEE7F8;
+-  width: 100%;
++  width: 80%;
+   border-left: solid 1pt #6699FF;
+   border-bottom-style: none;
+ }
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/view/EntryView.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -41,6 +41,7 @@
+ dojo.require("orp.model.Item");
+ dojo.require("orp.lang.Lang");
+ dojo.require("dojo.event.*");
++dojo.require("dojo.dnd.*");
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -278,11 +279,11 @@
+             // if (this.getRootView().isInShowToolsMode()) {
+             if (orp.view.EntryView._PENDING_enableDragging) {
+               this._textSpan.orp_entryView = this; 
+-              this._draggable = new Draggable(this._textSpan, {revert:true});
++              this._draggable = new dojo.dnd.HtmlDragSource(this._textSpan, "lozenge");
+             }
+           } else {
+             this._textSpan.orp_entryView = this; 
+-            this._draggable = new Draggable(this._textSpan, {revert:true});
++            this._draggable = new dojo.dnd.HtmlDragSource(this._textSpan, "lozenge");
+           }
+         }
+       }
+@@ -371,7 +372,7 @@
+     
+     if (this._isMultiLine) {
+       editField.style.height = (this.getHtmlElement().offsetHeight) + "px";
+-    }  
++    }
+     
+     this._setupSuggestionBox();
+     this.getHtmlElement().replaceChild(editField, this._textSpan);
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/view/MultiEntriesView.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -40,6 +40,7 @@
+ dojo.require("orp.model.Item");
+ dojo.require("orp.lang.Lang");
+ dojo.require("dojo.event.*");
++dojo.require("dojo.dnd.*");
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -233,7 +234,7 @@
+  *
+  */
+ orp.view.MultiEntriesView.prototype._handleDrop = function(element) {
+-  var draggedEntryView = element.orp_entryView;
++  var draggedEntryView = element.dragObject.domNode.orp_entryView;
+   if (!draggedEntryView) {orp.lang.assert(false);}
+   var droppedEntry = draggedEntryView._entry;
+   if (!droppedEntry) {orp.lang.assert(false);}
+@@ -255,15 +256,6 @@
+         type: droppedEntry.getType() });
+     }
+     this._addEntryView(newEntry);
+-
+-    // This is a little hack that accesses instance variables of the "Draggable"
+-    // object in the script.aculo.us dragdrop.js library.
+-    // We set "revert" to false to prevent the UI animation where the dragged 
+-    // column header goes "flying" home again
+-    var draggable = draggedEntryView._draggable;
+-    draggable.options.revert = false;
+-    // element.style.display = "none";
+-    
+     this.getSuperview().refresh();
+   }
+ };
+@@ -369,10 +361,8 @@
+   
+   if (this.isInEditMode()) {
+     dojo.event.connect(htmlElement, "onclick", this, "_handleOwnClick");
+-    var listener = this;
+-    Droppables.add(htmlElement, {accept: [orp.view.EntryView.cssClass.CONNECTION_VALUE, orp.view.EntryView.CSS_ITEM_VALUE, orp.view.EntryView.cssClass.SELECTED],
+-      hoverclass: "test",
+-      onDrop: function(element) {listener._handleDrop(element);}});
++    var dropTarget = new dojo.dnd.HtmlDropTarget(htmlElement, ["lozenge"]);
++    dojo.event.connect(dropTarget, "onDrop", this, "_handleDrop");
+   } 
+   this._myHasEverBeenDisplayedFlag = true;
+ };
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/view/NavbarView.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -39,13 +39,13 @@
+ dojo.require("orp.view.RootView");
+ dojo.require("orp.lang.Lang");
+ dojo.require("dojo.event.*");
++dojo.require("dojo.dnd.*");
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+ /*global window */
+ /*global RootView */
+-/*global Sortable */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -80,10 +80,6 @@
+   MENU_ITEM: "menu_item",
+   SELECTED:  "selected" };
+ 
+-// Caution: 
+-// In order for us to use the "Sortable" feature in the script.aculo.us 
+-// dragdrop.js library, this "MainMenu" Id must *not* have an underscore 
+-// in it.
+ orp.view.NavbarView.elementId = {
+   MENU:      "MainMenu" };
+   
+@@ -114,75 +110,37 @@
+ // Private instance methods
+ // -------------------------------------------------------------------
+ 
+-/**
+- * Called whenever there is a mousedown event on one of the menu item
+- * html "li" elements.  All we do here is record which element is 
+- * being touched, because we may need that info later on in the 
+- * _sortOrderUpdate() method. 
+- *
+- * @scope    public instance method
+- * @param    event    The mousedown event object. 
+- */
+-orp.view.NavbarView.prototype._mouseDownOnMenuItem = function(event) {
+-  // FIXME: 
+-  // Should we be using "event.target" instead of "event.currentTarget"?
+-  // Or should we be using orp.util.getTargetFromEvent(event)?
+-  this._liElementBeingTouched = event.currentTarget;
+-};
++orp.view.NavbarView.prototype._handleDrop = function(elementThatWasDragged) {
++  // First figure out which page was dragged (indexOfDraggedPage) 
++  // and where it landed (newIndex).
++  var world = this.getWorld();
++  var draggedUuid = elementThatWasDragged.dragObject.domNode.getAttribute('uuid');
++  var draggedPage = world.getItemFromUuid(draggedUuid);
++  var indexOfDraggedPage = orp.util.getArrayIndex(this._listOfPages, draggedPage);
++  var ulElement = dojo.byId(orp.view.NavbarView.elementId.MENU);
++  var liCells = ulElement.getElementsByTagName("li");
+ 
++  var newIndex = -1;
++  for (i = 0; i < liCells.length; ++i) {
++    if (liCells[i].getAttribute('uuid') == draggedUuid) {
++      newIndex = i;
++      break;
++    }
++  }
++  orp.lang.assert(newIndex >= 0);
+ 
+-/**
+- * Called by the "Sortable" feature in the script.aculo.us dragdrop.js library.
+- * This method gets called when the user drags and drops a menu item in the
+- * Navbar.  We only get called if the new location of the menu item is 
+- * different from the old location.
+- *
+- * @scope    public instance method
+- * @param    ulElement    The "ul" HTMLElement for the menu of menu items. 
+- */
+-orp.view.NavbarView.prototype._sortOrderUpdate = function(ulElement) {
+-  orp.lang.assert(this._liElementBeingTouched !== null);
+-  
+-  var liElementPrefixString = orp.view.NavbarView.elementId.MENU + '_';
+-  var menuItemElementId = this._liElementBeingTouched.id;
+-  var pageUuid = menuItemElementId.replace(liElementPrefixString, '');
+-  var pageToReorder = this.getWorld().getItemFromUuid(pageUuid);
+-  
+-  var listOfPages = this._getNewOrderingForPageList(ulElement);
+-  
+-  var arrayIndex = orp.util.getArrayIndex(listOfPages, pageToReorder);
+-  orp.lang.assert(arrayIndex != -1);
+-  var pageAbove = (arrayIndex === 0) ? null : listOfPages[arrayIndex-1];
+-  var pageBelow = (arrayIndex > listOfPages.length) ? null : listOfPages[arrayIndex+1];
+-  pageToReorder.reorderBetween(pageAbove, pageBelow);
+-};
+-
+-
+-/**
+- * Returns a list of page items, arranged in the new order that resulted
+- * from the most recent drag-and-drop re-ordering.
+- *
+- * @scope    public instance method
+- * @param    ulElement    The "ul" HTMLElement for the menu of menu items. 
+- * @return   A list of items representing pages.
+- */
+-orp.view.NavbarView.prototype._getNewOrderingForPageList = function(ulElement) {
+-  // The string '[]=' is used by the "Sortable" feature in the script.aculo.us 
+-  // dragdrop.js library within each token in the serialization string.
+-  var prefixString = orp.view.NavbarView.elementId.MENU + '[]=';
+-  
+-  var serializationString = Sortable.serialize(ulElement);
+-  var listOfTokens = serializationString.split('&');
+-  var listOfPages = [];
+-  for (var i in listOfTokens) {
+-    var uuidForPage = listOfTokens[i].replace(prefixString, '');
+-    var page = this.getWorld().getItemFromUuid(uuidForPage);
+-    listOfPages.push(page);
++  if (indexOfDraggedPage == newIndex) {
++    return;
+   }
+-  return listOfPages;
++
++  var draggedUp = indexOfDraggedPage > newIndex;
++  var pageAbove = (newIndex === 0) ?
++    null : this._listOfPages[draggedUp? newIndex - 1 : newIndex];
++  var pageBelow = (newIndex == liCells.length - 1) ?
++    null : this._listOfPages[draggedUp? newIndex : newIndex + 1];
++  draggedPage.reorderBetween(pageAbove, pageBelow);
+ };
+ 
+-
+ /**
+  * Re-creates the HTML for the view, and hands the HTML to the 
+  * browser to be re-drawn.
+@@ -192,45 +150,40 @@
+ orp.view.NavbarView.prototype._rebuildView = function() {
+   var categoryCalledPage = this.getWorld().getItemFromUuid(orp.view.RootView.UUID.CATEGORY_PAGE);
+   categoryCalledPage.addObserver(this);
+-  var listOfPages = this.getWorld().getItemsInCategory(categoryCalledPage);
++  this._listOfPages = this.getWorld().getItemsInCategory(categoryCalledPage);
+   var key;
+   var page;
+ 
+   orp.view.View.removeChildrenOfElement(this._htmlElementForAnchors);
+-  for (key in listOfPages) {
+-    page = listOfPages[key];
++  for (key in this._listOfPages) {
++    page = this._listOfPages[key];
+     var anchorName = orp.view.RootView.URL_PAGE_PREFIX + page.getUuidString();
+     orp.view.View.appendNewElement(this._htmlElementForAnchors, "a", null, {name: anchorName});
+   }
+   
+   var divElement = this.getHtmlElement();
+-  orp.view.View.removeChildrenOfElement(divElement); 
++  orp.view.View.removeChildrenOfElement(divElement);
+   var ulElement = orp.view.View.appendNewElement(divElement, "ul", orp.view.NavbarView.cssClass.MENU, {id: orp.view.NavbarView.elementId.MENU});
+   var rootView = this.getRootView();
+-  for (key in listOfPages) {
+-    page = listOfPages[key];
++  for (key in this._listOfPages) {
++    page = this._listOfPages[key];
+     page.addObserver(this);
+     var menuUrl = rootView.getUrlForItem(page);
+     var menuText = page.getDisplayString();
+-    // Caution: 
+-    // In order for us to use the "Sortable" feature in the script.aculo.us 
+-    // dragdrop.js library, this menuItemId must have exactly one underscore in
+-    // it, with the id for the whole menu is to the left of the underscore, and
+-    // the id for the individual menu item to the right of the underscore.
+-    var menuItemId = orp.view.NavbarView.elementId.MENU + '_' + page.getUuidString();
+-    var liElement = orp.view.View.appendNewElement(ulElement, "li", orp.view.NavbarView.cssClass.MENU_ITEM, {id: menuItemId});
++    var liElement = orp.view.View.appendNewElement(ulElement, "li", orp.view.NavbarView.cssClass.MENU_ITEM, 
++                                                   {uuid: page.getUuidString()});
+     if (page == this.getRootView().getCurrentPage()) {orp.util.css_addClass(liElement, orp.view.NavbarView.cssClass.SELECTED);}
+     var anchorElement = orp.view.View.appendNewElement(liElement, "a", null, {href: menuUrl}, menuText);
+-    
++
+     dojo.event.connect(anchorElement, "onclick", orp.view.RootView.clickOnLocalLink);
+-    dojo.event.connect(liElement, "onmousedown", this, "_mouseDownOnMenuItem");
++    if (this.isInEditMode()) {
++      new dojo.dnd.HtmlDragSource(liElement, "pageCell");
++    }
+   }
+-  var listener = this;
+   this._builtForEditMode = this.isInEditMode();
+   if (this._builtForEditMode) {
+-    Sortable.create(orp.view.NavbarView.elementId.MENU, {
+-      onUpdate: function(element){ listener._sortOrderUpdate(element);}
+-    });
++    var dropTarget = new dojo.dnd.HtmlDropTarget(ulElement, ["pageCell"]);
++    dojo.event.connect(dropTarget, "onDrop", this, "_handleDrop");
+   }
+   
+   var newPageButton = orp.view.View.appendNewElement(divElement, "input", orp.view.RootView.cssClass.EDIT_TOOL);
+
+
+
+From skinner at berlios.de  Tue Jan 31 01:55:30 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 31 Jan 2006 01:55:30 +0100
+Subject: [openrecord-svn] r431 - trunk/documentation
+Message-ID: <200601310055.k0V0tUI6000807@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-01-31 01:54:58 +0100 (Tue, 31 Jan 2006)
+New Revision: 431
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+updated the to-do list
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-30 23:35:00 UTC (rev 430)
++++ trunk/documentation/to_do_list.txt	2006-01-31 00:54:58 UTC (rev 431)
+@@ -91,9 +91,10 @@
+ (soon) |          |         | 305. Look at replacing our notion of Views with Dojo's notion of widgets
+        |          |         | 306. Run in IE as well as Firefox
+        |          |         | 307. Add support for repository merging
+-brian  | 3    IED |         | 308. Use Camtesia Studio to create screencasts about OpenRecord (and plugins)
++brian  | 3    IED |         | 308. Make screencasts about OpenRecord (and plugins) see: .swf, .mov, SnapZ Pro, Camtesia Studio 
+        |          |         | 309. Consider implementing a JavaScript file:// version of this: http://lists.berlios.de/pipermail/openrecord-dev/2005-October/000248.html
+-       |          |         | 310. (new task...)
++brian  |          |         | 310. Propose a Dojo data-provider design (dojo.data) that would work for OpenRecord as well as other uses
++       |          |         | 311. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+@@ -119,10 +120,12 @@
+        |          |         | 416. grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
+        |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
+        |          |         | 418. Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
+-mignon |          |         | 419. Replace scriptaculous/dragdrop.js with dojo.dnd, and remove scriptaculous from our tree
++mignon |          | done    | 419. Replace scriptaculous/dragdrop.js with dojo.dnd, and remove scriptaculous from our tree
+        |          |         | 420. Replace XMLHttpRequest calls with dojo.io.bind() calls
+        |          |         | 421. Consider refactoring orp.storage so that FileProtocolStorage is "behind" dojo.io.bind
+-       |          |         | 422. (new task...)
++       |          |         | 422. Replace all use of orp.uuid with dojo.uuid, and remove orp.uuid from our tree
++       |          |         | 423. Replace all use of orp.lang with dojo.lang, and remove orp.lang from our tree
++       |          |         | 424. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+
+
+

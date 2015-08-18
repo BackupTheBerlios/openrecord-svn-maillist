@@ -1,0 +1,494 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r184 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r184%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506250018.j5P0IA4f024417%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000169.html">
+   <LINK REL="Next"  HREF="000171.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r184 - in trunk: documentation source source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r184%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506250018.j5P0IA4f024417%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r184 - in trunk: documentation source source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 25 02:18:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000169.html">[openrecord-svn] r183 - in trunk/source: . model
+</A></li>
+        <LI>Next message: <A HREF="000171.html">[openrecord-svn] r185 - in trunk: . source/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#170">[ date ]</a>
+              <a href="thread.html#170">[ thread ]</a>
+              <a href="subject.html#170">[ subject ]</a>
+              <a href="author.html#170">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-25 02:17:54 +0200 (Sat, 25 Jun 2005)
+New Revision: 184
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/SectionView.js
+   trunk/source/TextView.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Updated the code so that (categories) and (items in categories) are related by bi-directional connections.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/documentation/release_planning.txt	2005-06-25 00:17:54 UTC (rev 184)
+@@ -168,13 +168,15 @@
+ chao   | 0.5  IED | 0.5 IED |  8. UI for entering a number literal (instead of a string literal) in a table [with Brian]
+ chao   | 1    IED | 1   IED |  9. UI for entering a date literal in a table (and data model support) [with Brian]
+ brian  | 1    IED | 1   IED | 10. Add data model support for bi-directional references
++brian  |          | done    |     Convert the code to use bi-directional references
++brian  | 0.25 IED |         |     Convert the axiomatic items to use bi-directional reference
+ chao   | 2    IED | 1.5 IED | 11. Move to better persistent representation for queries [with Brian]
+        |          |         | 12. Make sure view code uses transactions
+        |          |         | 13. Deal with \n in page name or summary fields
+        |          |         | 14. BUG: problems with newlines and HTML characters in text strings
+ brian  | 0.5  IED |         | 15. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 16. Have text-entries and reference-entries look different
++chao   |          | done    | 16. Have text-entries and reference-entries look different
+        |          |         | 17. Write one unit test that tests GUI code
+        |          |         | 18. Write one performance test that measures the time some code takes
+        |          |         | 19. Pick one file, and do a group code review on it
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/PageView.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -55,7 +55,6 @@
+  * @param    inPage    The Page Item to insert the new section into
+  */
+ PageView.newSection = function (repository, inPage) {
+-  var attributeCalledCategory = repository.getAttributeCalledCategory();
+   var attributeCalledQuery = repository.getAttributeCalledQuery();
+   var categoryCalledQuery = repository.getCategoryCalledQuery();
+   var attributeCalledPluginView = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+@@ -67,14 +66,12 @@
+   
+   repository.beginTransaction();
+   var newSection = repository.newItem(&quot;New Section&quot;);
+-  newSection.addEntryForAttribute(attributeCalledCategory, categoryCalledSection);
+-  // inPage.addEntryForAttribute(attributeCalledSectionsInPage, newSection);
++  newSection.assignToCategory(categoryCalledSection);
+   inPage.addConnectionEntry(attributeCalledSectionsInPage, newSection, attributeCalledPageThisSectionAppearsOn);
+   newSection.addEntryForAttribute(attributeCalledPluginView, tablePluginView);
+ 
+   var newQuery = repository.newItem(&quot;New Query&quot;);
+-  newQuery.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+-  // newSection.addEntryForAttribute(attributeCalledQuery, newQuery);
++  newQuery.assignToCategory(categoryCalledQuery);
+   newSection.addConnectionEntry(attributeCalledQuery, newQuery, attributeCalledSectionThisQueryBelongsTo);
+   repository.endTransaction();
+   return newSection;
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/RootView.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -350,12 +350,9 @@
+   var repository = this.getWorld();
+   repository.beginTransaction();
+   var newPage = repository.newItem(&quot;New Page&quot;);
+-  // var shortName = repository.getAttributeCalledShortName();
+-  var attributeCalledCategory = repository.getAttributeCalledCategory();
+   var attributeCalledSummary = repository.getAttributeCalledSummary();
+   var categoryCalledPage = repository.getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+-  // newPage.addEntryForAttribute(shortName, &quot;New Page&quot;);
+-  newPage.addEntryForAttribute(attributeCalledCategory, categoryCalledPage);
++  newPage.assignToCategory(categoryCalledPage);
+   newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
+ 
+   PageView.newSection(repository, newPage);
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/SectionView.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -313,11 +313,10 @@
+   
+   // layoutData not found, so create the item
+   var categoryCalledLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_CATEGORY_LAYOUT_DATA);
+-  var attributeCalledCategory = repository.getAttributeCalledCategory();
+   var attributeCalledSectionThisLayoutDataBelongsTo = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO);
+   repository.beginTransaction();
+   layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayName() + &quot; of &quot; + this.mySection.getDisplayName());
+-  layoutItem.addEntryForAttribute(attributeCalledCategory, categoryCalledLayoutData);
++  layoutItem.assignToCategory(categoryCalledLayoutData);
+   layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginType);
+   // this.mySection.addEntryForAttribute(attrLayoutData, layoutItem, repository.getTypeCalledItem());
+   this.mySection.addConnectionEntry(attrLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/TextView.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -84,7 +84,7 @@
+   if (this._isProvisional) {
+     this._provisionalText = inAttribute.getDisplayName();
+   }
+-  else if (inEntry &amp;&amp; inEntry.getValue() instanceof Item) {
++  else if (inEntry &amp;&amp; inEntry.getValue(this._item) instanceof Item) {
+     this._valueIsItem = true;
+   }
+ }
+@@ -324,9 +324,9 @@
+           default:
+             if (aType.isInCategory(categoryCalledCategory)) {
+               value = repository.newItem(value);
+-              value.addEntryForAttribute(repository.getAttributeCalledCategory(),aType);
++              value.assignToCategory(aType);
+               if (this._suggestions) {
+-                // add to new item to suggestion list if list is present
++                // add new item to suggestion list if list is present
+                 // PENDING: should this be using an observer instead?
+                 Util.addObjectToSet(value, this._suggestions);
+               }
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-25 00:17:54 UTC (rev 184)
+@@ -51,6 +51,10 @@
+              &quot;uuid&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Items in Category
++             &quot;uuid&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Attribute
+              &quot;uuid&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -371,7 +375,31 @@
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Items in Category
++             &quot;uuid&quot;: &quot;000100ca-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Items in Category
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Items in Category&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Attribute
++             &quot;uuid&quot;: &quot;000100cb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
++             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Items in Category
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
++            &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Text
++             &quot;uuid&quot;: &quot;000100cc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Items in Category
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
++            &quot;value&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Attribute
+              &quot;uuid&quot;: &quot;0001010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/model/Entry.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -301,10 +301,20 @@
+  * Returns the value that this entry holds.
+  *
+  * @scope    public instance method
++ * @param    item    The item that this is an entry of. 
+  * @return   The value this entry was initialized to hold.
+  */
+-Entry.prototype.getValue = function () {
+-  return this.__myValue;
++Entry.prototype.getValue = function (item) {
++  if (Util.isArray(this.__myItem)) {
++    if (this.__myItem[0] == item) {
++      return this.__myItem[1];
++    }
++    if (this.__myItem[1] == item) {
++      return this.__myItem[0];
++    }
++    Util.assert(false, &quot;Entry.getValue() was called on a connection entry, but was not passed an item as a parameter.&quot;);
++  }
++  return this.__myValue; 
+ };
+ 
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/model/Item.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -268,6 +268,20 @@
+   return entry;  
+ };
+ 
++
++/**
++ * Given a category, this method puts the item in that category.
++ *
++ * @scope    public instance method
++ * @param    category    An item representing a category. 
++ */
++Item.prototype.assignToCategory = function (category) {
++  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++  var attributeCalledItemsInCategory = this.getWorld().getAttributeCalledItemsInCategory();
++  this.addConnectionEntry(attributeCalledCategory, category, attributeCalledItemsInCategory);
++};
++
++
+ // -------------------------------------------------------------------
+ // Accessor methods where the answer depends on the retrieval filter
+ // -------------------------------------------------------------------
+@@ -498,14 +512,13 @@
+  */
+ Item.prototype.hasAttributeValue = function (inAttribute, inValue) {
+   Util.assert(inAttribute instanceof Item, inAttribute + ' is not an item');
+-  //Util.assert(inValue);
+   var entryList = this.getEntriesForAttribute(inAttribute);
+ 
+   // look at all the entries this item's attribute is assigned to, 
+   // and see if one of them is &quot;inEntry&quot;
+   for (var key in entryList) {
+     var entry = entryList[key];
+-    if (entry.getValue() == inValue) {
++    if (entry.getValue(this) == inValue) {
+       return true;
+     }
+   }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/model/StubVirtualServer.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -614,14 +614,16 @@
+   Util.assert(inQuery instanceof Item);
+   var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+-
++  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++  var categoryCalledCategory = this.getWorld().getCategoryCalledCategory();
++  
+   var listOfMatchingEntries = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
+   var listOfMatchingAttrs = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+   if (!(listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0))) {return;} // query not fully formed, so nothing to add
+   var matchingAttribute;
+   if (listOfMatchingAttrs.length === 0) {
+     // by default matching attribute is category
+-    matchingAttribute = this.getWorld().getAttributeCalledCategory();
++    matchingAttribute = attributeCalledCategory;
+   }
+   else {
+     Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
+@@ -632,7 +634,11 @@
+     var matchingEntry = listOfMatchingEntries[key];
+     var match = matchingEntry.getValue();
+     if (!inItem.hasAttributeValue(matchingAttribute, match)) {
+-      inItem.addEntryForAttribute(matchingAttribute, match);
++      if ((matchingAttribute == attributeCalledCategory) &amp;&amp; (match instanceof Item) &amp;&amp; (match.isInCategory(categoryCalledCategory))) {
++        inItem.assignToCategory(match);
++      } else {
++        inItem.addEntryForAttribute(matchingAttribute, match);
++      }
+     }
+   }
+ };
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-24 23:20:39 UTC (rev 183)
++++ trunk/source/model/World.js	2005-06-25 00:17:54 UTC (rev 184)
+@@ -51,17 +51,18 @@
+ 
+ World.UUID_FOR_USER_AMY                = &quot;00001000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-World.UUID_FOR_ATTRIBUTE_NAME          = &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_SHORT_NAME    = &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_SUMMARY       = &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_BODY          = &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_CATEGORY      = &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_QUERY         = &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE = &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_NAME                     = &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_SHORT_NAME               = &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_SUMMARY                  = &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_BODY                     = &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_CATEGORY                 = &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_QUERY                    = &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE     = &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE = &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_UNFILED           = &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE     = &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE = &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_UNFILED                  = &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE            = &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE        = &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_ITEMS_IN_CATEGORY        = &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ World.UUID_FOR_CATEGORY_BOOK           = &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+ World.UUID_FOR_CATEGORY_MOVIE          = &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+@@ -113,16 +114,17 @@
+   server.setWorldAndLoadAxiomaticItems(this);
+   
+   // load the axiomatic attributes
+-  this._attributeCalledName                  = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-  this._attributeCalledShortName             = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SHORT_NAME);
+-  this._attributeCalledSummary               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
+-  this._attributeCalledCategory              = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
+-  this._attributeCalledQuery                 = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
+-  this._attributeCalledQueryMatchingValue = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE);
+-  this._attributeCalledQueryMatchingAttribute     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE);
+-  this._attributeCalledUnfiled               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
+-  this._attributeCalledExpectedType          = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
+-  this._attributeCalledInverseAttribute         = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE);
++  this._attributeCalledName                   = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
++  this._attributeCalledShortName              = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SHORT_NAME);
++  this._attributeCalledSummary                = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
++  this._attributeCalledCategory               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
++  this._attributeCalledQuery                  = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
++  this._attributeCalledQueryMatchingValue     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE);
++  this._attributeCalledQueryMatchingAttribute = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE);
++  this._attributeCalledUnfiled                = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
++  this._attributeCalledExpectedType           = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
++  this._attributeCalledInverseAttribute       = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_INVERSE_ATTRIBUTE);
++  this._attributeCalledItemsInCategory        = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_ITEMS_IN_CATEGORY);
+ 
+   // load the axiomatic categories
+   this._categoryCalledAttribute   = server.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+@@ -131,13 +133,13 @@
+   this._categoryCalledType        = server.getItemFromUuid(World.UUID_FOR_CATEGORY_TYPE);
+ 
+   // load the axiomatic types
+-  this._typeCalledText      = server.getItemFromUuid(World.UUID_FOR_TYPE_TEXT);
+-  this._typeCalledNumber    = server.getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
+-  this._typeCalledDate      = server.getItemFromUuid(World.UUID_FOR_TYPE_DATE);
+-  this._typeCalledCheckMark = server.getItemFromUuid(World.UUID_FOR_TYPE_CHECK_MARK);
+-  this._typeCalledUrl       = server.getItemFromUuid(World.UUID_FOR_TYPE_URL);
+-  this._typeCalledItem      = server.getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
+-  this._typeCalledAnything  = server.getItemFromUuid(World.UUID_FOR_TYPE_ANYTHING);
++  this._typeCalledText       = server.getItemFromUuid(World.UUID_FOR_TYPE_TEXT);
++  this._typeCalledNumber     = server.getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
++  this._typeCalledDate       = server.getItemFromUuid(World.UUID_FOR_TYPE_DATE);
++  this._typeCalledCheckMark  = server.getItemFromUuid(World.UUID_FOR_TYPE_CHECK_MARK);
++  this._typeCalledUrl        = server.getItemFromUuid(World.UUID_FOR_TYPE_URL);
++  this._typeCalledItem       = server.getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
++  this._typeCalledAnything   = server.getItemFromUuid(World.UUID_FOR_TYPE_ANYTHING);
+   this._typeCalledConnection = server.getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
+ }
+ 
+@@ -405,7 +407,11 @@
+   return this._attributeCalledInverseAttribute;
+ };
+ 
++World.prototype.getAttributeCalledItemsInCategory = function() {
++  return this._attributeCalledItemsInCategory;
++};
+ 
++
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic categories
+ // -------------------------------------------------------------------
+@@ -597,9 +603,8 @@
+ World.prototype.newAttribute = function(name, observer) {
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(name, observer);
+-  var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+-  item.addEntryForAttribute(attributeCalledCategory, categoryCalledAttribute);
++  item.assignToCategory(categoryCalledAttribute);
+   this.endTransaction();
+   return item;
+ };
+@@ -617,9 +622,8 @@
+ World.prototype.newCategory = function(name, observer) {
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(name, observer);
+-  var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+-  item.addEntryForAttribute(attributeCalledCategory, categoryCalledCategory);
++  item.assignToCategory(categoryCalledCategory);
+   this.endTransaction();
+   return item;
+ };
+@@ -637,9 +641,8 @@
+   Util.assert(matchingAttribute instanceof Item);
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(&quot;A query&quot;);
+-  var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+-  item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
++  item.assignToCategory(categoryCalledQuery);
+ 
+   var attributeCalledQueryMatchingAttribute = this.getAttributeCalledQueryMatchingAttribute();
+   var attributeCalledQueryMatchingValue = this.getAttributeCalledQueryMatchingValue();
+@@ -833,6 +836,7 @@
+   return this.getItemsInCategory(categoryCalledAttribute, observer);
+ };
+ 
++
+ /**
+  *
+  */
+@@ -840,7 +844,7 @@
+   var listOfSuggestedItems = [];
+   var key;
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+-  var attributeCalledCategory = this.getAttributeCalledCategory();
++  // var attributeCalledCategory = this.getAttributeCalledCategory();
+   var attributeCalledExpectedType = this.getAttributeCalledExpectedType();
+   var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
+   var listOfCategories = [];
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000169.html">[openrecord-svn] r183 - in trunk/source: . model
+</A></li>
+	<LI>Next message: <A HREF="000171.html">[openrecord-svn] r185 - in trunk: . source/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#170">[ date ]</a>
+              <a href="thread.html#170">[ thread ]</a>
+              <a href="subject.html#170">[ subject ]</a>
+              <a href="author.html#170">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

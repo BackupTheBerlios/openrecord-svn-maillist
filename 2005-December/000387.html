@@ -1,0 +1,1251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r406 - in trunk: documentation source source/archive tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/transcribers tests/util tests/uuid tests/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r406%20-%20in%20trunk%3A%20documentation%20source%20source/archive%20tests%20tests/archive%20tests/dojo%20tests/dom%20tests/lang%20tests/model%20tests/storage%20tests/tests_of_external_code%20tests/transcribers%20tests/util%20tests/uuid%20tests/view&In-Reply-To=%3C200512190656.jBJ6ubFC013379%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000386.html">
+   <LINK REL="Next"  HREF="000388.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r406 - in trunk: documentation source source/archive tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/transcribers tests/util tests/uuid tests/view</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r406%20-%20in%20trunk%3A%20documentation%20source%20source/archive%20tests%20tests/archive%20tests/dojo%20tests/dom%20tests/lang%20tests/model%20tests/storage%20tests/tests_of_external_code%20tests/transcribers%20tests/util%20tests/uuid%20tests/view&In-Reply-To=%3C200512190656.jBJ6ubFC013379%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r406 - in trunk: documentation source source/archive tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/transcribers tests/util tests/uuid tests/view">skinner at berlios.de
+       </A><BR>
+    <I>Mon Dec 19 07:56:37 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000386.html">[openrecord-svn] r404 - trunk/third_party/dojo
+</A></li>
+        <LI>Next message: <A HREF="000388.html">[openrecord-svn] r407 - trunk/source/plugins/create_new_plugin
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-12-19 07:56:03 +0100 (Mon, 19 Dec 2005)
+New Revision: 406
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/OpenRecordLoader.js
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/archive/StubArchive.js
+   trunk/tests/LintTest.html
+   trunk/tests/LintTest.js
+   trunk/tests/archive/LintTest.html
+   trunk/tests/archive/LintTest.js
+   trunk/tests/archive/test_dependencies.html
+   trunk/tests/archive/test_dependencies.js
+   trunk/tests/dojo/SimpleDojoTest.html
+   trunk/tests/dojo/SimpleDojoTest.js
+   trunk/tests/dom/test_dom.html
+   trunk/tests/dom/test_dom.js
+   trunk/tests/lang/LangTest.html
+   trunk/tests/lang/LangTest.js
+   trunk/tests/model/LintTest.html
+   trunk/tests/model/LintTest.js
+   trunk/tests/model/ModelTest.html
+   trunk/tests/model/ModelTest.js
+   trunk/tests/model/RepositoryWritingTest.html
+   trunk/tests/model/RepositoryWritingTest.js
+   trunk/tests/model/TestReorderingForSpecialCases.html
+   trunk/tests/model/TestReorderingForSpecialCases.js
+   trunk/tests/model/TestReorderingForTypicalOrdinals.html
+   trunk/tests/model/TestReorderingForTypicalOrdinals.js
+   trunk/tests/model/test_AfterLogin.html
+   trunk/tests/model/test_AfterLogin.js
+   trunk/tests/model/test_BeforeLogin.html
+   trunk/tests/model/test_BeforeLogin.js
+   trunk/tests/model/test_SequentialUsers.html
+   trunk/tests/model/test_SequentialUsers.js
+   trunk/tests/model/test_dependencies.html
+   trunk/tests/model/test_dependencies.js
+   trunk/tests/storage/DirectoryReadingTest.html
+   trunk/tests/storage/DirectoryReadingTest.js
+   trunk/tests/storage/LintTest.html
+   trunk/tests/storage/LintTest.js
+   trunk/tests/storage/StorageTest.html
+   trunk/tests/storage/StorageTest.js
+   trunk/tests/storage/test_dependencies.html
+   trunk/tests/storage/test_dependencies.js
+   trunk/tests/tests_of_external_code/TimingTest.html
+   trunk/tests/tests_of_external_code/TimingTest.js
+   trunk/tests/transcribers/LintTest.html
+   trunk/tests/transcribers/LintTest.js
+   trunk/tests/transcribers/XmlImporterMultiplePassesTest.html
+   trunk/tests/transcribers/XmlImporterMultiplePassesTest.js
+   trunk/tests/transcribers/XmlImporterTest.html
+   trunk/tests/transcribers/XmlImporterTest.js
+   trunk/tests/transcribers/test_dependencies.html
+   trunk/tests/transcribers/test_dependencies.js
+   trunk/tests/util/CsvParserTest.html
+   trunk/tests/util/CsvParserTest.js
+   trunk/tests/util/DateValueTest.html
+   trunk/tests/util/DateValueTest.js
+   trunk/tests/util/LintTest.html
+   trunk/tests/util/LintTest.js
+   trunk/tests/util/UtilTest.html
+   trunk/tests/util/UtilTest.js
+   trunk/tests/util/test_dependencies.html
+   trunk/tests/util/test_dependencies.js
+   trunk/tests/uuid/LintTest.html
+   trunk/tests/uuid/LintTest.js
+   trunk/tests/uuid/UuidTest.html
+   trunk/tests/uuid/UuidTest.js
+   trunk/tests/view/LintTest.html
+   trunk/tests/view/LintTest.js
+   trunk/tests/view/SectionViewConstructorTest.html
+   trunk/tests/view/SectionViewConstructorTest.js
+Log:
+Updated the OpenRecord source code and unit tests to point to the new dojo 0.2.0 code (now in .../third_party/dojo/ instead of .../third_party/dojo/dojo-rev1759).  Also, for the few files that use the dojo.crypto.MD5 code, converted them over to use the new MD5 API.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/documentation/to_do_list.txt	2005-12-19 06:56:03 UTC (rev 406)
+@@ -84,7 +84,7 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  0. Switch to using Dojo-0.2.0, and have it live directly in .../third_party/dojo
++brian  |          | 0.3  IED|  0. Switch to using Dojo-0.2.0, and have it live directly in .../third_party/dojo
+        |          |         |  1. Attempt to embed an OpenRecord view in a MediaWiki page
+        |          |         |  2. Have a server that supports repositories with thousands of items
+        |          |         |  3. Look at replacing our notion of Views with Dojo's notion of widgets
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/source/OpenRecordLoader.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -94,7 +94,7 @@
+ 
+ orp.loader.loadStylesheet(&quot;source/base_style.css&quot;);
+ 
+-orp.loader.loadScript(&quot;third_party/dojo/dojo-rev1759/dojo.js&quot;);
++orp.loader.loadScript(&quot;third_party/dojo/dojo.js&quot;);
+ orp.loader.loadScript(&quot;third_party/scriptaculous/prototype.js&quot;);
+ orp.loader.loadScript(&quot;third_party/scriptaculous/effects.js&quot;);
+ orp.loader.loadScript(&quot;third_party/scriptaculous/dragdrop.js&quot;);
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/source/OpenRecordLoaderStepThree.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -28,7 +28,7 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
+-dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);  // path relative to dojo
++dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../source&quot;);  // relative to dojo.js
+ 
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.view.RootView&quot;);
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/source/archive/StubArchive.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -33,7 +33,8 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.archive.StubArchive&quot;);
+ dojo.provide(&quot;orp.archive.ArchiveLoader&quot;);
+-dojo.require(&quot;dojo.crypto.*&quot;);
++dojo.require(&quot;dojo.crypto&quot;);
++dojo.require(&quot;dojo.crypto.MD5&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.model.Entry&quot;);
+@@ -468,7 +469,8 @@
+   var md5Authentication = null;
+   if (authentication) {
+     // md5Authentication = orp.util.hex_md5(authentication);
+-    md5Authentication = dojo.crypto.toBinHex(dojo.crypto.MD5.compute(authentication));
++    // md5Authentication = dojo.crypto.toBinHex(dojo.crypto.MD5.compute(authentication));
++    md5Authentication = dojo.crypto.MD5.compute(authentication, dojo.crypto.outputTypes.Hex);
+   }
+   this._hashTableOfUserAuthenticationInfo[newUser.getUuid()] = md5Authentication;
+ 
+@@ -542,7 +544,8 @@
+   var md5hashOfPassword = null;
+   if (password) {
+     // md5hashOfPassword = orp.util.hex_md5(password);
+-    md5hashOfPassword = dojo.crypto.toBinHex(dojo.crypto.MD5.compute(password));
++    // md5hashOfPassword = dojo.crypto.toBinHex(dojo.crypto.MD5.compute(password));
++    md5hashOfPassword = dojo.crypto.MD5.compute(password, dojo.crypto.outputTypes.Hex);
+   }
+   var realAuthentication = this.getAuthenticationInfoForUser(user);
+   var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+
+Modified: trunk/tests/LintTest.html
+===================================================================
+--- trunk/tests/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/LintTest.js
+===================================================================
+--- trunk/tests/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -34,8 +34,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;); // relative to dojo.js?
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/archive/LintTest.html
+===================================================================
+--- trunk/tests/archive/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/archive/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/archive/LintTest.js
+===================================================================
+--- trunk/tests/archive/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/archive/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/archive/test_dependencies.html
+===================================================================
+--- trunk/tests/archive/test_dependencies.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/archive/test_dependencies.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Dependency tests for the orp.archive package&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/archive/test_dependencies.js
+===================================================================
+--- trunk/tests/archive/test_dependencies.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/archive/test_dependencies.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -35,8 +35,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.archive.JsonFormat&quot;);
+   dojo.require(&quot;orp.archive.JsonSerializer&quot;);
+   dojo.require(&quot;orp.archive.JsonDeserializer&quot;);
+
+Modified: trunk/tests/dojo/SimpleDojoTest.html
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/dojo/SimpleDojoTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit test - Dojo code availability&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;SimpleDojoTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/dojo/SimpleDojoTest.js
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/dojo/SimpleDojoTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -33,7 +33,13 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;);  // relative to testRunner.html
++  // alert(&quot;Dojo version: &quot; + dojo.version.toString()); // &quot;Dojo version: 0.2.0 (2540)&quot;
++  // alert(&quot;dojo.hostenv.getBaseScriptUri() = &quot; + dojo.hostenv.getBaseScriptUri());
++    // &quot;dojo.hostenv.getBaseScriptUri() = ../../third_party/dojo/&quot;
++  dojo.require(&quot;dojo.lang.*&quot;);
++  dojo.require(&quot;dojo.text.*&quot;);
++  dojo.require(&quot;dojo.crypto.MD5&quot;);
+ }
+ 
+ function tearDown() {
+@@ -46,21 +52,12 @@
+ // -------------------------------------------------------------------
+ 
+ function testDojoTextTrim() {
+-  // alert(&quot;Dojo version: &quot; + dojo.version.toString()); 
+-    // Dojo version: 0.1.0 (1321)
+-  // alert(&quot;dojo.hostenv.getBaseScriptUri() = &quot; + dojo.hostenv.getBaseScriptUri());
+-    // dojo.hostenv.getBaseScriptUri() = ../../third_party/dojo/dojo-0.1.0
+-
+-  dojo.require(&quot;dojo.text.*&quot;);
+-
+   var string = &quot;     Just Foo    &quot;;
+   var trimmedString = dojo.text.trim(string);
+   assertTrue(&quot;'Just Foo' remains after trimming.&quot;, trimmedString == &quot;Just Foo&quot;);
+ }
+ 
+ function testDojoLang() {
+-  dojo.require(&quot;dojo.lang.*&quot;);
+-
+   assertTrue(&quot;'Iggy Pop' is a string.&quot;, dojo.lang.isString(&quot;Iggy Pop&quot;));
+ }
+ 
+@@ -80,8 +77,6 @@
+ }
+ 
+ function testMD5() {
+-  dojo.require(&quot;dojo.crypto.*&quot;);
+-
+   var whenInTheCourse = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
+   var theQuickBrownFox = &quot;The quick brown fox jumps over the lazy dog&quot;;
+   var theRainInSpain = &quot;The rain in Spain falls mainly on the plain.&quot;;
+@@ -98,7 +93,8 @@
+ // -------------------------------------------------------------------
+ 
+ function getHexMD5(string) {
+-  return dojo.crypto.toBinHex(dojo.crypto.MD5.compute(string));
++  // return dojo.crypto.toBinHex(dojo.crypto.MD5.compute(string));
++  return dojo.crypto.MD5.compute(string, dojo.crypto.outputTypes.Hex);
+ }
+ 
+ 
+
+Modified: trunk/tests/dom/test_dom.html
+===================================================================
+--- trunk/tests/dom/test_dom.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/dom/test_dom.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for orp.dom&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dom.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/dom/test_dom.js
+===================================================================
+--- trunk/tests/dom/test_dom.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/dom/test_dom.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -34,8 +34,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.dom&quot;);
+ }
+ 
+
+Modified: trunk/tests/lang/LangTest.html
+===================================================================
+--- trunk/tests/lang/LangTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/lang/LangTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for Lang.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LangTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/lang/LangTest.js
+===================================================================
+--- trunk/tests/lang/LangTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/lang/LangTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -34,8 +34,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.lang.Lang&quot;);
+ }
+ 
+
+Modified: trunk/tests/model/LintTest.html
+===================================================================
+--- trunk/tests/model/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/LintTest.js
+===================================================================
+--- trunk/tests/model/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/model/ModelTest.html
+===================================================================
+--- trunk/tests/model/ModelTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/ModelTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ModelTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/ModelTest.js
+===================================================================
+--- trunk/tests/model/ModelTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/ModelTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -45,8 +45,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.model.World&quot;);
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.util.DateValue&quot;);
+
+Modified: trunk/tests/model/RepositoryWritingTest.html
+===================================================================
+--- trunk/tests/model/RepositoryWritingTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/RepositoryWritingTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test writing to repositories&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;RepositoryWritingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/RepositoryWritingTest.js
+===================================================================
+--- trunk/tests/model/RepositoryWritingTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/RepositoryWritingTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -41,8 +41,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.archive.DeltaArchive&quot;);
+   dojo.require(&quot;orp.model.World&quot;);
+ 
+
+Modified: trunk/tests/model/TestReorderingForSpecialCases.html
+===================================================================
+--- trunk/tests/model/TestReorderingForSpecialCases.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/TestReorderingForSpecialCases.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test reordering of items for special cases of the corresponding ordinals (via a mock)&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForSpecialCases.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/tests/model/TestReorderingForSpecialCases.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/TestReorderingForSpecialCases.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -48,8 +48,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.model.World&quot;);
+ 
+
+Modified: trunk/tests/model/TestReorderingForTypicalOrdinals.html
+===================================================================
+--- trunk/tests/model/TestReorderingForTypicalOrdinals.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/TestReorderingForTypicalOrdinals.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test reordering items with typical ordinals (via a mock)&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForTypicalOrdinals.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/tests/model/TestReorderingForTypicalOrdinals.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/TestReorderingForTypicalOrdinals.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -52,8 +52,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.model.World&quot;);
+   
+
+Modified: trunk/tests/model/test_AfterLogin.html
+===================================================================
+--- trunk/tests/model/test_AfterLogin.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_AfterLogin.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_AfterLogin.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_AfterLogin.js
+===================================================================
+--- trunk/tests/model/test_AfterLogin.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_AfterLogin.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -46,8 +46,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.model.World&quot;);
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.util.DateValue&quot;);
+
+Modified: trunk/tests/model/test_BeforeLogin.html
+===================================================================
+--- trunk/tests/model/test_BeforeLogin.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_BeforeLogin.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_BeforeLogin.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_BeforeLogin.js
+===================================================================
+--- trunk/tests/model/test_BeforeLogin.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_BeforeLogin.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -45,8 +45,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.model.World&quot;);
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.util.DateValue&quot;);
+
+Modified: trunk/tests/model/test_SequentialUsers.html
+===================================================================
+--- trunk/tests/model/test_SequentialUsers.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_SequentialUsers.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_SequentialUsers.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_SequentialUsers.js
+===================================================================
+--- trunk/tests/model/test_SequentialUsers.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_SequentialUsers.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -45,8 +45,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.model.World&quot;);
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.util.DateValue&quot;);
+
+Modified: trunk/tests/model/test_dependencies.html
+===================================================================
+--- trunk/tests/model/test_dependencies.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_dependencies.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Dependency tests for the orp.model package&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_dependencies.js
+===================================================================
+--- trunk/tests/model/test_dependencies.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/model/test_dependencies.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -35,8 +35,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.model.ContentRecord&quot;);
+   dojo.require(&quot;orp.model.Entry&quot;);
+   dojo.require(&quot;orp.model.Item&quot;);
+
+Modified: trunk/tests/storage/DirectoryReadingTest.html
+===================================================================
+--- trunk/tests/storage/DirectoryReadingTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/DirectoryReadingTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test reading directories&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DirectoryReadingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/storage/DirectoryReadingTest.js
+===================================================================
+--- trunk/tests/storage/DirectoryReadingTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/DirectoryReadingTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -33,8 +33,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.storage.directoryList&quot;);
+   dojo.require(&quot;orp.util.Util&quot;);
+   orp.storage.PATH_TO_TRUNK_DIRECTORY_FROM_WINDOW_LOCATION = &quot;../..&quot;;
+
+Modified: trunk/tests/storage/LintTest.html
+===================================================================
+--- trunk/tests/storage/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/storage/LintTest.js
+===================================================================
+--- trunk/tests/storage/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/storage/StorageTest.html
+===================================================================
+--- trunk/tests/storage/StorageTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/StorageTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test writing to repositories&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;StorageTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/storage/StorageTest.js
+===================================================================
+--- trunk/tests/storage/StorageTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/StorageTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -38,8 +38,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;orp.storage.FileProtocolStorage&quot;);
+   dojo.require(&quot;orp.storage.HttpProtocolStorage&quot;);
+
+Modified: trunk/tests/storage/test_dependencies.html
+===================================================================
+--- trunk/tests/storage/test_dependencies.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/test_dependencies.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Dependency tests for the orp.storage package&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/storage/test_dependencies.js
+===================================================================
+--- trunk/tests/storage/test_dependencies.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/storage/test_dependencies.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -35,8 +35,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.storage.Storage&quot;);
+   dojo.require(&quot;orp.storage.FakeStorage&quot;);
+   dojo.require(&quot;orp.storage.FileProtocolStorage&quot;);
+
+Modified: trunk/tests/tests_of_external_code/TimingTest.html
+===================================================================
+--- trunk/tests/tests_of_external_code/TimingTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/tests_of_external_code/TimingTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;JavaScript timing tests&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TimingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/tests_of_external_code/TimingTest.js
+===================================================================
+--- trunk/tests/tests_of_external_code/TimingTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/tests_of_external_code/TimingTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -78,8 +78,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.Util&quot;);
+ }
+ 
+
+Modified: trunk/tests/transcribers/LintTest.html
+===================================================================
+--- trunk/tests/transcribers/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/transcribers/LintTest.js
+===================================================================
+--- trunk/tests/transcribers/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/transcribers/XmlImporterMultiplePassesTest.html
+===================================================================
+--- trunk/tests/transcribers/XmlImporterMultiplePassesTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/XmlImporterMultiplePassesTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Additional unit tests for XmlImporter.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;XmlImporterMultiplePassesTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/transcribers/XmlImporterMultiplePassesTest.js
+===================================================================
+--- trunk/tests/transcribers/XmlImporterMultiplePassesTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/XmlImporterMultiplePassesTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -38,8 +38,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.transcribers.XmlImporter&quot;);
+   dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+
+Modified: trunk/tests/transcribers/XmlImporterTest.html
+===================================================================
+--- trunk/tests/transcribers/XmlImporterTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/XmlImporterTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for XmlImporter.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;XmlImporterTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/transcribers/XmlImporterTest.js
+===================================================================
+--- trunk/tests/transcribers/XmlImporterTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/XmlImporterTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -36,8 +36,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.transcribers.XmlImporter&quot;);
+   dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+
+Modified: trunk/tests/transcribers/test_dependencies.html
+===================================================================
+--- trunk/tests/transcribers/test_dependencies.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/test_dependencies.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Dependency tests for the orp.transcriber package&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/transcribers/test_dependencies.js
+===================================================================
+--- trunk/tests/transcribers/test_dependencies.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/transcribers/test_dependencies.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -35,8 +35,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.transcribers.XmlImporter&quot;);
+   dojo.require(&quot;orp.transcribers.XmlExporter&quot;);
+ }
+
+Modified: trunk/tests/util/CsvParserTest.html
+===================================================================
+--- trunk/tests/util/CsvParserTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/CsvParserTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for CsvParser.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;CsvParserTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/CsvParserTest.js
+===================================================================
+--- trunk/tests/util/CsvParserTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/CsvParserTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -36,8 +36,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;dojo.lang.*&quot;);
+   dojo.require(&quot;orp.util.CsvParser&quot;);
+ 
+
+Modified: trunk/tests/util/DateValueTest.html
+===================================================================
+--- trunk/tests/util/DateValueTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/DateValueTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for DateValue.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DateValueTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/DateValueTest.js
+===================================================================
+--- trunk/tests/util/DateValueTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/DateValueTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -36,8 +36,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;orp.util.DateValue&quot;);
+   // TestVars = {};
+
+Modified: trunk/tests/util/LintTest.html
+===================================================================
+--- trunk/tests/util/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/util/LintTest.js
+===================================================================
+--- trunk/tests/util/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/util/UtilTest.html
+===================================================================
+--- trunk/tests/util/UtilTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/UtilTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/UtilTest.js
+===================================================================
+--- trunk/tests/util/UtilTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/UtilTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -38,8 +38,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;dojo.lang.*&quot;);
+   UtilTestVars = {};
+
+Modified: trunk/tests/util/test_dependencies.html
+===================================================================
+--- trunk/tests/util/test_dependencies.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/test_dependencies.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Dependency tests for the orp.util package&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/test_dependencies.js
+===================================================================
+--- trunk/tests/util/test_dependencies.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/util/test_dependencies.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -35,8 +35,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;orp.util.Cookie&quot;);
+   dojo.require(&quot;orp.util.CsvParser&quot;);
+
+Modified: trunk/tests/uuid/LintTest.html
+===================================================================
+--- trunk/tests/uuid/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/uuid/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/uuid/LintTest.js
+===================================================================
+--- trunk/tests/uuid/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/uuid/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/uuid/UuidTest.html
+===================================================================
+--- trunk/tests/uuid/UuidTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/uuid/UuidTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests for UUIDs&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UuidTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/uuid/UuidTest.js
+===================================================================
+--- trunk/tests/uuid/UuidTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/uuid/UuidTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -39,8 +39,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.uuid.factory&quot;);
+   dojo.require(&quot;orp.uuid.Uuid&quot;);
+   dojo.require(&quot;orp.uuid.RandomUuid&quot;);
+
+Modified: trunk/tests/view/LintTest.html
+===================================================================
+--- trunk/tests/view/LintTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/view/LintTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -14,7 +14,7 @@
+     &lt;title&gt;Unit tests using jslint&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/view/LintTest.js
+===================================================================
+--- trunk/tests/view/LintTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/view/LintTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -40,8 +40,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.util.LintTool&quot;);
+ }
+ 
+
+Modified: trunk/tests/view/SectionViewConstructorTest.html
+===================================================================
+--- trunk/tests/view/SectionViewConstructorTest.html	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/view/SectionViewConstructorTest.html	2005-12-19 06:56:03 UTC (rev 406)
+@@ -12,7 +12,7 @@
+     &lt;title&gt;Test SectionView Constructor&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;SectionViewConstructorTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/view/SectionViewConstructorTest.js
+===================================================================
+--- trunk/tests/view/SectionViewConstructorTest.js	2005-12-19 06:46:30 UTC (rev 405)
++++ trunk/tests/view/SectionViewConstructorTest.js	2005-12-19 06:56:03 UTC (rev 406)
+@@ -49,8 +49,8 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/src&quot;); // relative to testRunner.html
++  dojo.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo.js
+   dojo.require(&quot;orp.archive.StubArchive&quot;);
+   dojo.require(&quot;orp.model.World&quot;);
+   dojo.require(&quot;orp.view.SectionView&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000386.html">[openrecord-svn] r404 - trunk/third_party/dojo
+</A></li>
+	<LI>Next message: <A HREF="000388.html">[openrecord-svn] r407 - trunk/source/plugins/create_new_plugin
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

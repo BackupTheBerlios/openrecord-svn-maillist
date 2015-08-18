@@ -1,0 +1,615 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r430 - in trunk: . images source source/view third_party
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r430%20-%20in%20trunk%3A%20.%20images%20source%20source/view%20third_party&In-Reply-To=%3C200601302335.k0UNZ6jx029966%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000410.html">
+   <LINK REL="Next"  HREF="000412.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r430 - in trunk: . images source source/view third_party</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r430%20-%20in%20trunk%3A%20.%20images%20source%20source/view%20third_party&In-Reply-To=%3C200601302335.k0UNZ6jx029966%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r430 - in trunk: . images source source/view third_party">mignon at berlios.de
+       </A><BR>
+    <I>Tue Jan 31 00:35:06 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000410.html">[openrecord-svn] r429 - trunk/third_party
+</A></li>
+        <LI>Next message: <A HREF="000412.html">[openrecord-svn] r431 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#411">[ date ]</a>
+              <a href="thread.html#411">[ thread ]</a>
+              <a href="subject.html#411">[ subject ]</a>
+              <a href="author.html#411">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-01-31 00:35:00 +0100 (Tue, 31 Jan 2006)
+New Revision: 430
+
+Added:
+   trunk/images/squareOfDots.png
+Removed:
+   trunk/third_party/scriptaculous/
+Modified:
+   trunk/sandbox.html
+   trunk/source/OpenRecordLoader.js
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/NavbarView.js
+Log:
+Replaced all the scriptaculous drag-and-drop code with dojo code.  Removed all references to scriptaculous.  Added ugly but functional &quot;grabby handles&quot; to the navbar menu.
+
+
+Added: trunk/images/squareOfDots.png
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/squareOfDots.png
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Modified: trunk/sandbox.html
+===================================================================
+--- trunk/sandbox.html	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/sandbox.html	2006-01-30 23:35:00 UTC (rev 430)
+@@ -13,37 +13,6 @@
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Sandbox Page&lt;/title&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+-&lt;!-- 
+-    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;source/base_style.css&quot;&gt;&lt;/link&gt;
+-    &lt;script&gt;
+-      djConfig = {
+-        isDebug: true,
+-        debugAtAllCosts: true
+-      };
+-    &lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/scriptaculous/prototype.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/scriptaculous/effects.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/scriptaculous/dragdrop.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot;&gt;
+-      // dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../dojo/dojo-rev1759/src&quot;);
+-      dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);  // path relative to dojo
+-      dojo.require(&quot;orp.model.World&quot;);
+-      dojo.require(&quot;orp.view.RootView&quot;);
+-      dojo.hostenv.writeIncludes(); // needed when using &quot;debugAtAllCosts: true&quot;
+-    &lt;/script&gt;
+-    &lt;script&gt;
+-      window.onload = function() { 
+-        try {
+-          var world = new orp.model.World();
+-          new orp.view.RootView(world);
+-        } catch(e) {
+-          alert(e);
+-        }
+-      };    
+-    &lt;/script&gt;
+---&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/OpenRecordLoader.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -95,9 +95,6 @@
+ orp.loader.loadStylesheet(&quot;source/base_style.css&quot;);
+ 
+ orp.loader.loadScript(&quot;third_party/dojo/dojo.js&quot;);
+-orp.loader.loadScript(&quot;third_party/scriptaculous/prototype.js&quot;);
+-orp.loader.loadScript(&quot;third_party/scriptaculous/effects.js&quot;);
+-orp.loader.loadScript(&quot;third_party/scriptaculous/dragdrop.js&quot;);
+ 
+ orp.loader.loadScript(&quot;source/OpenRecordLoaderStepTwo.js&quot;);
+ 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/TablePlugin.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -43,12 +43,12 @@
+ dojo.require(&quot;orp.util.CsvParser&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;dojo.event.*&quot;);
++dojo.require(&quot;dojo.dnd.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+ /*global window, document, HTMLTableRowElement  */
+-/*global Draggable, Droppables,  */
+ /*global Util  */
+ /*global Item  */
+ /*global CsvParser  */
+@@ -352,30 +352,30 @@
+ /**
+  *
+  */
+-orp.TablePlugin.prototype._handleDrop = function(elementThatWasDragged, droppableObject) {
+-  // First figure out what column header was dropped where
++orp.TablePlugin.prototype._handleDrop = function(elementThatWasDragged) {
++  // First figure out which column header was dragged (indexOfDraggedAttribute) 
++  // and where it landed (indexOfDraggedElement).
+   var world = this.getWorld();
+-  var draggedUuid = elementThatWasDragged.getAttribute('uuid');
++  var draggedUuid = elementThatWasDragged.dragObject.domNode.getAttribute('uuid');
+   var draggedAttribute = world.getItemFromUuid(draggedUuid);
+-  var headerCellElement = droppableObject.element;
+-  var headerCellUuid = headerCellElement.getAttribute('uuid');
+-  var droppedOnAttribute = world.getItemFromUuid(headerCellUuid);
+   var indexOfDraggedAttribute = orp.util.getArrayIndex(this._displayAttributes, draggedAttribute);
+-  var indexOfDroppedOnAttribute = orp.util.getArrayIndex(this._displayAttributes, droppedOnAttribute);
+-
++  var headerRow = this._table.rows[0];
++  var headerCells = headerRow.getElementsByTagName(&quot;th&quot;);
++  var indexOfDraggedElement = -1;
++  for (i = 0; i &lt; headerCells.length; ++i) {
++    if (headerCells[i].getAttribute('uuid') == draggedUuid) {
++      indexOfDraggedElement = i;
++      break;
++    }
++  }
++  orp.lang.assert(indexOfDraggedElement &gt;= 0);
++  
+   // If the user dragged a column header and dropped it on the same column 
+   // header, then we don't need to change the column order.
+-  if (indexOfDraggedAttribute == indexOfDroppedOnAttribute) {
++  if (indexOfDraggedAttribute == indexOfDraggedElement) {
+     return;
+   }
+ 
+-  // This is a little hack that accesses instance variables of the &quot;Draggable&quot;
+-  // object in the script.aculo.us dragdrop.js library.
+-  // We set &quot;revert&quot; to false to prevent the UI animation where the dragged 
+-  // column header goes &quot;flying&quot; home again
+-  var draggable = elementThatWasDragged.orp_draggable;
+-  draggable.options.revert = false;
+-
+   // Now we need to save the new column order to the repository.
+   var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+   world.beginTransaction();
+@@ -386,43 +386,32 @@
+     // If we get here, it means this table has a saved list of user-selected
+     // columns, and we just want to re-order that list.
+     orp.lang.assert(this._displayAttributes.length == listOfTableColumnEntries.length);
++    
++    // Figure out which entry is being reordered between which two entries.
+     var draggedEntry = listOfTableColumnEntries[indexOfDraggedAttribute];
+-    var droppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute];
+-    if (indexOfDraggedAttribute &gt; indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the left
+-      var entryBeforeDroppedOnEntry = null;
+-      if (indexOfDroppedOnAttribute &gt; 0) {
+-        entryBeforeDroppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute-1];
+-      }
+-      draggedEntry.reorderBetween(entryBeforeDroppedOnEntry, droppedOnEntry);
++    var noPreviousEntry = (indexOfDraggedElement == 0);
++    var noFollowingEntry = (indexOfDraggedElement == headerCells.length - 1);
++    var draggedLeft = indexOfDraggedAttribute &gt; indexOfDraggedElement;
++    var entryBeforeDroppedOnEntry = null;
++    if (!noPreviousEntry) {
++      var beforeIndex = draggedLeft? indexOfDraggedElement - 1 : indexOfDraggedElement;
++      entryBeforeDroppedOnEntry = listOfTableColumnEntries[beforeIndex];
+     }
+-    if (indexOfDraggedAttribute &lt; indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the right
+-      var entryAfterDroppedOnEntry = null;
+-      if (indexOfDroppedOnAttribute &lt; (listOfTableColumnEntries.length - 1)) {
+-        entryAfterDroppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute+1];
+-      }
+-      draggedEntry.reorderBetween(droppedOnEntry, entryAfterDroppedOnEntry);
++    var entryAfterDroppedOnEntry = null;
++    if (!noFollowingEntry) {
++      var afterIndex = draggedLeft? indexOfDraggedElement : indexOfDraggedElement + 1;
++      entryAfterDroppedOnEntry = listOfTableColumnEntries[afterIndex];
+     }
++    draggedEntry.reorderBetween(entryBeforeDroppedOnEntry, entryAfterDroppedOnEntry);
+   } else {
+     // If we get here, it means we need to save a newly created list of
+     // user-selected columns.
+     this._displayAttributes.splice(indexOfDraggedAttribute, 1);
+-    if (indexOfDraggedAttribute &gt; indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the left
+-      this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
+-    }
+-    if (indexOfDraggedAttribute &lt; indexOfDroppedOnAttribute) {
+-      // the user dragged the column to the right
+-      this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
+-    }
+-    // alertString = &quot;&quot;;
++    this._displayAttributes.splice(indexOfDraggedElement, 0, draggedAttribute);
+     for (var i in this._displayAttributes) {
+       var attribute = this._displayAttributes[i];
+       layoutItem.addEntry({attribute:attributeTableColumns, value:attribute});
+-      // alertString += attribute.getDisplayString() + '\n';
+     }
+-    // alert(alertString);
+   }
+   world.endTransaction();
+   this.refresh();
+@@ -451,17 +440,16 @@
+     dojo.event.connect(headerCell, &quot;onclick&quot;, orp.lang.bind(this, &quot;clickOnHeader&quot;, attribute));
+     
+     if (this.isInEditMode()) {
+-      var listener = this;
+-      var draggable = new Draggable(headerCellContentSpan, {revert:true});
+-      headerCellContentSpan.orp_draggable = draggable;
+-      Droppables.add(headerCell, {
+-        accept: &quot;headerCellContentSpan&quot;,
+-        hoverclass: 'drophover',
+-        onDrop: function(element, droppableObject) {listener._handleDrop(element, droppableObject);}});   
++      new dojo.dnd.HtmlDragSource(headerCell, &quot;headerCell&quot;);
+     }
+     ++numCols;
+   }
+   this._numberOfColumns = numCols;
++
++  if (this.isInEditMode()) {
++    var dropTarget = new dojo.dnd.HtmlDropTarget(headerRow, [&quot;headerCell&quot;]);
++    dojo.event.connect(dropTarget, &quot;onDrop&quot;, this, &quot;_handleDrop&quot;);
++  }
+ };
+ 
+ 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/base_style.css	2006-01-30 23:35:00 UTC (rev 430)
+@@ -265,17 +265,20 @@
+   list-style: none;
+   margin: 0;
+   cursor: move;
++  background-image: url(../images/squareOfDots.png);
++  background-repeat: repeat;
+ }
+ 
+ .menu_item a {
+   display: block;
+-  width: 100%;
++  width: 80%;
+   padding: 5pt 0pt 5pt 5pt;
+-  text-decoration: none; 
++  text-decoration: none;
+   border-left: solid 1pt #CCCCCC;
+   border-top: solid 1pt #CCCCCC;
+   border-bottom: solid 1pt #CCCCCC;
+   color: rgb(0%, 0%, 0%); 
++  background-color: rgb(100%, 100%, 100%);
+ }
+ 
+ .menu_item.selected a{
+@@ -321,7 +324,7 @@
+ 
+ .menu_item a:hover {
+   background-color: #DEE7F8;
+-  width: 100%;
++  width: 80%;
+   border-left: solid 1pt #6699FF;
+   border-bottom-style: none;
+ }
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/view/EntryView.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -41,6 +41,7 @@
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;dojo.event.*&quot;);
++dojo.require(&quot;dojo.dnd.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -278,11 +279,11 @@
+             // if (this.getRootView().isInShowToolsMode()) {
+             if (orp.view.EntryView._PENDING_enableDragging) {
+               this._textSpan.orp_entryView = this; 
+-              this._draggable = new Draggable(this._textSpan, {revert:true});
++              this._draggable = new dojo.dnd.HtmlDragSource(this._textSpan, &quot;lozenge&quot;);
+             }
+           } else {
+             this._textSpan.orp_entryView = this; 
+-            this._draggable = new Draggable(this._textSpan, {revert:true});
++            this._draggable = new dojo.dnd.HtmlDragSource(this._textSpan, &quot;lozenge&quot;);
+           }
+         }
+       }
+@@ -371,7 +372,7 @@
+     
+     if (this._isMultiLine) {
+       editField.style.height = (this.getHtmlElement().offsetHeight) + &quot;px&quot;;
+-    }  
++    }
+     
+     this._setupSuggestionBox();
+     this.getHtmlElement().replaceChild(editField, this._textSpan);
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/view/MultiEntriesView.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -40,6 +40,7 @@
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;dojo.event.*&quot;);
++dojo.require(&quot;dojo.dnd.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -233,7 +234,7 @@
+  *
+  */
+ orp.view.MultiEntriesView.prototype._handleDrop = function(element) {
+-  var draggedEntryView = element.orp_entryView;
++  var draggedEntryView = element.dragObject.domNode.orp_entryView;
+   if (!draggedEntryView) {orp.lang.assert(false);}
+   var droppedEntry = draggedEntryView._entry;
+   if (!droppedEntry) {orp.lang.assert(false);}
+@@ -255,15 +256,6 @@
+         type: droppedEntry.getType() });
+     }
+     this._addEntryView(newEntry);
+-
+-    // This is a little hack that accesses instance variables of the &quot;Draggable&quot;
+-    // object in the script.aculo.us dragdrop.js library.
+-    // We set &quot;revert&quot; to false to prevent the UI animation where the dragged 
+-    // column header goes &quot;flying&quot; home again
+-    var draggable = draggedEntryView._draggable;
+-    draggable.options.revert = false;
+-    // element.style.display = &quot;none&quot;;
+-    
+     this.getSuperview().refresh();
+   }
+ };
+@@ -369,10 +361,8 @@
+   
+   if (this.isInEditMode()) {
+     dojo.event.connect(htmlElement, &quot;onclick&quot;, this, &quot;_handleOwnClick&quot;);
+-    var listener = this;
+-    Droppables.add(htmlElement, {accept: [orp.view.EntryView.cssClass.CONNECTION_VALUE, orp.view.EntryView.CSS_ITEM_VALUE, orp.view.EntryView.cssClass.SELECTED],
+-      hoverclass: &quot;test&quot;,
+-      onDrop: function(element) {listener._handleDrop(element);}});
++    var dropTarget = new dojo.dnd.HtmlDropTarget(htmlElement, [&quot;lozenge&quot;]);
++    dojo.event.connect(dropTarget, &quot;onDrop&quot;, this, &quot;_handleDrop&quot;);
+   } 
+   this._myHasEverBeenDisplayedFlag = true;
+ };
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2006-01-17 01:17:50 UTC (rev 429)
++++ trunk/source/view/NavbarView.js	2006-01-30 23:35:00 UTC (rev 430)
+@@ -39,13 +39,13 @@
+ dojo.require(&quot;orp.view.RootView&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;dojo.event.*&quot;);
++dojo.require(&quot;dojo.dnd.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+ /*global window */
+ /*global RootView */
+-/*global Sortable */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -80,10 +80,6 @@
+   MENU_ITEM: &quot;menu_item&quot;,
+   SELECTED:  &quot;selected&quot; };
+ 
+-// Caution: 
+-// In order for us to use the &quot;Sortable&quot; feature in the script.aculo.us 
+-// dragdrop.js library, this &quot;MainMenu&quot; Id must *not* have an underscore 
+-// in it.
+ orp.view.NavbarView.elementId = {
+   MENU:      &quot;MainMenu&quot; };
+   
+@@ -114,75 +110,37 @@
+ // Private instance methods
+ // -------------------------------------------------------------------
+ 
+-/**
+- * Called whenever there is a mousedown event on one of the menu item
+- * html &quot;li&quot; elements.  All we do here is record which element is 
+- * being touched, because we may need that info later on in the 
+- * _sortOrderUpdate() method. 
+- *
+- * @scope    public instance method
+- * @param    event    The mousedown event object. 
+- */
+-orp.view.NavbarView.prototype._mouseDownOnMenuItem = function(event) {
+-  // FIXME: 
+-  // Should we be using &quot;event.target&quot; instead of &quot;event.currentTarget&quot;?
+-  // Or should we be using orp.util.getTargetFromEvent(event)?
+-  this._liElementBeingTouched = event.currentTarget;
+-};
++orp.view.NavbarView.prototype._handleDrop = function(elementThatWasDragged) {
++  // First figure out which page was dragged (indexOfDraggedPage) 
++  // and where it landed (newIndex).
++  var world = this.getWorld();
++  var draggedUuid = elementThatWasDragged.dragObject.domNode.getAttribute('uuid');
++  var draggedPage = world.getItemFromUuid(draggedUuid);
++  var indexOfDraggedPage = orp.util.getArrayIndex(this._listOfPages, draggedPage);
++  var ulElement = dojo.byId(orp.view.NavbarView.elementId.MENU);
++  var liCells = ulElement.getElementsByTagName(&quot;li&quot;);
+ 
++  var newIndex = -1;
++  for (i = 0; i &lt; liCells.length; ++i) {
++    if (liCells[i].getAttribute('uuid') == draggedUuid) {
++      newIndex = i;
++      break;
++    }
++  }
++  orp.lang.assert(newIndex &gt;= 0);
+ 
+-/**
+- * Called by the &quot;Sortable&quot; feature in the script.aculo.us dragdrop.js library.
+- * This method gets called when the user drags and drops a menu item in the
+- * Navbar.  We only get called if the new location of the menu item is 
+- * different from the old location.
+- *
+- * @scope    public instance method
+- * @param    ulElement    The &quot;ul&quot; HTMLElement for the menu of menu items. 
+- */
+-orp.view.NavbarView.prototype._sortOrderUpdate = function(ulElement) {
+-  orp.lang.assert(this._liElementBeingTouched !== null);
+-  
+-  var liElementPrefixString = orp.view.NavbarView.elementId.MENU + '_';
+-  var menuItemElementId = this._liElementBeingTouched.id;
+-  var pageUuid = menuItemElementId.replace(liElementPrefixString, '');
+-  var pageToReorder = this.getWorld().getItemFromUuid(pageUuid);
+-  
+-  var listOfPages = this._getNewOrderingForPageList(ulElement);
+-  
+-  var arrayIndex = orp.util.getArrayIndex(listOfPages, pageToReorder);
+-  orp.lang.assert(arrayIndex != -1);
+-  var pageAbove = (arrayIndex === 0) ? null : listOfPages[arrayIndex-1];
+-  var pageBelow = (arrayIndex &gt; listOfPages.length) ? null : listOfPages[arrayIndex+1];
+-  pageToReorder.reorderBetween(pageAbove, pageBelow);
+-};
+-
+-
+-/**
+- * Returns a list of page items, arranged in the new order that resulted
+- * from the most recent drag-and-drop re-ordering.
+- *
+- * @scope    public instance method
+- * @param    ulElement    The &quot;ul&quot; HTMLElement for the menu of menu items. 
+- * @return   A list of items representing pages.
+- */
+-orp.view.NavbarView.prototype._getNewOrderingForPageList = function(ulElement) {
+-  // The string '[]=' is used by the &quot;Sortable&quot; feature in the script.aculo.us 
+-  // dragdrop.js library within each token in the serialization string.
+-  var prefixString = orp.view.NavbarView.elementId.MENU + '[]=';
+-  
+-  var serializationString = Sortable.serialize(ulElement);
+-  var listOfTokens = serializationString.split('&amp;');
+-  var listOfPages = [];
+-  for (var i in listOfTokens) {
+-    var uuidForPage = listOfTokens[i].replace(prefixString, '');
+-    var page = this.getWorld().getItemFromUuid(uuidForPage);
+-    listOfPages.push(page);
++  if (indexOfDraggedPage == newIndex) {
++    return;
+   }
+-  return listOfPages;
++
++  var draggedUp = indexOfDraggedPage &gt; newIndex;
++  var pageAbove = (newIndex === 0) ?
++    null : this._listOfPages[draggedUp? newIndex - 1 : newIndex];
++  var pageBelow = (newIndex == liCells.length - 1) ?
++    null : this._listOfPages[draggedUp? newIndex : newIndex + 1];
++  draggedPage.reorderBetween(pageAbove, pageBelow);
+ };
+ 
+-
+ /**
+  * Re-creates the HTML for the view, and hands the HTML to the 
+  * browser to be re-drawn.
+@@ -192,45 +150,40 @@
+ orp.view.NavbarView.prototype._rebuildView = function() {
+   var categoryCalledPage = this.getWorld().getItemFromUuid(orp.view.RootView.UUID.CATEGORY_PAGE);
+   categoryCalledPage.addObserver(this);
+-  var listOfPages = this.getWorld().getItemsInCategory(categoryCalledPage);
++  this._listOfPages = this.getWorld().getItemsInCategory(categoryCalledPage);
+   var key;
+   var page;
+ 
+   orp.view.View.removeChildrenOfElement(this._htmlElementForAnchors);
+-  for (key in listOfPages) {
+-    page = listOfPages[key];
++  for (key in this._listOfPages) {
++    page = this._listOfPages[key];
+     var anchorName = orp.view.RootView.URL_PAGE_PREFIX + page.getUuidString();
+     orp.view.View.appendNewElement(this._htmlElementForAnchors, &quot;a&quot;, null, {name: anchorName});
+   }
+   
+   var divElement = this.getHtmlElement();
+-  orp.view.View.removeChildrenOfElement(divElement); 
++  orp.view.View.removeChildrenOfElement(divElement);
+   var ulElement = orp.view.View.appendNewElement(divElement, &quot;ul&quot;, orp.view.NavbarView.cssClass.MENU, {id: orp.view.NavbarView.elementId.MENU});
+   var rootView = this.getRootView();
+-  for (key in listOfPages) {
+-    page = listOfPages[key];
++  for (key in this._listOfPages) {
++    page = this._listOfPages[key];
+     page.addObserver(this);
+     var menuUrl = rootView.getUrlForItem(page);
+     var menuText = page.getDisplayString();
+-    // Caution: 
+-    // In order for us to use the &quot;Sortable&quot; feature in the script.aculo.us 
+-    // dragdrop.js library, this menuItemId must have exactly one underscore in
+-    // it, with the id for the whole menu is to the left of the underscore, and
+-    // the id for the individual menu item to the right of the underscore.
+-    var menuItemId = orp.view.NavbarView.elementId.MENU + '_' + page.getUuidString();
+-    var liElement = orp.view.View.appendNewElement(ulElement, &quot;li&quot;, orp.view.NavbarView.cssClass.MENU_ITEM, {id: menuItemId});
++    var liElement = orp.view.View.appendNewElement(ulElement, &quot;li&quot;, orp.view.NavbarView.cssClass.MENU_ITEM, 
++                                                   {uuid: page.getUuidString()});
+     if (page == this.getRootView().getCurrentPage()) {orp.util.css_addClass(liElement, orp.view.NavbarView.cssClass.SELECTED);}
+     var anchorElement = orp.view.View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
+-    
++
+     dojo.event.connect(anchorElement, &quot;onclick&quot;, orp.view.RootView.clickOnLocalLink);
+-    dojo.event.connect(liElement, &quot;onmousedown&quot;, this, &quot;_mouseDownOnMenuItem&quot;);
++    if (this.isInEditMode()) {
++      new dojo.dnd.HtmlDragSource(liElement, &quot;pageCell&quot;);
++    }
+   }
+-  var listener = this;
+   this._builtForEditMode = this.isInEditMode();
+   if (this._builtForEditMode) {
+-    Sortable.create(orp.view.NavbarView.elementId.MENU, {
+-      onUpdate: function(element){ listener._sortOrderUpdate(element);}
+-    });
++    var dropTarget = new dojo.dnd.HtmlDropTarget(ulElement, [&quot;pageCell&quot;]);
++    dojo.event.connect(dropTarget, &quot;onDrop&quot;, this, &quot;_handleDrop&quot;);
+   }
+   
+   var newPageButton = orp.view.View.appendNewElement(divElement, &quot;input&quot;, orp.view.RootView.cssClass.EDIT_TOOL);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000410.html">[openrecord-svn] r429 - trunk/third_party
+</A></li>
+	<LI>Next message: <A HREF="000412.html">[openrecord-svn] r431 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#411">[ date ]</a>
+              <a href="thread.html#411">[ thread ]</a>
+              <a href="subject.html#411">[ subject ]</a>
+              <a href="author.html#411">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

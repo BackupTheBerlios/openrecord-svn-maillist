@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r440 - in trunk/source: . view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r440%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200602070558.k175wDhm006266%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000420.html">
+   <LINK REL="Next"  HREF="000422.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r440 - in trunk/source: . view</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r440%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200602070558.k175wDhm006266%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r440 - in trunk/source: . view">mignon at berlios.de
+       </A><BR>
+    <I>Tue Feb  7 06:58:13 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000420.html">[openrecord-svn] r439 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000422.html">[openrecord-svn] r441 - in trunk: source source/util tests/view third_party
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#421">[ date ]</a>
+              <a href="thread.html#421">[ thread ]</a>
+              <a href="subject.html#421">[ subject ]</a>
+              <a href="author.html#421">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-02-07 06:58:07 +0100 (Tue, 07 Feb 2006)
+New Revision: 440
+
+Modified:
+   trunk/source/OpenRecordLoader.js
+   trunk/source/view/RootView.js
+   trunk/source/view/SectionView.js
+Log:
+Two new lines to specify a div for dojo.debug, plus Brian's fix to avoid loading already loaded plugins.
+
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2006-02-07 04:32:19 UTC (rev 439)
++++ trunk/source/OpenRecordLoader.js	2006-02-07 05:58:07 UTC (rev 440)
+@@ -88,6 +88,7 @@
+ // This code is immediately executed when this file is first loaded.
+ // -------------------------------------------------------------------
+ var djConfig = {
++  debugContainerId: &quot;dojoDebug&quot;,
+   isDebug: true, 
+   debugAtAllCosts: true
+ };
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2006-02-07 04:32:19 UTC (rev 439)
++++ trunk/source/view/RootView.js	2006-02-07 05:58:07 UTC (rev 440)
+@@ -112,6 +112,7 @@
+   var contentAreaDiv = orp.view.View.appendNewElement(rootDiv, &quot;div&quot;, &quot;content_area&quot;);
+   this._contentViewDivElement = orp.view.View.appendNewElement(contentAreaDiv, &quot;div&quot;);
+   this._debugDivElement = orp.view.View.appendNewElement(rootDiv, &quot;div&quot;, &quot;debug&quot;);
++  this._dojoDebugDivElement = orp.view.View.appendNewElement(rootDiv, &quot;div&quot;, null, {'id':&quot;dojoDebug&quot;});
+ 
+   var footerP = orp.view.View.appendNewElement(rootDiv, &quot;p&quot;, &quot;footer&quot;);
+   var copyrightSpan = orp.view.View.appendNewElement(footerP, &quot;span&quot;, &quot;copyright&quot;);
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2006-02-07 04:32:19 UTC (rev 439)
++++ trunk/source/view/SectionView.js	2006-02-07 05:58:07 UTC (rev 440)
+@@ -447,6 +447,11 @@
+  * @param    newPluginClass    A JavaScript class, such as TablePlugin.
+  */    
+ orp.view.SectionView.prototype._addNewItemForNewPluginClass = function(world, newPluginClass) {
++  var pluginItemUuid = newPluginClass.getPluginItemUuid();
++  var existingItem = world.getItemFromUuid(pluginItemUuid);
++  if (existingItem) {
++    return existingItem;
++  }
+   world.beginTransaction();
+   var newItem = world.importItem(newPluginClass.getPluginItemUuid());
+   var entries = newPluginClass.getEntriesForItemRepresentingPluginClass(newItem, world);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000420.html">[openrecord-svn] r439 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000422.html">[openrecord-svn] r441 - in trunk: source source/util tests/view third_party
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#421">[ date ]</a>
+              <a href="thread.html#421">[ thread ]</a>
+              <a href="subject.html#421">[ subject ]</a>
+              <a href="author.html#421">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

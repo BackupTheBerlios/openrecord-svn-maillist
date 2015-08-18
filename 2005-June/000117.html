@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r130 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r130%20-%20trunk/source&In-Reply-To=%3C200506102255.j5AMtZnd001953%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000116.html">
+   <LINK REL="Next"  HREF="000118.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r130 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r130%20-%20trunk/source&In-Reply-To=%3C200506102255.j5AMtZnd001953%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r130 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 11 00:55:35 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000116.html">[openrecord-svn] r128 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000118.html">[openrecord-svn] r131 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#117">[ date ]</a>
+              <a href="thread.html#117">[ thread ]</a>
+              <a href="subject.html#117">[ subject ]</a>
+              <a href="author.html#117">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-11 00:55:22 +0200 (Sat, 11 Jun 2005)
+New Revision: 130
+
+Modified:
+   trunk/source/Util.js
+   trunk/source/UtilTest.js
+Log:
+minor tweaks
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-10 21:37:34 UTC (rev 129)
++++ trunk/source/Util.js	2005-06-10 22:55:22 UTC (rev 130)
+@@ -646,6 +646,11 @@
+     Util._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(Util.HEX_RADIX);
+   }
+ 
++  // Maybe someday think about trying to make the code more readable to
++  // newcomers by creating a class called &quot;WholeNumber&quot; that encapsulates
++  // the methods and data structures for working with these arrays that 
++  // hold 4 16-bit numbers?  And then these variables below have names  
++  // like &quot;wholeSecondsPerHour&quot; rather than &quot;arraySecondsPerHour&quot;?
+   var now = new Date();
+   var nowArray = Util.get64bitArrayFromFloat(now.valueOf());
+   var arraySecondsPerHour = Util.get64bitArrayFromFloat(60 * 60);
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-06-10 21:37:34 UTC (rev 129)
++++ trunk/source/UtilTest.js	2005-06-10 22:55:22 UTC (rev 130)
+@@ -195,7 +195,50 @@
+ }
+ 
+ function testMethodsForWorkingWithTimeBasedUuids() {
++  var uuid1 = Util.generateTimeBasedUuid();
++  var uuid2 = Util.generateTimeBasedUuid();
++  var uuid3 = Util.generateTimeBasedUuid();
++  
++  subtestOnUuid(uuid1);
++  subtestOnUuid(uuid2);
++  subtestOnUuid(uuid3);
++
++  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
++  assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
++  
++  var arrayOfParts = uuid1.split(&quot;-&quot;);
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
++
++  var section4 = arrayOfParts[4];
++  var firstChar = section4.charAt(0);
++  var hexFirstChar = parseInt(firstChar, Util.HEX_RADIX);
++  binaryString = hexFirstChar.toString(2);
++  var firstBit;
++  if (binaryString.length == 4) {
++    firstBit = binaryString.charAt(0);
++  } else {
++    firstBit = '0';
++  }
++  // alert(&quot;firstChar = &quot; + firstChar + &quot;\n as number = &quot; + hexFirstChar + 
++  //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
++  assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
++
++  var uuid4 = Util.generateTimeBasedUuid(&quot;123456789ABC&quot;);
++  subtestOnUuid(uuid4);
++  arrayOfParts = uuid4.split(&quot;-&quot;);
++  section4 = arrayOfParts[4];
++  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
++
++  /* 
++  // Old code that Brian wrote to try to get a sense of how
++  // many UUIDs we can create in a single millisecond 
+   var array = [];
++  var now = new Date();
++  var then = new Date();
++  while (now.valueOf() == then.valueOf()) {
++    then = new Date();
++  }
+   array.push(Util.generateTimeBasedUuid());
+   array.push(Util.generateTimeBasedUuid());
+   array.push(Util.generateTimeBasedUuid());
+@@ -220,7 +263,7 @@
+   array.push(Util.generateTimeBasedUuid());
+   array.push(Util.generateTimeBasedUuid());
+   array.push(Util.generateTimeBasedUuid());
+-  /* alert(array[0] + &quot;\n&quot; + 
++  alert(array[0] + &quot;\n&quot; + 
+         array[1] + &quot;\n&quot; + 
+         array[2] + &quot;\n&quot; + 
+         array[3] + &quot;\n&quot; + 
+@@ -241,44 +284,6 @@
+         array[18] + &quot;\n&quot; + 
+         array[19] + &quot;\n&quot;);
+   */
+-  
+-  // var now = new Date();
+-  var uuid1 = Util.generateTimeBasedUuid();
+-  var uuid2 = Util.generateTimeBasedUuid();
+-  var uuid3 = Util.generateTimeBasedUuid();
+-  // var then = new Date();
+-  // alert(now.valueOf() + &quot;\n&quot; +  then.valueOf());
+-  
+-  subtestOnUuid(uuid1);
+-  subtestOnUuid(uuid2);
+-  subtestOnUuid(uuid3);
+-
+-  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
+-  assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
+-  
+-  var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
+-
+-  var section4 = arrayOfParts[4];
+-  var firstChar = section4.charAt(0);
+-  var hexFirstChar = parseInt(firstChar, Util.HEX_RADIX);
+-  binaryString = hexFirstChar.toString(2);
+-  var firstBit;
+-  if (binaryString.length == 4) {
+-    firstBit = binaryString.charAt(0);
+-  } else {
+-    firstBit = '0';
+-  }
+-  // alert(&quot;firstChar = &quot; + firstChar + &quot;\n as number = &quot; + hexFirstChar + 
+-  //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+-  assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+-
+-  var uuid4 = Util.generateTimeBasedUuid(&quot;123456789ABC&quot;);
+-  subtestOnUuid(uuid4);
+-  arrayOfParts = uuid4.split(&quot;-&quot;);
+-  section4 = arrayOfParts[4];
+-  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
+ }
+ 
+ function tearDown() {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000116.html">[openrecord-svn] r128 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000118.html">[openrecord-svn] r131 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#117">[ date ]</a>
+              <a href="thread.html#117">[ thread ]</a>
+              <a href="subject.html#117">[ subject ]</a>
+              <a href="author.html#117">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

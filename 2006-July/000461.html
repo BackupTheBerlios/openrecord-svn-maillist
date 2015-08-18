@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r481 - trunk/source/plugins
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r481%20-%20trunk/source/plugins&In-Reply-To=%3C200607130541.k6D5f657002186%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000460.html">
+   <LINK REL="Next"  HREF="000462.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r481 - trunk/source/plugins</H1>
+    <B>hiran at berlios.de</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r481%20-%20trunk/source/plugins&In-Reply-To=%3C200607130541.k6D5f657002186%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r481 - trunk/source/plugins">hiran at berlios.de
+       </A><BR>
+    <I>Thu Jul 13 07:41:06 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000460.html">[openrecord-svn] r480 - trunk/source/plugins
+</A></li>
+        <LI>Next message: <A HREF="000462.html">[openrecord-svn] r482 - trunk/source/plugins
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#461">[ date ]</a>
+              <a href="thread.html#461">[ thread ]</a>
+              <a href="subject.html#461">[ subject ]</a>
+              <a href="author.html#461">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: hiran
+Date: 2006-07-13 07:40:54 +0200 (Thu, 13 Jul 2006)
+New Revision: 481
+
+Modified:
+   trunk/source/plugins/ScatterPlot.js
+Log:
+Removed some alert statements
+
+Modified: trunk/source/plugins/ScatterPlot.js
+===================================================================
+--- trunk/source/plugins/ScatterPlot.js	2006-07-13 05:18:59 UTC (rev 480)
++++ trunk/source/plugins/ScatterPlot.js	2006-07-13 05:40:54 UTC (rev 481)
+@@ -109,14 +109,21 @@
+ orp.plugins.ScatterPlot.prototype.refresh = function() {
+ 	var pluginDiv = this.getHtmlElement();
+ 	orp.view.View.removeChildrenOfElement(pluginDiv);
+-	pluginDiv.appendChild(this._setElementsForSelection());
+-	var divForChartWidget = orp.view.View.newElement(&quot;div&quot;);
+-	divForChartWidget.innerHTML = this._getHtmlTextForChart();
+-
+-	var parser = new dojo.xml.Parse();
+-	var fragment = parser.parseElement(divForChartWidget, null, true);
+-	dojo.widget.getParser().createComponents(fragment);  
+-	pluginDiv.appendChild(divForChartWidget);
++	var displayObject = this._setElementsForSelection();
++	if(displayObject) {
++		pluginDiv.appendChild(displayObject);
++		var divForChartWidget = orp.view.View.newElement(&quot;div&quot;);
++		divForChartWidget.innerHTML = this._getHtmlTextForChart();
++	
++		var parser = new dojo.xml.Parse();
++		var fragment = parser.parseElement(divForChartWidget, null, true);
++		dojo.widget.getParser().createComponents(fragment);  
++		pluginDiv.appendChild(divForChartWidget);
++	} else {						
++		var displayString = &quot;Sorry, the number of attributes with numeric instances are insufficient to display the scatter plot&quot;;
++		var spanObject = orp.view.View.newElement(&quot;span&quot;, null, null, displayString);
++		pluginDiv.appendChild(spanObject);
++	}
+ };
+ 
+ /**
+@@ -176,10 +183,8 @@
+ 	for(var tempAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
+ 		this._numberOfSelectableAttributes = this._numberOfSelectableAttributes + 1;
+ 	}
+-	if(this._numberOfSelectableAttributes &lt; 2) {				
+-		var displayString = &quot;Sorry, the number of attributes with numeric instances are insufficient to display the scatter plot&quot;;
+-		var spanObject = orp.view.View.newElement(&quot;span&quot;, null, null, displayString);
+-		return spanObject;
++	if(this._numberOfSelectableAttributes &lt; 2) {
++		return;
+ 	} else {
+ 		if(!hasStoredAttributes) {		
+ 			for (var plotAttributeUuid in this._hashTableOfAttributesKeyedByUuid) {
+@@ -369,7 +374,6 @@
+ 	if (layoutItem) {
+ 		var attributeCalledSelectedAttribute = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SELECTED_ATTRIBUTES);
+ 		var listOfSelectedAttributes = layoutItem.getEntriesForAttribute(attributeCalledSelectedAttribute);
+-		alert(listOfSelectedAttributes);
+ 		if (listOfSelectedAttributes.length == 3) {
+ 			isComplete = true;
+ 			isBubblePlot = true;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000460.html">[openrecord-svn] r480 - trunk/source/plugins
+</A></li>
+	<LI>Next message: <A HREF="000462.html">[openrecord-svn] r482 - trunk/source/plugins
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#461">[ date ]</a>
+              <a href="thread.html#461">[ thread ]</a>
+              <a href="subject.html#461">[ subject ]</a>
+              <a href="author.html#461">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

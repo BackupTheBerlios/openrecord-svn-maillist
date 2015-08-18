@@ -1,0 +1,664 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r351 - trunk/source/archive
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r351%20-%20trunk/source/archive&In-Reply-To=%3C200510062323.j96NNl6g024069%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000333.html">
+   <LINK REL="Next"  HREF="000335.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r351 - trunk/source/archive</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r351%20-%20trunk/source/archive&In-Reply-To=%3C200510062323.j96NNl6g024069%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r351 - trunk/source/archive">skinner at berlios.de
+       </A><BR>
+    <I>Fri Oct  7 01:23:47 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000333.html">[openrecord-svn] r350 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000335.html">[openrecord-svn] r352 - in trunk: documentation source source/archive source/model source/util source/uuid tests tests/model tests/util tests/uuid
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#334">[ date ]</a>
+              <a href="thread.html#334">[ thread ]</a>
+              <a href="subject.html#334">[ subject ]</a>
+              <a href="author.html#334">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-07 01:23:31 +0200 (Fri, 07 Oct 2005)
+New Revision: 351
+
+Added:
+   trunk/source/archive/JsonFormat.js
+Modified:
+   trunk/source/archive/DeltaArchive.js
+   trunk/source/archive/JsonDeserializer.js
+   trunk/source/archive/JsonSerializer.js
+   trunk/source/archive/StubArchive.js
+Log:
+Minor clean-up work on the code in the archive directory.
+
+Modified: trunk/source/archive/DeltaArchive.js
+===================================================================
+--- trunk/source/archive/DeltaArchive.js	2005-10-05 03:29:29 UTC (rev 350)
++++ trunk/source/archive/DeltaArchive.js	2005-10-06 23:23:31 UTC (rev 351)
+@@ -41,7 +41,7 @@
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;orp.archive.JsonSerializer&quot;);
+ dojo.require(&quot;orp.archive.JsonDeserializer&quot;);
+-dojo.require(&quot;orp.archive.Bootstrapper&quot;);
++dojo.require(&quot;orp.archive.ArchiveLoader&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -103,9 +103,9 @@
+     repositoryUrl = this._completePathToTrunkDirectory + '/';
+   }
+   repositoryUrl += orp.archive.DeltaArchive.PATH_TO_REPOSITORY_DIRECTORY + &quot;/&quot; + repositoryFileName;
+-  // var repositoryContentString = orp.util.getStringContentsOfFileAtURL(repositoryUrl);
+   var repositoryContentString = dojo.hostenv.getText(repositoryUrl);
+-  repositoryContentString += &quot; ] }&quot;;
++  var jsonFormat = new orp.archive.JsonFormat();
++  repositoryContentString += jsonFormat.getRepositoryFooter();
+ 
+   this._loadWorldFromJsonString(repositoryContentString);
+ };
+@@ -125,25 +125,9 @@
+  * @param    jsonRepositoryString    A JSON string literal representing the world of items. 
+  */
+ orp.archive.DeltaArchive.prototype._loadWorldFromJsonString = function(jsonRepositoryString) {
+-  var bootstrapper = new orp.archive.Bootstrapper(this);
+-  var deserializer = new orp.archive.JsonDeserializer(bootstrapper);
++  var archiveLoader = new orp.archive.ArchiveLoader(this);
++  var deserializer = new orp.archive.JsonDeserializer(archiveLoader);
+   deserializer.deserializeFromString(jsonRepositoryString);
+-  
+-  /*
+-  // load the list of records
+-  orp.lang.assertType(jsonRepositoryString, String);
+-  var dehydratedRecords = null;
+-  eval(&quot;dehydratedRecords = &quot; + jsonRepositoryString + &quot;;&quot;);
+-  orp.lang.assertType(dehydratedRecords, Object);
+-  var recordFormat = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.FORMAT];
+-  orp.lang.assert(recordFormat == orp.archive.StubArchive.JSON_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST);
+-  var listOfRecords = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.RECORDS];
+-  orp.lang.assertType(listOfRecords, Array);
+-  
+-  var listOfUsers = null;
+-  
+-  this._rehydrateRecords(listOfRecords);
+-  */
+ };
+ 
+ 
+@@ -172,11 +156,8 @@
+     }
+     return false;
+   }
+-  var text = '{ &quot;format&quot;: &quot;' + orp.archive.StubArchive.JSON_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST + '&quot;, \n';
+-  text +=    '  &quot;records&quot;: [\n';
+-  text +=    '  // =======================================================================\n';
+-  text +=    '  { &quot;Transaction&quot;: [ ]\n';
+-  text +=    '  }';
++  var jsonSerializer = new orp.archive.JsonSerializer(this);
++  var text = jsonSerializer.getRepositoryHeader();
+   return this._saverObject.writeText(text, overwriteIfExists);
+ };
+ 
+
+Modified: trunk/source/archive/JsonDeserializer.js
+===================================================================
+--- trunk/source/archive/JsonDeserializer.js	2005-10-05 03:29:29 UTC (rev 350)
++++ trunk/source/archive/JsonDeserializer.js	2005-10-06 23:23:31 UTC (rev 351)
+@@ -32,9 +32,9 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.archive.JsonDeserializer&quot;);
++dojo.require(&quot;orp.archive.JsonFormat&quot;);
+ dojo.require(&quot;orp.archive.TextEncoding&quot;);
+-dojo.require(&quot;orp.archive.StubArchive&quot;);      // FIXME: we should try to remove this dependency
+-dojo.require(&quot;orp.archive.Bootstrapper&quot;);
++dojo.require(&quot;orp.archive.ArchiveLoader&quot;);
+ dojo.require(&quot;orp.util.DateValue&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ 
+@@ -50,13 +50,16 @@
+  * JsonSerializer class provides.
+  *
+  * @scope    public instance constructor
+- * @param    bootstrapper    The orp.archive.StubArchive instance that this serializer is working for.
++ * @param    archiveLoader    The orp.archive.ArchiveLoader instance that this serializer is working for.
+  */
+-orp.archive.JsonDeserializer = function(bootstrapper) {
+-  this._bootstrapper = bootstrapper;
++orp.archive.JsonDeserializer = function(archiveLoader) {
++  orp.archive.JsonFormat.call(this);
++  this._archiveLoader = archiveLoader;
+ };
+ 
++dj_inherits(orp.archive.JsonDeserializer, orp.archive.JsonFormat);  // makes JsonDeserializer be a subclass of JsonFormat
+ 
++
+ // -------------------------------------------------------------------
+ // Public methods
+ // -------------------------------------------------------------------
+@@ -74,9 +77,9 @@
+   dehydratedRecords = eval(&quot;(&quot; + jsonString + &quot;)&quot;);
+   
+   orp.lang.assertType(dehydratedRecords, Object);
+-  var recordFormat = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.FORMAT];
+-  orp.lang.assert(recordFormat == orp.archive.StubArchive.JSON_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST);
+-  var listOfRecords = dehydratedRecords[orp.archive.StubArchive.JSON_MEMBER.RECORDS];
++  var recordFormat = dehydratedRecords[orp.archive.JsonFormat.JSON_MEMBER.FORMAT];
++  orp.lang.assert(recordFormat == orp.archive.JsonFormat.FILE_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST);
++  var listOfRecords = dehydratedRecords[orp.archive.JsonFormat.JSON_MEMBER.RECORDS];
+   orp.lang.assertType(listOfRecords, Array);
+   
+   this._rehydrateRecords(listOfRecords);
+@@ -88,13 +91,13 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Returns the bootstrapper object we were provided with in our constructor.
++ * Returns the archiveLoader object we were provided with in our constructor.
+  *
+  * @scope    private instance method
+- * @return   The bootstrapper object we were given in our constructor.
++ * @return   The archiveLoader object we were given in our constructor.
+  */
+-orp.archive.JsonDeserializer.prototype._getBootstrapper = function() {
+-  return this._bootstrapper;
++orp.archive.JsonDeserializer.prototype._getArchiveLoader = function() {
++  return this._archiveLoader;
+ };
+ 
+ 
+@@ -110,9 +113,9 @@
+   var item;
+   var contentRecordUuid;
+   var contentRecord;
+-  var JSON_MEMBER = orp.archive.StubArchive.JSON_MEMBER;
+-  var bootstrapper = this._getBootstrapper();
+-  var world = bootstrapper.getWorld();
++  var JSON_MEMBER = orp.archive.JsonFormat.JSON_MEMBER;
++  var archiveLoader = this._getArchiveLoader();
++  var world = archiveLoader.getWorld();
+ 
+   for (key in listOfDehydratedRecords) {
+     var dehydratedRecord = listOfDehydratedRecords[key];
+@@ -130,15 +133,15 @@
+         
+       if (dehydratedItem) {
+         itemUuid = dehydratedItem[JSON_MEMBER.UUID];
+-        item = bootstrapper.getItemFromUuidOrBootstrapItem(itemUuid);
+-        bootstrapper.addRecordToChronologicalList(item);
++        item = archiveLoader.getItemFromUuidOrBootstrapItem(itemUuid);
++        archiveLoader.addRecordToChronologicalList(item);
+       }
+       
+       if (dehydratedUser) {
+         var userUuid = dehydratedUser[JSON_MEMBER.USER];
+         var userPasswordHash = dehydratedUser[JSON_MEMBER.PASSWORD];
+-        var user = bootstrapper.getItemFromUuidOrBootstrapItem(userUuid);
+-        bootstrapper.addUserToListOfUsers(user, userPasswordHash);
++        var user = archiveLoader.getItemFromUuidOrBootstrapItem(userUuid);
++        archiveLoader.addUserToListOfUsers(user, userPasswordHash);
+       }
+       
+       if (dehydratedVote) {
+@@ -153,55 +156,55 @@
+         }
+         orp.lang.assert(retainFlag !== null);
+         contentRecordUuid = dehydratedVote[JSON_MEMBER.RECORD];
+-        contentRecord = bootstrapper.getContentRecordFromUuid(contentRecordUuid);
++        contentRecord = archiveLoader.getContentRecordFromUuid(contentRecordUuid);
+         var vote = new orp.model.Vote(world, voteUuid, contentRecord, retainFlag);
+-        bootstrapper.addRecordToChronologicalList(vote);
++        archiveLoader.addRecordToChronologicalList(vote);
+       }
+       
+       if (dehydratedOrdinal) {
+         var ordinalUuid = dehydratedOrdinal[JSON_MEMBER.UUID];
+         var ordinalNumber = dehydratedOrdinal[JSON_MEMBER.ORDINAL_NUMBER];
+         contentRecordUuid = dehydratedOrdinal[JSON_MEMBER.RECORD];
+-        contentRecord = bootstrapper.getContentRecordFromUuid(contentRecordUuid);
++        contentRecord = archiveLoader.getContentRecordFromUuid(contentRecordUuid);
+         var ordinal = new orp.model.Ordinal(world, ordinalUuid, contentRecord, ordinalNumber);
+-        bootstrapper.addRecordToChronologicalList(ordinal);
++        archiveLoader.addRecordToChronologicalList(ordinal);
+       }
+       
+       if (dehydratedEntry) {
+         var entryUuid = dehydratedEntry[JSON_MEMBER.UUID];
+-        var entry = bootstrapper.getEntryFromUuidOrBootstrapEntry(entryUuid);
++        var entry = archiveLoader.getEntryFromUuidOrBootstrapEntry(entryUuid);
+         var previousEntryUuid = dehydratedEntry[JSON_MEMBER.PREVIOUS_VALUE];
+         var previousEntry = null;
+         if (previousEntryUuid) {
+-          previousEntry = bootstrapper.getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
++          previousEntry = archiveLoader.getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
+         }
+  
+         var dataTypeUuid = dehydratedEntry[JSON_MEMBER.TYPE];
+-        var dataType = bootstrapper.getItemFromUuidOrBootstrapItem(dataTypeUuid);
++        var dataType = archiveLoader.getItemFromUuidOrBootstrapItem(dataTypeUuid);
+         
+         if (dataTypeUuid == orp.model.World.UUID.TYPE_CONNECTION) {
+           var listOfItemUuids = dehydratedEntry[JSON_MEMBER.ITEM];
+           var firstItemUuid = listOfItemUuids[0];
+           var secondItemUuid = listOfItemUuids[1];
+-          var firstItem = bootstrapper.getItemFromUuidOrBootstrapItem(firstItemUuid);
+-          var secondItem = bootstrapper.getItemFromUuidOrBootstrapItem(secondItemUuid);
++          var firstItem = archiveLoader.getItemFromUuidOrBootstrapItem(firstItemUuid);
++          var secondItem = archiveLoader.getItemFromUuidOrBootstrapItem(secondItemUuid);
+ 
+           var listOfAttributeUuids = dehydratedEntry[JSON_MEMBER.ATTRIBUTE];
+           var firstAttributeUuid = listOfAttributeUuids[0];
+           var secondAttributeUuid = listOfAttributeUuids[1];
+-          var firstAttribute = bootstrapper.getItemFromUuidOrBootstrapItem(firstAttributeUuid);
+-          var secondAttribute = bootstrapper.getItemFromUuidOrBootstrapItem(secondAttributeUuid);
++          var firstAttribute = archiveLoader.getItemFromUuidOrBootstrapItem(firstAttributeUuid);
++          var secondAttribute = archiveLoader.getItemFromUuidOrBootstrapItem(secondAttributeUuid);
+           
+           var pairOfItems = [firstItem, secondItem];
+           var pairOfAttributes = [firstAttribute, secondAttribute];
+           entry._rehydrate(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
+         } else {
+           itemUuid = dehydratedEntry[JSON_MEMBER.ITEM];
+-          item = bootstrapper.getItemFromUuidOrBootstrapItem(itemUuid);
++          item = archiveLoader.getItemFromUuidOrBootstrapItem(itemUuid);
+           var attributeUuid = dehydratedEntry[JSON_MEMBER.ATTRIBUTE];
+           var attribute = null;
+           if (attributeUuid) {
+-            attribute = bootstrapper.getItemFromUuidOrBootstrapItem(attributeUuid);
++            attribute = archiveLoader.getItemFromUuidOrBootstrapItem(attributeUuid);
+           } else {
+             orp.lang.assert(false); // the attributeUuid should always be there
+           }
+@@ -209,7 +212,7 @@
+           var finalData = null;
+           switch (dataTypeUuid) {
+             case orp.model.World.UUID.TYPE_ITEM:
+-              finalData = bootstrapper.getItemFromUuidOrBootstrapItem(rawData);
++              finalData = archiveLoader.getItemFromUuidOrBootstrapItem(rawData);
+               break;
+             case orp.model.World.UUID.TYPE_TEXT:
+               finalData = orp.archive.TextEncoding.decodeText(rawData);
+@@ -229,7 +232,7 @@
+           }
+           entry._rehydrate(item, attribute, finalData, previousEntry, dataType);
+         }
+-        bootstrapper.addRecordToChronologicalList(entry);
++        archiveLoader.addRecordToChronologicalList(entry);
+       }
+       
+     }
+
+Added: trunk/source/archive/JsonFormat.js
+===================================================================
+--- trunk/source/archive/JsonFormat.js	2005-10-05 03:29:29 UTC (rev 350)
++++ trunk/source/archive/JsonFormat.js	2005-10-06 23:23:31 UTC (rev 351)
+@@ -0,0 +1,116 @@
++/*****************************************************************************
++ JsonFormat.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.archive.JsonFormat&quot;);
++
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++/**
++ * The JsonFormat class knows some basic things about our
++ * JSON repository format.  JsonFormat serves as the base
++ * class for the JsonSerializer and JsonDeserializer.
++ *
++ * @scope    public instance constructor
++ */
++orp.archive.JsonFormat = function() {
++  // no need to do anything
++};
++
++
++// -------------------------------------------------------------------
++// Public methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a string, containing the JavaScript &quot;object literal&quot;
++ * fragment needed as the header for new repositories.
++ *
++ * @scope    public instance method
++ * @return   A JSON fragment used for initializing new repositories. 
++ */
++orp.archive.JsonFormat.prototype.getRepositoryHeader = function() {
++  var text = '{ &quot;format&quot;: &quot;' + orp.archive.JsonFormat.FILE_FORMAT.FORMAT_2005_JUNE_CHRONOLOGICAL_LIST + '&quot;, \n';
++  text +=    '  &quot;records&quot;: [\n';
++  text +=    '  // =======================================================================\n';
++  text +=    '  { &quot;Transaction&quot;: [ ]\n';
++  text +=    '  }';
++  return text;
++};
++
++
++/**
++ * Returns a string, containing the JavaScript &quot;object literal&quot; fragment
++ * needed to match the header string returned by getRepositoryHeader().
++ *
++ * @scope    public instance method
++ * @return   A JSON fragment used for initializing new repositories. 
++ */
++orp.archive.JsonFormat.prototype.getRepositoryFooter = function() {
++  return &quot; ] }&quot;;
++};
++
++
++// -------------------------------------------------------------------
++// Public constants
++// -------------------------------------------------------------------
++
++orp.archive.JsonFormat.FILE_FORMAT = {
++  FORMAT_2005_JUNE_CHRONOLOGICAL_LIST: &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot; };
++
++orp.archive.JsonFormat.JSON_MEMBER = {
++  FORMAT: &quot;format&quot;,
++  RECORDS: &quot;records&quot;,
++  TYPE: &quot;type&quot;,
++  VALUE: &quot;value&quot;,
++  UUID: &quot;uuid&quot;,
++  USER: &quot;user&quot;,
++  PASSWORD: &quot;password&quot;,
++  ITEM_CLASS: &quot;Item&quot;,
++  ENTRY_CLASS: &quot;Entry&quot;,
++  VOTE_CLASS: &quot;Vote&quot;,
++  ORDINAL_CLASS: &quot;Ordinal&quot;,
++  USER_CLASS: &quot;User&quot;,
++  TRANSACTION_CLASS: &quot;Transaction&quot;,
++  ATTRIBUTE: &quot;attribute&quot;,
++  PREVIOUS_VALUE: &quot;previousEntry&quot;,
++  RECORD: &quot;record&quot;,
++  ITEM: &quot;item&quot;,
++  RETAIN_FLAG: &quot;retainFlag&quot;,
++  ORDINAL_NUMBER: &quot;value&quot; };
++  
++  
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/archive/JsonSerializer.js
+===================================================================
+--- trunk/source/archive/JsonSerializer.js	2005-10-05 03:29:29 UTC (rev 350)
++++ trunk/source/archive/JsonSerializer.js	2005-10-06 23:23:31 UTC (rev 351)
+@@ -32,6 +32,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.archive.JsonSerializer&quot;);
++dojo.require(&quot;orp.archive.JsonFormat&quot;);
+ dojo.require(&quot;orp.archive.TextEncoding&quot;);
+ dojo.require(&quot;orp.archive.StubArchive&quot;);    // FIXME: we should try to remove this dependency
+ dojo.require(&quot;orp.model.Transaction&quot;);
+@@ -51,10 +52,13 @@
+  * @param    archive    The orp.archive.StubArchive instance that this serializer is working for.
+  */
+ orp.archive.JsonSerializer = function(archive) {
++  orp.archive.JsonFormat.call(this);
+   this._archive = archive;  // FIXME: we should try to remove this dependency on orp.archive.StubArchive
+ };
+ 
++dj_inherits(orp.archive.JsonSerializer, orp.archive.JsonFormat);  // makes JsonSerializer be a subclass of JsonFormat
+ 
++
+ // -------------------------------------------------------------------
+ // Public methods
+ // -------------------------------------------------------------------
+@@ -82,7 +86,7 @@
+     indent = &quot;    &quot;;
+     var listOfStrings = [];
+     listOfStrings.push(&quot;  // =======================================================================\n&quot;);
+-    listOfStrings.push('  { &quot;' + orp.archive.StubArchive.JSON_MEMBER.TRANSACTION_CLASS + '&quot;: [\n');
++    listOfStrings.push('  { &quot;' + orp.archive.JsonFormat.JSON_MEMBER.TRANSACTION_CLASS + '&quot;: [\n');
+     var content = this._getJsonStringRepresentingRecords(transaction.getRecords(), indent);
+     listOfStrings.push(content);
+     listOfStrings.push('  ]\n');
+@@ -117,7 +121,7 @@
+   var listOfUsers = null;
+   var commentString;
+   var generateComments = false;
+-  var JSON_MEMBER = orp.archive.StubArchive.JSON_MEMBER;
++  var JSON_MEMBER = orp.archive.JsonFormat.JSON_MEMBER;
+ 
+   if (!generateComments) {
+     indent = &quot;&quot;;
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-10-05 03:29:29 UTC (rev 350)
++++ trunk/source/archive/StubArchive.js	2005-10-06 23:23:31 UTC (rev 351)
+@@ -32,7 +32,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.archive.StubArchive&quot;);
+-dojo.provide(&quot;orp.archive.Bootstrapper&quot;);
++dojo.provide(&quot;orp.archive.ArchiveLoader&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.model.Entry&quot;);
+@@ -79,34 +79,6 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Public constants
+-// -------------------------------------------------------------------
+-orp.archive.StubArchive.JSON_FORMAT = {
+-  FORMAT_2005_JUNE_CHRONOLOGICAL_LIST: &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot; };
+-
+-orp.archive.StubArchive.JSON_MEMBER = {
+-  FORMAT: &quot;format&quot;,
+-  RECORDS: &quot;records&quot;,
+-  TYPE: &quot;type&quot;,
+-  VALUE: &quot;value&quot;,
+-  UUID: &quot;uuid&quot;,
+-  USER: &quot;user&quot;,
+-  PASSWORD: &quot;password&quot;,
+-  ITEM_CLASS: &quot;Item&quot;,
+-  ENTRY_CLASS: &quot;Entry&quot;,
+-  VOTE_CLASS: &quot;Vote&quot;,
+-  ORDINAL_CLASS: &quot;Ordinal&quot;,
+-  USER_CLASS: &quot;User&quot;,
+-  TRANSACTION_CLASS: &quot;Transaction&quot;,
+-  ATTRIBUTE: &quot;attribute&quot;,
+-  PREVIOUS_VALUE: &quot;previousEntry&quot;,
+-  RECORD: &quot;record&quot;,
+-  ITEM: &quot;item&quot;,
+-  RETAIN_FLAG: &quot;retainFlag&quot;,
+-  ORDINAL_NUMBER: &quot;value&quot; };
+-
+-
+-// -------------------------------------------------------------------
+ // Private methods
+ // -------------------------------------------------------------------
+ 
+@@ -763,11 +735,10 @@
+ orp.archive.StubArchive.prototype._loadAxiomaticItemsFromFileAtURL = function(url) {
+   var fileContentString = dojo.hostenv.getText(url);
+   orp.lang.assertType(fileContentString, String);
+-  fileContentString += &quot; ] }&quot;;
+   
+-  var bootstrapper = new orp.archive.Bootstrapper(this);
+-  
+-  var deserializer = new orp.archive.JsonDeserializer(bootstrapper);
++  var archiveLoader = new orp.archive.ArchiveLoader(this);
++  var deserializer = new orp.archive.JsonDeserializer(archiveLoader);
++  fileContentString += deserializer.getRepositoryFooter();
+   deserializer.deserializeFromString(fileContentString);
+ };
+ 
+@@ -785,37 +756,39 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Bootstrapper helper class
++// ArchiveLoader helper class
+ // -------------------------------------------------------------------
+ 
+ /**
+- * The Bootstrapper class...
++ * The ArchiveLoader class provides a &quot;package-level&quot; interface to the 
++ * StubArchive class, which the deserialization code can use to load
++ * serialized records from disk or from over a network.
+  *
+  * @scope    public instance constructor
+- * @param    archive    The orp.archive.StubArchive instance that this bootstrapper is working for.
++ * @param    archive    The orp.archive.StubArchive instance that this ArchiveLoader is working for.
+  */
+-orp.archive.Bootstrapper = function(archive) {
++orp.archive.ArchiveLoader = function(archive) {
+   this._archive = archive;
+ };
+ 
+ 
+ // -------------------------------------------------------------------
+-// Bootstrapper private methods 
++// ArchiveLoader private methods 
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Returns the instance of orp.archive.StubArchive that this Bootstrapper is working for.
++ * Returns the instance of orp.archive.StubArchive that this ArchiveLoader is working for.
+  *
+  * @scope    private instance method
+  * @return   An instance of orp.archive.StubArchive.
+  */
+-orp.archive.Bootstrapper.prototype._getArchive = function() {
++orp.archive.ArchiveLoader.prototype._getArchive = function() {
+   return this._archive;
+ };
+ 
+ 
+ // -------------------------------------------------------------------
+-// Bootstrapper public methods
++// ArchiveLoader public methods
+ // -------------------------------------------------------------------
+ 
+ /**
+@@ -824,7 +797,7 @@
+  * @scope    public instance method
+  * @return   A World object. 
+  */
+-orp.archive.Bootstrapper.prototype.getWorld = function() {
++orp.archive.ArchiveLoader.prototype.getWorld = function() {
+   return this._getArchive().getWorld();
+ };
+ 
+@@ -838,7 +811,7 @@
+  * @param    inUuid    The UUID of the item to be returned. 
+  * @return   The item identified by the given UUID.
+  */
+-orp.archive.Bootstrapper.prototype.getItemFromUuidOrBootstrapItem = function(uuid) {
++orp.archive.ArchiveLoader.prototype.getItemFromUuidOrBootstrapItem = function(uuid) {
+   var archive = this._getArchive();
+   
+   var item = archive.getItemFromUuid(uuid);
+@@ -858,7 +831,7 @@
+  * @param    uuid    The UUID of the entry to be returned. 
+  * @return   The entry identified by the given UUID.
+  */
+-orp.archive.Bootstrapper.prototype.getEntryFromUuidOrBootstrapEntry = function(uuid) {
++orp.archive.ArchiveLoader.prototype.getEntryFromUuidOrBootstrapEntry = function(uuid) {
+   var archive = this._getArchive();
+ 
+   var entry = archive._hashTableOfEntriesKeyedByUuid[uuid];
+@@ -876,7 +849,7 @@
+  * @scope    public instance method
+  * @param    record    An orp.model.Record object. 
+  */
+-orp.archive.Bootstrapper.prototype.addRecordToChronologicalList = function(record) {
++orp.archive.ArchiveLoader.prototype.addRecordToChronologicalList = function(record) {
+   var archive = this._getArchive();
+   archive._chronologicalListOfRecords.push(record);
+ };
+@@ -889,7 +862,7 @@
+  * @param    user    An orp.model.Item object. 
+  * @param    userPasswordHash    A string with the user's password hash. 
+  */
+-orp.archive.Bootstrapper.prototype.addUserToListOfUsers = function(user, userPasswordHash) {
++orp.archive.ArchiveLoader.prototype.addUserToListOfUsers = function(user, userPasswordHash) {
+   var archive = this._getArchive();
+   archive._listOfUsers.push(user);
+   archive._hashTableOfUserAuthenticationInfo[user.getUuid()] = userPasswordHash;
+@@ -903,7 +876,7 @@
+  * @param    uuid    The UUID of the item or entry to be returned. 
+  * @return   The item or entry identified by the given UUID.
+  */
+-orp.archive.Bootstrapper.prototype.getContentRecordFromUuid = function(uuid) {
++orp.archive.ArchiveLoader.prototype.getContentRecordFromUuid = function(uuid) {
+   var archive = this._getArchive();
+ 
+   var item = archive.getItemFromUuid(uuid);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000333.html">[openrecord-svn] r350 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000335.html">[openrecord-svn] r352 - in trunk: documentation source source/archive source/model source/util source/uuid tests tests/model tests/util tests/uuid
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#334">[ date ]</a>
+              <a href="thread.html#334">[ thread ]</a>
+              <a href="subject.html#334">[ subject ]</a>
+              <a href="author.html#334">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r98 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r98%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505312225.j4VMPEpO004573%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000086.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r98 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r98%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505312225.j4VMPEpO004573%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r98 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun  1 00:25:14 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000086.html">[openrecord-svn] r99 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-01 00:25:14 +0200 (Wed, 01 Jun 2005)
+New Revision: 98
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/Util.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+Changed StubVirtualServer so that a &quot;null query&quot; returns a list of zero items, instead of returning a list of all items in the repository.  Changed TablePlugin so that even if query result set has zero items, the table still at least shows an empty column for the &quot;Name&quot; attribute. 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-31 21:51:09 UTC (rev 97)
++++ trunk/source/TablePlugin.js	2005-05-31 22:25:14 UTC (rev 98)
+@@ -155,6 +155,11 @@
+   }
+   this._hashTableOfEntries = hashTableOfEntries;
+   this._hashTableOfAttributes = hashTableOfAttributes;
++  if (Util.lengthOfHashTable(this._hashTableOfAttributes) &lt; 1) {
++    var attributeCalledName = this.getWorld().getAttributeCalledName();
++    var key = attributeCalledName.getUniqueKeyString();
++    this._hashTableOfAttributes[key] = attributeCalledName;
++  }
+ };
+ 
+ 
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-05-31 21:51:09 UTC (rev 97)
++++ trunk/source/Util.js	2005-05-31 22:25:14 UTC (rev 98)
+@@ -416,20 +416,42 @@
+   return true;
+ };
+ 
++
+ /**
++ * Returns the number of values in a hash table. 
++ * 
++ * @scope    public class method
++ * @param    inHashTable   A hashTable containing values.
++ * @return   The number of values in inHashTable.
++ */
++Util.lengthOfHashTable = function(inHashTable) {
++  Util.assert(Util.isHashTable(inHashTable));
++  var count = 0;
++  for (var key in inHashTable) {
++    count += 1;
++  }
++  return count;
++};
++
++
++/**
+  * Return the values of a HashTable in the form of an Array
+  * Analogous to Python hash.values() 
+  * 
+  * @scope    public class method
+- * @param    inHashTable   hashTable to be worked on
+- * @return   values of a HashTable in the form of an Array
++ * @param    inHashTable   A hashTable containing values.
++ * @return   An array containing the values that are in inHashTable.
+  */
+ Util.hashTableValues = function(inHashTable) {
+   Util.assert(Util.isHashTable(inHashTable));
+   var returnArray = [];
+-  for (var key in inHashTable) {returnArray.push(inHashTable[key]);}
++  for (var key in inHashTable) {
++    returnArray.push(inHashTable[key]);
++  }
+   return returnArray;
+ };
++
++
+ // -------------------------------------------------------------------
+ // Methods for doing encryption
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-31 21:51:09 UTC (rev 97)
++++ trunk/source/model/StubVirtualServer.js	2005-05-31 22:25:14 UTC (rev 98)
+@@ -471,12 +471,14 @@
+   }
+   
+   if (!isItemMatchingQuery &amp;&amp; !isCategoryMatchingQuery) {
++    /*
+     for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
+       item = this.__myHashTableOfItemsKeyedByUuid[uuid];
+       if (!item.hasBeenDeleted()) {
+         listOfQueryResultItems.push(item);
+       }
+     }
++    */
+   }
+   
+   listOfQueryResultItems.sort(IdentifiedRecord.compareOrdinals);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000086.html">[openrecord-svn] r99 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#85">[ date ]</a>
+              <a href="thread.html#85">[ thread ]</a>
+              <a href="subject.html#85">[ subject ]</a>
+              <a href="author.html#85">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

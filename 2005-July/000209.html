@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r223 - trunk/source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r223%20-%20trunk/source/view&In-Reply-To=%3C200507061817.j66IH8EQ027775%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000208.html">
+   <LINK REL="Next"  HREF="000210.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r223 - trunk/source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r223%20-%20trunk/source/view&In-Reply-To=%3C200507061817.j66IH8EQ027775%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r223 - trunk/source/view">skinner at berlios.de
+       </A><BR>
+    <I>Wed Jul  6 20:17:08 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000208.html">[openrecord-svn] r222 - trunk/source/view
+</A></li>
+        <LI>Next message: <A HREF="000210.html">[openrecord-svn] r224 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-06 20:17:08 +0200 (Wed, 06 Jul 2005)
+New Revision: 223
+
+Modified:
+   trunk/source/view/EntryView.js
+   trunk/source/view/LoginView.js
+Log:
+Fixed minor bug in LoginView and cleaned-up one constant in EntryView.
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-06 18:09:07 UTC (rev 222)
++++ trunk/source/view/EntryView.js	2005-07-06 18:17:08 UTC (rev 223)
+@@ -44,7 +44,7 @@
+ // -------------------------------------------------------------------
+ // EntryView public class constants
+ // -------------------------------------------------------------------
+-EntryView.CSS_SELECTED = &quot;ItemValueSelected&quot;;
++EntryView.CSS_CLASS_SELECTED         = &quot;ItemValueSelected&quot;;
+ EntryView.CSS_CLASS_PROVISIONAL      = &quot;provisional&quot;;
+ 
+ EntryView.CSS_CLASS_TEXT_VALUE       = &quot;TextValue&quot;;
+@@ -250,7 +250,7 @@
+ 
+ EntryView.prototype.unSelect = function() {
+   Util.assert(this._isLozenge());
+-  Util.css_removeClass(this._textSpan,EntryView.CSS_SELECTED);
++  Util.css_removeClass(this._textSpan, EntryView.CSS_CLASS_SELECTED);
+ };
+ 
+ /** Select this Entry
+@@ -259,7 +259,7 @@
+ EntryView.prototype.selectView = function(eventObject) {
+   var rootView = this.getRootView();
+   if (this._isLozenge()) {
+-    Util.css_addClass(this._textSpan,EntryView.CSS_SELECTED);
++    Util.css_addClass(this._textSpan, EntryView.CSS_CLASS_SELECTED);
+     var addToSelection = (eventObject) &amp;&amp; (eventObject.shiftKey || eventObject.ctrlKey || eventObject.metaKey);
+     if (addToSelection) {
+       rootView.addToSelection(this);
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2005-07-06 18:09:07 UTC (rev 222)
++++ trunk/source/view/LoginView.js	2005-07-06 18:17:08 UTC (rev 223)
+@@ -529,7 +529,7 @@
+     this._userSuggestionBoxDivElement.style.width = (this._inputField.offsetWidth - 2)+ &quot;px&quot;;
+     
+     // this._userSuggestionBoxDivElement.style.zIndex = 11;
+-    this._userSuggestionBoxDivElement.className = &quot;suggestion_box&quot;;
++    this._userSuggestionBoxDivElement.className = &quot;SuggestionBox&quot;;
+     this._userSuggestionBoxDivElement.style.visibility = &quot;visible&quot;;
+     this._userSuggestionBoxDivElement.style.display = &quot;block&quot;;
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000208.html">[openrecord-svn] r222 - trunk/source/view
+</A></li>
+	<LI>Next message: <A HREF="000210.html">[openrecord-svn] r224 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#209">[ date ]</a>
+              <a href="thread.html#209">[ thread ]</a>
+              <a href="subject.html#209">[ subject ]</a>
+              <a href="author.html#209">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r400 - in trunk: documentation source/plugins source/plugins/create_new_plugin source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r400%20-%20in%20trunk%3A%20documentation%20source/plugins%20source/plugins/create_new_plugin%20source/view&In-Reply-To=%3C200512130506.jBD56o0u000628%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000381.html">
+   <LINK REL="Next"  HREF="000384.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r400 - in trunk: documentation source/plugins source/plugins/create_new_plugin source/view</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r400%20-%20in%20trunk%3A%20documentation%20source/plugins%20source/plugins/create_new_plugin%20source/view&In-Reply-To=%3C200512130506.jBD56o0u000628%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r400 - in trunk: documentation source/plugins source/plugins/create_new_plugin source/view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Dec 13 06:06:50 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000381.html">[openrecord-svn] r399 - trunk/repositories
+</A></li>
+        <LI>Next message: <A HREF="000384.html">[openrecord-svn] r401 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#382">[ date ]</a>
+              <a href="thread.html#382">[ thread ]</a>
+              <a href="subject.html#382">[ subject ]</a>
+              <a href="author.html#382">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-12-13 06:06:45 +0100 (Tue, 13 Dec 2005)
+New Revision: 400
+
+Added:
+   trunk/source/plugins/DetailWithAttributionView.js
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/plugins/create_new_plugin/create_new_plugin_template.js
+   trunk/source/view/SectionView.js
+Log:
+Created new plugin DetailWithAttributionView.js.  Made minor changes to SectionView.js and create_new_plugin_template.js.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2005-12-13 03:12:12 UTC (rev 399)
++++ trunk/documentation/to_do_list.txt	2005-12-13 05:06:45 UTC (rev 400)
+@@ -109,7 +109,7 @@
+        |          |         |  9. Pick one file, and do a group code review on it
+ brian  | 1    IED |         | 10. Rationalize our CSS style sheet approach
+        |          |         | 11. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+-brian  |          |         | 12. move XmlConverter.js out of util, because it depends on model code
++brian  |          | 0.2  IED| 12. move XmlConverter.js out of util, because it depends on model code
+        |          |         | 13. Write one unit test that tests GUI code
+        |          |         | 14. Write one performance test that measures the time some code takes
+        |          |         | 15. Convert UI code from DOM level 0 to DOM level 2
+
+Added: trunk/source/plugins/DetailWithAttributionView.js
+===================================================================
+--- trunk/source/plugins/DetailWithAttributionView.js	2005-12-13 03:12:12 UTC (rev 399)
++++ trunk/source/plugins/DetailWithAttributionView.js	2005-12-13 05:06:45 UTC (rev 400)
+@@ -0,0 +1,174 @@
++// DetailWithAttributionView.js
++// Created in 2005 by
++//   Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++//   Mignon Belongie
++
++// Dojo Package System &quot;provide&quot; and &quot;require&quot; statements
++dojo.provide(&quot;orp.plugins.DetailWithAttributionView&quot;);
++dojo.require(&quot;orp.view.PluginView&quot;);
++
++/**
++ * The DetailWithAttributionView view displays a set of content items. 
++ *
++ * @scope    public instance constructor
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    An item that can be used to store layout data (like table column order). 
++ */
++orp.plugins.DetailWithAttributionView = function(superview, htmlElement, querySpec, layoutItem) {
++  orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;DetailWithAttributionView&quot;);
++};
++
++dojo.inherits(orp.plugins.DetailWithAttributionView, orp.view.PluginView);  // makes DetailWithAttributionView be a subclass of PluginView
++
++
++// -------------------------------------------------------------------
++// Register this plugin in the SectionView registry
++// -------------------------------------------------------------------
++orp.plugins.DetailWithAttributionView.UUID = &quot;e0f7b540-6b8a-11da-b1ed-0011111f4abe&quot;;
++orp.view.SectionView.registerPlugin(orp.plugins.DetailWithAttributionView);
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item that represents this class of plugin.
++ *
++ * @scope    public class method
++ * @return   The UUID of the item that represents this class of plugin.
++ */
++orp.plugins.DetailWithAttributionView.getPluginItemUuid = function() {
++  return orp.plugins.DetailWithAttributionView.UUID;
++};
++
++/**
++ * Returns a list of anonymous objects representing Entries that describe the plugin.
++ *
++ * @scope    public class method
++ * @return   A list of anonymous objects representing Entries that describe the plugin.
++ */
++orp.plugins.DetailWithAttributionView.getEntriesForItemRepresentingPluginClass = function(pluginItem, world) {
++  return [
++    { uuid: &quot;e0f7b541-6b8a-11da-b1ed-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledName(),
++      value: &quot;Detail View (with creator and time)&quot; },
++    { uuid: &quot;e0f7b542-6b8a-11da-b1ed-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledShortName(),
++      value: &quot;DetailWithAttributionView&quot; },
++    { uuid: &quot;e0f7b543-6b8a-11da-b1ed-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledClassName(),
++      value: &quot;DetailWithAttributionView&quot; },
++    { uuid: &quot;e0f7b544-6b8a-11da-b1ed-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledCategory(),
++      inverseAttribute: world.getAttributeCalledItemsInCategory(),
++      value: world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_PLUGIN_VIEW) }
++  ];
++};
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the class of this instance.
++ *
++ * @scope    public instance method
++ * @return   A JavaScript class. 
++ */
++orp.plugins.DetailWithAttributionView.prototype.getClass = function() {
++  return orp.plugins.DetailWithAttributionView;
++};
++
++/**
++ * This method is called whenever the DetailWithAttributionView plugin is used to
++ * display the results of a query.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.DetailWithAttributionView.prototype.refresh = function() {
++  var listOfContentItems = this.fetchItems();
++  var outlineDiv = this.getHtmlElement();
++  orp.view.View.removeChildrenOfElement(outlineDiv);
++
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    this.createTableForItem(contentItem);
++    orp.view.View.appendNewElement(this.getHtmlElement(),&quot;p&quot;,null,null,'\u00a0'); // unicode for &nbsp;
++  }
++};
++
++
++/**
++ * Given an item to be display, returns a string with XHTML to display
++ * the item.
++ *
++ * @scope    public instance method
++ * @param    inItem    An item to be displayed. 
++ * @return   A string containing the XHTML to display the item.
++ */
++orp.plugins.DetailWithAttributionView.prototype.createTableForItem = function (inItem) {
++  orp.lang.assert(inItem instanceof orp.model.Item);
++  
++  var attributeCalledName = this.getWorld().getAttributeCalledName();
++  
++  var itemTable = orp.view.View.appendNewElement(this.getHtmlElement(),&quot;table&quot;, orp.view.SectionView.cssClass.SIMPLE_TABLE);
++
++  var tableRow = orp.view.View.appendNewElement(itemTable, &quot;tr&quot;);
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Attribute&quot;);
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Value&quot;);
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Creator&quot;);
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, &quot;Timestamp&quot;);
++  
++  this.createRowForAttribute(inItem, attributeCalledName, itemTable);
++  
++  var listOfAttributes = inItem.getAttributes();
++  for (var key in listOfAttributes) { 
++    var attribute = listOfAttributes[key];
++    if (attribute != attributeCalledName) {
++      this.createRowForAttribute(inItem, attribute, itemTable);
++    }
++  }
++
++  var tableRow = orp.view.View.appendNewElement(itemTable, &quot;tr&quot;);
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, null, {colspan: &quot;2&quot;}, &quot;&lt;this item&gt;&quot;);
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, inItem.getUserstamp().getDisplayString());
++  orp.view.View.appendNewElement(tableRow, &quot;td&quot;, orp.view.SectionView.cssClass.TITLE, null, inItem.getCreationDate().toLocaleString());
++};
++
++orp.plugins.DetailWithAttributionView.prototype.createRowForAttribute = function (item, attribute, htmlTableElement, cssClass) {
++  var tableRow = orp.view.View.appendNewElement(htmlTableElement, &quot;tr&quot;);
++  var cssLine = orp.view.SectionView.cssClass.LABEL + &quot; &quot; + orp.view.SectionView.cssClass.PLAIN;
++  var listOfEntries = item.getEntriesForAttribute(attribute);
++  var i;
++
++  var columnOneCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssLine, null, attribute.getDisplayName());
++  var columnTwoCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssClass, null);
++  for (i in listOfEntries) {
++    var entry = listOfEntries[i];
++    orp.view.View.appendNewTextNode(columnTwoCell, entry.getDisplayString());
++    orp.view.View.appendNewElement(columnTwoCell, &quot;br&quot;);
++  }
++  var columnThreeCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssClass, null);
++  for (i in listOfEntries) {
++    var entry = listOfEntries[i];
++    orp.view.View.appendNewTextNode(columnThreeCell, entry.getUserstamp().getDisplayString());
++    orp.view.View.appendNewElement(columnThreeCell, &quot;br&quot;);
++  }
++  var columnFourCell = orp.view.View.appendNewElement(tableRow, &quot;td&quot;, cssClass, null);
++  for (i in listOfEntries) {
++    var entry = listOfEntries[i];
++    orp.view.View.appendNewTextNode(columnFourCell, entry.getCreationDate().toLocaleString());
++    orp.view.View.appendNewElement(columnFourCell, &quot;br&quot;);
++  }
++};
++
++// End of file
++
+
+Modified: trunk/source/plugins/create_new_plugin/create_new_plugin_template.js
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin_template.js	2005-12-13 03:12:12 UTC (rev 399)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin_template.js	2005-12-13 05:06:45 UTC (rev 400)
+@@ -1,5 +1,5 @@
+ // %(CLASS_NAME).js
+-// Written by %(AUTHOR)
++// Created by %(AUTHOR)
+ 
+ // Dojo Package System &quot;provide&quot; and &quot;require&quot; statements
+ dojo.provide(&quot;orp.plugins.%(CLASS_NAME)&quot;);
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-12-13 03:12:12 UTC (rev 399)
++++ trunk/source/view/SectionView.js	2005-12-13 05:06:45 UTC (rev 400)
+@@ -319,12 +319,13 @@
+     optionElement.selected = (selectedPluginClass == pluginClass);
+     optionElement.value = pluginClass.getPluginItemUuid();
+     var pluginItem = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+-    optionElement.text = pluginItem.getDisplayString();
++    optionElement.text = pluginItem.getDisplayName();
+     dojo.event.connect(optionElement, &quot;onclick&quot;, this, &quot;clickOnPluginSelectionMenu&quot;);
+   }
+-  orp.view.View.appendNewTextNode(controlArea,&quot; of items whose &quot;);
++  orp.view.View.appendNewElement(controlArea,&quot;br&quot;);
++  orp.view.View.appendNewTextNode(controlArea,&quot;Include items whose &quot;);
+   this._queryEditSpan = orp.view.View.appendNewElement(controlArea, &quot;span&quot;);
+-  orp.view.View.appendNewTextNode(controlArea,&quot;.&quot;);
++  // orp.view.View.appendNewTextNode(controlArea,&quot;.&quot;);
+ 
+   // create a div element for the plugin class to use
+   this._pluginDiv = orp.view.View.appendNewElement(sectionDiv, &quot;div&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000381.html">[openrecord-svn] r399 - trunk/repositories
+</A></li>
+	<LI>Next message: <A HREF="000384.html">[openrecord-svn] r401 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#382">[ date ]</a>
+              <a href="thread.html#382">[ thread ]</a>
+              <a href="subject.html#382">[ subject ]</a>
+              <a href="author.html#382">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

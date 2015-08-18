@@ -1,0 +1,356 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r388 - in trunk/source/plugins: . create_new_plugin
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r388%20-%20in%20trunk/source/plugins%3A%20.%20create_new_plugin&In-Reply-To=%3C200512060119.jB61JHBs029557%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000369.html">
+   <LINK REL="Next"  HREF="000371.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r388 - in trunk/source/plugins: . create_new_plugin</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r388%20-%20in%20trunk/source/plugins%3A%20.%20create_new_plugin&In-Reply-To=%3C200512060119.jB61JHBs029557%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r388 - in trunk/source/plugins: . create_new_plugin">skinner at berlios.de
+       </A><BR>
+    <I>Tue Dec  6 02:19:17 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000369.html">[openrecord-svn] r387 - in trunk: documentation source/archive source/model source/util source/view tests/view
+</A></li>
+        <LI>Next message: <A HREF="000371.html">[openrecord-svn] r389 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#370">[ date ]</a>
+              <a href="thread.html#370">[ thread ]</a>
+              <a href="subject.html#370">[ subject ]</a>
+              <a href="author.html#370">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-12-06 02:19:12 +0100 (Tue, 06 Dec 2005)
+New Revision: 388
+
+Added:
+   trunk/source/plugins/create_new_plugin/
+   trunk/source/plugins/create_new_plugin/create_new_plugin.html
+   trunk/source/plugins/create_new_plugin/create_new_plugin.js
+   trunk/source/plugins/create_new_plugin/create_new_plugin_template.js
+Log:
+Made the &quot;create_new_plugin&quot; folder, with an HTML/JavaScript tool for generating new plugins.
+
+Added: trunk/source/plugins/create_new_plugin/create_new_plugin.html
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin.html	2005-12-03 04:06:39 UTC (rev 387)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin.html	2005-12-06 01:19:12 UTC (rev 388)
+@@ -0,0 +1,58 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by
++   Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++   Mignon Belongie
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Create New Plugin for OpenRecord&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;create_new_plugin.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;div&gt;
++      &lt;h1&gt;OpenRecord Plugin Generator&lt;/h1&gt;
++      &lt;p&gt;To create a new plugin, fill out this form and hit the button.&lt;/p&gt;
++      &lt;form&gt;
++        ClassName: &lt;input id=&quot;plugin_class_name&quot; maxLength=250 value=&quot;MySuperFooView&quot; size=50 /&gt;&lt;br/&gt;
++        Display Name: &lt;input id=&quot;plugin_name&quot; maxLength=250 value=&quot;Super Foo&quot; size=50 /&gt;&lt;br/&gt;
++        Author: &lt;input id=&quot;plugin_author&quot; maxLength=250 value=&quot;Carol Coder&quot; size=50 /&gt;&lt;br/&gt;
++        &lt;input id=&quot;button&quot; type=&quot;button&quot; value=&quot;Create Plugin&quot; /&gt;
++      &lt;/form&gt;
++      &lt;textarea id=&quot;output_area&quot; rows=&quot;20&quot; cols=&quot;80&quot;&gt;&lt;/textarea&gt;
++    &lt;/div&gt;
++    
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++
+
+Added: trunk/source/plugins/create_new_plugin/create_new_plugin.js
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin.js	2005-12-03 04:06:39 UTC (rev 387)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin.js	2005-12-06 01:19:12 UTC (rev 388)
+@@ -0,0 +1,97 @@
++/*****************************************************************************
++ create_new_plugin.js
++ 
++******************************************************************************
++ Written in 2005 by 
++   Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++   Mignon Belongie
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;); // relative to dojo
++dojo.require(&quot;dojo.text.*&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
++dojo.require(&quot;orp.uuid.TimeBasedUuid&quot;);
++
++function startHere() {
++  var createButton = document.getElementById(&quot;button&quot;);
++  dojo.event.connect(createButton, &quot;onclick&quot;, userClickedOnButton);
++
++  var outputArea = document.getElementById(&quot;output_area&quot;);
++  outputArea.style.visibility = &quot;hidden&quot;;
++}
++
++function userClickedOnButton() {
++  var classNameField = document.getElementById(&quot;plugin_class_name&quot;);
++  var nameField = document.getElementById(&quot;plugin_name&quot;);
++  var authorField = document.getElementById(&quot;plugin_author&quot;);
++  var outputArea = document.getElementById(&quot;output_area&quot;);
++  
++  var className = classNameField.value;
++  var name      = nameField.value;
++  var author    = authorField.value;
++
++  var generatedContents = generateContents(className, name, author);
++
++  outputArea.value = generatedContents;
++  outputArea.style.visibility = &quot;visible&quot;;
++  // alert(generatedContents);
++  
++  // var uuid = new orp.uuid.TimeBasedUuid();
++  // alert(uuid);
++  
++  // var string = &quot;     Just Foo    &quot;;
++  // var trimmedString = dojo.text.trim(string);
++  // alert(trimmedString);
++}
++
++function generateContents(className, name, author) {
++  var templateFileContents = dojo.hostenv.getText(&quot;create_new_plugin_template.js&quot;);
++  var itemUuid = new orp.uuid.TimeBasedUuid();
++  var entryUuid1 = new orp.uuid.TimeBasedUuid();
++  var entryUuid2 = new orp.uuid.TimeBasedUuid();
++  var entryUuid3 = new orp.uuid.TimeBasedUuid();
++  var entryUuid4 = new orp.uuid.TimeBasedUuid();
++  
++  var intermediateResult = templateFileContents;
++  intermediateResult = intermediateResult.replace(/%\(AUTHOR\)/g, author);
++  intermediateResult = intermediateResult.replace(/%\(CLASS_NAME\)/g, className);
++  intermediateResult = intermediateResult.replace(/%\(DISPLAY_NAME\)/g, name);
++  intermediateResult = intermediateResult.replace(/%\(ITEM_UUID\)/g, itemUuid);
++  intermediateResult = intermediateResult.replace(/%\(ENTRY_UUID_1\)/g, entryUuid1);
++  intermediateResult = intermediateResult.replace(/%\(ENTRY_UUID_2\)/g, entryUuid2);
++  intermediateResult = intermediateResult.replace(/%\(ENTRY_UUID_3\)/g, entryUuid3);
++  intermediateResult = intermediateResult.replace(/%\(ENTRY_UUID_4\)/g, entryUuid4);
++  var finalString = intermediateResult;
++  
++  return finalString;
++}
++
++dojo.event.connect(window, &quot;onload&quot;, startHere);
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/plugins/create_new_plugin/create_new_plugin_template.js
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin_template.js	2005-12-03 04:06:39 UTC (rev 387)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin_template.js	2005-12-06 01:19:12 UTC (rev 388)
+@@ -0,0 +1,110 @@
++// %(CLASS_NAME).js
++// Written by %(AUTHOR)
++
++// Dojo Package System &quot;provide&quot; and &quot;require&quot; statements
++dojo.provide(&quot;orp.plugins.%(CLASS_NAME)&quot;);
++dojo.require(&quot;orp.view.PluginView&quot;);
++
++/**
++ * The %(CLASS_NAME) view displays a set of content items. 
++ *
++ * @scope    public instance constructor
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    An item that can be used to store layout data (like table column order). 
++ */
++orp.plugins.%(CLASS_NAME) = function(superview, htmlElement, querySpec, layoutItem) {
++  orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;%(CLASS_NAME)&quot;);
++};
++
++dojo.inherits(orp.plugins.%(CLASS_NAME), orp.view.PluginView);  // makes %(CLASS_NAME) be a subclass of PluginView
++
++
++// -------------------------------------------------------------------
++// Register this plugin in the SectionView registry
++// -------------------------------------------------------------------
++orp.plugins.%(CLASS_NAME).UUID = &quot;%(ITEM_UUID)&quot;;
++orp.view.SectionView.registerPlugin(orp.plugins.%(CLASS_NAME));
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item that represents this class of plugin.
++ *
++ * @scope    public class method
++ * @return   The UUID of the item that represents this class of plugin.
++ */
++orp.plugins.%(CLASS_NAME).getPluginItemUuid = function() {
++  return orp.plugins.%(CLASS_NAME).UUID;
++};
++
++/**
++ * Returns a list of anonymous objects representing Entries that describe the plugin.
++ *
++ * @scope    public class method
++ * @return   A list of anonymous objects representing Entries that describe the plugin.
++ */
++orp.plugins.%(CLASS_NAME).getEntriesForItemRepresentingPluginClass = function(pluginItem, world) {
++  return [
++    { uuid: &quot;%(ENTRY_UUID_1)&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledName(),
++      value: &quot;%(DISPLAY_NAME)&quot; },
++    { uuid: &quot;%(ENTRY_UUID_2)&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledShortName(),
++      value: &quot;%(CLASS_NAME)&quot; },
++    { uuid: &quot;%(ENTRY_UUID_3)&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledClassName(),
++      value: &quot;%(CLASS_NAME)&quot; },
++    { uuid: &quot;%(ENTRY_UUID_4)&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledCategory(),
++      inverseAttribute: world.getAttributeCalledItemsInCategory(),
++      value: world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_PLUGIN_VIEW) }
++  ];
++};
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the class of this instance.
++ *
++ * @scope    public instance method
++ * @return   A JavaScript class. 
++ */
++orp.plugins.%(CLASS_NAME).prototype.getClass = function() {
++  return orp.plugins.%(CLASS_NAME);
++};
++
++/**
++ * This method is called whenever the %(CLASS_NAME) plugin is used to
++ * display the results of a query.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.%(CLASS_NAME).prototype.refresh = function() {
++  var listOfContentItems = this.fetchItems();
++  var outlineDiv = this.getHtmlElement();
++
++  // %(AUTHOR):
++  //  This is just example code.
++  //  You should replace the code below with your own code.
++  orp.view.View.removeChildrenOfElement(outlineDiv);
++  var ulElement = orp.view.View.appendNewElement(outlineDiv, &quot;ul&quot;);
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var liText = contentItem.getDisplayName(&quot;{no name}&quot;) + &quot; &quot;;
++    var liElement = orp.view.View.appendNewElement(ulElement, &quot;li&quot;, null, null, liText);
++  }
++};
++
++// End of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000369.html">[openrecord-svn] r387 - in trunk: documentation source/archive source/model source/util source/view tests/view
+</A></li>
+	<LI>Next message: <A HREF="000371.html">[openrecord-svn] r389 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#370">[ date ]</a>
+              <a href="thread.html#370">[ thread ]</a>
+              <a href="subject.html#370">[ subject ]</a>
+              <a href="author.html#370">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

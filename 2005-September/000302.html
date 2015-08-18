@@ -1,0 +1,927 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r318 - in trunk: . source source/util tests tests/dojo tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r318%20-%20in%20trunk%3A%20.%20source%20source/util%20tests%20tests/dojo%20tests/util&In-Reply-To=%3C200509080018.j880ItLs029483%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000301.html">
+   <LINK REL="Next"  HREF="000303.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r318 - in trunk: . source source/util tests tests/dojo tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r318%20-%20in%20trunk%3A%20.%20source%20source/util%20tests%20tests/dojo%20tests/util&In-Reply-To=%3C200509080018.j880ItLs029483%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r318 - in trunk: . source source/util tests tests/dojo tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Thu Sep  8 02:18:55 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000301.html">[openrecord-svn] r317 - trunk/source/scrap_yard
+</A></li>
+        <LI>Next message: <A HREF="000303.html">[openrecord-svn] r319 - in trunk: source/model third_party/gtd_tiddlywiki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#302">[ date ]</a>
+              <a href="thread.html#302">[ thread ]</a>
+              <a href="subject.html#302">[ subject ]</a>
+              <a href="author.html#302">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-08 02:18:49 +0200 (Thu, 08 Sep 2005)
+New Revision: 318
+
+Added:
+   trunk/tests/
+   trunk/tests/SimpleTest.html
+   trunk/tests/SimpleTest.js
+   trunk/tests/dojo/
+   trunk/tests/dojo/SimpleDojoTest.html
+   trunk/tests/dojo/SimpleDojoTest.js
+   trunk/tests/util/
+   trunk/tests/util/CsvParserTest.html
+   trunk/tests/util/CsvParserTest.js
+   trunk/tests/util/movies.csv
+Removed:
+   trunk/source/util/CsvParserTest.html
+   trunk/source/util/CsvParserTest.js
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/dogfood.html
+   trunk/open_agenda.html
+   trunk/sandbox.html
+   trunk/source/OpenRecordLoader.js
+   trunk/source/TablePlugin.js
+   trunk/source/TestSuite.html
+   trunk/source/util/CsvParser.js
+   trunk/tobacco.html
+   trunk/tuscany.html
+Log:
+Created new tests directory parallel to source, as per Dojo convention.  Added a couple very basic unit tests.  Started using Dojo-style namespaces.  Changed CsvParser to be orp.util.CsvParser.  Moved CsvParser unit tests over to the new tests directory.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/dashboard.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;Dashboard Demo Page&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/demo_page.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Demo Page&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/dogfood.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Dogfood Page&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/open_agenda.html
+===================================================================
+--- trunk/open_agenda.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/open_agenda.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;Collaborative Philanthropy&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/sandbox.html
+===================================================================
+--- trunk/sandbox.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/sandbox.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Sandbox Page&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/source/OpenRecordLoader.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -93,6 +93,7 @@
+   var listOfSourceCodeFiles = [
+     // third_party
+     &quot;third_party/md5/md5.js&quot;,
++    /* &quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;, */
+     &quot;third_party/scriptaculous/prototype.js&quot;,
+     &quot;third_party/scriptaculous/effects.js&quot;,
+     &quot;third_party/scriptaculous/dragdrop.js&quot;,
+@@ -104,7 +105,6 @@
+     &quot;source/util/Util.js&quot;,
+     &quot;source/util/Cookie.js&quot;,
+     &quot;source/util/DateValue.js&quot;,
+-    &quot;source/util/CsvParser.js&quot;,
+     // view
+     &quot;source/view/View.js&quot;,
+     &quot;source/view/RootView.js&quot;,
+@@ -146,6 +146,8 @@
+ // -------------------------------------------------------------------
+ // This code is immediately executed when this file is first loaded.
+ // -------------------------------------------------------------------
++dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);
++// dojo.require(&quot;orp.util.CsvParser&quot;);
+ OpenRecordLoader.loadEverything();
+ window.onload = function() { 
+   var world = new World();
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/source/TablePlugin.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -41,6 +41,7 @@
+ /*global CsvParser  */
+ /*global View, MultiEntriesView, EntryView, RootView  */
+ // -------------------------------------------------------------------
++dojo.require(&quot;orp.util.CsvParser&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -579,7 +580,7 @@
+   var startTime = new Date();
+   
+   var fileContents = Util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + fileButton.value);
+-  var csvParser = new CsvParser();
++  var csvParser = new orp.util.CsvParser();
+   var listOfRecords = csvParser.getStringValuesFromCsvData(fileContents);
+   if (!listOfRecords) {
+     return;
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/source/TestSuite.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -23,6 +23,9 @@
+       
+       function openRecordTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestPage(&quot;../../../tests/SimpleTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/dojo/SimpleDojoTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/util/CsvParserTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/util/TestSuite.html&quot;);
+
+Modified: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/source/util/CsvParser.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -28,6 +28,7 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++dojo.provide(&quot;orp.util.CsvParser&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -43,7 +44,7 @@
+  *
+  * @scope    public instance constructor
+  */
+-function CsvParser() {
++orp.util.CsvParser = function() {
+ }
+ 
+ 
+@@ -69,7 +70,7 @@
+  * @param    csvData    A string containing CSV records. 
+  * @return   Returns an array containing sub-arrays containing strings.
+  */
+-CsvParser.prototype.getStringValuesFromCsvData = function(csvData) {
++orp.util.CsvParser.prototype.getStringValuesFromCsvData = function(csvData) {
+   Util.assert(Util.isString(csvData));
+   
+   var lineEndingCharacters = new RegExp(&quot;\r\n|\n|\r&quot;);
+
+Deleted: trunk/source/util/CsvParserTest.html
+===================================================================
+--- trunk/source/util/CsvParserTest.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/source/util/CsvParserTest.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -1,85 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests for CsvParser.js&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;CsvParser.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;CsvParserTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests for CsvParser.js&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/util/CsvParserTest.js
+===================================================================
+--- trunk/source/util/CsvParserTest.js	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/source/util/CsvParserTest.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -1,72 +0,0 @@
+-/*****************************************************************************
+- CsvParserTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-var CsvData = null;
+-
+-function setUp() {
+-  var CsvRecords = ['Title, Year, Producer',
+-                    '2001: A Space Odyssey, 1968, Stanley Kubrick',
+-                    '&quot;This is a &quot;&quot;fake&quot;&quot; movie title&quot;, 1957, Sidney Lumet',
+-                    'Alien, 1979, Ridley Scott  ',
+-                    '&quot;The Sequel to &quot;&quot;Dances With Wolves.&quot;&quot;&quot;, 1982, Ridley Scott',
+-                    '&quot;Caine Mutiny, The&quot;, 1954, &quot;Dymtryk &quot;&quot;the King&quot;&quot;, Edward&quot;',
+-                    '',
+-                    ''];
+-  CsvData = CsvRecords.join('\n');
+-}
+-
+-function testCsvParser() {
+-  var csvParser = new CsvParser();
+-  var listOfRecords = csvParser.getStringValuesFromCsvData(CsvData);
+-  var whiteSpaceCharacters = &quot; \t\n\r&quot;;
+-  
+-  assertTrue('CsvData has 5 lines', listOfRecords.length == 5);
+-  for (var i in listOfRecords) {
+-    var row = listOfRecords[i];
+-    assertTrue('Each row has 3 fields', row.length == 3);
+-    for (var j in row) {
+-      var field = row[j];
+-      assertTrue('Each field is a string', Util.isString(field));
+-      var firstChar = field.charAt(0);
+-      var lastChar = field.charAt(field.length - 1);
+-      assertTrue('The first character is not white space', whiteSpaceCharacters.indexOf(firstChar) == -1);
+-      assertTrue('The last character is not white space', whiteSpaceCharacters.indexOf(lastChar) == -1);
+-    };
+-  }
+-}
+-
+-
+-function tearDown() {
+-  CsvData = null;
+-}
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Added: trunk/tests/SimpleTest.html
+===================================================================
+--- trunk/tests/SimpleTest.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tests/SimpleTest.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,75 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Simple unit test&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;SimpleTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Simple unit test&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/tests/SimpleTest.js
+===================================================================
+--- trunk/tests/SimpleTest.js	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tests/SimpleTest.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,45 @@
++/*****************************************************************************
++ SimpleTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++function setUp() {
++  // do nothing
++}
++
++function testSimplestCase() {
++  assertTrue(&quot;Two and two is four&quot;, (2 + 2) == 4);
++}
++
++function tearDown() {
++  // do nothing
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/tests/dojo/SimpleDojoTest.html
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tests/dojo/SimpleDojoTest.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,81 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit test - Dojo code availability&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;SimpleDojoTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit test - Dojo code availability&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    &lt;p&gt;See also:&lt;/p&gt;
++    &lt;p&gt;&lt;a href=&quot;<A HREF="http://article.gmane.org/gmane.comp.web.dojo.devel/426">http://article.gmane.org/gmane.comp.web.dojo.devel/426</A>&quot;&gt;<A HREF="http://article.gmane.org/gmane.comp.web.dojo.devel/426&lt;/a">http://article.gmane.org/gmane.comp.web.dojo.devel/426&lt;/a</A>&gt;&lt;/p&gt;
++    &lt;p&gt;&lt;a href=&quot;<A HREF="http://dojo.jot.com/DojoPackageSystem">http://dojo.jot.com/DojoPackageSystem</A>&quot;&gt;<A HREF="http://dojo.jot.com/DojoPackageSystem&lt;/a">http://dojo.jot.com/DojoPackageSystem&lt;/a</A>&gt;&lt;/p&gt;
++    &lt;p&gt;&lt;a href=&quot;<A HREF="http://dojotoolkit.org/docs/apis/hostenv.shtml">http://dojotoolkit.org/docs/apis/hostenv.shtml</A>&quot;&gt;<A HREF="http://dojotoolkit.org/docs/apis/hostenv.shtml&lt;/a">http://dojotoolkit.org/docs/apis/hostenv.shtml&lt;/a</A>&gt;&lt;/p&gt;
++
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/tests/dojo/SimpleDojoTest.js
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.js	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tests/dojo/SimpleDojoTest.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,48 @@
++/*****************************************************************************
++ SimpleDojoTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.require(&quot;dojo.text.*&quot;);
++}
++
++function testDojoTextTrim() {
++  var string = &quot;     Just Foo    &quot;;
++  var trimmedString = dojo.text.trim(string);
++  assertTrue(&quot;'Just Foo' remains after trimming.&quot;, trimmedString == &quot;Just Foo&quot;);
++}
++
++function tearDown() {
++  // do nothing
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Copied: trunk/tests/util/CsvParserTest.html (from rev 315, trunk/source/util/CsvParserTest.html)
+===================================================================
+--- trunk/source/util/CsvParserTest.html	2005-09-05 22:58:28 UTC (rev 315)
++++ trunk/tests/util/CsvParserTest.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,77 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for CsvParser.js&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../tests/util/CsvParserTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for CsvParser.js&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/util/CsvParserTest.js (from rev 315, trunk/source/util/CsvParserTest.js)
+===================================================================
+--- trunk/source/util/CsvParserTest.js	2005-09-05 22:58:28 UTC (rev 315)
++++ trunk/tests/util/CsvParserTest.js	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,103 @@
++/*****************************************************************************
++ CsvParserTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var CsvData = null;
++
++function setUp() {
++  var CsvRecords = ['Title, Year, Producer',
++                    '2001: A Space Odyssey, 1968, Stanley Kubrick',
++                    '&quot;This is a &quot;&quot;fake&quot;&quot; movie title&quot;, 1957, Sidney Lumet',
++                    'Alien, 1979, Ridley Scott  ',
++                    '&quot;The Sequel to &quot;&quot;Dances With Wolves.&quot;&quot;&quot;, 1982, Ridley Scott',
++                    '&quot;Caine Mutiny, The&quot;, 1954, &quot;Dymtryk &quot;&quot;the King&quot;&quot;, Edward&quot;',
++                    '',
++                    ''];
++  CsvData = CsvRecords.join('\n');
++}
++
++function testDojoAccess() {
++  // alert(&quot;Dojo version: &quot; + dojo.version.toString()); 
++    // Dojo version: 0.1.0 (1321)
++  // alert(&quot;dojo.hostenv.getBaseScriptUri() = &quot; + dojo.hostenv.getBaseScriptUri());
++    // dojo.hostenv.getBaseScriptUri() = ../../third_party/dojo/dojo-0.1.0
++  
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.require(&quot;dojo.text.*&quot;);
++  
++  var string = &quot;     Just Foo    &quot;;
++  var trimmedString = dojo.text.trim(string);
++  assertTrue(&quot;'Just Foo' remains after trimming.&quot;, trimmedString == &quot;Just Foo&quot;);
++}
++
++/*
++function testShapesAccess() {
++  dojo.hostenv.setModulePrefix(&quot;shapes&quot;, &quot;../../../../source/shapes&quot;);
++  
++  dojo.require(&quot;shapes.Ship&quot;);
++  var ship = new shapes.Ship();
++  var box1 = new shapes.Box(4, 5); // area == 20
++  var box2 = new shapes.Box(5, 6); // area == 30
++  ship.addBox(box1);
++  ship.addBox(box2);
++  assertTrue(&quot;The ship has an area of 50.&quot;, ship.getArea() == 50);
++}
++*/
++
++function testCsvParser() {
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.CsvParser&quot;);
++
++  var csvParser = new orp.util.CsvParser();
++  var listOfRecords = csvParser.getStringValuesFromCsvData(CsvData);
++  var whiteSpaceCharacters = &quot; \t\n\r&quot;;
++  
++  assertTrue('CsvData has 5 lines', listOfRecords.length == 5);
++  for (var i in listOfRecords) {
++    var row = listOfRecords[i];
++    assertTrue('Each row has 3 fields', row.length == 3);
++    for (var j in row) {
++      var field = row[j];
++      assertTrue('Each field is a string', Util.isString(field));
++      var firstChar = field.charAt(0);
++      var lastChar = field.charAt(field.length - 1);
++      assertTrue('The first character is not white space', whiteSpaceCharacters.indexOf(firstChar) == -1);
++      assertTrue('The last character is not white space', whiteSpaceCharacters.indexOf(lastChar) == -1);
++    };
++  }
++}
++
++
++function tearDown() {
++  CsvData = null;
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/tests/util/movies.csv
+===================================================================
+--- trunk/tests/util/movies.csv	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tests/util/movies.csv	2005-09-08 00:18:49 UTC (rev 318)
+@@ -0,0 +1,4 @@
++Title, Year, Producer,
++City of God, 2002, Katia Lund
++Rain, 2001, Christine Jeffs
++
+
+Modified: trunk/tobacco.html
+===================================================================
+--- trunk/tobacco.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tobacco.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Tobacco Control&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tuscany.html
+===================================================================
+--- trunk/tuscany.html	2005-09-07 22:16:34 UTC (rev 317)
++++ trunk/tuscany.html	2005-09-08 00:18:49 UTC (rev 318)
+@@ -12,6 +12,7 @@
+ 
+   &lt;head&gt;
+     &lt;title&gt;openrecord.org - Tuscany&lt;/title&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000301.html">[openrecord-svn] r317 - trunk/source/scrap_yard
+</A></li>
+	<LI>Next message: <A HREF="000303.html">[openrecord-svn] r319 - in trunk: source/model third_party/gtd_tiddlywiki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#302">[ date ]</a>
+              <a href="thread.html#302">[ thread ]</a>
+              <a href="subject.html#302">[ subject ]</a>
+              <a href="author.html#302">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

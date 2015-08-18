@@ -1,0 +1,251 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r322 - in trunk/source: . model util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r322%20-%20in%20trunk/source%3A%20.%20model%20util&In-Reply-To=%3C200509132059.j8DKxRtW003102%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000305.html">
+   <LINK REL="Next"  HREF="000307.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r322 - in trunk/source: . model util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r322%20-%20in%20trunk/source%3A%20.%20model%20util&In-Reply-To=%3C200509132059.j8DKxRtW003102%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r322 - in trunk/source: . model util">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 13 22:59:27 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000305.html">[openrecord-svn] r321 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000307.html">[openrecord-svn] r323 - in trunk: source/scrap_yard tests tests/tests_of_external_code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#306">[ date ]</a>
+              <a href="thread.html#306">[ thread ]</a>
+              <a href="subject.html#306">[ subject ]</a>
+              <a href="author.html#306">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-13 22:59:27 +0200 (Tue, 13 Sep 2005)
+New Revision: 322
+
+Modified:
+   trunk/source/OpenRecordLoader.js
+   trunk/source/model/Item.js
+   trunk/source/util/CsvParser.js
+   trunk/source/util/TimeBasedUuid.js
+Log:
+Added comments with notes about changes to make.
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-09-13 20:55:48 UTC (rev 321)
++++ trunk/source/OpenRecordLoader.js	2005-09-13 20:59:27 UTC (rev 322)
+@@ -147,11 +147,22 @@
+ // This code is immediately executed when this file is first loaded.
+ // -------------------------------------------------------------------
+ dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../source&quot;);
+-// dojo.require(&quot;orp.util.CsvParser&quot;);
+ OpenRecordLoader.loadEverything();
+ window.onload = function() { 
+-  var world = new World();
+-  new RootView(world);
++  // figure out if we're running in IE or Firefox
++  var firefox = true;  // PENDING: hack!
++  var errorMessage;
++  if (!firefox) {
++    errorMessage = &quot;IE error message&quot;;
++    // display errorMessage
++    return;
++  }
++  if (firefox) {
++    errorMessage = &quot;Loading...&quot;;
++    // display errorMessage
++    var world = new World();
++    new RootView(world);
++  }
+ };    
+ 
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-09-13 20:55:48 UTC (rev 321)
++++ trunk/source/model/Item.js	2005-09-13 20:59:27 UTC (rev 322)
+@@ -91,6 +91,62 @@
+ // Entry adding methods
+ // -------------------------------------------------------------------
+ 
++/* PENDING: refactor these methods as per Sept 12 plan:
++// OLD
++item.addEntry(value)
++item.addEntry(value, type)
++item.addEntryForAttribute(attribute, value)
++item.addEntryForAttribute(attribute, value, type)
++
++item.replaceEntry(previousEntry, value)
++item.replaceEntry(previousEntry, value, type)
++item.replaceEntryWithEntryForAttribute(previousEntry, attribute, value)
++item.replaceEntryWithEntryForAttribute(previousEntry, attribute, value, type)
++
++item.addConnectionEntry(myAttribute, otherItem, otherAttribute)
++Item.replaceEntryWithConnection(previousEntry, myAttribute, otherItem, otherAttribute)
++
++// NEW
++ **
++ * Creates a new entry object ...
++ *
++ * @scope    public instance method
++ * @namedParam    value    ... 
++ * @namedParam    type    ... 
++ * @namedParam    attribute    Optional. ...
++ * @return   The new entry object.
++ * @throws   Throws an Error if no user is logged in.
++ *
++Item.prototype.addEntry = function(namedParameters) {
++// function initializer
++// input/parameter/argument hash table
++// input/parameter/argument hash
++// anonymous object
++// input/parameter/argument dictionary
++// input/parameter/argument initializer
++// named parameters
++// keyword parameters
++};
++
++item.addEntry({value:
++               type:
++               attribute: })
++
++item.replaceEntry({value:
++               type:
++               attribute:
++               previousEntry: })
++
++item.addConnectionEntry({myAttribute:
++                        otherItem:
++                        otherAttribute: })
++
++item.replaceEntryWithConnection({previousEntry: 
++                        myAttribute:
++                        otherItem:
++                        otherAttribute: })
++*/
++
+ /**
+  * Creates a new entry object and adds the new entry to the item's 
+  * list of entries.
+@@ -300,7 +356,15 @@
+ // -------------------------------------------------------------------
+ // Accessor methods where the answer depends on the retrieval filter
+ // -------------------------------------------------------------------
++/* PENDING: add this API
+ 
++var entries = item.getValuesForAttribute(height);
++for (var i in values) {
++  var value = value[i];
++  // display value on screen
++}
++*/
++
+ /**
+  * Given an attribute, this method returns the list of all the entries that 
+  * have been assigned to that attribute for this item.
+
+Modified: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-09-13 20:55:48 UTC (rev 321)
++++ trunk/source/util/CsvParser.js	2005-09-13 20:59:27 UTC (rev 322)
+@@ -29,6 +29,7 @@
+ *****************************************************************************/
+ 
+ dojo.provide(&quot;orp.util.CsvParser&quot;);
++// dojo.require(&quot;orp.util.Util&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-13 20:55:48 UTC (rev 321)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-13 20:59:27 UTC (rev 322)
+@@ -51,6 +51,44 @@
+  *
+  * @scope    public instance constructor
+  */
++/*
++ * PENDING: refactor constructor API
++ // OLD API
++var uuid = new orp.util.TimeBasedUuid();                 // new
++var uuid = new orp.util.TimeBasedUuid(&quot;917BF397618A&quot;);   // pseudonode
++var uuid = new orp.util.TimeBasedUuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;)
++
++// NEW API
++var uuid = new orp.util.TimeBasedUuid();
++var uuid = new orp.util.TimeBasedUuid({pseudoNode: &quot;917BF397618A&quot;});
++var uuid = new orp.util.TimeBasedUuid({node: &quot;917BF397618A&quot;});
++var uuid = new orp.util.TimeBasedUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++
++
++var uuid = new orp.util.RandomUuid();
++var uuid = new orp.util.RandomUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++
++var uuid = new orp.util.Uuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++var version = orp.util.Uuid.getVersionFromUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++var version = orp.util.Uuid.getVariantFromUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++var boolean = orp.util.Uuid.isRandomUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++var boolean = orp.util.Uuid.isTimeBasedUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++
++// in Uuid.js
++var Version = {
++  TimeBased: 1,
++  DCESecurity: 2,
++  NameBasedMD5: 3,
++  Random: 4,
++  NameBasedSHA1: 5
++}
++
++var Variant = {
++  NCS: &quot;0&quot;,
++  DCE: &quot;10&quot;,
++  Microsoft: &quot;110&quot;
++}
++*/
+ TimeBasedUuid.prototype = new Uuid();  // makes TimeBasedUuid be a subclass of Uuid
+ function TimeBasedUuid(uuidStringOrPseudoNode) {
+   if (uuidStringOrPseudoNode) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000305.html">[openrecord-svn] r321 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000307.html">[openrecord-svn] r323 - in trunk: source/scrap_yard tests tests/tests_of_external_code
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#306">[ date ]</a>
+              <a href="thread.html#306">[ thread ]</a>
+              <a href="subject.html#306">[ subject ]</a>
+              <a href="author.html#306">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

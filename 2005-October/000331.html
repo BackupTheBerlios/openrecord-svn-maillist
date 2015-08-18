@@ -1,0 +1,452 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r348 - in trunk: source/storage tests/storage
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r348%20-%20in%20trunk%3A%20source/storage%20tests/storage&In-Reply-To=%3C200510040213.j942DDta026190%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000330.html">
+   <LINK REL="Next"  HREF="000332.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r348 - in trunk: source/storage tests/storage</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r348%20-%20in%20trunk%3A%20source/storage%20tests/storage&In-Reply-To=%3C200510040213.j942DDta026190%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r348 - in trunk: source/storage tests/storage">skinner at berlios.de
+       </A><BR>
+    <I>Tue Oct  4 04:13:13 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000330.html">[openrecord-svn] r347 - in trunk: source source/archive source/model source/storage tests tests/archive tests/model tests/storage tests/util
+</A></li>
+        <LI>Next message: <A HREF="000332.html">[openrecord-svn] r349 - in trunk: source/archive source/model source/storage tests/archive tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#331">[ date ]</a>
+              <a href="thread.html#331">[ thread ]</a>
+              <a href="subject.html#331">[ subject ]</a>
+              <a href="author.html#331">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-04 04:13:10 +0200 (Tue, 04 Oct 2005)
+New Revision: 348
+
+Added:
+   trunk/source/storage/FakeStorage.js
+   trunk/source/storage/Storage.js
+Modified:
+   trunk/source/storage/FileStorage.js
+   trunk/source/storage/HttpStorage.js
+   trunk/tests/storage/LintTest.js
+Log:
+Created a new FakeStorage.js class, and a new Storage.js class that serves as an abstract superclass for all the storage classes.
+
+Added: trunk/source/storage/FakeStorage.js
+===================================================================
+--- trunk/source/storage/FakeStorage.js	2005-10-04 01:33:56 UTC (rev 347)
++++ trunk/source/storage/FakeStorage.js	2005-10-04 02:13:10 UTC (rev 348)
+@@ -0,0 +1,101 @@
++/*****************************************************************************
++ Storage.js
++  
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.storage.FakeStorage&quot;);
++dojo.require(&quot;orp.storage.Storage&quot;);
++
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++/**
++ * The Storage class is the abstract superclass for the other storage 
++ * classes, including FileStorage and HttpStorage.
++ *
++ * @param    repositoryName                         // e.g. demo_page
++ * @param    pathToTrunkDirectoryFromWindowLocation // Not needed if window location is at the root of the trunk directory.
++ * @scope    public instance constructor
++ */
++orp.storage.FakeStorage = function(repositoryName, pathToTrunkDirectoryFromWindowLocation) {
++  orp.storage.Storage.call(this, repositoryName, pathToTrunkDirectoryFromWindowLocation);
++  
++  this._fakeFileContents = &quot;&quot;;
++};
++
++dj_inherits(orp.storage.FakeStorage, orp.storage.Storage);  // makes FakeStorage be a subclass of Storage
++
++
++// -------------------------------------------------------------------
++// Public methods
++// -------------------------------------------------------------------
++
++/**
++ * Appends text to a file.
++ *
++ * @param    textToWrite      A string with the text to append to the file.
++ * @scope    public instance method
++ */
++orp.storage.FakeStorage.prototype.appendText = function(textToAppend) {
++  this._fakeFileContents += textToAppend;
++};
++
++
++/**
++ * Writes text to a file, completely replacing the contents of the file.
++ *
++ * @param    textToWrite      A string with the text to write to the file.
++ * @param    overwriteIfExists      A boolean.  True to overwrite any existing file, or false to exit if there's an existing file.  
++ * @scope    public instance method
++ */
++orp.storage.FakeStorage.prototype.writeText = function(textToWrite, overwriteIfExists) {
++  if (overwriteIfExists || !this._fakeFileContents) {
++    this._fakeFileContents = textToWrite;
++  }
++};
++
++
++/**
++ * Returns any text that was added using appendText() or writeText().
++ *
++ * @scope    public instance method
++ * @return   Returns any text that was added using appendText() or writeText().
++ */
++orp.storage.FakeStorage.prototype.getFileContents = function() {
++  return this._fakeFileContents;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/storage/FileStorage.js
+===================================================================
+--- trunk/source/storage/FileStorage.js	2005-10-04 01:33:56 UTC (rev 347)
++++ trunk/source/storage/FileStorage.js	2005-10-04 02:13:10 UTC (rev 348)
+@@ -55,9 +55,14 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.storage.FileStorage&quot;);
++dojo.require(&quot;orp.storage.Storage&quot;);
+ dojo.require(&quot;orp.archive.DeltaArchive&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ 
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
+ /**
+  * The FileStorage class knows how to save text to a local file.
+  *
+@@ -66,15 +71,15 @@
+  * @scope    public instance constructor
+  */
+ orp.storage.FileStorage = function(repositoryName, pathToTrunkDirectory) {
+-  this._repositoryName = repositoryName;
++  orp.storage.Storage.call(this, repositoryName, pathToTrunkDirectory);
+   
+   // Step 1: Build the fileUrl
+   // 
+   // Our saveTextToFile() method needs a fileUrl that looks like this:
+   //   fileUrl = &quot;K:\\www\\htdocs\\openrecord\\demo\\current\\trunk\\repositories\\demo_page.json&quot;;
+   // 
+-  // We start with a value in this._repositoryName that looks like this:
+-  //   this._repositoryName == &quot;demo_page&quot;
++  // We start with a value in this.getRepositoryName() that looks like this:
++  //   this.getRepositoryName() == &quot;demo_page&quot;
+ 
+   // URLs like these don't work:
+   //   fileUrl = &quot;repositories/demo_page.json&quot;;
+@@ -87,11 +92,17 @@
+     listOfAdditions.push(pathToTrunkDirectory);
+   }
+   listOfAdditions.push(orp.archive.DeltaArchive.PATH_TO_REPOSITORY_DIRECTORY);
+-  listOfAdditions.push(this._repositoryName + &quot;.json&quot;);
++  listOfAdditions.push(this.getRepositoryName() + &quot;.json&quot;);
+   this._fileUrl = this._getLocalPathFromWindowLocation(listOfAdditions);
+ };
+ 
++dj_inherits(orp.storage.FileStorage, orp.storage.Storage);  // makes FileStorage be a subclass of Storage
+ 
++
++// -------------------------------------------------------------------
++// Public methods
++// -------------------------------------------------------------------
++
+ /**
+  * Appends text to a file.
+  *
+@@ -102,11 +113,22 @@
+   this._saveTextToFile(textToAppend, this._fileUrl, append);
+ };
+ 
++
++/**
++ * Writes text to a file, completely replacing the contents of the file.
++ *
++ * @scope    public instance method
++ */
+ orp.storage.FileStorage.prototype.writeText = function(textToWrite, overwriteIfExists) {
+   var append = false;
+   this._saveTextToFile(textToWrite, this._fileUrl, append);
+ };
+ 
++
++// -------------------------------------------------------------------
++// Private methods
++// -------------------------------------------------------------------
++
+ /**
+  * Save the text to the file at the given URL.
+  *
+
+Modified: trunk/source/storage/HttpStorage.js
+===================================================================
+--- trunk/source/storage/HttpStorage.js	2005-10-04 01:33:56 UTC (rev 347)
++++ trunk/source/storage/HttpStorage.js	2005-10-04 02:13:10 UTC (rev 348)
+@@ -33,6 +33,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.storage.HttpStorage&quot;);
++dojo.require(&quot;orp.storage.Storage&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -47,7 +48,8 @@
+  * @scope    public instance constructor
+  */
+ orp.storage.HttpStorage = function(repositoryName, pathToTrunkDirectoryFromWindowLocation) {
+-  this._repositoryName = repositoryName;
++  orp.storage.Storage.call(this, repositoryName, pathToTrunkDirectoryFromWindowLocation);
++
+   var thisUrl = window.location.pathname; //e.g. /openrecord/trunk/demo_page.html or /openrecord/trunk/source/model/TestRepositoryWriting.html.
+   var arrayOfPathComponents = thisUrl.split('/');
+   arrayOfPathComponents.pop();
+@@ -59,16 +61,21 @@
+   }
+ };
+ 
++dj_inherits(orp.storage.HttpStorage, orp.storage.Storage);  // makes HttpStorage be a subclass of Storage
+ 
++
+ // -------------------------------------------------------------------
+ // Public methods
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Appends text to a file.
++ *
++ * @scope    public instance method
+  */
+ orp.storage.HttpStorage.prototype.appendText = function(textToAppend) {
+   var url = this._completePathToTrunkDirectory;
+-  url += &quot;/source/model/append_to_repository_file.php?file=&quot; + this._repositoryName;
++  url += &quot;/source/model/append_to_repository_file.php?file=&quot; + this.getRepositoryName();
+   
+   // PENDING: 
+   // It might be more efficient to re-use the XMLHttpRequestObject,
+@@ -85,10 +92,13 @@
+ 
+ 
+ /**
++ * Writes text to a file, completely replacing the contents of the file.
++ *
++ * @scope    public instance method
+  */
+ orp.storage.HttpStorage.prototype.writeText = function(textToWrite, overwriteIfExists) {
+   var url = this._completePathToTrunkDirectory;
+-  url += &quot;/source/model/write_to_repository_file.php?file=&quot; + this._repositoryName;
++  url += &quot;/source/model/write_to_repository_file.php?file=&quot; + this.getRepositoryName();
+   if (overwriteIfExists) {
+     url += &quot;&amp;overwrite=T&quot;;
+   }
+
+Added: trunk/source/storage/Storage.js
+===================================================================
+--- trunk/source/storage/Storage.js	2005-10-04 01:33:56 UTC (rev 347)
++++ trunk/source/storage/Storage.js	2005-10-04 02:13:10 UTC (rev 348)
+@@ -0,0 +1,108 @@
++/*****************************************************************************
++ Storage.js
++  
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++dojo.provide(&quot;orp.storage.Storage&quot;);
++
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++/**
++ * The Storage class is the abstract superclass for the other storage 
++ * classes, including FileStorage and HttpStorage.
++ *
++ * @param    repositoryName                         // e.g. demo_page
++ * @param    pathToTrunkDirectoryFromWindowLocation // Not needed if window location is at the root of the trunk directory.
++ * @scope    public instance constructor
++ */
++orp.storage.Storage = function(repositoryName, pathToTrunkDirectoryFromWindowLocation) {
++  this._repositoryName = repositoryName;
++  this._pathToTrunkDirectory = pathToTrunkDirectoryFromWindowLocation;
++};
++
++
++// -------------------------------------------------------------------
++// Public methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the _repositoryName value provided in the constructor.
++ *
++ * @scope    public instance method
++ */
++orp.storage.Storage.prototype.getRepositoryName = function() {
++  return this._repositoryName;
++};
++ 
++
++/**
++ * Returns the _pathToTrunkDirectory value provided in the constructor.
++ *
++ * @scope    public instance method
++ */
++orp.storage.Storage.prototype.getPathToTrunkDirectory = function() {
++  return this._pathToTrunkDirectory;
++};
++ 
++
++/**
++ * Appends text to a file.
++ *
++ * @param    textToWrite      A string with the text to append to the file.
++ * @scope    public instance method
++ */
++orp.storage.Storage.prototype.appendText = function(textToAppend) {
++  // Storage is an abstract superclass.
++  // This method must be implemented by the subclasses.
++  dj_unimplemented(&quot;appendText&quot;);
++};
++
++
++/**
++ * Writes text to a file, completely replacing the contents of the file.
++ *
++ * @param    textToWrite      A string with the text to write to the file.
++ * @param    overwriteIfExists      A boolean.  True to overwrite any existing file, or false to exit if there's an existing file.  
++ * @scope    public instance method
++ */
++orp.storage.Storage.prototype.writeText = function(textToWrite, overwriteIfExists) {
++  // Storage is an abstract superclass.
++  // This method must be implemented by the subclasses.
++  dj_unimplemented(&quot;writeText&quot;);
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/tests/storage/LintTest.js
+===================================================================
+--- trunk/tests/storage/LintTest.js	2005-10-04 01:33:56 UTC (rev 347)
++++ trunk/tests/storage/LintTest.js	2005-10-04 02:13:10 UTC (rev 348)
+@@ -55,6 +55,8 @@
+ 
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
++    &quot;Storage.js&quot;,
++    &quot;FakeStorage.js&quot;,
+     &quot;FileStorage.js&quot;,
+     &quot;HttpStorage.js&quot;];
+   var prefix = &quot;../../../source/storage/&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000330.html">[openrecord-svn] r347 - in trunk: source source/archive source/model source/storage tests tests/archive tests/model tests/storage tests/util
+</A></li>
+	<LI>Next message: <A HREF="000332.html">[openrecord-svn] r349 - in trunk: source/archive source/model source/storage tests/archive tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#331">[ date ]</a>
+              <a href="thread.html#331">[ thread ]</a>
+              <a href="subject.html#331">[ subject ]</a>
+              <a href="author.html#331">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

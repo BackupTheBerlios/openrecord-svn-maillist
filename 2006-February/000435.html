@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r454 - in trunk/source: . plugins view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r454%20-%20in%20trunk/source%3A%20.%20plugins%20view&In-Reply-To=%3C200602262247.k1QMleqA014999%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000434.html">
+   <LINK REL="Next"  HREF="000436.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r454 - in trunk/source: . plugins view</H1>
+    <B>mignon at berlios.de</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r454%20-%20in%20trunk/source%3A%20.%20plugins%20view&In-Reply-To=%3C200602262247.k1QMleqA014999%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r454 - in trunk/source: . plugins view">mignon at berlios.de
+       </A><BR>
+    <I>Sun Feb 26 23:47:40 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000434.html">[openrecord-svn] r453 - in trunk: documentation source source/archive source/model source/plugins/create_new_plugin source/view tests tests/archive tests/model tests/transcribers
+</A></li>
+        <LI>Next message: <A HREF="000436.html">[openrecord-svn] r455 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#435">[ date ]</a>
+              <a href="thread.html#435">[ thread ]</a>
+              <a href="subject.html#435">[ subject ]</a>
+              <a href="author.html#435">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-02-26 23:47:33 +0100 (Sun, 26 Feb 2006)
+New Revision: 454
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/plugins/DetailWithAttributionView.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+Log:
+Changed some names that were misspelled or inappropriate.  Other trivial changes.
+
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-02-21 06:18:26 UTC (rev 453)
++++ trunk/source/TablePlugin.js	2006-02-26 22:47:33 UTC (rev 454)
+@@ -304,7 +304,7 @@
+     var observer = this; 
+     // PENDING: 
+     // no need to register an observer here, if we move code from
+-    // observedItemHasChanged() to _provisionalItemJustBecomeReal()
++    // observedItemHasChanged() to _provisionalItemJustBecameReal()
+     var newItem = this.getWorld().newProvisionalItem(observer);
+     this._insertRow(newItem, ++numRows, true);
+   }
+@@ -321,7 +321,7 @@
+  * @scope    package instance method
+  * @param    item      The Item which just became real. 
+  */
+-orp.TablePlugin.prototype._provisionalItemJustBecomeReal = function(item) {
++orp.TablePlugin.prototype._provisionalItemJustBecameReal = function(item) {
+   this.getWorld().setItemToBeIncludedInQueryResultList(item, this.getQuerySpec());
+ };
+ 
+@@ -329,17 +329,17 @@
+ /**
+  * PENDING: 
+  * This method observedItemHasChanged() was written back before we 
+- * wrote the method above this one, _provisionalItemJustBecomeReal().
++ * wrote the method above this one, _provisionalItemJustBecameReal().
+  * Now we've got things set up so that the EntryView will call
+- * our _provisionalItemJustBecomeReal() method when the user first
++ * our _provisionalItemJustBecameReal() method when the user first
+  * makes a change that causes the provisional item to become real.
+- * Now that we have _provisionalItemJustBecomeReal(), we might 
++ * Now that we have _provisionalItemJustBecameReal(), we might 
+  * want to move all the code from observedItemHasChanged() over
+- * into _provisionalItemJustBecomeReal(), and then we could get
++ * into _provisionalItemJustBecameReal(), and then we could get
+  * rid of this method.  HOWEVER, moving the code might cause bugs,
+  * because this observedItemHasChanged() method is probably 
+- * called slightly later than the _provisionalItemJustBecomeReal()
+- * method above.  The _provisionalItemJustBecomeReal() is called
++ * called slightly later than the _provisionalItemJustBecameReal()
++ * method above.  The _provisionalItemJustBecameReal() is called
+  * DURING the transaction, whereas observedItemHasChanged() is,
+  * in theory, called after the transaction.
+  */
+@@ -498,7 +498,7 @@
+       var hasMatchingEntries = (listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0));
+       var matchingEntry = hasMatchingEntries ? listOfMatchingEntries[0] : null;
+ 
+-     var listOfPossibleEntries = this.getWorld().getSuggestedItemsForAttribute(attributeCalledExpectedType);
++      var listOfPossibleEntries = this.getWorld().getSuggestedItemsForAttribute(attributeCalledExpectedType);
+       
+       var entryView = new orp.view.EntryView(this, datatypeSpan, attribute, attributeCalledExpectedType, matchingEntry);
+       entryView.alwaysUseEditField();
+@@ -531,7 +531,7 @@
+ };
+ 
+ orp.TablePlugin.prototype._clickOnAddColumnButton = function(eventObject) {
+-  var popopMenu = dojo.widget.createWidget(&quot;PopupMenu2&quot;, {}, null);
++  var popupMenu = dojo.widget.createWidget(&quot;PopupMenu2&quot;, {}, null);
+   var listOfAttributes = this.getWorld().getAttributes();
+   for (var i in listOfAttributes) {
+     var attribute = listOfAttributes[i];
+@@ -539,10 +539,10 @@
+       var attributeName = attribute.getDisplayString();
+       var menuItem = dojo.widget.createWidget(&quot;MenuItem2&quot;, {caption: attributeName}, null);
+       dojo.event.connect(menuItem, &quot;onClick&quot;,  orp.lang.bind(this, &quot;_addOrRemoveOneColumn&quot;, attribute));
+-      popopMenu.addChild(menuItem);
++      popupMenu.addChild(menuItem);
+     }
+   }
+-  popopMenu.onOpen(eventObject);
++  popupMenu.onOpen(eventObject);
+ };
+ 
+ /*
+
+Modified: trunk/source/plugins/DetailWithAttributionView.js
+===================================================================
+--- trunk/source/plugins/DetailWithAttributionView.js	2006-02-21 06:18:26 UTC (rev 453)
++++ trunk/source/plugins/DetailWithAttributionView.js	2006-02-26 22:47:33 UTC (rev 454)
+@@ -95,8 +95,8 @@
+  */
+ orp.plugins.DetailWithAttributionView.prototype.refresh = function() {
+   var listOfContentItems = this.fetchItems();
+-  var outlineDiv = this.getHtmlElement();
+-  orp.view.View.removeChildrenOfElement(outlineDiv);
++  var detailDiv = this.getHtmlElement();
++  orp.view.View.removeChildrenOfElement(detailDiv);
+ 
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+@@ -107,7 +107,7 @@
+ 
+ 
+ /**
+- * Given an item to be display, returns a string with XHTML to display
++ * Given an item to display, returns a string with XHTML to display
+  * the item.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2006-02-21 06:18:26 UTC (rev 453)
++++ trunk/source/view/EntryView.js	2006-02-26 22:47:33 UTC (rev 454)
+@@ -350,7 +350,7 @@
+         editField = this._editField = document.createElement(&quot;textarea&quot;);
+       }
+       else {
+-        editField = this._editField= document.createElement(&quot;input&quot;);
++        editField = this._editField = document.createElement(&quot;input&quot;);
+         editField.type = 'text';
+       }
+       var listener = this; 
+@@ -483,8 +483,8 @@
+     if (newEntry) {
+       this._entry = newEntry;
+       var superview = this.getSuperview();
+-      if (this._isProvisional &amp;&amp; superview._provisionalItemJustBecomeReal) {
+-        superview._provisionalItemJustBecomeReal(this._item);
++      if (this._isProvisional &amp;&amp; superview._provisionalItemJustBecameReal) {
++        superview._provisionalItemJustBecameReal(this._item);
+       }
+       if (value instanceof orp.model.Item) {
+         this._valueIsItem = true;
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2006-02-21 06:18:26 UTC (rev 453)
++++ trunk/source/view/MultiEntriesView.js	2006-02-26 22:47:33 UTC (rev 454)
+@@ -121,11 +121,11 @@
+  * @scope    package instance method
+  * @param    item      The Item which just became real. 
+  */
+-orp.view.MultiEntriesView.prototype._provisionalItemJustBecomeReal = function(item) {
++orp.view.MultiEntriesView.prototype._provisionalItemJustBecameReal = function(item) {
+   orp.lang.assert(item == this._item);
+   var superview = this.getSuperview();
+-  if (superview._provisionalItemJustBecomeReal) {
+-    superview._provisionalItemJustBecomeReal(item);
++  if (superview._provisionalItemJustBecameReal) {
++    superview._provisionalItemJustBecameReal(item);
+   }
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000434.html">[openrecord-svn] r453 - in trunk: documentation source source/archive source/model source/plugins/create_new_plugin source/view tests tests/archive tests/model tests/transcribers
+</A></li>
+	<LI>Next message: <A HREF="000436.html">[openrecord-svn] r455 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#435">[ date ]</a>
+              <a href="thread.html#435">[ thread ]</a>
+              <a href="subject.html#435">[ subject ]</a>
+              <a href="author.html#435">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

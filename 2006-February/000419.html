@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r438 - trunk/tests/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r438%20-%20trunk/tests/model&In-Reply-To=%3C200602070353.k173rjuE010977%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000418.html">
+   <LINK REL="Next"  HREF="000420.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r438 - trunk/tests/model</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r438%20-%20trunk/tests/model&In-Reply-To=%3C200602070353.k173rjuE010977%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r438 - trunk/tests/model">skinner at berlios.de
+       </A><BR>
+    <I>Tue Feb  7 04:53:45 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000418.html">[openrecord-svn] r437 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000420.html">[openrecord-svn] r439 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-02-07 04:53:40 +0100 (Tue, 07 Feb 2006)
+New Revision: 438
+
+Modified:
+   trunk/tests/model/TestReorderingForSpecialCases.js
+Log:
+minor fixes to TestReorderingForSpecialCases.js, so that the unit tests pass
+
+
+Modified: trunk/tests/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/tests/model/TestReorderingForSpecialCases.js	2006-02-07 03:35:20 UTC (rev 437)
++++ trunk/tests/model/TestReorderingForSpecialCases.js	2006-02-07 03:53:40 UTC (rev 438)
+@@ -84,6 +84,7 @@
+ 
+ function tearDown() {
+   world.logout();
++  mockUuidGenerator.queueOfUuids = new Array();
+ }
+ 
+ 
+@@ -154,11 +155,10 @@
+   pesto.assignToCategory(categoryCalledFood);
+   guavaLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
++  guava.assignToCategory(categoryCalledFood);
+   
+   orp.archive.StubArchive.prototype._generateUuid = realUuidGenerator;
+ 
+-  guava.assignToCategory(categoryCalledFood);
+-
+   guava.reorderBetween(sushi, pesto);
+   foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('After first reordering, Sushi is first in the list.', foodItems[0] == sushi);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000418.html">[openrecord-svn] r437 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000420.html">[openrecord-svn] r439 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

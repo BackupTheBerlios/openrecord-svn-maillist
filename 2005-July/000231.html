@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r245 - in trunk/source: model view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r245%20-%20in%20trunk/source%3A%20model%20view&In-Reply-To=%3C200507132344.j6DNi7nY007387%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000230.html">
+   <LINK REL="Next"  HREF="000232.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r245 - in trunk/source: model view</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r245%20-%20in%20trunk/source%3A%20model%20view&In-Reply-To=%3C200507132344.j6DNi7nY007387%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r245 - in trunk/source: model view">chaolam at berlios.de
+       </A><BR>
+    <I>Thu Jul 14 01:44:07 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000230.html">[openrecord-svn] r244 - trunk/images
+</A></li>
+        <LI>Next message: <A HREF="000232.html">[openrecord-svn] r246 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#231">[ date ]</a>
+              <a href="thread.html#231">[ thread ]</a>
+              <a href="subject.html#231">[ subject ]</a>
+              <a href="author.html#231">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-07-14 01:43:59 +0200 (Thu, 14 Jul 2005)
+New Revision: 245
+
+Modified:
+   trunk/source/model/Item.js
+   trunk/source/view/MultiEntriesView.js
+Log:
+minor bug and cosmetic fix
+
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-07-13 22:57:33 UTC (rev 244)
++++ trunk/source/model/Item.js	2005-07-13 23:43:59 UTC (rev 245)
+@@ -234,7 +234,7 @@
+   // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
+   // then don't even bother creating a new entry. 
+   if (previousEntry) {
+-    var oldValue = previousEntry.getValue();
++    var oldValue = previousEntry.getValue(this);
+     var oldPairOfAttributes = previousEntry.getAttribute();
+     var oldPairOfItems = previousEntry.getItem();
+     if (Util.isArray(oldPairOfAttributes)) {
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-07-13 22:57:33 UTC (rev 244)
++++ trunk/source/view/MultiEntriesView.js	2005-07-13 23:43:59 UTC (rev 245)
+@@ -117,7 +117,7 @@
+   if (this._entryViews.length &gt; 1) {
+     return -1;
+   }
+-  return this.getHtmlElement().offsetWidth-8;
++  return this.getHtmlElement().offsetWidth-7;
+ };
+ 
+ /**
+@@ -329,7 +329,7 @@
+   if (this.isInEditMode()) {
+     htmlElement.onclick = this._handleOwnClick.bindAsEventListener(this);
+     var listener = this;
+-    Droppables.add(htmlElement, {accept: [EntryView.CSS_CLASS_CONNECTION_VALUE,EntryView.CSS_ITEM_VALUE],
++    Droppables.add(htmlElement, {accept: [EntryView.CSS_CLASS_CONNECTION_VALUE,EntryView.CSS_ITEM_VALUE,EntryView.CSS_CLASS_SELECTED],
+       hoverclass: &quot;test&quot;,
+       onDrop: function(element) {listener._handleDrop(element);}});
+   } 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000230.html">[openrecord-svn] r244 - trunk/images
+</A></li>
+	<LI>Next message: <A HREF="000232.html">[openrecord-svn] r246 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#231">[ date ]</a>
+              <a href="thread.html#231">[ thread ]</a>
+              <a href="subject.html#231">[ subject ]</a>
+              <a href="author.html#231">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r226 - in trunk: . source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r226%20-%20in%20trunk%3A%20.%20source/view&In-Reply-To=%3C200507070505.j6755dnJ031385%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000211.html">
+   <LINK REL="Next"  HREF="000213.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r226 - in trunk: . source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r226%20-%20in%20trunk%3A%20.%20source/view&In-Reply-To=%3C200507070505.j6755dnJ031385%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r226 - in trunk: . source/view">skinner at berlios.de
+       </A><BR>
+    <I>Thu Jul  7 07:05:39 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000211.html">[openrecord-svn] r225 - in trunk/source: . view
+</A></li>
+        <LI>Next message: <A HREF="000213.html">[openrecord-svn] r227 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#212">[ date ]</a>
+              <a href="thread.html#212">[ thread ]</a>
+              <a href="subject.html#212">[ subject ]</a>
+              <a href="author.html#212">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-07 07:05:32 +0200 (Thu, 07 Jul 2005)
+New Revision: 226
+
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/dogfood.html
+   trunk/source/view/RootView.js
+Log:
+Minor changes: RootView now displays within a single &lt;div&gt; tag, instead of replacing the entire document body.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-07-06 22:30:52 UTC (rev 225)
++++ trunk/dashboard.html	2005-07-07 05:05:32 UTC (rev 226)
+@@ -57,8 +57,10 @@
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+-    &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
+-    This page won't display correctly.&lt;/p&gt;
++    &lt;div id=&quot;OpenRecord&quot;&gt;
++      &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
++      This page won't display correctly.&lt;/p&gt;
++    &lt;/div&gt;
+     
+ &lt;!-- Creative Commons metadata for Public Domain License 
+ 
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-07-06 22:30:52 UTC (rev 225)
++++ trunk/demo_page.html	2005-07-07 05:05:32 UTC (rev 226)
+@@ -57,8 +57,10 @@
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+-    &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
+-    This page won't display correctly.&lt;/p&gt;
++    &lt;div id=&quot;OpenRecord&quot;&gt;
++      &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
++      This page won't display correctly.&lt;/p&gt;
++    &lt;/div&gt;
+     
+ &lt;!-- Creative Commons metadata for Public Domain License 
+ 
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-07-06 22:30:52 UTC (rev 225)
++++ trunk/dogfood.html	2005-07-07 05:05:32 UTC (rev 226)
+@@ -57,8 +57,10 @@
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+-    &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
+-    This page won't display correctly.&lt;/p&gt;
++    &lt;div id=&quot;OpenRecord&quot;&gt;
++      &lt;p&gt;Sorry, the browser you're using doesn't support JavaScript. 
++      This page won't display correctly.&lt;/p&gt;
++    &lt;/div&gt;
+     
+ &lt;!-- Creative Commons metadata for Public Domain License 
+ 
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-07-06 22:30:52 UTC (rev 225)
++++ trunk/source/view/RootView.js	2005-07-07 05:05:32 UTC (rev 226)
+@@ -99,8 +99,15 @@
+   this._selections = [];
+   document.addEventListener(&quot;keypress&quot;,this._onKeyPress.bindAsEventListener(this),false);
+   
+-  window.document.body.innerHTML = &quot;&quot;;
+-  var rootDiv = View.appendNewElement(window.document.body, &quot;div&quot;);
++  // window.document.body.innerHTML = &quot;&quot;;
++  // var rootDiv = View.appendNewElement(window.document.body, &quot;div&quot;);
++  var rootDiv = document.getElementById('OpenRecord');
++  if (!rootDiv) {
++    alert('Sorry, I could not find my &lt;div id=&quot;OpenRecord&quot;&gt; element');
++    return;
++  }
++  View.removeChildrenOfElement(rootDiv);
++  
+   var anchorSpan = View.appendNewElement(rootDiv, &quot;span&quot;);
+  
+   var headerP = View.appendNewElement(rootDiv, &quot;p&quot;, &quot;header&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000211.html">[openrecord-svn] r225 - in trunk/source: . view
+</A></li>
+	<LI>Next message: <A HREF="000213.html">[openrecord-svn] r227 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#212">[ date ]</a>
+              <a href="thread.html#212">[ thread ]</a>
+              <a href="subject.html#212">[ subject ]</a>
+              <a href="author.html#212">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

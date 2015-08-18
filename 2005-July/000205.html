@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r219 - in trunk/source: util view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r219%20-%20in%20trunk/source%3A%20util%20view&In-Reply-To=%3C200507052045.j65Kjleq010052%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000204.html">
+   <LINK REL="Next"  HREF="000206.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r219 - in trunk/source: util view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r219%20-%20in%20trunk/source%3A%20util%20view&In-Reply-To=%3C200507052045.j65Kjleq010052%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r219 - in trunk/source: util view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Jul  5 22:45:47 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000204.html">[openrecord-svn] r218 - in trunk/source: . view
+</A></li>
+        <LI>Next message: <A HREF="000206.html">[openrecord-svn] r220 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-05 22:45:46 +0200 (Tue, 05 Jul 2005)
+New Revision: 219
+
+Modified:
+   trunk/source/util/LintTool.js
+   trunk/source/view/EntryView.js
+Log:
+In EntryView, wrapped the text node within a span element, so that we can do more CSS style stuff.  Also added some more lint tests.
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2005-07-05 20:03:10 UTC (rev 218)
++++ trunk/source/util/LintTool.js	2005-07-05 20:45:46 UTC (rev 219)
+@@ -61,47 +61,66 @@
+  * the lint tests.
+  *
+  * @scope    public class method
+- * @param    stringContainingCode    A string containing JavaScript code. 
++ * @param    codeString    A string containing JavaScript code. 
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+-LintTool.getErrorReportForCodeInString = function(stringContainingCode) {
++LintTool.getErrorReportForCodeInString = function(codeString) {
+   var errorMessage = &quot;&quot;;
+ 
+-  // call jslint, and see if it reported errors
++  // Call jslint, and see if it reported errors.
+   jslint.laxLineEnd = false;
+   jslint.plusplus = true;
+   jslint.cap = false;
+   jslint.jscript = false;
+-  jslint(stringContainingCode);
++  jslint(codeString);
+   var report = jslint.report();
+   var jslintIsOkay = (report.substr(0, 2) == 'ok');
+   if (!jslintIsOkay) {
+     errorMessage = report + '\n';
+   }
+   
+-  // now check for tabs, backspaces, etc.
+-  var noTabs = (stringContainingCode.indexOf(&quot;\t&quot;) == -1);
+-  if (!noTabs) {
+-    errorMessage += &quot;There are tab characters in the file.&quot; + '\n';
+-  }
+-  var noBackspaces = (stringContainingCode.indexOf(&quot;\b&quot;) == -1);
+-  if (!noBackspaces) {
+-    errorMessage += &quot;There are backspace characters in the file.&quot; + '\n';
+-  }
+-  var noCarriageReturns = (stringContainingCode.indexOf(&quot;\r&quot;) == -1);
+-  if (!noCarriageReturns) {
+-    errorMessage += &quot;There are carriage return characters in the file.&quot; + '\n';
+-  }
+-  var noFormFeeds = (stringContainingCode.indexOf(&quot;\f&quot;) == -1);
+-  if (!noCarriageReturns) {
+-    errorMessage += &quot;There are carriage return characters in the file.&quot; + '\n';
+-  }
+-  // var allClean = jslintIsOkay &amp;&amp; noTabs &amp;&amp; noBackspaces &amp;&amp; noCarriageReturns &amp;&amp; noFormFeeds;
++  // Check for tabs, backspaces, etc.
++  errorMessage += LintTool.checkForString(codeString, '\t', &quot;There are tab characters in the file.&quot;);
++  errorMessage += LintTool.checkForString(codeString, '\b', &quot;There are backspace characters in the file.&quot;);
++  errorMessage += LintTool.checkForString(codeString, '\r', &quot;There are carriage return characters in the file.&quot;);
++  errorMessage += LintTool.checkForString(codeString, '\f', &quot;There are form feed characters in the file.&quot;);
++  
++  // Check for discouraged code
++  // We have to break 'document' + '.write' into two parts, or else this LintTool.js
++  // file won't pass its own lint test.
++  errorMessage += LintTool.checkForString(codeString, 'document' + '.write');
++  errorMessage += LintTool.checkForString(codeString, 'document' + '.all');
++  errorMessage += LintTool.checkForString(codeString, 'document' + '.layers');
++
+   return errorMessage;
+ }; 
+ 
+ 
+ /**
++ * Given a string containing JavaScript code, this method checks to make
++ * sure the code does not contain some specific sub-string, and returns 
++ * an error message if the sub-string is found.
++ *
++ * @scope    public class method
++ * @param    codeString    A string containing JavaScript code. 
++ * @param    memberString    The sub-string that should not be in the code. 
++ * @param    errorMessage    Optional. The error message to return if the memberString was found in codeString. 
++ * @return   Returns an error message string, or returns an empty string if there are no errors.
++ */
++LintTool.checkForString = function(codeString, memberString, errorMessage) {
++  var returnString = &quot;&quot;;
++  var clean = (codeString.indexOf(memberString) == -1);
++  if (!clean) {
++    if (!errorMessage) {
++      errorMessage = 'The file contains discouraged code: &quot;' + memberString + '&quot;';
++    }
++    returnString += errorMessage + '\n';
++  }
++  return returnString;
++};
++  
++
++/**
+  * Given the URL of a file containing JavaScript code, returns null if the code passes 
+  * the lint tests.
+  *
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-05 20:03:10 UTC (rev 218)
++++ trunk/source/view/EntryView.js	2005-07-05 20:45:46 UTC (rev 219)
+@@ -75,8 +75,11 @@
+   this._item = item;
+   this._attribute = attribute;
+   this._entry = entry;
++  
+   this._editField = null;
+-  // this._className = cssClassName;
++  this._textNode = null;
++  this._textSpan = null;
++  
+   this._isMultiLine = isMultiLine;
+   this._isEditing = false;
+   this._proxyOnKeyFunction = null;
+@@ -196,8 +199,10 @@
+   else if (this._isLozenge()) {
+     htmlElement.className += &quot; &quot; + EntryView.CSS_CLASS_VALUE_IS_ITEM;
+   }
+-  this._textNode = document.createTextNode(textString);
+-  htmlElement.appendChild(this._textNode);
++  this._textSpan = View.createAndAppendElement(htmlElement, &quot;span&quot;);
++  this._textNode = View.createAndAppendTextNode(this._textSpan, textString);
++  // this._textNode = document.createTextNode(textString);
++  // htmlElement.appendChild(this._textNode);
+   htmlElement.onclick =  this.onClick.bindAsEventListener(this);
+   if (this._alwaysUseEditField) {
+     this.startEditing(true);
+@@ -246,7 +251,8 @@
+     if (this._isMultiLine) {editField.style.height = (this.getHtmlElement().offsetHeight) + &quot;px&quot;;}  
+     
+     this._setupSuggestionBox();
+-    this.getHtmlElement().replaceChild(editField, this._textNode);
++    // this.getHtmlElement().replaceChild(editField, this._textNode);
++    this.getHtmlElement().replaceChild(editField, this._textSpan);
+     if (!dontSelect) {editField.select();}
+     this._isEditing = true;
+   }
+@@ -263,7 +269,6 @@
+     var newValue;
+     if (this._suggestionBox) {
+       newValue = this._suggestionBox.getSelectedItem();
+-      // alert(newValue);
+     }
+     if (!newValue) {
+       newValue = this._editField.value;
+@@ -289,7 +294,8 @@
+       }
+       this._textNode.data = newValueDisplayString;
+       this._suggestionBox = null;
+-      this.getHtmlElement().replaceChild(this._textNode, this._editField);
++      // this.getHtmlElement().replaceChild(this._textNode, this._editField);
++      this.getHtmlElement().replaceChild(this._textSpan, this._editField);
+     }
+ 
+     // we need this _writeValue() to be after all display related code, because this may trigger an observer call
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000204.html">[openrecord-svn] r218 - in trunk/source: . view
+</A></li>
+	<LI>Next message: <A HREF="000206.html">[openrecord-svn] r220 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#205">[ date ]</a>
+              <a href="thread.html#205">[ thread ]</a>
+              <a href="subject.html#205">[ subject ]</a>
+              <a href="author.html#205">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

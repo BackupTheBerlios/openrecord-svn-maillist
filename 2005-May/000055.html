@@ -1,0 +1,289 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r65 - in trunk/source: . model repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r65%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200505191757.j4JHvcts027705%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000054.html">
+   <LINK REL="Next"  HREF="000056.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r65 - in trunk/source: . model repositories/demo_page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r65%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200505191757.j4JHvcts027705%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r65 - in trunk/source: . model repositories/demo_page">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu May 19 19:57:38 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000054.html">[openrecord-svn] r62 - in trunk: documentation source source/model
+</A></li>
+        <LI>Next message: <A HREF="000056.html">[openrecord-svn] r66 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-19 19:57:36 +0200 (Thu, 19 May 2005)
+New Revision: 65
+
+Modified:
+   trunk/source/RootView.js
+   trunk/source/model/BigLumpVirtualServer.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/test_data_2005_april_chronological_lump.json
+   trunk/source/repositories/demo_page/2005_april_chronological_lump.json
+Log:
+Data model now saves and loads user passwords.
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-18 22:13:59 UTC (rev 64)
++++ trunk/source/RootView.js	2005-05-19 17:57:36 UTC (rev 65)
+@@ -2,7 +2,9 @@
+  RootView.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -287,7 +289,8 @@
+     if (userUuid) {
+       var userToLoginAs = this.getWorld().getItemFromUuid(userUuid);
+       if (userToLoginAs) { 
+-        this.getWorld().login(userToLoginAs, &quot;PENDING: magic super password&quot;);
++        // PENDING: need to use a real password instead of &quot;abracadabra&quot;
++        this.getWorld().login(userToLoginAs, &quot;abracadabra&quot;);
+         currentUser = this.getWorld().getCurrentUser();
+       }
+       if (!currentUser) {
+@@ -373,8 +376,10 @@
+   
+   var listOfUsers = this.getWorld().getUsers();
+   var userNameEntered = this.usernameInput.value;
++  var key;
+   var currentUser = null;
+-  for (var key in listOfUsers) {
++  
++  for (key in listOfUsers) {
+     if (!currentUser) {
+       var user = listOfUsers[key];
+       var lowerCaseUserName = user.getDisplayName().toLowerCase();
+@@ -383,7 +388,7 @@
+       var shortUserName = lowerCaseUserName.substring(0, numberOfCharactersToCompare);
+       if (shortUserName == lowerCaseUserNameEntered) {
+         // we have a match!
+-        this.getWorld().login(user, &quot;PENDING: magic super password&quot;);
++        this.getWorld().login(user, &quot;abracadabra&quot;); // PENDING: user real password
+         currentUser = this.getWorld().getCurrentUser(); 
+       }
+     }
+@@ -395,8 +400,8 @@
+     this.displayControlSpan();
+   } else {
+     if (isValidUsername(userNameEntered)) {
+-      var newUser = this.getWorld().newUser(userNameEntered, &quot;dummy password&quot;);
+-      var loginSuccess = this.getWorld().login(newUser, &quot;dummy password&quot;);
++      var newUser = this.getWorld().newUser(userNameEntered, &quot;abracadabra&quot;); // PENDING: user real password
++      var loginSuccess = this.getWorld().login(newUser, &quot;abracadabra&quot;); // PENDING: user real password
+       var userUuid;
+       if (loginSuccess) {
+         userUuid = newUser._getUuid();
+
+Modified: trunk/source/model/BigLumpVirtualServer.js
+===================================================================
+--- trunk/source/model/BigLumpVirtualServer.js	2005-05-18 22:13:59 UTC (rev 64)
++++ trunk/source/model/BigLumpVirtualServer.js	2005-05-19 17:57:36 UTC (rev 65)
+@@ -59,6 +59,7 @@
+ BigLumpVirtualServer.JSON_TYPE_NUMBER_VALUE = &quot;NumberValue&quot;;
+ 
+ BigLumpVirtualServer.JSON_MEMBER_WUID = &quot;uuid&quot;;
++BigLumpVirtualServer.JSON_MEMBER_PASSWORD = &quot;password&quot;;
+ 
+ BigLumpVirtualServer.JSON_MEMBER_ITEM_CLASS = &quot;Item&quot;;
+ BigLumpVirtualServer.JSON_MEMBER_ENTRY_CLASS = &quot;Entry&quot;;
+@@ -372,9 +373,15 @@
+     }
+   }
+   for (key in inListOfUsers) {
+-    var userUuid = inListOfUsers[key];
++    var dehydratedUserData = inListOfUsers[key];
++    var userUuid = dehydratedUserData[BigLumpVirtualServer.JSON_MEMBER_WUID];
++    var userPassword = dehydratedUserData[BigLumpVirtualServer.JSON_MEMBER_PASSWORD];
++    
+     var user = this.getItemFromUuid(userUuid);
+-    this.__myListOfUsers.push(user);
++    if (user) {
++      this.__myListOfUsers.push(user);
++      this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()] = userPassword;
++    }
+   }
+ };
+   
+@@ -494,19 +501,27 @@
+     listOfStrings.push('  }');
+   }
+   listOfStrings.push(&quot;  ], \n&quot;);
+-  listOfStrings.push('  &quot;' + BigLumpVirtualServer.JSON_MEMBER_USERS + '&quot;: ' + '[');
+-
++  
++  // write out the list of users
++  listOfStrings.push('  &quot;' + BigLumpVirtualServer.JSON_MEMBER_USERS + '&quot;: ' + '[\n');
+   firstIdentifiedRecord = true;
+   for (key in this.__myListOfUsers) {
+     var user = this.__myListOfUsers[key];
+     if (firstIdentifiedRecord) {
+       firstIdentifiedRecord = false;
+     } else {
+-      listOfStrings.push(', ');
++      listOfStrings.push(',\n');
+     }
+-    listOfStrings.push('&quot;' + user._getUuid() + '&quot;');
++    var password = this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
++    var passwordString = &quot;null&quot;;
++    if (password) {
++      passwordString = '&quot;' + password + '&quot;';
++    }
++    listOfStrings.push('    { &quot;' + BigLumpVirtualServer.JSON_MEMBER_WUID + '&quot;: &quot;' + user._getUuid() + '&quot;, ');
++    listOfStrings.push('&quot;' + BigLumpVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }');
+   }
+-  listOfStrings.push(&quot;]\n&quot;);
++  listOfStrings.push(&quot; ]\n&quot;);
++  
+   listOfStrings.push(&quot;}\n&quot;);
+   var finalString = listOfStrings.join(&quot;&quot;);
+   return finalString;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-18 22:13:59 UTC (rev 64)
++++ trunk/source/model/StubVirtualServer.js	2005-05-19 17:57:36 UTC (rev 65)
+@@ -239,9 +239,9 @@
+   var successfulAuthentication = (realAuthentication == inAuthentication);
+   
+   // PENDING: temporary hack
+-  if (!successfulAuthentication) {
+-    successfulAuthentication = (&quot;PENDING: magic super password&quot; == inAuthentication);
+-  }
++  // if (!successfulAuthentication) {
++  //  successfulAuthentication = (&quot;PENDING: magic super password&quot; == inAuthentication);
++  // }
+   
+   if (successfulAuthentication) {
+     this.__myCurrentUser = inUser;
+
+Modified: trunk/source/model/test_data_2005_april_chronological_lump.json
+===================================================================
+--- trunk/source/model/test_data_2005_april_chronological_lump.json	2005-05-18 22:13:59 UTC (rev 64)
++++ trunk/source/model/test_data_2005_april_chronological_lump.json	2005-05-19 17:57:36 UTC (rev 65)
+@@ -2871,5 +2871,7 @@
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+       &quot;timestamp&quot;: &quot;1114819463406&quot; }
+   }  ], 
+-  &quot;users&quot;: [&quot;100&quot;, &quot;1502&quot;]
++  &quot;users&quot;: [
++    { &quot;uuid&quot;: &quot;100&quot;, &quot;password&quot;: null },
++    { &quot;uuid&quot;: &quot;1502&quot;, &quot;password&quot;: &quot;abracadabra&quot; } ]
+ }
+
+Modified: trunk/source/repositories/demo_page/2005_april_chronological_lump.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_april_chronological_lump.json	2005-05-18 22:13:59 UTC (rev 64)
++++ trunk/source/repositories/demo_page/2005_april_chronological_lump.json	2005-05-19 17:57:36 UTC (rev 65)
+@@ -2943,6 +2943,54 @@
+           &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;&quot; },
+       &quot;userstamp&quot;: &quot;62361&quot;,                // by (Brian Skinner)
+       &quot;timestamp&quot;: &quot;1116454259640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // none
++           &quot;uuid&quot;: &quot;623636&quot;,
++      &quot;attribute&quot;: &quot;3103&quot;,                // ISBN
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;none&quot; },
++      &quot;userstamp&quot;: &quot;62361&quot;,                // by (Brian Skinner)
++      &quot;timestamp&quot;: &quot;1116524940750&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // 0814756778
++           &quot;uuid&quot;: &quot;623637&quot;,
++      &quot;attribute&quot;: &quot;3103&quot;,                // ISBN
++           &quot;item&quot;: &quot;3204&quot;,                // Shrinking Violets and Caspa...
++          &quot;previousEntry&quot;: &quot;6076&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;0814756778&quot; },
++      &quot;userstamp&quot;: &quot;62361&quot;,                // by (Brian Skinner)
++      &quot;timestamp&quot;: &quot;1116524942718&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Chih-Chao Lam
++           &quot;uuid&quot;: &quot;623638&quot;,
++      &quot;userstamp&quot;: &quot;623638&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1116525064062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Chih-Chao Lam
++           &quot;uuid&quot;: &quot;623639&quot;,
++      &quot;attribute&quot;: &quot;102&quot;,                // Name
++           &quot;item&quot;: &quot;623638&quot;,                // Chih-Chao Lam
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Chih-Chao Lam&quot; },
++      &quot;userstamp&quot;: &quot;623638&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1116525064062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // 
++           &quot;uuid&quot;: &quot;623640&quot;,
++      &quot;attribute&quot;: &quot;3103&quot;,                // ISBN
++           &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
++          &quot;previousEntry&quot;: &quot;623636&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;&quot; },
++      &quot;userstamp&quot;: &quot;623638&quot;,                // by (Chih-Chao Lam)
++      &quot;timestamp&quot;: &quot;1116525088906&quot; }
+   }  ], 
+-  &quot;users&quot;: [&quot;100&quot;, &quot;1502&quot;, &quot;62361&quot;]
++  &quot;users&quot;: [
++    { &quot;uuid&quot;: &quot;100&quot;, &quot;password&quot;: null },
++    { &quot;uuid&quot;: &quot;1502&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
++    { &quot;uuid&quot;: &quot;62361&quot;, &quot;password&quot;: &quot;abracadabra&quot; },
++    { &quot;uuid&quot;: &quot;623638&quot;, &quot;password&quot;: &quot;abracadabra&quot; } ]
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000054.html">[openrecord-svn] r62 - in trunk: documentation source source/model
+</A></li>
+	<LI>Next message: <A HREF="000056.html">[openrecord-svn] r66 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#55">[ date ]</a>
+              <a href="thread.html#55">[ thread ]</a>
+              <a href="subject.html#55">[ subject ]</a>
+              <a href="author.html#55">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,842 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r97 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r97%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200505312151.j4VLp9uO003090%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000083.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r97 - in trunk: documentation source source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r97%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200505312151.j4VLp9uO003090%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r97 - in trunk: documentation source source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 31 23:51:09 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000083.html">[openrecord-svn] r96 - trunk/documentation
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-31 23:51:09 +0200 (Tue, 31 May 2005)
+New Revision: 97
+
+Added:
+   trunk/source/NavbarView.js
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/LintTest.html
+   trunk/source/LintTest.js
+   trunk/source/LoginView.js
+   trunk/source/RootView.js
+   trunk/source/View.js
+   trunk/source/demo_page.html
+   trunk/source/model/LintTest.html
+Log:
+Refactored navbar code into NavbarView.js, plus other minor cleanup.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/documentation/release_planning.txt	2005-05-31 21:51:09 UTC (rev 97)
+@@ -71,9 +71,13 @@
+ 
+ ied == an &quot;ideal engineering day&quot;, with just coding, and no distractions
+ 
++---------------------------------------------------------------------------
++   Tasks we originally identified for release 0.1, back on May 2, 2005
++-------+----------+---------+----------------------------------------------
+ Who    | Priority | Estimate| Task
+ -------+----------+---------+----------------------------------------------
+-Mignon |  High    | 1   ied | UI for adding an attribute to an item, and setting the expected data type of an attribute
++Mignon |  High    | 1   ied | UI for adding an attribute to an item
++       |          |         | UI for setting the expected data type of an attribute
+ Mignon |  High    | 1   ied | UI for creating a new category
+ Mignon |  High    | 1   ied | UI for deleting a row from a table 
+  Chao  |   done   | 1.5 ied | UI for logging in and logging out; cookies and auto-login; display of who you're logged in as
+@@ -93,10 +97,27 @@
+        |   Low    |         | UI for creating a new page
+  Chao  |   done   |         | UI for creating a new user
+ -------+----------+---------+----------------------------------------------
+- Chao  |  done    | 0   ied | UI for entering a new row in a table (1.5 ied actual)
++ 
++
++---------------------------------------------------------------------------
++   Additional &quot;hidden&quot; tasks that we uncovered during May
++-------+----------+---------+----------------------------------------------
++Who    | Priority | Estimate| Task
++-------+----------+---------+----------------------------------------------
++ Chao  |   done   | 0   ied | Re-implement UI for entering a new row in a table (1.5 ied actual)
+ Brian  |   done   | 1   ied | Ensure that UUIDs are unique in multi-user use case
++-------+----------+---------+----------------------------------------------
++
++
++---------------------------------------------------------------------------
++   New tasks that we decided to take on for release 0.1
++-------+----------+---------+----------------------------------------------
++Who    | Priority | Estimate| Task
++-------+----------+---------+----------------------------------------------
++Mignon |   Low    |         | Generate time-based UUIDs (&quot;version 1&quot; UUIDs)
+ Chao   | High     | 1   ied | Allow users to view multiple entries in a table plugin cell
+ Chao   | High     | 2   ied | Allow users to enter/edit multiple entries in a table plugin cell
++-------+----------+---------+----------------------------------------------
+  
+ 
+        
+
+Modified: trunk/source/LintTest.html
+===================================================================
+--- trunk/source/LintTest.html	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/LintTest.html	2005-05-31 21:51:09 UTC (rev 97)
+@@ -16,16 +16,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;View.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;RootView.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;ItemView.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;SectionView.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;DetailPlugin.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;BarChartPlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/LintTest.js	2005-05-31 21:51:09 UTC (rev 97)
+@@ -119,6 +119,7 @@
+     &quot;ItemView.js&quot;,
+     &quot;PageView.js&quot;,
+     &quot;LoginView.js&quot;,
++    &quot;NavbarView.js&quot;,
+     &quot;SectionView.js&quot;,
+     &quot;TextView.js&quot;,
+     &quot;TablePlugin.js&quot;,
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/LoginView.js	2005-05-31 21:51:09 UTC (rev 97)
+@@ -47,19 +47,16 @@
+ 
+ 
+ /**
+- * The LoginView uses an instance of a LoginView to display an Item in the
+- * browser window.
++ * The RootView uses an instance of a LoginView to display a login prompt,
++ * as well as controls for creating a new user account.
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inLoginView    The LoginView that this LoginView is nested in. 
++ * @param    inSuperView    The view that this LoginView is nested in. 
+  * @param    inHTMLElement    The HTMLElement to display the HTML in. 
+- * @param    inItem    The item to be displayed by this view. 
+  */
+ LoginView.prototype = new View();  // makes LoginView be a subclass of View
+ function LoginView(inSuperView, inHTMLElement) {
+-  Util.assert(inHTMLElement instanceof HTMLElement);
+-
+   // instance properties
+   this.setSuperview(inSuperView);
+   this.setHTMLElement(inHTMLElement);
+@@ -70,6 +67,10 @@
+ }
+ 
+ 
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
+ /**
+  * Re-creates all the HTML for the LoginView, and hands the HTML to the 
+  * browser to be re-drawn.
+@@ -83,11 +84,15 @@
+ };
+ 
+ 
++// -------------------------------------------------------------------
++// Private instance methods
++// -------------------------------------------------------------------
++
+ /**
+  * Re-creates the HTML for the chrome area containing the controls,
+  * and hands the HTML to the browser to be re-drawn.
+  *
+- * @scope    public instance method
++ * @scope    private instance method
+  */
+ LoginView.prototype._rebuildView = function () {
+   var mySpan = this.getHTMLElement();
+@@ -205,6 +210,10 @@
+ };
+ 
+ 
++// -------------------------------------------------------------------
++// Event handler methods
++// -------------------------------------------------------------------
++
+ /**
+  * Called when sign out button is clicked.
+  *
+@@ -330,6 +339,10 @@
+ };
+ 
+ 
++// -------------------------------------------------------------------
++// Private helper methods
++// -------------------------------------------------------------------
++
+ LoginView.prototype._loginUser = function (user, password) {
+   var loginSuccess = this.getWorld().login(user, password); 
+   if (loginSuccess) {
+
+Added: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/NavbarView.js	2005-05-31 21:51:09 UTC (rev 97)
+@@ -0,0 +1,128 @@
++/*****************************************************************************
++ NavbarView.js
++
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++// -------------------------------------------------------------------
++
++
++/**
++ * The RootView uses an instance of a NavbarView to display a navigation
++ * bar, with links to pages.
++ *
++ * @scope    public instance constructor
++ * @extends  View
++ * @param    inSuperView    The view that this LoginView is nested in. 
++ * @param    inHTMLElement    The HTMLElement to display the HTML in. 
++ */
++NavbarView.prototype = new View();  // makes NavbarView be a subclass of View
++function NavbarView(inSuperView, inHTMLElement) {
++  // instance properties
++  this.setSuperview(inSuperView);
++  this.setHTMLElement(inHTMLElement);
++}
++
++
++/**
++ * Re-creates all the HTML for the view, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++NavbarView.prototype.refresh = function () {
++  if (!this.hasEverBeenDisplayed()) {
++    this._rebuildView();
++  }
++};
++
++
++/**
++ * Re-creates the HTML for the view, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    private instance method
++ */
++NavbarView.prototype._rebuildView = function () {
++  var divElement = this.getHTMLElement();
++  
++  var rootView = this.getRootView();
++  var listOfPages = rootView.getPages();
++
++  //get rid of all child nodes 
++  divElement.innerHTML = '';
++
++  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
++  var listOfStrings = [];
++
++  listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
++  
++  for (var key in listOfPages) {
++    var page = listOfPages[key];
++    var menuText = page.getSingleStringValueFromAttribute(attributeCalledShortName);
++    var menuUrl = rootView.getUrlForItem(page);
++    listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
++  }
++
++  listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
++  
++  // write out the new nav bar content 
++  var finalString = listOfStrings.join(&quot;&quot;);
++  divElement.innerHTML = finalString;
++  
++  var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
++  newPageButton.type = &quot;button&quot;;
++  newPageButton.value = &quot;New Page&quot;;
++  newPageButton.onclick = this._clickOnNewPageButton.bindAsEventListener(this);
++};
++
++
++// -------------------------------------------------------------------
++// Event handler methods
++// -------------------------------------------------------------------
++
++/**
++ * Called when the user clicks on the &quot;New Page&quot; button.
++ *
++ * @scope    private instance method
++ */
++NavbarView.prototype._clickOnNewPageButton = function(inEventObject) {
++  var rootView = this.getRootView();
++  var newPage = rootView.newPage();
++  window.location = rootView.getUrlForItem(newPage);
++  rootView.setCurrentContentViewFromUrl();
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/RootView.js	2005-05-31 21:51:09 UTC (rev 97)
+@@ -145,6 +145,22 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the singleton RootView instance.
++ *
++ * @deprecated INSTEAD USE THE INSTANCE METHOD getRootView() AVAILABLE ON ALL View INSTANCES.
++ * @scope    public class method
++ * @return   The singleton instance of RootView. 
++ */
++RootView.getRootView = function (inText) {
++  return RootView.ourSingleInstance;
++};
++
++
++// -------------------------------------------------------------------
+ // Public instance methods
+ // -------------------------------------------------------------------
+ 
+@@ -160,6 +176,28 @@
+ 
+ 
+ /**
++ * Returns the page item to be used as the home page.
++ *
++ * @scope    public instance method
++ * @return   A page item.
++ */
++RootView.prototype.getHomePage = function () {
++  return this.getWorld().getItemFromUuid(RootView.UUID_FOR_HOME_PAGE);
++};
++
++
++/**
++ * Overrides the View method and returns this view.
++ *
++ * @scope    public instance method
++ * @return   This view.
++ */
++RootView.prototype.getRootView = function () {
++  return this;
++};
++
++
++/**
+  * Returns true if we are in Edit Mode.
+  *
+  * @scope    public instance method
+@@ -169,19 +207,55 @@
+   return this.myEditMode;
+ };
+ 
+-  
++    
+ /**
+- * Returns the page item to be used as the home page.
++ * Switches the UI into and out of edit mode.
+  *
+  * @scope    public instance method
+- * @return   A page item.
++ * @param    inEditModeFlag    A boolean. True to switch into edit mode, false to switch out.
+  */
+-RootView.prototype.getHomePage = function () {
+-  return this.getWorld().getItemFromUuid(RootView.UUID_FOR_HOME_PAGE);
++RootView.prototype.setEditMode = function (inEditModeFlag) {
++  if (inEditModeFlag != this.myEditMode) {
++    var world = this.getWorld();
++    if (this.myEditMode) {
++      // world.endTransaction();
++      // window.document.body.style.cursor = &quot;auto&quot;;
++    } else {
++      // world.beginTransaction();
++      // window.document.body.style.cursor = &quot;crosshair&quot;;
++    }
++    this.myEditMode = !this.myEditMode;
++    this.display();
++    // this.displayTextInDebugTextarea(this.myEditMode);
++    // if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
++    //  RootView.displayTextInDebugTextarea(world._getJsonStringRepresentingAllItems());
++    // }
++  }
+ };
+ 
+ 
+ /**
++ * Given an item, returns a relative URL that can be used to redirect the 
++ * browser to a page that displays that time.
++ *
++ * @scope    public instance method
++ * @param    item    Any item.
++ */
++RootView.prototype.getUrlForItem = function (item) {
++  Util.assert(item instanceof Item);
++  var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
++  var prefix;
++  if (item.isInCategory(categoryCalledPage)) {
++    prefix = RootView.URL_HASH_PAGE_PREFIX;
++  } else {
++    prefix = RootView.URL_HASH_ITEM_PREFIX;
++  }
++  var url = prefix + item._getUuid();
++  return url;
++};
++
++
++/**
+  * Gets the browser URL from window.location, finds or creates a corresponding
+  * PageView or ItemView, and sets the current content view to the newly selected
+  * PageView or ItemView.
+@@ -260,29 +334,24 @@
+   document.title = this._myCurrentContentView.getPageTitle() + &quot; - openagenda.org&quot;;
+   this._myRootDiv.className = (this.isInEditMode()) ? RootView.ELEMENT_CLASS_EDIT_MODE : RootView.ELEMENT_CLASS_VIEW_MODE;
+   this._displayLoginSpan();
+-  this.displayNavbar();
+-  this.displayDebugArea();
++  this._displayNavbar();
++  this._displayDebugArea();
+   this._myCurrentContentView.includeOnScreen(true);
+   window.focus();
+ };
+ 
+ 
+-RootView.prototype._displayLoginSpan = function() {
+-  if (!this.loginView) {
+-    this.loginView = new LoginView(this,this.myMainControlSpanElement);
+-    this.loginView.refresh();
+-  }
+-};
+-
+-
+ /**
+- * Called when the user clicks on the &quot;Create New Page&quot; button.
++ * Creates a new page.  Creates an new item representing a page, gives the
++ * item an initial name and short name, puts one section in the page, and
++ * sets up an initial query for the section.
+  *
+- * @scope    private instance method
++ * @scope    public instance method
++ * @return   The newly created page item.
+  */
+-RootView.prototype._clickOnNewPageButton = function(inEventObject, button) {
++RootView.prototype.newPage = function () {
+   this.getWorld().beginTransaction();
+-  var newPage = this.getWorld().newItem(&quot;new page&quot;);
++  var newPage = this.getWorld().newItem(&quot;New Page&quot;);
+   var shortName = this.getWorld().getAttributeCalledShortName();
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
+@@ -292,36 +361,44 @@
+   var attributeCalledSection = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTION);
+   var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   var categoryCalledSection = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_SECTION);
+-  newPage.addEntryForAttribute(shortName, &quot;new page&quot;);
++  newPage.addEntryForAttribute(shortName, &quot;New Page&quot;);
+   newPage.addEntryForAttribute(attributeCalledCategory, categoryCalledPage);
+-  newPage.addEntryForAttribute(attributeCalledSummary, &quot;this is a new page&quot;);
+-  var newSection = this.getWorld().newItem(&quot;new section&quot;);
++  newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
++  var newSection = this.getWorld().newItem(&quot;New Section&quot;);
+   newSection.addEntryForAttribute(attributeCalledCategory, categoryCalledSection);
+   newPage.addEntryForAttribute(attributeCalledSection, newSection);
+   newSection.addEntryForAttribute(attributeCalledPluginName, SectionView.PLUGIN_TABLE);
+-  var newQuery = this.getWorld().newItem(&quot;new query&quot;);
++  var newQuery = this.getWorld().newItem(&quot;New Query&quot;);
+   newQuery.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+   newSection.addEntryForAttribute(attributeCalledQuery, newQuery);
+   this.getWorld().endTransaction();
+   
+   this.myHashTableOfPagesKeyedByUuid[newPage._getUuid()] = newPage;
+-  window.location = this.getUrl(newPage);
+-  RootView.ourSingleInstance.setCurrentContentViewFromUrl();
++  
++  return newPage;
+ };
+ 
+ 
+-RootView.prototype.getUrl = function (item) {
+-  Util.assert(item instanceof Item);
+-  var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+-  var prefix;
+-  if (item.isInCategory(categoryCalledPage)) {
+-    prefix = RootView.URL_HASH_PAGE_PREFIX;
++/**
++ * Returns a list of the page items in the repository.
++ *
++ * @scope    public instance method
++ * @return   A list of items that represent pages.
++ */
++RootView.prototype.getPages = function () {
++  return this.myHashTableOfPagesKeyedByUuid;
++};
++
++    
++
++// -------------------------------------------------------------------
++// Private instance methods
++// -------------------------------------------------------------------
++RootView.prototype._displayLoginSpan = function() {
++  if (!this.loginView) {
++    this.loginView = new LoginView(this,this.myMainControlSpanElement);
++    this.loginView.refresh();
+   }
+-  else {
+-    prefix = RootView.URL_HASH_ITEM_PREFIX;
+-  }
+-  var url = prefix + item._getUuid();
+-  return url;
+ };
+ 
+ 
+@@ -331,32 +408,11 @@
+  *
+  * @scope    public instance method
+  */
+-RootView.prototype.displayNavbar = function () {
+-  Util.assert(this.myNavbarDivElement instanceof HTMLDivElement);
+-
+-  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+-  var listOfStrings = [];
+-
+-  listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
+-  
+-  for (var uuid in this.myHashTableOfPagesKeyedByUuid) {
+-    var page = this.myHashTableOfPagesKeyedByUuid[uuid];
+-    var menuText = page.getSingleStringValueFromAttribute(attributeCalledShortName);
+-    var menuUrl = RootView.URL_HASH_PAGE_PREFIX + page._getUuid();
+-    listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
++RootView.prototype._displayNavbar = function () {
++  if (!this.navbarView) {
++    this.navbarView = new NavbarView(this, this.myNavbarDivElement);
++    this.navbarView.refresh();
+   }
+-
+-  listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
+-  // listOfStrings.push(&quot;&lt;p&gt;&lt;a href=\&quot;<A HREF="http://www.opensource.org/\">http://www.opensource.org/\</A>&quot;&gt;&lt;img src=\&quot;osi-certified-60x50.png\&quot; width=\&quot;60\&quot; height=\&quot;50\&quot; alt=\&quot;OSI logo\&quot;&gt;&lt;/img&gt;&lt;/a&gt;&lt;/p&gt;&quot;);
+-  
+-  // write out the new control span content 
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  this.myNavbarDivElement.innerHTML = finalString;
+-  
+-  var newPageButton = View.createAndAppendElement(this.myNavbarDivElement, &quot;input&quot;, RootView.ELEMENT_CLASS_EDIT_MODE_ONLY_CONTROL);
+-  newPageButton.type = &quot;button&quot;;
+-  newPageButton.value = &quot;Create New Page&quot;;
+-  newPageButton.onclick = this._clickOnNewPageButton.bindAsEventListener(this, newPageButton);
+ };
+ 
+ 
+@@ -366,7 +422,7 @@
+  *
+  * @scope    public instance method
+  */
+-RootView.prototype.displayDebugArea = function () {
++RootView.prototype._displayDebugArea = function () {
+   Util.assert(this.myDebugDivElement instanceof HTMLDivElement);
+ 
+   var listOfStrings = [];
+@@ -454,7 +510,7 @@
+ 
+ /**
+  * Called when the user clicks on a menu item in the navbar, or on any other 
+- * auto-generated link that points to other Blue-sky content.
++ * auto-generated link that points to other OpenRecord content.
+  * 
+  * Called from an HTML &quot;li&quot; element or an HTML &quot;a&quot; element on a generated page.
+  * There is no need to call this method directly.
+@@ -467,6 +523,7 @@
+   
+   var startTiming = new Date();
+   
++  // Cursor styles available:
+   // &quot;wait&quot;, &quot;auto&quot;, &quot;default&quot;, &quot;crosshair&quot;, &quot;help&quot;
+   // &quot;n-resize&quot;, &quot;s-resize&quot;, &quot;e-resize&quot;, &quot;w-resize&quot;
+   // &quot;ne-resize&quot;, &quot;se-resize&quot;, &quot;nw-resize&quot;, &quot;sw-resize&quot;
+@@ -484,57 +541,6 @@
+   RootView.ourSingleInstance.displayStatusBlurb(&quot;Page load: &quot; + delayInMilliseconds + &quot; milliseconds&quot;);
+ };
+ 
+-  
+-/**
+- * Called when the user clicks on the big &quot;Edit&quot; button.
+- * 
+- * Called from an HTML &quot;input type='button'&quot; element on the generated page.  
+- * There is no need to call this method directly.
+- *
+- * @scope    public instance method
+- * @param    inEventObject    An event object. 
+- */
+-// RootView.prototype.clickOnEditButton = function (inEventObject) {
+-//  this.setEditMode(!this.myEditMode);
+-// };
+-
+-
+-/**
+- * Switches the UI into and out of edit mode.
+- *
+- * @scope    public instance method
+- * @param    inEditModeFlag    A boolean. True to switch into edit mode, false to switch out.
+- */
+-RootView.prototype.setEditMode = function (inEditModeFlag) {
+-  if (inEditModeFlag != this.myEditMode) {
+-    var world = this.getWorld();
+-    if (this.myEditMode) {
+-      // world.endTransaction();
+-      // window.document.body.style.cursor = &quot;auto&quot;;
+-    } else {
+-      // world.beginTransaction();
+-      // window.document.body.style.cursor = &quot;crosshair&quot;;
+-    }
+-    this.myEditMode = !this.myEditMode;
+-    this.display();
+-    // this.displayTextInDebugTextarea(this.myEditMode);
+-    // if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
+-    //  RootView.displayTextInDebugTextarea(world._getJsonStringRepresentingAllItems());
+-    // }
+-  }
+-};
+-
+-
+-/**
+- * Overrides the View method and returns this view.
+- *
+- * @scope    public instance method
+- * @return   This view.
+- */
+-RootView.prototype.getRootView = function () {
+-  return this;
+-};
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/View.js	2005-05-31 21:51:09 UTC (rev 97)
+@@ -42,11 +42,9 @@
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+ function View() {
+-  // alert(&quot;View constructor&quot;);
+   this._mySuperview = null;
+   this._myHTMLElement = null;
+   this._myHasEverBeenDisplayedFlag = false;
+-  
+ }
+ 
+ 
+@@ -84,7 +82,6 @@
+   Util.assert(inHTMLElement instanceof HTMLElement);
+ 
+   this._myHTMLElement = inHTMLElement;
+-  // this.display();
+ };
+ 
+ 
+@@ -111,6 +108,21 @@
+ 
+ 
+ /**
++ * Returns the root view of the view hierarchy.
++ *
++ * @scope    public instance method
++ * @return   An instance of RootView.
++ */
++View.prototype.getRootView = function() {
++  if (!this.getSuperview()) {
++    return null;
++  } else {
++    return this.getSuperview().getRootView();
++  }
++};
++
++
++/**
+  * Returns true if we are in Edit Mode.
+  *
+  * @scope    public instance method
+@@ -122,6 +134,33 @@
+ 
+ 
+ /**
++ * Returns true if this view has ever been displayed
++ *
++ * @scope    public instance method
++ * @return   A boolean value. True if the view has ever been displayed.
++ */
++View.prototype.hasEverBeenDisplayed = function () {
++  return this._myHasEverBeenDisplayedFlag;
++};
++
++
++/**
++ * Re-creates all the HTML for the View, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
++View.prototype.refresh = function () {
++  if (!this.hasEverBeenDisplayed()) {
++    // generate HTML elements for the view
++    this._myHasEverBeenDisplayedFlag = true;
++  } else {
++    // update existing HTML elements for the view
++  }
++};
++
++
++/**
+  * A toggle switch to set whether this view is drawn on-screen or hidden
+  * off-screen.
+  *
+@@ -193,13 +232,7 @@
+   return newTextNode;
+ };
+ 
+-View.prototype.getRootView = function() {
+-  if (!this.getSuperview()) {return null;}
+-  else {
+-    return this.getSuperview().getRootView();
+-  }
+-};
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+-
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/demo_page.html	2005-05-31 21:51:09 UTC (rev 97)
+@@ -23,6 +23,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;SectionView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LoginView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;NavbarView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/LintTest.html
+===================================================================
+--- trunk/source/model/LintTest.html	2005-05-31 20:56:39 UTC (rev 96)
++++ trunk/source/model/LintTest.html	2005-05-31 21:51:09 UTC (rev 97)
+@@ -16,14 +16,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;IdentifiedRecord.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Entry.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;World.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000083.html">[openrecord-svn] r96 - trunk/documentation
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#84">[ date ]</a>
+              <a href="thread.html#84">[ thread ]</a>
+              <a href="subject.html#84">[ subject ]</a>
+              <a href="author.html#84">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

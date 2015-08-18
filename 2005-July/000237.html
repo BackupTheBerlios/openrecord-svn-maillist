@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r252 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r252%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200507181839.j6IIdcno011114%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000236.html">
+   <LINK REL="Next"  HREF="000238.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r252 - in trunk: documentation source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r252%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200507181839.j6IIdcno011114%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r252 - in trunk: documentation source">skinner at berlios.de
+       </A><BR>
+    <I>Mon Jul 18 20:39:38 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000236.html">[openrecord-svn] r251 - in trunk: repositories source/model source/view
+</A></li>
+        <LI>Next message: <A HREF="000238.html">[openrecord-svn] r253 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-18 20:39:37 +0200 (Mon, 18 Jul 2005)
+New Revision: 252
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/CodingConventions.js
+Log:
+added tasks to the to-do list
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-18 02:26:25 UTC (rev 251)
++++ trunk/documentation/release_planning.txt	2005-07-18 18:39:37 UTC (rev 252)
+@@ -269,11 +269,14 @@
+        |          |         | 23. Make sure view code uses transactions
+        |          |         | 24. Deal with \n in page name or summary fields
+        |          |         | 25. BUG: need to encode reserved characters(&lt;&amp;&gt;\n&quot;') back at client-server layer
+-       |          |       &gt;&gt;|     Be able to make html files with just one &lt;script&gt; element, not dozens
++       |          |       &gt;&gt;|     Be able to make html files with just one &lt;script&gt; element, not dozens (see <A HREF="http://dojo.jot.com/WikiHome/DojoPackageSystem">http://dojo.jot.com/WikiHome/DojoPackageSystem</A> and <A HREF="http://openjsan.org/doc/c/cw/cwest/JSAN/0.06/lib/JSAN.html">http://openjsan.org/doc/c/cw/cwest/JSAN/0.06/lib/JSAN.html</A>
+        |          |       &gt;&gt;|     Be able to easily create new documents that are empty
+        |          |       &gt;&gt;|     Create a dozen demo documents (quotes, dictionary, movies, books, oil-change, etc.)
+        |          |       &gt;&gt;|     Have different documents use different style-sheets
+        |          |       &gt;&gt;|     Add a DateValue class that supports dates like &quot;2005&quot;
++       |          |         |     Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
++       |          |         |     improve UI for initial &quot;out of the box&quot; experience
++       |          |         |     UI and data model design to support collaboration
+ -------+----------+---------+----------------------------------------------
+        |          |         | 26. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
+        |          |         | 27. Write one unit test that tests GUI code
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2005-07-18 02:26:25 UTC (rev 251)
++++ trunk/source/CodingConventions.js	2005-07-18 18:39:37 UTC (rev 252)
+@@ -12,6 +12,8 @@
+ //       + classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
+ //       + all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
+ //       + acronyms appear in initial caps: &quot;htmlString&quot;, not &quot;HTMLString&quot;
++//         (see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html</A>
++//         (see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html</A>)
+ //       + constants are all caps, with underscores: FILL_PATTERN_SOLID
+ //    + file names
+ //       + each file has just one public class
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000236.html">[openrecord-svn] r251 - in trunk: repositories source/model source/view
+</A></li>
+	<LI>Next message: <A HREF="000238.html">[openrecord-svn] r253 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

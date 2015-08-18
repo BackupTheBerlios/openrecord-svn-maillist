@@ -1,0 +1,787 @@
+From skinner at berlios.de  Fri May 12 05:21:48 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Fri, 12 May 2006 05:21:48 +0200
+Subject: [openrecord-svn] r463 - trunk/meeting_notes
+Message-ID: <200605120321.k4C3LmnN024843@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-12 05:21:44 +0200 (Fri, 12 May 2006)
+New Revision: 463
+
+Modified:
+   trunk/meeting_notes/2006-01-09_data_model_comparison.ods
+Log:
+additions to the data_model_comparison table
+
+Modified: trunk/meeting_notes/2006-01-09_data_model_comparison.ods
+===================================================================
+(Binary files differ)
+
+
+
+From skinner at berlios.de  Fri May 12 05:18:36 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Fri, 12 May 2006 05:18:36 +0200
+Subject: [openrecord-svn] r462 - trunk/documentation
+Message-ID: <200605120318.k4C3IaXo021509@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-12 05:18:22 +0200 (Fri, 12 May 2006)
+New Revision: 462
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+minor to-do list update
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-03-27 19:46:48 UTC (rev 461)
++++ trunk/documentation/to_do_list.txt	2006-05-12 03:18:22 UTC (rev 462)
+@@ -234,11 +234,6 @@
+     TablePlugin.js and DetailPlugin.js, so it shouldn't be
+     too hard to make a simple read-only version.
+ ---------------------------------------------------
+- + Table Plugin with ad-hoc attributes
+-    We should change the TablePlugin.js so that the user is
+-    able to add new columns on the fly, where each new
+-    column is for some new ad-hoc attribute.
+----------------------------------------------------
+  + Be able to edit in outline mode
+     In the outline plugin, add code to handle editing. The
+     user should be able to add new items to an outline,
+
+
+
+From mignon at berlios.de  Tue May 16 07:06:25 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 16 May 2006 07:06:25 +0200
+Subject: [openrecord-svn] r464 - in trunk: source source/plugins third_party
+Message-ID: <200605160506.k4G56PHS000940@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-05-16 07:06:06 +0200 (Tue, 16 May 2006)
+New Revision: 464
+
+Modified:
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/plugins/ButtonView.js
+   trunk/third_party/
+Log:
+Updated to latest version of dojo.  Replaced dojo.widget.Button2 (which is now deprecated) with dojo.widget.Button and deleted references to dojo.widget.html.Button2 (which no longer exists).
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-05-12 03:21:44 UTC (rev 463)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-05-16 05:06:06 UTC (rev 464)
+@@ -41,8 +41,7 @@
+ // do that because dojo.require() statements don't work
+ // within plugins (see bug #113 in the to_do_list.txt file).
+ dojo.require("dojo.widget.*");
+-dojo.require("dojo.widget.Button2");
+-dojo.require("dojo.widget.html.Button2");
++dojo.require("dojo.widget.Button");
+ dojo.require("dojo.widget.Menu2");
+ dojo.require("dojo.widget.ComboBox");
+ dojo.require("dojo.widget.html.ComboBox");
+
+Modified: trunk/source/plugins/ButtonView.js
+===================================================================
+--- trunk/source/plugins/ButtonView.js	2006-05-12 03:21:44 UTC (rev 463)
++++ trunk/source/plugins/ButtonView.js	2006-05-16 05:06:06 UTC (rev 464)
+@@ -14,8 +14,7 @@
+ dojo.require("orp.view.PluginView");
+ 
+ dojo.require("dojo.widget.*");
+-dojo.require("dojo.widget.Button2");
+-dojo.require("dojo.widget.html.Button2");
++dojo.require("dojo.widget.Button");
+ dojo.require("dojo.widget.Menu2");
+ 
+ /**
+@@ -119,22 +118,22 @@
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName("{no name}");
+-    var button2 = dojo.widget.createWidget("Button2", {caption: itemName}, divElement, "last");
+-    dojo.event.connect(button2, "onClick", this, "buttonClick")
++    var button = dojo.widget.createWidget("Button", {caption: itemName}, divElement, "last");
++    dojo.event.connect(button, "onClick", this, "buttonClick")
+   }
+   orp.view.View.appendNewElement(divElement, "p");
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName("{no name}");
+-    var dropdown2 = dojo.widget.createWidget("DropDownButton2", {caption: itemName}, divElement, "last");
+-    dojo.event.connect(dropdown2, "onClick", this, "buttonClick")
++    var dropdown = dojo.widget.createWidget("DropDownButton", {caption: itemName}, divElement, "last");
++    dojo.event.connect(dropdown, "onClick", this, "buttonClick")
+   }
+   orp.view.View.appendNewElement(divElement, "p");
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName("{no name}");
+-    var combo2 = dojo.widget.createWidget("ComboButton2", {caption: itemName}, divElement, "last");
+-    dojo.event.connect(combo2, "onClick", this, "buttonClick")
++    var combo = dojo.widget.createWidget("ComboButton", {caption: itemName}, divElement, "last");
++    dojo.event.connect(combo, "onClick", this, "buttonClick")
+   }
+ 
+ };
+
+
+Property changes on: trunk/third_party
+___________________________________________________________________
+Name: svn:externals
+   - dojo  -r3024  http://svn.dojotoolkit.org/dojo/trunk
+
+   + dojo  -r4029  http://svn.dojotoolkit.org/dojo/trunk
+
+
+
+
+From mignon at berlios.de  Tue May 16 07:18:49 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 16 May 2006 07:18:49 +0200
+Subject: [openrecord-svn] r465 - in trunk: documentation source
+Message-ID: <200605160518.k4G5InxG002013@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-05-16 07:18:42 +0200 (Tue, 16 May 2006)
+New Revision: 465
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/DetailPlugin.js
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/TablePlugin.js
+Log:
+Since dojo.require statements in plugins now work (thanks to dojo, not me), I removed the plugin related dojo.require's from OpenRecordLoaderStepThree.js and put them in the appropriate plugins.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-05-16 05:06:06 UTC (rev 464)
++++ trunk/documentation/to_do_list.txt	2006-05-16 05:18:42 UTC (rev 465)
+@@ -56,7 +56,7 @@
+        |          |         | 110. Rationalize the View API and document public API
+        |          |         | 111. Refactor our observer notification API (and implementation)
+ (soon) |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+-       |          |         | 113. BUG: in plugins, dojo.require() statements don't do anything 
++mignon |          |  .25    | 113. BUG: in plugins, dojo.require() statements don't do anything 
+        |          |         | 114. In OpenRecordLoader.js, add: djConfig.cacheBust = new Date().valueOf().toString();
+        |          |         | 115. Allow a plugin view to register as a default detail view for a category of item
+        |          |         | 116. Have DetailPlugin show tabs, if more than one detail view is available for an item
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2006-05-16 05:06:06 UTC (rev 464)
++++ trunk/source/DetailPlugin.js	2006-05-16 05:18:42 UTC (rev 465)
+@@ -38,7 +38,10 @@
+ dojo.require("orp.util.Util");
+ dojo.require("orp.model.Item");
+ dojo.require("orp.lang.Lang");
+-  
++dojo.require("dojo.widget.*");
++dojo.require("dojo.widget.ComboBox");
++dojo.require("dojo.widget.html.ComboBox");
++
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ // 
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-05-16 05:06:06 UTC (rev 464)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-05-16 05:18:42 UTC (rev 465)
+@@ -33,20 +33,6 @@
+ dojo.require("orp.model.World");
+ dojo.require("orp.view.RootView");
+ 
+-// FIXME:
+-// These dojo.require() statements are needed in order to 
+-// get plugins/ButtonView.js to work.  Someday we should 
+-// delete these next six lines, and instead just have the
+-// identical lines in ButtonView.js.  But, for now we can't
+-// do that because dojo.require() statements don't work
+-// within plugins (see bug #113 in the to_do_list.txt file).
+-dojo.require("dojo.widget.*");
+-dojo.require("dojo.widget.Button");
+-dojo.require("dojo.widget.Menu2");
+-dojo.require("dojo.widget.ComboBox");
+-dojo.require("dojo.widget.html.ComboBox");
+-
+-
+ if (djConfig.debugAtAllCosts) {
+   dojo.hostenv.writeIncludes(); // needed when using "debugAtAllCosts: true"
+ }
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-05-16 05:06:06 UTC (rev 464)
++++ trunk/source/TablePlugin.js	2006-05-16 05:18:42 UTC (rev 465)
+@@ -44,6 +44,10 @@
+ dojo.require("orp.lang.Lang");
+ dojo.require("dojo.event.*");
+ dojo.require("dojo.dnd.*");
++dojo.require("dojo.widget.*");
++dojo.require("dojo.widget.Menu2");
++dojo.require("dojo.widget.ComboBox");
++dojo.require("dojo.widget.html.ComboBox");
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+
+
+
+From mignon at berlios.de  Tue May 23 05:19:31 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Tue, 23 May 2006 05:19:31 +0200
+Subject: [openrecord-svn] r466 - trunk/documentation
+Message-ID: <200605230319.k4N3JVAi029334@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-05-23 05:19:25 +0200 (Tue, 23 May 2006)
+New Revision: 466
+
+Modified:
+   trunk/documentation/to_do_list.txt
+Log:
+Signed up for task 417.  Also set property svn:eol-style to native (the real reason for this checkin) to see what happens.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-05-16 05:18:42 UTC (rev 465)
++++ trunk/documentation/to_do_list.txt	2006-05-23 03:19:25 UTC (rev 466)
+@@ -116,7 +116,7 @@
+        |          |         | 414. Convert UI code from DOM level 0 to DOM level 2
+        |          |         | 415. Start process for doing ongoing code reviews
+        |          |         | 416. grep for ".getEntriesForAttribute(" and refactor to use ".getValuesForAttribute("
+-       |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
++mignon |          |         | 417. Maybe change all our indenting from spaces to tabs, to be in sync with dojo
+        |          |         | 418. Prevent memory leaks via dojo.event.browser.clean(parent.removeChild(child));
+        |          |         | 420. Replace XMLHttpRequest calls with dojo.io.bind() calls
+        |          |         | 421. Consider refactoring orp.storage so that FileProtocolStorage is "behind" dojo.io.bind
+
+
+Property changes on: trunk/documentation/to_do_list.txt
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+
+
+From skinner at berlios.de  Tue May 23 05:39:17 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 23 May 2006 05:39:17 +0200
+Subject: [openrecord-svn] r467 - in trunk: source/util tests
+Message-ID: <200605230339.k4N3dH8a031546@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-23 05:39:11 +0200 (Tue, 23 May 2006)
+New Revision: 467
+
+Modified:
+   trunk/source/util/LintTool.js
+   trunk/tests/LintTest.js
+Log:
+Relaxed LintTool.js to allow code with tab characters and carriage return characters.  Updated unit tests accordingly.
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2006-05-23 03:19:25 UTC (rev 466)
++++ trunk/source/util/LintTool.js	2006-05-23 03:39:11 UTC (rev 467)
+@@ -92,12 +92,14 @@
+     errorMessage = report + '\n';
+   }
+   
+-  // Check for tabs, backspaces, etc.
+-  errorMessage += orp.util.LintTool.checkForString(codeString, '\t', "There are tab characters in the file.");
++  // Check for backspaces and form feed characaters
+   errorMessage += orp.util.LintTool.checkForString(codeString, '\b', "There are backspace characters in the file.");
+-  errorMessage += orp.util.LintTool.checkForString(codeString, '\r', "There are carriage return characters in the file.");
+   errorMessage += orp.util.LintTool.checkForString(codeString, '\f', "There are form feed characters in the file.");
+   
++  // Check for tabs and carriage return characters
++  // errorMessage += orp.util.LintTool.checkForString(codeString, '\t', "There are tab characters in the file.");
++  // errorMessage += orp.util.LintTool.checkForString(codeString, '\r', "There are carriage return characters in the file.");
++  
+   // Check for discouraged code
+   // We have to break 'document' + '.write' into two parts, or else this LintTool.js
+   // file won't pass its own lint test.
+
+Modified: trunk/tests/LintTest.js
+===================================================================
+--- trunk/tests/LintTest.js	2006-05-23 03:19:25 UTC (rev 466)
++++ trunk/tests/LintTest.js	2006-05-23 03:39:11 UTC (rev 467)
+@@ -56,13 +56,13 @@
+   // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
+   var badFragmentOne = "function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD";
+ 
+-  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
++  // badFragmentTwo has a backspace character in it, which our own isCodeCleanInString()
+   // method should catch
+-  var badFragmentTwo = "function iggy()		{ var pop = 'no fun'; } ";
++  var badFragmentTwo = "function iggy()	\b { var pop = 'no fun'; } ";
+   
+-  // badFragmentThree has a carriage return character in it, which our own 
++  // badFragmentThree has a form feed character in it, which our own 
+   // isCodeCleanInString() method should catch
+-  var badFragmentThree = "function iggy() \r { var pop = 'no fun'; } ";
++  var badFragmentThree = "function iggy() \f { var pop = 'no fun'; } ";
+   
+   assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentOne));
+   assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentTwo));
+
+
+
+From skinner at berlios.de  Tue May 23 05:48:15 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 23 May 2006 05:48:15 +0200
+Subject: [openrecord-svn] r468 - in trunk: source/util tests
+Message-ID: <200605230348.k4N3mFCU032625@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-23 05:48:13 +0200 (Tue, 23 May 2006)
+New Revision: 468
+
+Modified:
+   trunk/source/util/LintTool.js
+   trunk/tests/LintTest.js
+Log:
+Set the property svn:eol-style to 'native' for LintTool.js and the corresponding unit test file.
+
+
+Property changes on: trunk/source/util/LintTool.js
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+
+Property changes on: trunk/tests/LintTest.js
+___________________________________________________________________
+Name: svn:eol-style
+   + native
+
+
+
+From skinner at berlios.de  Tue May 23 06:37:01 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Tue, 23 May 2006 06:37:01 +0200
+Subject: [openrecord-svn] r470 - trunk/tests
+Message-ID: <200605230437.k4N4b10l004379@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-23 06:36:56 +0200 (Tue, 23 May 2006)
+New Revision: 470
+
+Modified:
+   trunk/tests/LintTest.js
+Log:
+fixing tabs in trunk/tests/LintTest.js
+
+Modified: trunk/tests/LintTest.js
+===================================================================
+--- trunk/tests/LintTest.js	2006-05-23 04:21:57 UTC (rev 469)
++++ trunk/tests/LintTest.js	2006-05-23 04:36:56 UTC (rev 470)
+@@ -56,17 +56,17 @@
+ 	// badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
+ 	var badFragmentOne = "function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD";
+ 
+-  // badFragmentTwo has a backspace character in it, which our own isCodeCleanInString()
+-  // method should catch
+-  var badFragmentTwo = "function iggy()	\b { var pop = 'no fun'; } ";
+-  
+-  // badFragmentThree has a form feed character in it, which our own 
+-  // isCodeCleanInString() method should catch
+-  var badFragmentThree = "function iggy() \f { var pop = 'no fun'; } ";
+-  
+-  assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentOne));
+-  assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentTwo));
+-  assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentThree));
++	// badFragmentTwo has a backspace character in it, which our own isCodeCleanInString()
++	// method should catch
++	var badFragmentTwo = "function iggy()	\b { var pop = 'no fun'; } ";
++
++	// badFragmentThree has a form feed character in it, which our own
++	// isCodeCleanInString() method should catch
++	var badFragmentThree = "function iggy() \f { var pop = 'no fun'; } ";
++
++	assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentOne));
++	assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentTwo));
++	assertFalse("jslint says dirty code is dirty", !orp.util.LintTool.getErrorReportForCodeInString(badFragmentThree));
+ }
+ 
+ function testJsLintOnOpenRecordCode() {
+
+
+
+From skinner at berlios.de  Thu May 25 06:25:31 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Thu, 25 May 2006 06:25:31 +0200
+Subject: [openrecord-svn] r471 - trunk/source/model
+Message-ID: <200605250425.k4P4PVbV016273@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-25 06:25:26 +0200 (Thu, 25 May 2006)
+New Revision: 471
+
+Modified:
+   trunk/source/model/World.js
+Log:
+Fixed bug that caused OpenRecord to crash if you weren't logged in and you tried to view any page that had a section with a query.
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2006-05-23 04:36:56 UTC (rev 470)
++++ trunk/source/model/World.js	2006-05-25 04:25:26 UTC (rev 471)
+@@ -1008,7 +1008,7 @@
+ 	if (filterOutNonGeneralPurposeItems) {
+ 		var currentUser = this.getCurrentUser();
+ 		var attributeCalledDeveloperMode = this.getAttributeCalledDeveloperMode();
+-		var inDeveloperMode = (currentUser.getSingleValueFromAttribute(attributeCalledDeveloperMode) == "true"); // FIXME
++		var inDeveloperMode = (currentUser && currentUser.getSingleValueFromAttribute(attributeCalledDeveloperMode) == "true"); // FIXME
+ 		var categoryCalledNotGeneralPurpose = this.getCategoryCalledNotGeneralPurpose();
+ 		if (inDeveloperMode) {
+ 			returnList = listOfItems;
+
+
+
+From skinner at berlios.de  Thu May 25 06:30:10 2006
+From: skinner at berlios.de (skinner at BerliOS)
+Date: Thu, 25 May 2006 06:30:10 +0200
+Subject: [openrecord-svn] r472 - trunk/source/model
+Message-ID: <200605250430.k4P4UAC2016657@sheep.berlios.de>
+
+Author: skinner
+Date: 2006-05-25 06:30:07 +0200 (Thu, 25 May 2006)
+New Revision: 472
+
+Modified:
+   trunk/source/model/2005_june_axiomatic_items.json
+Log:
+Added "Hiran Ganegedara" as a user in the axiomatic_items.json file.
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2006-05-25 04:25:26 UTC (rev 471)
++++ trunk/source/model/2005_june_axiomatic_items.json	2006-05-25 04:30:07 UTC (rev 472)
+@@ -1776,37 +1776,37 @@
+   // =======================================================================
+   { "Transaction": [
+     // -----------------------------------------------------------------------
+-    { "Item": {                                               // Marty Betz
++    { "Item": {                                               // Hiran Ganegedara
+              "uuid": "a00bf340-dde4-11d9-9c71-dae11c269bc7" }
+     },
+     // -----------------------------------------------------------------------
+-    { "User": {                                               // Marty Betz
++    { "User": {                                               // Hiran Ganegedara
+              "user": "a00bf340-dde4-11d9-9c71-dae11c269bc7",
+          "password": null }
+     },
+     // -----------------------------------------------------------------------
+     { "Entry": {                                              
+-             // in item (Person: Marty Betz) assign (Attribute: Category) = (Category: Person)
+-             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Marty Betz)
++             // in item (Person: Hiran Ganegedara) assign (Attribute: Category) = (Category: Person)
++             // in item (Category: Person) assign (Attribute: Items in Category) = (Person: Hiran Ganegedara)
+              "uuid": "a00bf341-dde4-11d9-9c71-dae11c269bc7",
+              "type": "00001050-ce7f-11d9-8cd5-0011113ae5d6",
+              "item": ["a00bf340-dde4-11d9-9c71-dae11c269bc7", "00001201-ce7f-11d9-8cd5-0011113ae5d6"],
+         "attribute": ["00001005-ce7f-11d9-8cd5-0011113ae5d6", "0000100c-ce7f-11d9-8cd5-0011113ae5d6"]  }
+     },  
+     // -----------------------------------------------------------------------
+-    { "Entry": {                                              // "Marty"
++    { "Entry": {                                              // "Hiran"
+              "uuid": "a00bf342-dde4-11d9-9c71-dae11c269bc7",
+         "attribute": "00001002-ce7f-11d9-8cd5-0011113ae5d6",  // Short Name
+-             "item": "a00bf340-dde4-11d9-9c71-dae11c269bc7",  // Marty Betz
++             "item": "a00bf340-dde4-11d9-9c71-dae11c269bc7",  // Hiran Ganegedara
+              "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
+-            "value": "Marty" }
++            "value": "Hiran" }
+     },
+     // -----------------------------------------------------------------------
+-    { "Entry": {                                              // Marty Betz
++    { "Entry": {                                              // Hiran Ganegedara
+              "uuid": "a00bf343-dde4-11d9-9c71-dae11c269bc7",
+         "attribute": "00001001-ce7f-11d9-8cd5-0011113ae5d6",  // Name
+-             "item": "a00bf340-dde4-11d9-9c71-dae11c269bc7",  // Marty Betz
++             "item": "a00bf340-dde4-11d9-9c71-dae11c269bc7",  // Hiran Ganegedara
+              "type": "00001020-ce7f-11d9-8cd5-0011113ae5d6",  // TextValue
+-            "value": "Marty Betz" }
++            "value": "Hiran Ganegedara" }
+     }  ]
+   }
+
+
+
+From mignon at berlios.de  Wed May 31 00:47:51 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Wed, 31 May 2006 00:47:51 +0200
+Subject: [openrecord-svn] r473 - trunk/source
+Message-ID: <200605302247.k4UMlplm012115@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-05-31 00:47:47 +0200 (Wed, 31 May 2006)
+New Revision: 473
+
+Modified:
+   trunk/source/CodingConventions.js
+Log:
+Updated coding conventions to reflect recent changes we've made to be more in compliance with the Dojo standards.  Also made changes to make the terminology of the conventions themselves more like what Dojo uses.
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2006-05-25 04:30:07 UTC (rev 472)
++++ trunk/source/CodingConventions.js	2006-05-30 22:47:47 UTC (rev 473)
+@@ -3,127 +3,106 @@
+ -----------------------------------------------------------------------------
+ Dojo Conventions
+ 
+-	The OpenRecord coding conventions are almost identical to the Dojo
+-	JavaScript conventions, listed here:
++	With the exception of the differences listed below, OpenRecord follows the
++	Dojo JavaScript conventions, listed here:
+ 		 http://www.dojotoolkit.org/js_style_guide.html
++	
++	OpenRecord also has additional conventions, which are listed following the differences.
+ 
+ Differences
+ 
+-	Here's a list of the six OpenRecord conventions that differ from the Dojo conventions:
++	Here's a list of the five OpenRecord conventions that differ from the Dojo conventions:
+ 
+-	+ constants
+-		 + Dojo uses either UpperLower or UPPER_UPPER capitalization
+-		 + OpenRecord always uses UPPER_UPPER capitalization
+-		 + for an example, see orp.util.DateValue.Month in DateValue.js
++	1) constants
++		+ Dojo uses either UpperLower or UPPER_LOWER capitalization
++		+ OpenRecord always uses UPPER_LOWER capitalization
++		+ For an example, see orp.util.DateValue.Month in DateValue.js
+ 
+-	+ private class variables (instance variables)
+-		 + Dojo says private class variables (instance variables) MAY have a leading underscore
+-		 + OpenRecord always uses a leading underscore.  For example: this._foo = 3;
++	2) private class variables (instance variables)
++		+ Dojo says private class variables (instance variables) MAY have a leading underscore
++		+ OpenRecord always uses a leading underscore.  For example: this._foo = 3;
+ 
+-	+ class-per-file
+-		 + Dojo says "Class or object-per-file guidelines are not yet determined"
+-		 + OpenRecord strives to have a one-to-one mapping between classes and files
++	3) class-per-file
++		+ Dojo says "Class or object-per-file guidelines are not yet determined"
++		+ OpenRecord strives to have a one-to-one mapping between classes and files
+ 
+-	+ tabs and spaces
+-		 + Dojo uses tab characters for indentation, with tabs set to four spaces
+-		 + OpenRecord uses spaces for indentation, with two spaces per indentation level.
+-		 + In OpenRecord, tabs are forbidden, and files with tabs will not pass the unit tests.
++	4) incomplete lines
++		+ Dojo offers these examples:
++			var someExpression = Expression1
++			    + Expression2
++			    + Expression3;
++			var o = someObject.get(
++			        Expression1,
++			        Expression2,
++			        Expression3
++			    );
++		+ OpenRecord does it slightly differently, so as to pass the JSLint tests:
++			var someExpression = Expression1 +
++			    Expression2 +
++			    Expression3;
++			var o = someObject.get(
++			        Expression1,
++			        Expression2,
++			        Expression3);
+ 
+-	+ incomplete lines
+-		 + Dojo offers these examples:
+-			 var someExpression = Expression1
+-					 + Expression2
+-					 + Expression3 ;
+-			 var o = someObject.get(
+-							 Expression1,
+-							 Expression2,
+-							 Expression3
+-					 );
+-		 + OpenRecord does it slightly differently, so as to pass the JSLint tests:
+-			 var someExpression = Expression1 +
+-					 Expression2 +
+-					 Expression3 ;
+-			 var o = someObject.get(
+-							 Expression1,
+-							 Expression2,
+-							 Expression3 );
++	5) for loops
++		+ Dojo tends to use this style:  for (var i=0; i < bar.length; i++)
++		+ OpenRecord tends to do this:   for (var i in bar)
+ 
+-	+ for loops
+-		 + Dojo tends to use this style:  for (var i=0; i < bar.length; i++)
+-		 + OpenRecord tends to do this:   for (var i in bar)
++Additional OpenRecord Conventions
+ 
+-Additions
+++ jslint approved (see http://jslint.com)
++	+ jslint should return "ok" when it looks at the code (with strictest settings)
++	+ do not use "with"
++	+ do not use "new Function"
++	+ use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+ 
+-	OpenRecord has a number of additional conventions.  See below...
+-
+-
+-
+------------------------------------------------------------------------------
+-OpenRecord Conventions
+-
+-+ jslint approved
+-	 + jslint should return "ok" when it looks at the code (with strictest settings)
+-	 + do not use "with"
+-	 + do not use "new Function"
+-	 + use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+-
+ + naming conventions
+-	 + capitalization
+-			+ classes are initial caps (CamelCaps): "Rectangle", "FillPattern"
+-			+ all variable names and methods names are mixedCaps: "fillPattern"
+-			+ acronyms appear in initial caps: "htmlString", not "HTMLString"
+-				(see http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html
+-				(see http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html)
+-			+ constants are all caps, with underscores: FILL_PATTERN_SOLID
+-	 + file names
+-			+ each file has just one public class
+-			+ file names exactly match the name of the class they contain: "Rectangle.js", "FillPattern.js"
+-			+ directories are all lower case, with underscores: "basic_shapes"
+-	 + unit tests
+-			+ a JavaScript code file typically has two associated unit test files
+-			+ the unit test files have the suffix "Test"
+-			+ example: Book.js has unit test files BookTest.html and BookTest.js
+-	 + variable scoping prefixes
+-			+ class variables are prefixed with "our"
+-			+ global variables are prefixed with "window.global"
+-			+ locally scoped variables are not prefixed
+-			+ non-public variables and methods are prefixed with "_" (use "_" for private, protected, or package)
+-	 + array variables are prefixed with "listOf" or "hashTableOf" or "arrayOf"
+-			+ var listOfBooks = []; <-- a "List" has only values, no keys ["Apple", "Orange", "Banana"]
+-			+ var hashTableOfBooksKeyedByTitle = {}; <-- a "HashTable" is an associative array with key-value pairs
+-			+ var arrayOfBooks = new Array(); <-- an "Array" has values that are indexed by number arrayOfFruit[23] = "Apple"
+-	 + accessor methods are prefixed with "get" or "is" -- e.g. oval.getArea(), oval.isCircle()
+-			+ any method that returns a value and does not change an object's state should be a "get" or "is" method
+-			+ any method that does change an object's state should be a "set" method
+-	 + problems are marked with "PENDING"
++	+ capitalization
++		+ constants are all caps, with underscores: FILL_PATTERN_SOLID
++	+ file names
++		+ each file has just one public class
++		+ file names exactly match the name of the class they contain: "Rectangle.js", "FillPattern.js"
++		+ directories are all lower case, with underscores: "basic_shapes"
++	+ unit tests
++		+ a JavaScript code file typically has two associated unit test files
++		+ the unit test files have the suffix "Test"
++		+ example: Book.js has unit test files BookTest.html and BookTest.js
++	+ variable scoping prefixes
++		+ public instance variables and methods are not prefixed -- e.g. this.errorNode, this.refresh()
++		+ class variables are prefixed with "our" -- e.g. orp.util.ourErrorReporter
++		+ global variables are prefixed with "window.global"
++		+ locally scoped variables are not prefixed
++		+ non-public variables and methods are prefixed with "_" (use "_" for private, protected, or package)
++	+ array variables are prefixed with "listOf" or "hashTableOf" or "arrayOf"
++		+ var listOfBooks = []; <-- a "List" has only values, no keys ["Apple", "Orange", "Banana"]
++		+ var hashTableOfBooksKeyedByTitle = {}; <-- a "HashTable" is an associative array with key-value pairs
++		+ var arrayOfBooks = new Array(); <-- an "Array" has values that are indexed by number arrayOfFruit[23] = "Apple"
++	+ accessor methods are prefixed with "get" or "is" -- e.g. oval.getArea(), oval.isCircle()
++		+ any method that returns a value and does not change an object's state should be a "get" or "is" method
++		+ any method that does change an object's state should be a "set" method
++	+ problems are marked with "PENDING"
+ 
+ + compatiblity with other browsers and other JavaScript libraries
+-	 + use "get" and "set" accessors -- do *not* assign Mozilla "getter" and "setter" methods
+-	 + add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
+-	 + do *not* extend Object.prototype
++	+ use "get" and "set" accessors -- do *not* assign Mozilla "getter" and "setter" methods
++	+ add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
++	+ do *not* extend Object.prototype
+ 		 (see http://erik.eae.net/archives/2005/06/06/22.13.54/)
+ 		 (see http://sourceforge.net/forum/forum.php?thread_id=1315559&forum_id=379297)
+ 
+-+ indenting, tabs, and line ending characters
+-	 + 2-space indenting
+-	 + only spaces, no tabs
+-	 + Unix style line endings: just \n -- not \r or \r\n
+++ line ending characters
++	+ files should have subversion property svn:eol_style set to native
+ 
+ + file header and footer conventions
+-	 + file name is given
+-	 + copyright and license statements are included
+-	 + file dependencies are listed
+-	 + sections for: class constants, class properties, constructor, instance methods
+-	 + "End of file" ending
++	+ file name is given
++	+ copyright and license statements are included
++	+ file dependencies are listed
++	+ sections for: class constants, class properties, constructor, instance methods
++	+ "End of file" ending
+ 
+ + scoping
+-	 + locally scoped variables are declared before being used: "var foo", not "foo"
+-	 + global variables are not used, except for class names
+-	 + instance methods are defined on the prototype -- see getArea()
+-	 + accessor methods never have side-effects
+-
+-+ PENDING
+-	 + private instance properties?
+-	 + private instance methods?
+-	 + class methods?
++	+ locally scoped variables are declared before being used: "var foo", not "foo"
++	+ global variables are not used, except for class names
++	+ instance methods are defined on the prototype -- see getArea()
++	+ accessor methods never have side-effects
+ */
+
+
+
+From mignon at berlios.de  Wed May 31 01:56:50 2006
+From: mignon at berlios.de (mignon at BerliOS)
+Date: Wed, 31 May 2006 01:56:50 +0200
+Subject: [openrecord-svn] r474 - trunk/source
+Message-ID: <200605302356.k4UNuoVI031318@sheep.berlios.de>
+
+Author: mignon
+Date: 2006-05-31 01:56:41 +0200 (Wed, 31 May 2006)
+New Revision: 474
+
+Modified:
+   trunk/source/CodingConventions.js
+Log:
+Added information on how to automatically set the svn:eol-style property.
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2006-05-30 22:47:47 UTC (rev 473)
++++ trunk/source/CodingConventions.js	2006-05-30 23:56:41 UTC (rev 474)
+@@ -92,6 +92,16 @@
+ 
+ + line ending characters
+ 	+ files should have subversion property svn:eol_style set to native
++	+ To do this automatically, edit your Subversion config file to add (or uncomment out) the following lines:
++		+ in the [miscellany] section:
++			enable-auto-props = yes
++		+ in the [auto-props] section:
++			*.js = svn:eol-style=native
++			*.txt = svn:eol-style=native
++			*.html = svn:eol-style=native
++			*.css = svn:eol-style=native
++			*.xml = svn:eol-style=native
++	+ In TortoiseSVN, this can be done from the context menu: TortoiseSVN >> Settings >> General >> Edit.
+ 
+ + file header and footer conventions
+ 	+ file name is given
+
+
+

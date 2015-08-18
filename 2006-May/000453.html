@@ -1,0 +1,283 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r473 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r473%20-%20trunk/source&In-Reply-To=%3C200605302247.k4UMlplm012115%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000452.html">
+   <LINK REL="Next"  HREF="000454.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r473 - trunk/source</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r473%20-%20trunk/source&In-Reply-To=%3C200605302247.k4UMlplm012115%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r473 - trunk/source">mignon at berlios.de
+       </A><BR>
+    <I>Wed May 31 00:47:51 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000452.html">[openrecord-svn] r472 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000454.html">[openrecord-svn] r474 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#453">[ date ]</a>
+              <a href="thread.html#453">[ thread ]</a>
+              <a href="subject.html#453">[ subject ]</a>
+              <a href="author.html#453">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-05-31 00:47:47 +0200 (Wed, 31 May 2006)
+New Revision: 473
+
+Modified:
+   trunk/source/CodingConventions.js
+Log:
+Updated coding conventions to reflect recent changes we've made to be more in compliance with the Dojo standards.  Also made changes to make the terminology of the conventions themselves more like what Dojo uses.
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2006-05-25 04:30:07 UTC (rev 472)
++++ trunk/source/CodingConventions.js	2006-05-30 22:47:47 UTC (rev 473)
+@@ -3,127 +3,106 @@
+ -----------------------------------------------------------------------------
+ Dojo Conventions
+ 
+-	The OpenRecord coding conventions are almost identical to the Dojo
+-	JavaScript conventions, listed here:
++	With the exception of the differences listed below, OpenRecord follows the
++	Dojo JavaScript conventions, listed here:
+ 		 <A HREF="http://www.dojotoolkit.org/js_style_guide.html">http://www.dojotoolkit.org/js_style_guide.html</A>
++	
++	OpenRecord also has additional conventions, which are listed following the differences.
+ 
+ Differences
+ 
+-	Here's a list of the six OpenRecord conventions that differ from the Dojo conventions:
++	Here's a list of the five OpenRecord conventions that differ from the Dojo conventions:
+ 
+-	+ constants
+-		 + Dojo uses either UpperLower or UPPER_UPPER capitalization
+-		 + OpenRecord always uses UPPER_UPPER capitalization
+-		 + for an example, see orp.util.DateValue.Month in DateValue.js
++	1) constants
++		+ Dojo uses either UpperLower or UPPER_LOWER capitalization
++		+ OpenRecord always uses UPPER_LOWER capitalization
++		+ For an example, see orp.util.DateValue.Month in DateValue.js
+ 
+-	+ private class variables (instance variables)
+-		 + Dojo says private class variables (instance variables) MAY have a leading underscore
+-		 + OpenRecord always uses a leading underscore.  For example: this._foo = 3;
++	2) private class variables (instance variables)
++		+ Dojo says private class variables (instance variables) MAY have a leading underscore
++		+ OpenRecord always uses a leading underscore.  For example: this._foo = 3;
+ 
+-	+ class-per-file
+-		 + Dojo says &quot;Class or object-per-file guidelines are not yet determined&quot;
+-		 + OpenRecord strives to have a one-to-one mapping between classes and files
++	3) class-per-file
++		+ Dojo says &quot;Class or object-per-file guidelines are not yet determined&quot;
++		+ OpenRecord strives to have a one-to-one mapping between classes and files
+ 
+-	+ tabs and spaces
+-		 + Dojo uses tab characters for indentation, with tabs set to four spaces
+-		 + OpenRecord uses spaces for indentation, with two spaces per indentation level.
+-		 + In OpenRecord, tabs are forbidden, and files with tabs will not pass the unit tests.
++	4) incomplete lines
++		+ Dojo offers these examples:
++			var someExpression = Expression1
++			    + Expression2
++			    + Expression3;
++			var o = someObject.get(
++			        Expression1,
++			        Expression2,
++			        Expression3
++			    );
++		+ OpenRecord does it slightly differently, so as to pass the JSLint tests:
++			var someExpression = Expression1 +
++			    Expression2 +
++			    Expression3;
++			var o = someObject.get(
++			        Expression1,
++			        Expression2,
++			        Expression3);
+ 
+-	+ incomplete lines
+-		 + Dojo offers these examples:
+-			 var someExpression = Expression1
+-					 + Expression2
+-					 + Expression3 ;
+-			 var o = someObject.get(
+-							 Expression1,
+-							 Expression2,
+-							 Expression3
+-					 );
+-		 + OpenRecord does it slightly differently, so as to pass the JSLint tests:
+-			 var someExpression = Expression1 +
+-					 Expression2 +
+-					 Expression3 ;
+-			 var o = someObject.get(
+-							 Expression1,
+-							 Expression2,
+-							 Expression3 );
++	5) for loops
++		+ Dojo tends to use this style:  for (var i=0; i &lt; bar.length; i++)
++		+ OpenRecord tends to do this:   for (var i in bar)
+ 
+-	+ for loops
+-		 + Dojo tends to use this style:  for (var i=0; i &lt; bar.length; i++)
+-		 + OpenRecord tends to do this:   for (var i in bar)
++Additional OpenRecord Conventions
+ 
+-Additions
+++ jslint approved (see <A HREF="http://jslint.com">http://jslint.com</A>)
++	+ jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
++	+ do not use &quot;with&quot;
++	+ do not use &quot;new Function&quot;
++	+ use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+ 
+-	OpenRecord has a number of additional conventions.  See below...
+-
+-
+-
+------------------------------------------------------------------------------
+-OpenRecord Conventions
+-
+-+ jslint approved
+-	 + jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
+-	 + do not use &quot;with&quot;
+-	 + do not use &quot;new Function&quot;
+-	 + use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+-
+ + naming conventions
+-	 + capitalization
+-			+ classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
+-			+ all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
+-			+ acronyms appear in initial caps: &quot;htmlString&quot;, not &quot;HTMLString&quot;
+-				(see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html</A>
+-				(see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html</A>)
+-			+ constants are all caps, with underscores: FILL_PATTERN_SOLID
+-	 + file names
+-			+ each file has just one public class
+-			+ file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
+-			+ directories are all lower case, with underscores: &quot;basic_shapes&quot;
+-	 + unit tests
+-			+ a JavaScript code file typically has two associated unit test files
+-			+ the unit test files have the suffix &quot;Test&quot;
+-			+ example: Book.js has unit test files BookTest.html and BookTest.js
+-	 + variable scoping prefixes
+-			+ class variables are prefixed with &quot;our&quot;
+-			+ global variables are prefixed with &quot;window.global&quot;
+-			+ locally scoped variables are not prefixed
+-			+ non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
+-	 + array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
+-			+ var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
+-			+ var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
+-			+ var arrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number arrayOfFruit[23] = &quot;Apple&quot;
+-	 + accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
+-			+ any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
+-			+ any method that does change an object's state should be a &quot;set&quot; method
+-	 + problems are marked with &quot;PENDING&quot;
++	+ capitalization
++		+ constants are all caps, with underscores: FILL_PATTERN_SOLID
++	+ file names
++		+ each file has just one public class
++		+ file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
++		+ directories are all lower case, with underscores: &quot;basic_shapes&quot;
++	+ unit tests
++		+ a JavaScript code file typically has two associated unit test files
++		+ the unit test files have the suffix &quot;Test&quot;
++		+ example: Book.js has unit test files BookTest.html and BookTest.js
++	+ variable scoping prefixes
++		+ public instance variables and methods are not prefixed -- e.g. this.errorNode, this.refresh()
++		+ class variables are prefixed with &quot;our&quot; -- e.g. orp.util.ourErrorReporter
++		+ global variables are prefixed with &quot;window.global&quot;
++		+ locally scoped variables are not prefixed
++		+ non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
++	+ array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
++		+ var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
++		+ var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
++		+ var arrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number arrayOfFruit[23] = &quot;Apple&quot;
++	+ accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
++		+ any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
++		+ any method that does change an object's state should be a &quot;set&quot; method
++	+ problems are marked with &quot;PENDING&quot;
+ 
+ + compatiblity with other browsers and other JavaScript libraries
+-	 + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
+-	 + add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
+-	 + do *not* extend Object.prototype
++	+ use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
++	+ add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
++	+ do *not* extend Object.prototype
+ 		 (see <A HREF="http://erik.eae.net/archives/2005/06/06/22.13.54/">http://erik.eae.net/archives/2005/06/06/22.13.54/</A>)
+ 		 (see <A HREF="http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297">http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297</A>)
+ 
+-+ indenting, tabs, and line ending characters
+-	 + 2-space indenting
+-	 + only spaces, no tabs
+-	 + Unix style line endings: just \n -- not \r or \r\n
+++ line ending characters
++	+ files should have subversion property svn:eol_style set to native
+ 
+ + file header and footer conventions
+-	 + file name is given
+-	 + copyright and license statements are included
+-	 + file dependencies are listed
+-	 + sections for: class constants, class properties, constructor, instance methods
+-	 + &quot;End of file&quot; ending
++	+ file name is given
++	+ copyright and license statements are included
++	+ file dependencies are listed
++	+ sections for: class constants, class properties, constructor, instance methods
++	+ &quot;End of file&quot; ending
+ 
+ + scoping
+-	 + locally scoped variables are declared before being used: &quot;var foo&quot;, not &quot;foo&quot;
+-	 + global variables are not used, except for class names
+-	 + instance methods are defined on the prototype -- see getArea()
+-	 + accessor methods never have side-effects
+-
+-+ PENDING
+-	 + private instance properties?
+-	 + private instance methods?
+-	 + class methods?
++	+ locally scoped variables are declared before being used: &quot;var foo&quot;, not &quot;foo&quot;
++	+ global variables are not used, except for class names
++	+ instance methods are defined on the prototype -- see getArea()
++	+ accessor methods never have side-effects
+ */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000452.html">[openrecord-svn] r472 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000454.html">[openrecord-svn] r474 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#453">[ date ]</a>
+              <a href="thread.html#453">[ thread ]</a>
+              <a href="subject.html#453">[ subject ]</a>
+              <a href="author.html#453">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

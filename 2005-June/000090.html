@@ -1,0 +1,490 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r103 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r103%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506011948.j51JmhGX002425%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000089.html">
+   <LINK REL="Next"  HREF="000091.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r103 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r103%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506011948.j51JmhGX002425%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r103 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun  1 21:48:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000089.html">[openrecord-svn] r102 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000091.html">[openrecord-svn] r104 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#90">[ date ]</a>
+              <a href="thread.html#90">[ thread ]</a>
+              <a href="subject.html#90">[ subject ]</a>
+              <a href="author.html#90">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-01 21:48:42 +0200 (Wed, 01 Jun 2005)
+New Revision: 103
+
+Added:
+   trunk/source/LintTool.js
+Modified:
+   trunk/source/LintTest.html
+   trunk/source/LintTest.js
+   trunk/source/Util.js
+   trunk/source/model/LintTest.html
+   trunk/source/model/LintTest.js
+Log:
+Refactored code for lint tests, and improved the lint test error reporting.
+
+Modified: trunk/source/LintTest.html
+===================================================================
+--- trunk/source/LintTest.html	2005-06-01 18:09:11 UTC (rev 102)
++++ trunk/source/LintTest.html	2005-06-01 19:48:42 UTC (rev 103)
+@@ -16,6 +16,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTool.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-06-01 18:09:11 UTC (rev 102)
++++ trunk/source/LintTest.js	2005-06-01 19:48:42 UTC (rev 103)
+@@ -28,70 +28,13 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
+-var Lint = {};
+ 
+-
+-/**
+- * Given a string containing JavaScript code, returns true if the code passes 
+- * the lint tests.
+- *
+- * @scope    public class method
+- * @param    inString    A string containing JavaScript code. 
+- * @return   A boolean value. True if the code is good (according to jslint).
+- */
+-Lint.isCodeCleanInString = function(inString) {
+-  jslint.laxLineEnd = false;
+-  jslint.plusplus = true;
+-  jslint.cap = false;
+-  jslint.jscript = false;
+-  jslint(inString);
+-  var report = jslint.report();
+-  var jslingIsOkay = (report.substr(0, 2) == 'ok');
+-  var noTabs = (inString.indexOf(&quot;\t&quot;) == -1);
+-  var noBackspaces = (inString.indexOf(&quot;\b&quot;) == -1);
+-  var noCarriageReturns = (inString.indexOf(&quot;\r&quot;) == -1);
+-  var noFormFeeds = (inString.indexOf(&quot;\f&quot;) == -1);
+-  var allClean = jslingIsOkay &amp;&amp; noTabs &amp;&amp; noBackspaces &amp;&amp; noCarriageReturns &amp;&amp; noFormFeeds;
+-  return (allClean);
+-}; 
+-
+-
+-/**
+- * Given the URL of a file containing JavaScript code, returns true if the code 
+- * passes the lint tests.
+- *
+- * @scope    public class method
+- * @param    inUrl    A string with the URL of a file containing JavaScript code. 
+- * @return   A boolean value. True if the code is good (according to jslint).
+- */
+-Lint.isCodeCleanAtUrl = function(inUrl) {
+-  var anXMLHttpRequestObject = new XMLHttpRequest();
+-  anXMLHttpRequestObject.open(&quot;GET&quot;, inUrl, false);
+-  anXMLHttpRequestObject.send(null);
+-  var fileContents = anXMLHttpRequestObject.responseText;
+-  return Lint.isCodeCleanInString(fileContents);
+-};
+-
+-
+-/**
+- * Given the name of a file containing JavaScript code, returns true if the 
+- * code passes the lint tests.
+- *
+- * @scope    public class method
+- * @param    inFileName    A string with the name of a file containing JavaScript code. 
+- * @return   A boolean value. True if the code is good (according to jslint).
+- */
+-Lint.isCodeCleanInFile = function(inFileName) {
+-  var url  = &quot;../../../source/&quot; + inFileName;
+-  return Lint.isCodeCleanAtUrl(url);
+-};
+-
+ function setUp() {
+ }
+ 
+ function testJsLintOnGoodCodeFragment() {
+   var textToRunLintOn = &quot;function iggy() { var pop = 'no fun'; }&quot;;
+-  assertTrue(&quot;jslint says clean code is clean&quot;, Lint.isCodeCleanInString(textToRunLintOn));
++  assertTrue(&quot;jslint says clean code is clean&quot;, !LintTool.getErrorReportForCodeInString(textToRunLintOn));
+ }
+ 
+ function testJsLintOnBadCodeFragment() {
+@@ -106,14 +49,15 @@
+   // isCodeCleanInString() method should catch
+   var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
+   
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentOne));
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentTwo));
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentThree));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, !LintTool.getErrorReportForCodeInString(badFragmentOne));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, !LintTool.getErrorReportForCodeInString(badFragmentTwo));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, !LintTool.getErrorReportForCodeInString(badFragmentThree));
+ }
+ 
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
+     &quot;Util.js&quot;,
++    &quot;LintTool.js&quot;,
+     &quot;View.js&quot;,
+     &quot;RootView.js&quot;,
+     &quot;ItemView.js&quot;,
+@@ -128,10 +72,10 @@
+     &quot;BarChartPlugin.js&quot;,
+     &quot;demo_page.js&quot;,
+     &quot;UtilTest.js&quot;];
+-  for (var key in listOfSourceCodeFiles) {
+-    var fileName = listOfSourceCodeFiles[key];
+-    assertTrue(&quot;jslint says &quot; + fileName + &quot; is clean&quot;, Lint.isCodeCleanInFile(fileName));
+-  }
++  var prefix = &quot;../../../source/&quot;;
++  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
+ }
+ 
+ function tearDown() {
+
+Added: trunk/source/LintTool.js
+===================================================================
+--- trunk/source/LintTool.js	2005-06-01 18:09:11 UTC (rev 102)
++++ trunk/source/LintTool.js	2005-06-01 19:48:42 UTC (rev 103)
+@@ -0,0 +1,150 @@
++/*****************************************************************************
++ LintTool.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++/**
++ * The LintTool class is just a thin wrapper around Douglas Crockford's
++ * JSLint utility.
++ *
++ * There is no need to ever call this constructor.  All the LintTool
++ * methods are class methods, not instance methods, and the only 
++ * reason this constructor exists is to cause the name &quot;LintTool&quot;
++ * to be a globally-scoped class name, which the class methods 
++ * can then be attached to.
++ *
++ * @scope    public instance constructor
++ * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ */
++function LintTool() {
++  throw new Error(&quot;LintTool is a static class. You can't create instances of it.&quot;);
++}
++
++
++// -------------------------------------------------------------------
++// String manipulation methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a string containing JavaScript code, returns null if the code passes 
++ * the lint tests.
++ *
++ * @scope    public class method
++ * @param    inString    A string containing JavaScript code. 
++ * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
++ */
++LintTool.getErrorReportForCodeInString = function (inString) {
++  var errorMessage = &quot;&quot;;
++
++  // call jslint, and see if it reported errors
++  jslint.laxLineEnd = false;
++  jslint.plusplus = true;
++  jslint.cap = false;
++  jslint.jscript = false;
++  jslint(inString);
++  var report = jslint.report();
++  var jslintIsOkay = (report.substr(0, 2) == 'ok');
++  if (!jslintIsOkay) {
++    errorMessage = report + '\n';
++  }
++  
++  // now check for tabs, backspaces, etc.
++  var noTabs = (inString.indexOf(&quot;\t&quot;) == -1);
++  if (!noTabs) {
++    errorMessage += &quot;There are tab characters in the file.&quot; + '\n';
++  }
++  var noBackspaces = (inString.indexOf(&quot;\b&quot;) == -1);
++  if (!noBackspaces) {
++    errorMessage += &quot;There are backspace characters in the file.&quot; + '\n';
++  }
++  var noCarriageReturns = (inString.indexOf(&quot;\r&quot;) == -1);
++  if (!noCarriageReturns) {
++    errorMessage += &quot;There are carriage return characters in the file.&quot; + '\n';
++  }
++  var noFormFeeds = (inString.indexOf(&quot;\f&quot;) == -1);
++  if (!noCarriageReturns) {
++    errorMessage += &quot;There are carriage return characters in the file.&quot; + '\n';
++  }
++  // var allClean = jslintIsOkay &amp;&amp; noTabs &amp;&amp; noBackspaces &amp;&amp; noCarriageReturns &amp;&amp; noFormFeeds;
++  return errorMessage;
++}; 
++
++
++/**
++ * Given the URL of a file containing JavaScript code, returns null if the code passes 
++ * the lint tests.
++ *
++ * @scope    public class method
++ * @param    inUrl    A string with the URL of a file containing JavaScript code. 
++ * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
++ */
++LintTool.getErrorReportForCodeAtUrl = function (inUrl) {
++  var fileContents = Util.getStringContentsOfFileAtURL(inUrl);
++  return LintTool.getErrorReportForCodeInString(fileContents);
++};
++
++        
++/**
++ * Given a list of file names, this method runs lint tests on all the files and 
++ * returns null if the code passes the lint tests.
++ *
++ * @scope    public class method
++ * @param    inListOfFilenames    A list of filename strings. 
++ * @param    inPath    Optional.  A path prefix string to prepend to the filename strings. 
++ * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
++ */
++LintTool.getErrorReportFromListOfFilesnames = function (inListOfFilenames, inPath) {
++  Util.assert(Util.isArray(inListOfFilenames));
++  if (inPath) {
++    Util.assert(Util.isString(inPath));
++  } else {
++    inPath = &quot;&quot;;
++  }
++  
++  var aggregateErrorReport = &quot;&quot;;
++  var separatorLine = &quot;_____________________________________&quot; + &quot;\n&quot;;
++  for (var key in inListOfFilenames) {
++    var filename = inListOfFilenames[key];
++    var url = inPath + filename;
++    var errorReportForFile = LintTool.getErrorReportForCodeAtUrl(url);
++    if (errorReportForFile) {
++      var message = separatorLine + filename + &quot;\n&quot; + errorReportForFile;
++      aggregateErrorReport += message;
++    }
++  }
++  if (aggregateErrorReport) {
++    aggregateErrorReport += separatorLine;
++  }
++  return aggregateErrorReport;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-01 18:09:11 UTC (rev 102)
++++ trunk/source/Util.js	2005-06-01 19:48:42 UTC (rev 103)
+@@ -779,7 +779,6 @@
+ };
+ 
+ 
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/LintTest.html
+===================================================================
+--- trunk/source/model/LintTest.html	2005-06-01 18:09:11 UTC (rev 102)
++++ trunk/source/model/LintTest.html	2005-06-01 19:48:42 UTC (rev 103)
+@@ -16,6 +16,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../LintTool.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-06-01 18:09:11 UTC (rev 102)
++++ trunk/source/model/LintTest.js	2005-06-01 19:48:42 UTC (rev 103)
+@@ -28,87 +28,10 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
+-var Lint = {};
+ 
+-
+-/**
+- * Given a string containing JavaScript code, returns true if the code passes 
+- * the lint tests.
+- *
+- * @scope    public class method
+- * @param    inString    A string containing JavaScript code. 
+- * @return   A boolean value. True if the code is good (according to jslint).
+- */
+-Lint.isCodeCleanInString = function (inString) {
+-  jslint.laxLineEnd = false;
+-  jslint.plusplus = true;
+-  jslint.cap = false;
+-  jslint.jscript = false;
+-  jslint(inString);
+-  var report = jslint.report();
+-  var jslingIsOkay = (report.substr(0, 2) == 'ok');
+-  var noTabs = (inString.indexOf(&quot;\t&quot;) == -1);
+-  var noBackspaces = (inString.indexOf(&quot;\b&quot;) == -1);
+-  var noCarriageReturns = (inString.indexOf(&quot;\r&quot;) == -1);
+-  var noFormFeeds = (inString.indexOf(&quot;\f&quot;) == -1);
+-  var allClean = jslingIsOkay &amp;&amp; noTabs &amp;&amp; noBackspaces &amp;&amp; noCarriageReturns &amp;&amp; noFormFeeds;
+-  return (allClean);
+-}; 
+-
+-
+-/**
+- * Given the URL of a file containing JavaScript code, returns true if the code 
+- * passes the lint tests.
+- *
+- * @scope    public class method
+- * @param    inUrl    A string with the URL of a file containing JavaScript code. 
+- * @return   A boolean value. True if the code is good (according to jslint).
+- */
+-Lint.isCodeCleanAtUrl = function (inUrl) {
+-  var fileContents = Util.getStringContentsOfFileAtURL(inUrl);
+-  return Lint.isCodeCleanInString(fileContents);
+-};
+-
+-
+-/**
+- * Given the name of a file containing JavaScript code, returns true if the 
+- * code passes the lint tests.
+- *
+- * @scope    public class method
+- * @param    inFileName    A string with the name of a file containing JavaScript code. 
+- * @return   A boolean value. True if the code is good (according to jslint).
+- */
+-Lint.isCodeCleanInFile = function (inFileName) {
+-  // alert(&quot;in Lint.isCodeCleanInFile for &quot; + inFileName);
+-  var url  = &quot;../../../source/model/&quot; + inFileName;
+-  return Lint.isCodeCleanAtUrl(url);
+-};
+-
+ function setUp() {
+ }
+ 
+-function testJsLintOnGoodCodeFragment() {
+-  var textToRunLintOn = &quot;function iggy() { var pop = 'no fun'; }&quot;;
+-  assertTrue(&quot;jslint says clean code is clean&quot;, Lint.isCodeCleanInString(textToRunLintOn));
+-}
+-
+-function testJsLintOnBadCodeFragment() {
+-  // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
+-  var badFragmentOne = &quot;function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD&quot;;
+-
+-  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
+-  // method should catch
+-  var badFragmentTwo = &quot;function iggy()		{ var pop = 'no fun'; } &quot;;
+-  
+-  // badFragmentThree has a carriage return character in it, which our own 
+-  // isCodeCleanInString() method should catch
+-  var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
+-  
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentOne));
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentTwo));
+-  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentThree));
+-}
+-
+ function testJsLintOnOpenRecordCode() {
+   var listOfSourceCodeFiles = [
+     &quot;Ordinal.js&quot;,
+@@ -119,10 +42,10 @@
+     &quot;World.js&quot;,
+     &quot;StubVirtualServer.js&quot;,
+     &quot;DeltaVirtualServer.js&quot;];
+-  for (var key in listOfSourceCodeFiles) {
+-    var fileName = listOfSourceCodeFiles[key];
+-    assertTrue(&quot;jslint says &quot; + fileName + &quot; is clean&quot;, Lint.isCodeCleanInFile(fileName));
+-  }
++  var prefix = &quot;../../../source/model/&quot;;
++  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
+ }
+ 
+ function tearDown() {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000089.html">[openrecord-svn] r102 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000091.html">[openrecord-svn] r104 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#90">[ date ]</a>
+              <a href="thread.html#90">[ thread ]</a>
+              <a href="subject.html#90">[ subject ]</a>
+              <a href="author.html#90">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

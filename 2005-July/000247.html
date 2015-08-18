@@ -1,0 +1,927 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r262 - in trunk/source: model util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r262%20-%20in%20trunk/source%3A%20model%20util&In-Reply-To=%3C200507260726.j6Q7Q2TA019682%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000246.html">
+   <LINK REL="Next"  HREF="000248.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r262 - in trunk/source: model util</H1>
+    <B>Mignon Belongie at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r262%20-%20in%20trunk/source%3A%20model%20util&In-Reply-To=%3C200507260726.j6Q7Q2TA019682%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r262 - in trunk/source: model util">mignon at berlios.de
+       </A><BR>
+    <I>Tue Jul 26 09:26:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000246.html">[openrecord-svn] r261 - in trunk: . documentation repositories source/view
+</A></li>
+        <LI>Next message: <A HREF="000248.html">[openrecord-svn] r263 - in trunk: documentation repositories source source/model source/util source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#247">[ date ]</a>
+              <a href="thread.html#247">[ thread ]</a>
+              <a href="subject.html#247">[ subject ]</a>
+              <a href="author.html#247">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-07-26 09:25:51 +0200 (Tue, 26 Jul 2005)
+New Revision: 262
+
+Added:
+   trunk/source/model/TestReorderingForSpecialCases.html
+   trunk/source/model/TestReorderingForSpecialCases.js
+   trunk/source/model/TestReorderingForTypicalOrdinals.html
+   trunk/source/model/TestReorderingForTypicalOrdinals.js
+Modified:
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/TestSuite.html
+   trunk/source/model/World.js
+   trunk/source/util/Uuid.js
+Log:
+Implemented reordering for UUID derived ordinals.
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/ContentRecord.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -110,8 +110,7 @@
+  * @return   A number.
+  */
+ ContentRecord.prototype.getOrdinalNumberAtCreation = function() {
+-  // return (0 - this._creationTimestamp.valueOf());
+-  return (0 - this.getTimestamp());
++  return Uuid.getOriginalOrdinalFromUuid(this._uuid);
+ };
+ 
+ 
+@@ -248,6 +247,7 @@
+  * Moves this contentRecord to a new position in a list, by creating a new
+  * ordinal for this contentRecord with an ordinal number that is set such
+  * that this contentRecord appears between two other entries.
++ * The randomness is to avoid ever generating the same ordinal twice.
+  *
+  * @scope    public instance method
+  * @param    contentRecordFirst    The contentRecord that should come before this one. 
+@@ -257,7 +257,6 @@
+   var firstOrdinalNumber = null;
+   var secondOrdinalNumber = null;
+   var thirdOrdinalNumber = null;
+-  var arbitraryNumberToMoveUsUpOrDownSlightly = 0.01;
+   
+   if (contentRecordFirst) {
+     firstOrdinalNumber = contentRecordFirst.getOrdinalNumber();
+@@ -267,15 +266,42 @@
+   }
+   
+   if (firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+-    secondOrdinalNumber = (firstOrdinalNumber + thirdOrdinalNumber) / 2;
++    if (firstOrdinalNumber == thirdOrdinalNumber) {
++      Util.assert(false, &quot;Tried to reorder between two items with the same ordinal.&quot;);
++    }
++    else {
++      if (firstOrdinalNumber &gt; thirdOrdinalNumber) {
++        temp = firstOrdinalNumber;
++        firstOrdinalNumber = thirdOrdinalNumber;
++        thirdOrdinalNumber = temp;
++      }
++      secondOrdinalNumber = firstOrdinalNumber + Uuid._getRandomEightCharacterHexString();
++      var zeroes = &quot;&quot;;
++      while (secondOrdinalNumber &gt;= thirdOrdinalNumber) {
++        zeroes += &quot;0&quot;;
++        secondOrdinalNumber = firstOrdinalNumber + zeroes + Uuid._getRandomEightCharacterHexString();
++      }
++    }
+   }
+   if (firstOrdinalNumber &amp;&amp; !thirdOrdinalNumber) {
+-    secondOrdinalNumber = (firstOrdinalNumber - arbitraryNumberToMoveUsUpOrDownSlightly);
++    secondOrdinalNumber = firstOrdinalNumber + Uuid._getRandomEightCharacterHexString();
+   }
+   if (!firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+-    secondOrdinalNumber = (firstOrdinalNumber + arbitraryNumberToMoveUsUpOrDownSlightly);
++    secondOrdinalNumber = thirdOrdinalNumber;
++    i = secondOrdinalNumber.length - 1;
++    while (secondOrdinalNumber.charAt(i) == '0') {
++      i = i - 1;
++    }
++    var origLen = secondOrdinalNumber.length;
++    prefix = secondOrdinalNumber.substring(0, i);
++    firstNonZero = secondOrdinalNumber.charAt(i);
++    firstNonZero = firstNonZero - 1;
++    secondOrdinalNumber = prefix + firstNonZero;
++    while (secondOrdinalNumber.length &lt; origLen) {
++      secondOrdinalNumber += &quot;f&quot;;
++    }
++    secondOrdinalNumber += Uuid._getRandomEightCharacterHexString();
+   }
+-
+   this.getWorld()._newOrdinal(this, secondOrdinalNumber);
+ };
+ 
+@@ -305,14 +331,20 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Registers a vote to retain this contentRecord. 
++ * Uses lexicographic ordering.
+  *
+  * @scope    public class method
+  */
+ ContentRecord.compareOrdinals = function(contentRecordOne, contentRecordTwo) {
+   var ordinalNumberOne = contentRecordOne.getOrdinalNumber();
+   var ordinalNumberTwo = contentRecordTwo.getOrdinalNumber();
+-  return (ordinalNumberTwo - ordinalNumberOne);
++  if (ordinalNumberOne &lt; ordinalNumberTwo) {
++    return -1;
++  }
++  if (ordinalNumberOne &gt; ordinalNumberTwo) {
++    return 1;
++  }
++  return 0;
+ };
+ 
+ 
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/DeltaVirtualServer.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -53,8 +53,8 @@
+  * @param    inJsonRepositoryString    A JSON string literal representing the world of items. 
+  */
+ DeltaVirtualServer.prototype = new StubVirtualServer();  // makes DeltaVirtualServer be a subclass of StubVirtualServer
+-function DeltaVirtualServer(repositoryName, pathToTrunkDirectory) {
+-
++function DeltaVirtualServer(repositoryName, pathToTrunkDirectory, optionalDefaultOverrides) {
++  StubVirtualServer.call(this, pathToTrunkDirectory, optionalDefaultOverrides);
+   this._pathToTrunkDirectory = &quot;&quot;;
+   if (pathToTrunkDirectory) {
+     this._pathToTrunkDirectory = pathToTrunkDirectory;
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/ModelTest.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -366,8 +366,6 @@
+   assertTrue('Cupcake starts out second in the list&quot;', foodItems[1] == cupcake);
+   assertTrue('Brownie starts out second in the list&quot;', foodItems[2] == brownie);
+ 
+-/*
+-PENDING: the ordinal implementation was broken by the new UUID code
+   brownie.reorderBetween(apple, cupcake);
+   foodItems = world.getItemsInCategory(categoryCalledFood);
+   assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+@@ -385,7 +383,6 @@
+   assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+   assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
+   assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
+-*/
+   
+   world.logout();
+ }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/StubVirtualServer.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -74,14 +74,26 @@
+ StubVirtualServer.JSON_MEMBER_RETAIN_FLAG = &quot;retainFlag&quot;;
+ StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER = &quot;ordinalNumber&quot;;
+ 
++StubVirtualServer.prototype._generateUuid = function(arg1) {
++  return Uuid.generateTimeBasedUuid(arg1);
++};
+ 
++StubVirtualServer.prototype._processOptionalDefaultOverrides = function(optionalDefaultOverrides) {
++  for (key in optionalDefaultOverrides) {
++    // Should I check first that there is already a property called 'key'?
++    this[key] = optionalDefaultOverrides[key];
++//alert(&quot;key = &quot; + key + &quot;\noptionalDefaultOverrides[key] = &quot; + optionalDefaultOverrides[key]);
++  }
++};
++
++
+ /**
+  * The StubVirtualServer is a dummy place-holder datastore that does
+  * a bare-minimum job of providing data to a World.
+  *
+  * @scope    public instance constructor
+  */
+-function StubVirtualServer(pathToTrunkDirectory) {
++function StubVirtualServer(pathToTrunkDirectory, optionalDefaultOverrides) {
+   var fileName = &quot;2005_june_axiomatic_items.json&quot;;
+   var urlForAxiomaticFile = &quot;&quot;;
+   if (pathToTrunkDirectory) {
+@@ -90,9 +102,12 @@
+   urlForAxiomaticFile += &quot;source/model/&quot; + fileName;
+   
+   this._dehydratedAxiomFileURL = urlForAxiomaticFile;
++//  this._generateUuid = Uuid.generateTimeBasedUuid;
++  if (optionalDefaultOverrides) {
++    this._processOptionalDefaultOverrides(optionalDefaultOverrides, &quot;Stub&quot;);
++  }
+ }
+ 
+-
+ /**
+  * Initializes the instance variables for a newly created StubVirtualServer.
+  *
+@@ -762,10 +777,10 @@
+     var uuidOfCurrentUser = this._currentUser._getUuid();
+     var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
+     var pseudoNodeOfCurrentUser = arrayOfParts[4];//&quot;0123456789AB&quot;;
+-    newUuid = Uuid.generateTimeBasedUuid(pseudoNodeOfCurrentUser);
++    newUuid = this._generateUuid(pseudoNodeOfCurrentUser);
+   }
+   else {
+-    newUuid = Uuid.generateTimeBasedUuid();
++    newUuid = this._generateUuid();
+   }
+   return newUuid;
+ };
+
+Added: trunk/source/model/TestReorderingForSpecialCases.html
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.html	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/TestReorderingForSpecialCases.html	2005-07-26 07:25:51 UTC (rev 262)
+@@ -0,0 +1,97 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Test reordering of items for special cases of the corresponding ordinals (via a mock)&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;ContentRecord.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;QueryRunner.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;World.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;StubVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForSpecialCases.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Test reordering of items for special cases of the corresponding ordinals (via a mock)&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/TestReorderingForSpecialCases.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -0,0 +1,148 @@
++/*****************************************************************************
++ TestReorderingForSpecialCases.js
++ 
++******************************************************************************
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util */
++/*global World, Item, Entry */
++/*global StubVirtualServer */
++/*global assertTrue, assertFalse, setUp, tearDown */
++// -------------------------------------------------------------------
++
++var world;
++var categoryCalledFood = null;
++var utilAssertReportedError;
++
++errorReporter = function() {
++  utilAssertReportedError = true;
++}
++
++function setUp() {
++  utilAssertReportedError = false;
++  Util.setErrorReportCallback(errorReporter);
++  var pathToTrunkDirectory = &quot;../../../&quot;;
++  var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++  world = new World(virtualServer);
++
++  annUuid1 = &quot;10000000-2222-3333-4444-555555555555&quot;;
++  annUuid2 = &quot;10000001-2222-3333-4444-555555555555&quot;;
++  annUuid3 = &quot;10000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(annUuid1);
++  mockUuidGenerator.queueOfUuids.push(annUuid2);
++  mockUuidGenerator.queueOfUuids.push(annUuid3);
++
++  var annsPassword = &quot;Ann's password&quot;;
++  var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
++  assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUniqueKeyString() == annUuid1);
++  world.login(userAnn, annsPassword);
++
++  foodUuid1    = &quot;20000000-2222-3333-4444-555555555555&quot;;
++  foodUuid2    = &quot;20000001-2222-3333-4444-555555555555&quot;;
++  foodUuid3    = &quot;20000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(foodUuid1);
++  mockUuidGenerator.queueOfUuids.push(foodUuid2);
++  mockUuidGenerator.queueOfUuids.push(foodUuid3);
++  categoryCalledFood = world.newCategory(&quot;Food&quot;);
++}
++
++function tearDown() {
++  assertFalse(utilAssertReportedError);
++  world.logout();
++}
++
++function testReorderBetweenTwoItemsWithTheSameOrdinal() {
++  sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(sushiUuid);
++  mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
++  pestoUuid     = &quot;40000000-2222-3333-9999-555555555555&quot;;
++  pestoNameUuid = &quot;40000001-2222-3333-9999-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(pestoUuid);
++  mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
++  guavaUuid     = &quot;50000000-2222-3333-4444-555555555555&quot;;
++  guavaNameUuid = &quot;50000001-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(guavaUuid);
++  mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
++  var sushi = world.newItem(&quot;Sushi&quot;);
++  var pesto = world.newItem(&quot;Pesto&quot;);
++  var guava = world.newItem(&quot;Guava&quot;);
++  assertTrue(sushi.getOrdinalNumber() == pesto.getOrdinalNumber());
++  guava.reorderBetween(sushi, pesto);
++  assertTrue(utilAssertReportedError);
++  utilAssertReportedError = false;
++}
++
++function testReorderBetweenTwoItemsWithTheSameTimestamp() {
++  sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(sushiUuid);
++  mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
++  pestoUuid     = &quot;40000002-2222-3333-4444-555555555555&quot;;
++  pestoNameUuid = &quot;40000003-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(pestoUuid);
++  mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
++  guavaUuid     = &quot;40000004-2222-3333-4444-555555555555&quot;;
++  guavaNameUuid = &quot;40000005-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(guavaUuid);
++  mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
++  var sushi = world.newItem(&quot;Sushi&quot;);
++  var pesto = world.newItem(&quot;Pesto&quot;);
++  var guava = world.newItem(&quot;Guava&quot;);
++  assertTrue('Sushi and Pesto have same timestamp', sushi.getTimestamp() == pesto.getTimestamp());
++  assertTrue('Sushi and Guava have same timestamp', sushi.getTimestamp() == guava.getTimestamp());
++
++  guava.reorderBetween(sushi, pesto);
++
++  sushiLinkUuid    = &quot;60000000-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
++  sushi.assignToCategory(categoryCalledFood);
++  pestoLinkUuid    = &quot;60000001-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(pestoLinkUuid);
++  pesto.assignToCategory(categoryCalledFood);
++  guavaLinkUuid    = &quot;60000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
++  guava.assignToCategory(categoryCalledFood);
++
++  guava.reorderBetween(sushi, pesto);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
++  assertTrue('After first reordering, Sushi is first in the list.', foodItems[0] == sushi);
++  assertTrue('After first reordering, Guava is second in the list.', foodItems[1] == guava);
++  assertTrue('After first reordering, Pesto is third in the list.', foodItems[2] == pesto);
++
++  pesto.reorderBetween(sushi, guava);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
++  assertTrue('After 2nd reordering, Sushi is first in the list.', foodItems[0] == sushi);
++  assertTrue('After 2nd reordering, Pesto is second in the list.', foodItems[1] == pesto);
++  assertTrue('After 2nd reordering, Guava is third in the list.', foodItems[2] == guava);
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/model/TestReorderingForTypicalOrdinals.html
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.html	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.html	2005-07-26 07:25:51 UTC (rev 262)
+@@ -0,0 +1,97 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Test reordering items with typical ordinals (via a mock)&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;ContentRecord.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;QueryRunner.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;World.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;StubVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForTypicalOrdinals.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Test reordering items with typical ordinals (via a mock)&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -0,0 +1,199 @@
++/*****************************************************************************
++ TestReorderingForTypicalOrdinals.js
++ 
++******************************************************************************
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util */
++/*global World, Item, Entry */
++/*global StubVirtualServer */
++/*global assertTrue, assertFalse, setUp, tearDown */
++// -------------------------------------------------------------------
++
++var world;
++var categoryCalledFood;
++var sushi;
++var pesto;
++var guava;
++var taffy;
++var utilAssertReportedError;
++
++errorReporter = function() {
++  utilAssertReportedError = true;
++}
++
++function setUp() {
++  utilAssertReportedError = false;
++  Util.setErrorReportCallback(errorReporter);
++  var pathToTrunkDirectory = &quot;../../../&quot;;
++  var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++/*
++You can use DeltaVirtualServer instead if you want to append all transactions to a file for debugging purposes.
++Note that the tests will run a lot slower if you do.
++
++  var virtualServer = new DeltaVirtualServer(&quot;OrdinalsTest&quot;, pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++*/
++
++  world = new World(virtualServer);
++
++  annUuid1 = &quot;10000000-2222-3333-4444-555555555555&quot;;
++  annUuid2 = &quot;10000001-2222-3333-4444-555555555555&quot;;
++  annUuid3 = &quot;10000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(annUuid1);
++  mockUuidGenerator.queueOfUuids.push(annUuid2);
++  mockUuidGenerator.queueOfUuids.push(annUuid3);
++
++  var annsPassword = &quot;Ann's password&quot;;
++  var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
++  assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUniqueKeyString() == annUuid1);
++  world.login(userAnn, annsPassword);
++
++  foodUuid1    = &quot;20000000-2222-3333-4444-555555555555&quot;;
++  foodUuid2    = &quot;20000001-2222-3333-4444-555555555555&quot;;
++  foodUuid3    = &quot;20000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(foodUuid1);
++  mockUuidGenerator.queueOfUuids.push(foodUuid2);
++  mockUuidGenerator.queueOfUuids.push(foodUuid3);
++  categoryCalledFood = world.newCategory(&quot;Food&quot;);
++
++  sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(sushiUuid);
++  mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
++  pestoUuid     = &quot;40000010-2222-3333-4444-555555555555&quot;;
++  pestoNameUuid = &quot;40000011-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(pestoUuid);
++  mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
++  guavaUuid     = &quot;40000020-2222-3333-4444-555555555555&quot;;
++  guavaNameUuid = &quot;40000021-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(guavaUuid);
++  mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
++  taffyUuid     = &quot;40000030-2222-3333-4444-555555555555&quot;;
++  taffyNameUuid = &quot;40000031-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(taffyUuid);
++  mockUuidGenerator.queueOfUuids.push(taffyNameUuid);
++  sushi = world.newItem(&quot;Sushi&quot;);
++  assertTrue(&quot;sushi has the expected uuid&quot;, sushi.getUniqueKeyString() == sushiUuid);
++  pesto = world.newItem(&quot;Pesto&quot;);
++  assertTrue(&quot;pesto has the expected uuid&quot;, pesto.getUniqueKeyString() == pestoUuid);
++  guava = world.newItem(&quot;Guava&quot;);
++  assertTrue(&quot;guava has the expected uuid&quot;, guava.getUniqueKeyString() == guavaUuid);
++  taffy = world.newItem(&quot;Taffy&quot;);
++  assertTrue(&quot;taffy has the expected uuid&quot;, taffy.getUniqueKeyString() == taffyUuid);
++
++  sushiLinkUuid    = &quot;60000000-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
++  sushi.assignToCategory(categoryCalledFood);
++  pestoLinkUuid    = &quot;60000001-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(pestoLinkUuid);
++  pesto.assignToCategory(categoryCalledFood);
++  guavaLinkUuid    = &quot;60000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
++  guava.assignToCategory(categoryCalledFood);
++  taffyLinkUuid    = &quot;60000002-2222-3333-4444-555555555555&quot;;
++  mockUuidGenerator.queueOfUuids.push(taffyLinkUuid);
++  taffy.assignToCategory(categoryCalledFood);
++}
++
++function tearDown() {
++  assertFalse(utilAssertReportedError);
++  world.logout();
++}
++
++function testReorderBetweenTwoItems() {
++  guava.reorderBetween(sushi, pesto);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
++  assertTrue('After first reordering, Sushi is first in the list.', foodItems[0] == sushi);
++  assertTrue('After first reordering, Guava is second in the list.', foodItems[1] == guava);
++  assertTrue('After first reordering, Pesto is third in the list.', foodItems[2] == pesto);
++}
++
++function testReorderAfterAnItem() {
++  assertTrue(ContentRecord.compareOrdinals(sushi, guava) &lt; 0);
++  sushi.reorderBetween(guava, null);
++  assertTrue(ContentRecord.compareOrdinals(sushi, guava) &gt; 0);
++}
++
++function testReorderBeforeAnItem() {
++  assertTrue(ContentRecord.compareOrdinals(pesto, guava) &lt; 0);
++  guava.reorderBetween(null, pesto);
++  assertTrue(ContentRecord.compareOrdinals(pesto, guava) &gt; 0);
++}
++
++function testReorderTwice() {
++  guava.reorderBetween(sushi, pesto);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
++  assertTrue('After first reordering, Sushi is first in the list.', foodItems[0] == sushi);
++  assertTrue('After first reordering, Guava is second in the list.', foodItems[1] == guava);
++  assertTrue('After first reordering, Pesto is third in the list.', foodItems[2] == pesto);
++
++  pesto.reorderBetween(sushi, guava);
++  foodItems = world.getItemsInCategory(categoryCalledFood);
++  assertTrue('After 2nd reordering, Sushi is first in the list.', foodItems[0] == sushi);
++  assertTrue('After 2nd reordering, Pesto is second in the list.', foodItems[1] == pesto);
++  assertTrue('After 2nd reordering, Guava is third in the list.', foodItems[2] == guava);
++}
++
++function testReorderManyTimes() {
++  for (i = 0; i &lt; 10; i++) {
++    guava.reorderBetween(sushi, pesto);
++    assertTrue(ContentRecord.compareOrdinals(sushi, guava) &lt; 0);
++    assertTrue(ContentRecord.compareOrdinals(guava, pesto) &lt; 0);
++    pesto.reorderBetween(sushi, guava);
++    assertTrue(ContentRecord.compareOrdinals(sushi, pesto) &lt; 0);
++    assertTrue(ContentRecord.compareOrdinals(pesto, guava) &lt; 0);
++  }
++}
++
++function testReorderBetweenTwoItemsWhichAreTheSame() {
++  pesto.reorderBetween(sushi, sushi);
++  assertTrue(utilAssertReportedError);
++  utilAssertReportedError = false;
++}
++
++function testReorderBetweenTwoItemsNotInOrder() {
++  assertTrue(ContentRecord.compareOrdinals(sushi, pesto) &lt; 0);
++  guava.reorderBetween(pesto, sushi);
++  assertTrue(ContentRecord.compareOrdinals(pesto, guava) &gt; 0);
++  assertTrue(ContentRecord.compareOrdinals(guava, sushi) &gt; 0);
++}
++
++function testReorderTwoItemsBetweenTheSameTwoItems() {
++  guava.reorderBetween(sushi, pesto);
++  taffy.reorderBetween(sushi, pesto);
++  assertTrue(ContentRecord.compareOrdinals(sushi, guava) &lt; 0);
++  assertTrue(ContentRecord.compareOrdinals(guava, pesto) &lt; 0);
++  assertTrue(ContentRecord.compareOrdinals(sushi, taffy) &lt; 0);
++  assertTrue(ContentRecord.compareOrdinals(taffy, pesto) &lt; 0);
++  assertTrue(ContentRecord.compareOrdinals(taffy, guava) != 0);
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/model/TestSuite.html
+===================================================================
+--- trunk/source/model/TestSuite.html	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/TestSuite.html	2005-07-26 07:25:51 UTC (rev 262)
+@@ -24,6 +24,8 @@
+       function dataModelTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
+         testSuite.addTestPage(&quot;../../../source/model/ModelTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../source/model/TestReorderingForTypicalOrdinals.html&quot;);
++        testSuite.addTestPage(&quot;../../../source/model/TestReorderingForSpecialCases.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/LintTest.html&quot;);
+         return testSuite;
+       }
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/model/World.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -924,7 +924,7 @@
+ 
+ 
+ /**
+- * Returns an list of all the items that represent categories.
++ * Returns a list of all the items that represent categories.
+  *
+  * @scope    public instance method
+  * @return   A list of items that represent categories.
+@@ -935,7 +935,7 @@
+ };
+ 
+ /**
+- * Returns an list of all the items that represent attributes.
++ * Returns a list of all the items that represent attributes.
+  *
+  * @scope    public instance method
+  * @return   A list of items that represent attributes.
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-07-26 00:11:47 UTC (rev 261)
++++ trunk/source/util/Uuid.js	2005-07-26 07:25:51 UTC (rev 262)
+@@ -111,6 +111,16 @@
+ // Public methods for working with UUIDs
+ // -------------------------------------------------------------------
+ 
++mockUuidGenerator.queueOfUuids = new Array();
++
++function mockUuidGenerator() {
++  if (mockUuidGenerator.queueOfUuids.length == 0) {
++// This should probably throw an exception instead.    
++      return &quot;00000000-0000-0000-0000-000000000000&quot;;
++  }
++  return mockUuidGenerator.queueOfUuids.shift();
++}
++
+ /**
+  * Generates a time-based UUID, meaning a &quot;version 1&quot; UUID.  JavaScript
+  * code running in a browser doesn't have access to the IEEE 802.3 address
+@@ -171,7 +181,7 @@
+     Uuid._ourNextIntraMillisecondIncrement += 1;
+     if (Uuid._ourNextIntraMillisecondIncrement == 10000) {
+       // If we've gotten to here, it means we've already generated 10,000
+-      // UUIDs in this single milliseconds, which is the most that the UUID
++      // UUIDs in this single millisecond, which is the most that the UUID
+       // timestamp field allows for.  So now we'll just sit here and wait
+       // for a fraction of a millisecond, so as to ensure that the next 
+       // time this method is called there will be a different millisecond 
+@@ -280,6 +290,13 @@
+ };
+ 
+ 
++Uuid.getOriginalOrdinalFromUuid = function(uuid) {
++  var hexTimeLow = uuid.split('-')[0];
++  var hexTimeMid = uuid.split('-')[1];
++  var hexTimeHigh = uuid.split('-')[2];
++  return hexTimeHigh + hexTimeMid + hexTimeLow;
++};
++
+ // -------------------------------------------------------------------
+ // Private methods
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000246.html">[openrecord-svn] r261 - in trunk: . documentation repositories source/view
+</A></li>
+	<LI>Next message: <A HREF="000248.html">[openrecord-svn] r263 - in trunk: documentation repositories source source/model source/util source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#247">[ date ]</a>
+              <a href="thread.html#247">[ thread ]</a>
+              <a href="subject.html#247">[ subject ]</a>
+              <a href="author.html#247">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

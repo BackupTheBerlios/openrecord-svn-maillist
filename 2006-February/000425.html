@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r444 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r444%20-%20trunk/source&In-Reply-To=%3C200602092236.k19ManFj002773%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000424.html">
+   <LINK REL="Next"  HREF="000426.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r444 - trunk/source</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r444%20-%20trunk/source&In-Reply-To=%3C200602092236.k19ManFj002773%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r444 - trunk/source">skinner at berlios.de
+       </A><BR>
+    <I>Thu Feb  9 23:36:49 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000424.html">[openrecord-svn] r443 - in trunk/source: . plugins
+</A></li>
+        <LI>Next message: <A HREF="000426.html">[openrecord-svn] r445 - in trunk: . repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-02-09 23:36:45 +0100 (Thu, 09 Feb 2006)
+New Revision: 444
+
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/base_style.css
+Log:
+Changed the CSS styles for BarChartPlugin, so that Bar Charts look clearly different from Tables.  Also changed BarChartPlugin so that it sorts the rows by name.
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2006-02-09 22:03:36 UTC (rev 443)
++++ trunk/source/BarChartPlugin.js	2006-02-09 22:36:45 UTC (rev 444)
+@@ -69,6 +69,16 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Public constants
++// -------------------------------------------------------------------
++orp.BarChartPlugin.cssClass = {
++  TABLE: &quot;bar_chart_table&quot;,
++  PLAIN: &quot;plain&quot;,
++  FRAME: &quot;bar_chart_frame&quot;,
++  BAR: &quot;bar_chart_bar&quot; };
++
++  
++// -------------------------------------------------------------------
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+ 
+@@ -174,10 +184,11 @@
+   }
+ 
+   // add the table header row(s)
+-  listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + orp.view.SectionView.cssClass.SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
++  listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + orp.BarChartPlugin.cssClass.TABLE + &quot;\&quot;&gt;&quot;);
+   listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+-  listOfStrings.push(&quot;&lt;th&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/th&gt;&quot;);
++  listOfStrings.push(&quot;&lt;th&gt;&quot; + &quot;&quot; + &quot;&lt;/th&gt;&quot;); // listOfStrings.push(&quot;&lt;th&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/th&gt;&quot;);
++  
+   if (selectedAttribute) {
+     listOfStrings.push(&quot;&lt;th&gt;&quot; + selectedAttribute.getDisplayName() + &quot;&lt;/th&gt;&quot;);
+   } else {
+@@ -185,11 +196,13 @@
+   }
+   listOfStrings.push(&quot;&lt;/tr&gt;&quot;);
+     
++  var staticThis = this;
++  listOfContentItems.sort(orp.BarChartPlugin.compareItemsByName);
+   // add all the table body rows
+   for (var kKey in listOfContentItems) {
+     contentItem = listOfContentItems[kKey];
+     listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+-    listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + orp.view.SectionView.cssClass.PLAIN + &quot;\&quot;&gt;&quot; + contentItem.getDisplayName(&quot;{no name}&quot;) + &quot;&lt;/td&gt;&quot;);
++    listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + orp.BarChartPlugin.cssClass.PLAIN + &quot;\&quot;&gt;&quot; + contentItem.getDisplayName(&quot;{no name}&quot;) + &quot;&lt;/td&gt;&quot;);
+     var numericValue = 0;
+     if (selectedAttribute) {
+       listOfValues = contentItem.getValuesForAttribute(selectedAttribute);
+@@ -204,7 +217,7 @@
+     if (maxValue &gt; 0) {
+       width = (numericValue / maxValue) * 100; // 100 Percent
+     }
+-    listOfStrings.push(&quot;&lt;td class=\&quot;bar_chart_frame\&quot;&gt;&lt;input disabled type=\&quot;text\&quot; class=\&quot;bar_chart_bar\&quot; value=\&quot;&quot; + numericValue + &quot;\&quot; size=\&quot;1\&quot; style=\&quot;width: &quot; + width + &quot;%;\&quot;&gt;&lt;/input&gt;&lt;/td&gt;&quot;);
++    listOfStrings.push('&lt;td class=&quot;' + orp.BarChartPlugin.cssClass.FRAME + '&quot;&gt;&lt;input disabled type=&quot;text&quot; class=&quot;' + orp.BarChartPlugin.cssClass.BAR + '&quot; value=&quot;' + numericValue + '&quot; size=&quot;1&quot; style=&quot;width: ' + width + '%;\&quot;&gt;&lt;/input&gt;&lt;/td&gt;');
+     listOfStrings.push(&quot;&lt;/tr&gt;&quot;);
+   }  
+   listOfStrings.push(&quot;&lt;/table&gt;&quot;);
+@@ -214,6 +227,13 @@
+   this.getHtmlElement().innerHTML = finalString;
+ };
+ 
++orp.BarChartPlugin.compareItemsByName = function(itemA, itemB) {
++  var strA = itemA.getDisplayName().toLowerCase();
++  var strB = itemB.getDisplayName().toLowerCase();
++  if (strA &lt; strB) {return -1;}
++  if (strA == strB) {return 0;}
++  return 1;
++};
+ 
+ // -------------------------------------------------------------------
+ // End of file
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2006-02-09 22:03:36 UTC (rev 443)
++++ trunk/source/base_style.css	2006-02-09 22:36:45 UTC (rev 444)
+@@ -605,7 +605,59 @@
+   background: #DEE7F8;
+ }
+ 
++/****************************************/
++/* Bar Chart styles                     */
+ 
++.bar_chart_table {
++  background: rgb(70%, 70%, 70%);
++  border: 1pt solid rgb(100%, 100%, 100%);
++  border-collapse: collapse;
++}
++
++.bar_chart_table th {
++  padding: 0.1em; /* 0.3em; */
++  text-align: left;
++  background: #FFFFFF;
++  font-size: 0.8em;
++  /* color: #000000; */
++  border: 1pt solid rgb(100%, 100%, 100%);
++}
++
++.bar_chart_table tr {
++  background: rgb(100%, 100%, 100%);
++}
++
++.bar_chart_table td {
++  padding: 0.1em 0.3em; 
++  font-size: 0.8em;
++  border: 1pt solid rgb(100%, 100%, 100%);
++}
++
++.bar_chart_table td.plain {
++  width: 20em;
++  padding: 0px;
++  margin: 0px;
++  text-align: right;
++}
++
++.bar_chart_table td.bar_chart_frame {
++  width: 20em;
++  padding: 0px;
++  margin: 0px;
++  text-align: left;
++}
++
++.bar_chart_bar {
++  height: 100%;
++  margin: 0px;
++  padding: 0px;
++  background: rgb(0%, 40%, 0%);
++  border: none;
++  text-align: right;
++  vertical-align: middle;
++  color: white;
++}
++
+ /****************************************/
+ /* Outline styles                       */
+ 
+@@ -634,28 +686,6 @@
+ 
+ 
+ /****************************************/
+-/* Bar chart styles                     */
+-
+-.simple_table td.bar_chart_frame {
+-  width: 20em;
+-  padding: 0px;
+-  margin: 0px;
+-  text-align: left;
+-}
+-
+-.bar_chart_bar {
+-  height: 100%;
+-  margin: 0px;
+-  padding: 0px;
+-  background: rgb(0%, 40%, 0%);
+-  border: none;
+-  text-align: right;
+-  vertical-align: middle;
+-  color: white;
+-}
+-
+-
+-/****************************************/
+ /* LoginView styles                     */
+ 
+ .LoginView {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000424.html">[openrecord-svn] r443 - in trunk/source: . plugins
+</A></li>
+	<LI>Next message: <A HREF="000426.html">[openrecord-svn] r445 - in trunk: . repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

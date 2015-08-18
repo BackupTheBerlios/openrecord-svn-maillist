@@ -1,0 +1,459 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r164 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r164%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506191821.j5JILPN1010952%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000149.html">
+   <LINK REL="Next"  HREF="000151.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r164 - in trunk: documentation source source/model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r164%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506191821.j5JILPN1010952%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r164 - in trunk: documentation source source/model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun 19 20:21:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000149.html">[openrecord-svn] r163 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000151.html">[openrecord-svn] r165 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#150">[ date ]</a>
+              <a href="thread.html#150">[ thread ]</a>
+              <a href="subject.html#150">[ subject ]</a>
+              <a href="author.html#150">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-19 20:21:24 +0200 (Sun, 19 Jun 2005)
+New Revision: 164
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/model/Entry.js
+   trunk/source/model/World.js
+Log:
+0) Allow plugins to store layout data
+1) First version of storing layout data for TablePlugin. Table plugin persists column order
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/documentation/release_planning.txt	2005-06-19 18:21:24 UTC (rev 164)
+@@ -224,8 +224,8 @@
+        |          |         | 62. Ensure that PHP scripts and file I/O works for concurrent multi-user access
+ -------+----------+---------+----------------------------------------------
+ chao   | 0.5 IED  | 0.5 IED | Improved UI for autocomplete
+-c/b    | 0.5 IED  |         | Allow plugins to store layout data
+-chao   | 0.5 IED  |         | Table plugin persists column order
++c/b    | 0.5 IED  | 0.5 IED | Allow plugins to store layout data
++chao   | 0.5 IED  | 0.5 IED | Table plugin persists column order
+        
+ =======================================================
+ Categories and Attributes we might use for release 0.1
+@@ -453,4 +453,4 @@
+ + Should we work on making OpenRecord work within MediaWiki?
+ + BUG: need to convert HTML entity codes back at client-server layer
+ + Task: Rename ORlugin to PluginView
+-
+++ BUG: Can't really create own plugins yet (e.g. UUID need to be assigned, plugin item created)
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/BarChartPlugin.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -42,8 +42,8 @@
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+ SectionView.ourHashTableOfPluginClassesKeyedByPluginName[SectionView.PLUGIN_BAR_CHART] = BarChartPlugin;
++BarChartPlugin.UUID = SectionView.UUID_FOR_PLUGIN_VIEW_BAR_CHART;
+ 
+-
+ /**
+  * A BarChartPlugin displays a set of content items for a SectionView. 
+  *
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/DetailPlugin.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -41,6 +41,7 @@
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+ SectionView.ourHashTableOfPluginClassesKeyedByPluginName[SectionView.PLUGIN_DETAIL] = DetailPlugin;
++DetailPlugin.UUID = SectionView.UUID_FOR_PLUGIN_VIEW_DETAIL;
+ 
+ 
+ /**
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/OutlinePlugin.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -40,6 +40,7 @@
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+ SectionView.ourHashTableOfPluginClassesKeyedByPluginName[SectionView.PLUGIN_OUTLINE] = OutlinePlugin;
++OutlinePlugin.UUID = SectionView.UUID_FOR_PLUGIN_VIEW_OUTLINE;
+ 
+ 
+ /**
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/SectionView.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -75,7 +75,6 @@
+ SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW       = &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA       = &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN = &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-SectionView.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS     = &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ SectionView.UUID_FOR_CATEGORY_PLUGIN_VIEW        = &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_CATEGORY_LAYOUT_DATA        = &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+@@ -167,7 +166,8 @@
+   var newPlugin = null;
+   var pluginClass = SectionView.ourHashTableOfPluginClassesKeyedByPluginName[inPluginName];
+   if (pluginClass) {
+-    var layoutData = this._getLayoutDataForPlugin(inPluginName);
++    var pluginType = this.getWorld().getItemFromUuid(pluginClass.UUID);
++    var layoutData = this._getLayoutDataForPlugin(pluginType);
+     newPlugin = new pluginClass(this, inPluginDiv, this.getQuery(), layoutData);
+   }
+   return newPlugin;
+@@ -271,10 +271,10 @@
+  * Returns layout data of this section for a particular plugin
+  * Creates a the layout data item if doesn't exist
+  *
+- * @param inPluginName name of plugin
++ * @param inPluginType name of plugin
+  * @return layout data of this section for a particular plugin
+  */
+-SectionView.prototype._getLayoutDataForPlugin = function (inPluginName) {
++SectionView.prototype._getLayoutDataForPlugin = function (inPluginType) {
+   var repository = this.getWorld();
+   var attrLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA);
+   var entriesLayoutData = this.mySection.getEntriesForAttribute(attrLayoutData);
+@@ -284,15 +284,15 @@
+       var layoutItem = entriesLayoutData[i].getValue();
+       var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attrAppliesToPlugin);
+       Util.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
+-      if (entriesAppliesToPlugin[0].getValue() == inPluginName) {
++      if (entriesAppliesToPlugin[0].getValue() == inPluginType) {
+         return layoutItem;
+       }
+     }
+   }
+   // layoutData not found, so create the item
+   repository.beginTransaction();
+-  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginName + &quot; of &quot; + this.mySection.getDisplayName());
+-  layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginName);
++  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayName() + &quot; of &quot; + this.mySection.getDisplayName());
++  layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginType);
+   this.mySection.addEntryForAttribute(attrLayoutData,layoutItem,repository.getTypeCalledItem());
+   repository.endTransaction();
+   return layoutItem;
+@@ -376,6 +376,7 @@
+  * @scope public instance method
+  */
+ SectionView.prototype.observedItemHasChanged = function(item) {
++  item.removeObserver(this); //item no longer needs to be observed as query editor span is rebuilt
+   var myQuery = this.getQuery();
+   Util.assert(item == myQuery);
+   var pluginName = this._myPlugin.getPluginName();
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/TablePlugin.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -44,11 +44,13 @@
+ // Register this plugin in the SectionView registry
+ // -------------------------------------------------------------------
+ SectionView.ourHashTableOfPluginClassesKeyedByPluginName[SectionView.PLUGIN_TABLE] = TablePlugin;
++TablePlugin.UUID = SectionView.UUID_FOR_PLUGIN_VIEW_TABLE;
+ 
+ 
+ // -------------------------------------------------------------------
+ // TablePlugin public class constants
+ // -------------------------------------------------------------------
++TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS     = &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ TablePlugin.ASCENDING_GIF = &quot;ascending.gif&quot;;
+ TablePlugin.DESCENDING_GIF = &quot;descending.gif&quot;;
+ 
+@@ -105,12 +107,42 @@
+ };
+ 
+ /**
+- * Creates a hashtable containing all the attributes of the content items 
+- * in this table.  Finds the union of the attribute lists of all the content items.
++ * Creates an array containing all the attributes of the content items 
++ * in this table.  Populates list of suggested items for relevant attributes
+  *
+  * @scope    private instance method
+  */
+-TablePlugin.prototype._buildAttributeHash = function() {
++TablePlugin.prototype._buildAttributes = function() {
++  var repository = this.getWorld();
++  var attrTableColumns = repository.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
++  var entriesTableColumns = this._layout.getEntriesForAttribute(attrTableColumns);
++  var displayAttrs = [];
++  var anAttribute;
++  var useLayoutData = (entriesTableColumns) &amp;&amp; (entriesTableColumns.length &gt; 1 ||
++    (entriesTableColumns.length ==1 &amp;&amp; entriesTableColumns[0].getValue() != repository.getAttributeCalledName()));
++  if (useLayoutData) {
++    this._hashTableOfEntries = {};
++    for (var i=0;i&lt;entriesTableColumns.length;++i) {
++      anAttribute = entriesTableColumns[i].getValue();
++      Util.assert(anAttribute instanceof Item);
++      displayAttrs.push(anAttribute);
++      this._hashTableOfEntries[anAttribute.getUniqueKeyString()] =
++        this.getWorld().getSuggestedItemsForAttribute(anAttribute);
++    }
++  }
++  else {
++    if (entriesTableColumns.length == 1) {entriesTableColumns[0].voteToDelete();}
++    var hashTableOfAttributes = this._buildAttributeHashFromScratch();
++    for (var key in hashTableOfAttributes) {
++      anAttribute = hashTableOfAttributes[key];
++      displayAttrs.push(anAttribute);
++      this._layout.addEntryForAttribute(attrTableColumns,anAttribute,repository.getTypeCalledItem());
++    }
++  }
++  this._displayAttributes = displayAttrs;
++};
++
++TablePlugin.prototype._buildAttributeHashFromScratch = function() {
+   var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var hashTableOfAttributes = {};
+@@ -149,12 +181,12 @@
+     }
+   }
+   this._hashTableOfEntries = hashTableOfEntries;
+-  this._hashTableOfAttributes = hashTableOfAttributes;
+-  if (Util.lengthOfHashTable(this._hashTableOfAttributes) &lt; 1) {
++  if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
+     var attributeCalledName = this.getWorld().getAttributeCalledName();
+     var key = attributeCalledName.getUniqueKeyString();
+-    this._hashTableOfAttributes[key] = attributeCalledName;
++    hashTableOfAttributes[key] = attributeCalledName;
+   }
++  return hashTableOfAttributes;
+ };
+ 
+ 
+@@ -167,19 +199,21 @@
+   var htmlElt = this.getHTMLElement();
+   View.createAndAppendElement(htmlElt,&quot;br&quot;);
+   var selectElt = View.createAndAppendElement(htmlElt,&quot;select&quot;);
+-  var categoryCalledAttribute = this.getWorld().getCategoryCalledAttribute();
+-  var listOfAttributes = this.getWorld().getItemsInCategory(categoryCalledAttribute);
++  var listOfAttributes = this.getWorld().getAttributes();
+   var optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
+   optionElt.text = &quot;Add new attribute:&quot;;
+   for (var i = 0; i &lt; listOfAttributes.length; ++i) {
+     optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
+-    var attributeUuid = listOfAttributes[i].getUniqueKeyString();
+-    if (this._hashTableOfAttributes[attributeUuid]) {optionElt.text = '*';}
++    if (Util.isObjectInSet(listOfAttributes[i],this._displayAttributes)) {optionElt.text = '*';}
+     optionElt.text += listOfAttributes[i].getDisplayName();
+-    optionElt.value = attributeUuid;
++    optionElt.value = listOfAttributes[i].getUniqueKeyString();
+     optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
+   }
+   this._selectElement = selectElt;
++  /*View.createAndAppendTextNode(htmlElt, &quot; Import Data:&quot;);
++  var importButton = View.createAndAppendElement(htmlElt,&quot;input&quot;);
++  importButton.type = &quot;file&quot;;
++  importButton.onchange = this._importData.bindAsEventListener(this, importButton);*/
+ };
+ 
+ /**
+@@ -190,8 +224,8 @@
+ TablePlugin.prototype._insertRow = function(contentItem, rowNum) {
+   var aRow = this.myTable.insertRow(rowNum); 
+   var columnCount = -1;
+-  for (var lKey in this._hashTableOfAttributes) {
+-    var attribute = this._hashTableOfAttributes[lKey];
++  for (var i=0;i&lt;this._displayAttributes.length;++i) {
++    var attribute = this._displayAttributes[i];
+     this._insertCell(aRow, ++columnCount, contentItem, attribute);
+   }
+   return aRow;
+@@ -250,8 +284,8 @@
+   // add header row
+   var headerRow = this.myTable.insertRow(0);
+   var numCols = 0;
+-  for (var jKey in this._hashTableOfAttributes) {
+-    var attribute = this._hashTableOfAttributes[jKey];
++  for (var i=0;i&lt;this._displayAttributes.length;++i) {
++    var attribute = this._displayAttributes[i];
+     if (!this._sortAttribute) {this._sortAttribute = attribute;}
+     var aCell = document.createElement(&quot;th&quot;);
+     var headerStr = attribute.getDisplayName();
+@@ -278,7 +312,7 @@
+   // get list of items and attributes
+   if (!inDontRebuildHash) {
+     this.fetchItems();
+-    this._buildAttributeHash();
++    this._buildAttributes();
+   }
+   
+   //create new table, remove old table if already exists
+@@ -376,12 +410,50 @@
+   if (rowElement != this._lastSelectedRow) {
+     if (this._lastSelectedRow) {this._lastSelectedRow.style.background = &quot;&quot;;}
+     this._lastSelectedRow = rowElement;
+-    rowElement.style.background = &quot;rgb(0%,70%,100%)&quot;; // PENDING: need to css-ify this selection
++    rowElement.style.background = &quot;rgb(100%,100%,0%)&quot;; // PENDING: need to css-ify this selection
+     return true;
+   }
+   return false;
+ };
+  
++TablePlugin.prototype._importData = function (inEventObject, fileButton) {
++  // Returns null if it can't do it, false if there's an error, or a string of the content if successful
++/*  function mozillaLoadFile(filePath)
++  {
++      if(window.Components)
++          try 
++              {
++              netscape.security.PrivilegeManager.enablePrivilege(&quot;UniversalXPConnect&quot;);
++              var file = Components.classes[&quot;@mozilla.org/file/local;1&quot;].createInstance(Components.interfaces.nsILocalFile);
++              file.initWithPath(filePath);
++              if (!file.exists())
++                  return(null);
++              var inputStream = Components.classes[&quot;@mozilla.org/network/file-input-stream;1&quot;].createInstance(Components.interfaces.nsIFileInputStream);
++              inputStream.init(file, 0x01, 00004, null);
++              var sInputStream = Components.classes[&quot;@mozilla.org/scriptableinputstream;1&quot;].createInstance(Components.interfaces.nsIScriptableInputStream);
++              sInputStream.init(inputStream);
++              return(sInputStream.read(sInputStream.available()));
++              }
++          catch(e)
++              {
++              alert(&quot;Exception while attempting to load\n\n&quot; + e);
++              return(false);
++              }
++      return(null);
++  }
++  
++  function readFile (fileName) {
++      netscape.security.PrivilegeManager.enablePrivilege('UniversalFileRead');
++      var bfr = new java.io.BufferedReader(new java.io.FileReader(fileName));
++      var line;
++      var content = '';
++      while ((line = bfr.readLine()) != null)
++        content += line + java.lang.System.getProperty('line.separator');
++      return content;
++    }*/
++  open('<A HREF="file://">file://</A>'+fileButton.value,'preview');   
++};
++
+ /**
+  * Called when the user clicks on attribute editor item, either to add or remove attribute column
+  * 
+@@ -390,16 +462,26 @@
+ TablePlugin.prototype._attributeEditorChanged = function (inEventObject) {
+   var attributeUuid = inEventObject.target.value;
+   if (attributeUuid) {
+-    if (this._hashTableOfAttributes[attributeUuid]) {
+-      delete this._hashTableOfAttributes[attributeUuid];
+-      this._hashTableOfEntries[attributeUuid] = [];
++    var repository = this.getWorld();
++    var attrTableColumns = repository.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
++    var entriesTableColumns = this._layout.getEntriesForAttribute(attrTableColumns);
++    var changedAttribute = this.getWorld().getItemFromUuid(attributeUuid);
++    if (Util.removeObjectFromSet(changedAttribute,this._displayAttributes)) {
++      for (var i=0;i &lt; entriesTableColumns.length;++i) {
++        if (changedAttribute == entriesTableColumns[i].getValue()) {
++          entriesTableColumns[i].voteToDelete();
++          break;
++        }
++      }
++      Util.assert(i &lt; entriesTableColumns.length);
++      delete this._hashTableOfEntries[attributeUuid];
+     }
+     else {
+       var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+-      var attribute = this.getWorld().getItemFromUuid(attributeUuid);
+-      this._hashTableOfAttributes[attributeUuid] = attribute;
++      this._displayAttributes.push(changedAttribute);
++      this._layout.addEntryForAttribute(attrTableColumns,changedAttribute,repository.getTypeCalledItem());
+       if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+-        this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(attribute);
++        this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(changedAttribute);
+       }
+     }
+     this._buildTable(true);
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/model/Entry.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -110,7 +110,7 @@
+     else if (value instanceof Item) {
+       this._myType = this.getWorld().getTypeCalledItem();
+     }
+-    else {Util.assert(false, &quot;unknown data type&quot;);}
++    else {Util.assert(false, &quot;unknown data type:&quot; + (typeof value) + ' value: ' + value);}
+   }
+   if (Util.isString(value)) {
+     this.__myValue = Util.getCleanString(value);
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-18 00:37:26 UTC (rev 163)
++++ trunk/source/model/World.js	2005-06-19 18:21:24 UTC (rev 164)
+@@ -851,10 +851,7 @@
+       Util.addObjectToSet(item, listOfSuggestedItems);
+     }
+   }
+-
+-  if (listOfSuggestedItems.length === 0) {
+-    listOfSuggestedItems = null;
+-  }
++  // For no suggested items, TablePlugin expects an empty array rather than null 
+   return listOfSuggestedItems;
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000149.html">[openrecord-svn] r163 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000151.html">[openrecord-svn] r165 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#150">[ date ]</a>
+              <a href="thread.html#150">[ thread ]</a>
+              <a href="subject.html#150">[ subject ]</a>
+              <a href="author.html#150">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

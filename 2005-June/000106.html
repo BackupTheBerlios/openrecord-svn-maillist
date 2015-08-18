@@ -1,0 +1,175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r119 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r119%20-%20trunk/source&In-Reply-To=%3C200506031809.j53I9vSl001588%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000105.html">
+   <LINK REL="Next"  HREF="000107.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r119 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r119%20-%20trunk/source&In-Reply-To=%3C200506031809.j53I9vSl001588%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r119 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun  3 20:09:57 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000105.html">[openrecord-svn] r118 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000107.html">[openrecord-svn] r120 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#106">[ date ]</a>
+              <a href="thread.html#106">[ thread ]</a>
+              <a href="subject.html#106">[ subject ]</a>
+              <a href="author.html#106">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-03 20:09:56 +0200 (Fri, 03 Jun 2005)
+New Revision: 119
+
+Added:
+   trunk/source/ORPlugin.js
+Log:
+
+
+Added: trunk/source/ORPlugin.js
+===================================================================
+--- trunk/source/ORPlugin.js	2005-06-03 06:56:31 UTC (rev 118)
++++ trunk/source/ORPlugin.js	2005-06-03 18:09:56 UTC (rev 119)
+@@ -0,0 +1,99 @@
++/*****************************************************************************
++ ORPlugin.js
++
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   World.js
++//   Util.js
++// -------------------------------------------------------------------
++
++
++
++
++/**
++ * A ORPlugin display one or more content items. 
++ *
++ * @scope    public instance constructor
++ * @extends  View
++ * @param    inSuperView    The superview for this view. 
++ * @param    inHTMLElement    The HTMLElement to display this view in. 
++ * @param    inQuery  Query that produces the items for this ORPlugin to display
++ * @syntax   var ORPlugin = new ORPlugin()
++ */
++ORPlugin.prototype = new View();  // makes ORPlugin be a subclass of View
++function ORPlugin(inSuperView, inHTMLElement,inQuery) {
++  if (!inSuperView) {return;} // initial call that subclasses of ORPlugins make without parameters
++  this.setSuperview(inSuperView);
++  this.setHTMLElement(inHTMLElement);
++  this._query = inQuery;
++}
++
++
++/**
++ * Gets the list of content items to display.
++ *
++ * @scope    PENDING
++ */
++ORPlugin.prototype.fetchItems = function() {
++  if (Util.isArray(this._query)) {
++    //PENDING hack to allow Plugin to support list of items or query
++    this._listOfItems = this._query;
++  }
++  else {
++    this._listOfItems = this._query ? this.getWorld().getResultItemsForQuery(this._query) : [];
++  }
++  return this._listOfItems;
++};
++
++/**
++ * Returns the registered name of this ORPlugin.
++ *
++ * @scope    public instance method
++ * @return   A string.
++ */
++ORPlugin.prototype.getPluginName = function () {
++  Util.assert(false);
++};
++
++
++/**
++ * Does final clean-up.
++ *
++ * @scope    public instance method
++ */
++ORPlugin.prototype.endOfLife = function () {
++  this.getHTMLElement().innerHTML = &quot;&quot;;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000105.html">[openrecord-svn] r118 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000107.html">[openrecord-svn] r120 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#106">[ date ]</a>
+              <a href="thread.html#106">[ thread ]</a>
+              <a href="subject.html#106">[ subject ]</a>
+              <a href="author.html#106">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

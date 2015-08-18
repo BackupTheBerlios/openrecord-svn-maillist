@@ -1,0 +1,445 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r382 - in trunk: source/archive source/model tests/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r382%20-%20in%20trunk%3A%20source/archive%20source/model%20tests/model&In-Reply-To=%3C200511200014.jAK0ERch010014%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000363.html">
+   <LINK REL="Next"  HREF="000365.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r382 - in trunk: source/archive source/model tests/model</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r382%20-%20in%20trunk%3A%20source/archive%20source/model%20tests/model&In-Reply-To=%3C200511200014.jAK0ERch010014%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r382 - in trunk: source/archive source/model tests/model">skinner at berlios.de
+       </A><BR>
+    <I>Sun Nov 20 01:14:27 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000363.html">[openrecord-svn] r381 - in trunk: source/util tests/util
+</A></li>
+        <LI>Next message: <A HREF="000365.html">[openrecord-svn] r383 - in trunk: source source/model source/storage source/view tests tests/lang tests/nonemptyPluginDir tests/storage tests/storage/directory_1 tests/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-11-20 01:14:23 +0100 (Sun, 20 Nov 2005)
+New Revision: 382
+
+Modified:
+   trunk/source/archive/StubArchive.js
+   trunk/source/model/World.js
+   trunk/tests/model/test_BeforeLogin.js
+Log:
+Added two new methods to World: importItem() and importEntry()
+
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-11-19 20:35:06 UTC (rev 381)
++++ trunk/source/archive/StubArchive.js	2005-11-20 00:14:23 UTC (rev 382)
+@@ -206,7 +206,7 @@
+  */
+ orp.archive.StubArchive.prototype.newItem = function(name, observer) {
+   this._throwErrorIfNoUserIsLoggedIn();
+-  var item = this._createNewItem(observer, false);
++  var item = this._createNewItem(observer);
+   if (name) { 
+     var attributeCalledName = this._world.getAttributeCalledName();
+     item.addEntry({attribute:attributeCalledName, value:name});
+@@ -235,15 +235,32 @@
+ 
+ 
+ /**
++ * Records the fact that a provisional item just became real.
++ *
++ * @scope    package instance method
++ * @param    item    The item that was provisional and just became real. 
++ */
++orp.archive.StubArchive.prototype._provisionalItemJustBecameReal = function(item) {
++  this._currentTransaction.addRecord(item);
++};
++
++
++/**
+  * Returns a newly created item: either a provisional item or a normal item.
+  *
+  * @scope    private instance method
+  * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+- * @param    provisionalFlag    True if the item is provisional; false if the item is normal. 
++ * @param    provisionalFlag    Optional. True if the item is provisional; false if the item is normal. Default is false.
++ * @param    uuid    Optional. If no UUID is supplied, a new one will be generated.
+  * @return   A newly created item.
+  */
+-orp.archive.StubArchive.prototype._createNewItem = function(observer, provisionalFlag) {
+-  var uuid = this._getNewUuid();
++orp.archive.StubArchive.prototype._createNewItem = function(observer, provisionalFlag, uuid) {
++  if (!uuid) {
++    uuid = this._getNewUuid();
++  }
++  if (!provisionalFlag) {
++    provisionalFlag = false;
++  }
+   var item = new orp.model.Item(this._world, uuid);
+   item._initialize(observer, provisionalFlag);
+   this._hashTableOfItemsKeyedByUuid[uuid] = item;
+@@ -255,13 +272,39 @@
+ 
+ 
+ /**
+- * Records the fact that a provisional item just became real.
++ * Creates a new item in this repository that corresponds to an existing
++ * item from somewhere else.  The new item in this repository will have
++ * the same UUID as the corresponding item in other repositories.
++ * 
++ * @scope    public instance method
++ * @param    uuid    The UUID of the item.
++ * @return   The new item.
++ * @throws   Throws an Error if the UUID is already in use.
++ */
++orp.archive.StubArchive.prototype.importItem = function(uuid) {
++  if (this.getItemFromUuid(uuid)) {
++    var error = new Error(&quot;You attempted to import an item that has a UUID which is already in use.&quot;);
++    throw error;
++  }
++  return this._createNewItem(null, null, uuid);
++};
++
++
++/**
++ * Creates a new entry in this repository that corresponds to an existing
++ * entry from somewhere else.  The new entry in this repository will have
++ * the same UUID as the corresponding entries in other repositories.
+  *
+- * @scope    package instance method
+- * @param    item    The item that was provisional and just became real. 
++ * @scope    public instance method
++ * @return   An entry object.
++ * @throws   Throws an Error if the UUID is already in use.
+  */
+-orp.archive.StubArchive.prototype._provisionalItemJustBecameReal = function(item) {
+-  this._currentTransaction.addRecord(item);
++orp.archive.StubArchive.prototype.importEntry = function(uuid, item, previousEntry, attribute, value, type) {
++  if (this._getEntryFromUuid(uuid)) {
++    var error = new Error(&quot;You attempted to import an entry that has a UUID which is already in use.&quot;);
++    throw error;
++  }
++  return this._createNewEntry(uuid, item, previousEntry, attribute, value, type);
+ };
+ 
+ 
+@@ -269,17 +312,15 @@
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
++ * @param    uuid    The uuid for the new entry. 
+  * @param    item    The item that this is an entry of. 
+  * @param    previousEntry    Optional. The old entry that this entry is replacing. 
+  * @param    attribute    The attribute that this entry is assigned to. May be null. 
+  * @param    value    The value to initialize the entry with. 
+  * @param    type    Optional. An item representing the data type of the value. 
+  * @return   A newly created entry.
+- * @throws   Throws an Error if no user is logged in.
+  */
+-orp.archive.StubArchive.prototype.newEntry = function(item, previousEntry, attribute, value, type) {
+-  this._throwErrorIfNoUserIsLoggedIn();
+-  var uuid = this._getNewUuid();
++orp.archive.StubArchive.prototype._createNewEntry = function(uuid, item, previousEntry, attribute, value, type) {
+   var entry = new orp.model.Entry(this._world, uuid);
+   entry._initialize(item, previousEntry, attribute, value, type);
+   item._addEntryToListOfEntriesForAttribute(entry, attribute);
+@@ -288,23 +329,49 @@
+   this._currentTransaction.addRecord(entry);
+   return entry;
+ };
+- 
+ 
++
+ /**
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
+- * @param    previousEntry    The entry that this entry will replace. Can be null.
+- * @param    itemOne    One of the two items that this entry will connect. 
+- * @param    attributeOne    The attribute of itemOne that this entry will be assigned to. 
+- * @param    itemTwo    One of the two items that this entry will connect. 
+- * @param    attributeTwo    The attribute of itemTwo that this entry will be assigned to.  
++ * @param    item    The item that this is an entry of. 
++ * @param    previousEntry    Optional. The old entry that this entry is replacing. 
++ * @param    attribute    The attribute that this entry is assigned to. May be null. 
++ * @param    value    The value to initialize the entry with. 
++ * @param    type    Optional. An item representing the data type of the value. 
+  * @return   A newly created entry.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-orp.archive.StubArchive.prototype.newConnectionEntry = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
++orp.archive.StubArchive.prototype.newEntry = function(item, previousEntry, attribute, value, type) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
++  return this._createNewEntry(uuid, item, previousEntry, attribute, value, type);
++};
++ 
++
++/**
++ * Returns a newly created entry.
++ *
++ * @scope    public instance method
++ * @return   A newly created entry.
++ */
++orp.archive.StubArchive.prototype.importConnectionEntry = function(uuid, previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
++  if (this._getEntryFromUuid(uuid)) {
++    var error = new Error(&quot;You attempted to import an entry that has a UUID which is already in use.&quot;);
++    throw error;
++  }
++  return this._createNewConnectionEntry(uuid, previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
++};
++
++
++/**
++ * Returns a newly created entry.
++ *
++ * @scope    public instance method
++ * @return   A newly created entry.
++ */
++orp.archive.StubArchive.prototype._createNewConnectionEntry = function(uuid, previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
+   var entry = new orp.model.Entry(this._world, uuid);
+   entry._initializeConnection(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
+ 
+@@ -330,6 +397,25 @@
+ 
+ 
+ /**
++ * Returns a newly created entry.
++ *
++ * @scope    public instance method
++ * @param    previousEntry    The entry that this entry will replace. Can be null.
++ * @param    itemOne    One of the two items that this entry will connect. 
++ * @param    attributeOne    The attribute of itemOne that this entry will be assigned to. 
++ * @param    itemTwo    One of the two items that this entry will connect. 
++ * @param    attributeTwo    The attribute of itemTwo that this entry will be assigned to.  
++ * @return   A newly created entry.
++ * @throws   Throws an Error if no user is logged in.
++ */
++orp.archive.StubArchive.prototype.newConnectionEntry = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
++  this._throwErrorIfNoUserIsLoggedIn();
++  var uuid = this._getNewUuid();
++  return this._createNewConnectionEntry(uuid, previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
++};
++
++
++/**
+  * Returns a newly created ordinal.
+  *
+  * @scope    public instance method
+@@ -385,7 +471,7 @@
+     throw error;
+   }
+ 
+-  var newUser = this._createNewItem(observer, false);
++  var newUser = this._createNewItem(observer);
+   this._listOfUsers.push(newUser);
+   
+   var md5Authentication = null;
+@@ -508,7 +594,7 @@
+  * @scope    public instance method
+  * @param    uuid    The UUID of the item to be returned. 
+  * @param    observer    Optional. An object to be registered as an observer of the returned item. 
+- * @return   The item identified by the given UUID.
++ * @return   Returns the item identified by the given UUID, or returns undefined if there is no item for that UUID.
+  */
+ orp.archive.StubArchive.prototype.getItemFromUuid = function(uuid, observer) {
+   orp.lang.assert(dojo.lang.isString(uuid) || uuid instanceof orp.uuid.Uuid);
+@@ -765,7 +851,7 @@
+  * 
+  * @scope    private instance method
+  * @param    uuid    The UUID of the entry to be returned. 
+- * @return   The entry identified by the given UUID.
++ * @return   Returns the entry identified by the given UUID, or returns undefined if there is no item for that UUID.
+  */
+ orp.archive.StubArchive.prototype._getEntryFromUuid = function(uuid) {
+   return this._hashTableOfEntriesKeyedByUuid[uuid];
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-11-19 20:35:06 UTC (rev 381)
++++ trunk/source/model/World.js	2005-11-20 00:14:23 UTC (rev 382)
+@@ -38,7 +38,7 @@
+ dojo.require(&quot;orp.model.Vote&quot;);
+ dojo.require(&quot;orp.model.Ordinal&quot;);
+ dojo.require(&quot;dojo.lang.*&quot;);
+-//-- dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;orp.lang.Lang&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -902,7 +902,7 @@
+  * @scope    public instance method
+  * @param    uuid    The UUID of the item to be returned. 
+  * @param    observer    Optional. An object to be registered as an observer of the returned item. 
+- * @return   The item identified by the given UUID.
++ * @return   Returns he item identified by the given UUID, or returns undefined if there is no item for that UUID.
+  */
+ orp.model.World.prototype.getItemFromUuid = function(uuid, observer) {
+   return (this._archive.getItemFromUuid(uuid, observer));
+@@ -914,7 +914,7 @@
+  *
+  * @scope    public instance method
+  * @param    uuid    The UUID of the item to be returned. 
+- * @return   The entry identified by the given UUID.
++ * @return   Returns the entry identified by the given UUID, or returns undefined if there is no item for that UUID.
+  */
+ orp.model.World.prototype.getEntryFromUuid = function(uuid) {
+   return (this._archive._getEntryFromUuid(uuid));
+@@ -1179,5 +1179,73 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Methods for importing content from other worlds/repositories
++// -------------------------------------------------------------------
++
++/**
++ * Creates a new item in this repository that corresponds to an existing
++ * item from somewhere else.  The new item in this repository will have
++ * the same UUID as the corresponding item in other repositories.
++ *
++ * @scope    public instance method
++ * @param    uuid    The UUID of the item.
++ * @return   The new item.
++ * @throws   Throws an Error if the UUID is already in use.
++ */
++orp.model.World.prototype.importItem = function(uuid) {
++  this.beginTransaction();
++  var item = this._archive.importItem(uuid);
++  this.endTransaction();
++  return item;
++};
++
++
++/**
++ * Creates a new entry in this repository that corresponds to an existing
++ * entry from somewhere else.  The new entry in this repository will have
++ * the same UUID as the corresponding entries in other repositories.
++ *
++ * @scope    public instance method
++ * @namedParam    uuid    The UUID of the entry.
++ * @namedParam    item    The item this is an entry of.
++ * @namedParam    value    The value to initialize the entry to. (Optional if previousEntry is provided.)
++ * @namedParam    type    Optional. An item representing a data type.
++ * @namedParam    attribute    Optional. The attribute to assign the entry to. 
++ * @namedParam    previousEntry    Optional. The old entry to be replaced.
++ * @namedParam    inverseAttribute    Optional. The attribute to use as the inverseAttribute of 'attribute'.
++ * @return   An entry object.
++ * @throws   Throws an Error if the UUID is already in use.
++ */
++orp.model.World.prototype.importEntry = function(namedParameters) {
++  orp.lang.assert(dojo.lang.isObject(namedParameters));
++
++  var parameters = orp.model.Item.NamedParameters;
++  var uuidParameter = &quot;uuid&quot;;
++  var itemParameter = &quot;item&quot;;
++
++  var value = namedParameters[parameters.value];
++  var attribute = namedParameters[parameters.attribute];
++  var type = namedParameters[parameters.type];
++  var previousEntry = namedParameters[parameters.previousEntry];
++  var inverseAttribute = namedParameters[parameters.inverseAttribute];
++  var uuid = namedParameters[uuidParameter];
++  var item = namedParameters[itemParameter];
++
++  this.beginTransaction();
++  var entry;
++  if (inverseAttribute) {
++    var attributeOne = attribute;
++    var itemTwo = value;
++    var attributeTwo = inverseAttribute;
++    entry = this._archive.importConnectionEntry(uuid, previousEntry, item, attributeOne, itemTwo, attributeTwo);
++  } else {
++    entry = this._archive.importEntry(uuid, item, previousEntry, attribute, value, type);
++  }
++  this.endTransaction();
++  return entry;
++};
++
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/model/test_BeforeLogin.js
+===================================================================
+--- trunk/tests/model/test_BeforeLogin.js	2005-11-19 20:35:06 UTC (rev 381)
++++ trunk/tests/model/test_BeforeLogin.js	2005-11-20 00:14:23 UTC (rev 382)
+@@ -147,7 +147,35 @@
+   }
+ }
+ 
++function testImportMethodsWithDuplicateUuid() {
++  var caughtError = false;
++  try {
++    var item = world.importItem(&quot;00001000-ce7f-11d9-8cd5-0011113ae5d6&quot;);
++  } catch (error) {
++    caughtError = true;
++  }
++  assertTrue(&quot;We can't import an item with a duplicate UUID&quot;, caughtError);
++}
+ 
++function testImportMethods() {
++  var attributeCalledName = world.getAttributeCalledName();
++  
++  var caughtError = false;
++  try {
++    world.beginTransaction();
++    var item = world.importItem(&quot;00000001-ce7f-11d9-8888-0011113ae5d6&quot;);
++    var entry = world.importEntry({
++      uuid: &quot;00000002-ce7f-11d9-8888-0011113ae5d6&quot;,
++      item: item,
++      attribute: attributeCalledName,
++      value: &quot;My new item!&quot; });
++    world.endTransaction();
++  } catch (error) {
++    throw error;
++    caughtError = true;
++  }
++  assertTrue(&quot;We can import an item with a unique UUID&quot;, !caughtError);
++}
+ 
+ // -------------------------------------------------------------------
+ // End of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000363.html">[openrecord-svn] r381 - in trunk: source/util tests/util
+</A></li>
+	<LI>Next message: <A HREF="000365.html">[openrecord-svn] r383 - in trunk: source source/model source/storage source/view tests tests/lang tests/nonemptyPluginDir tests/storage tests/storage/directory_1 tests/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

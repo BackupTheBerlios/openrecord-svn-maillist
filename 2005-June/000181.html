@@ -1,0 +1,749 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r195 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r195%20-%20trunk/source&In-Reply-To=%3C200506300218.j5U2IhwN007111%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000180.html">
+   <LINK REL="Next"  HREF="000182.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r195 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r195%20-%20trunk/source&In-Reply-To=%3C200506300218.j5U2IhwN007111%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r195 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 04:18:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000180.html">[openrecord-svn] r194 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000182.html">[openrecord-svn] r196 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-30 04:18:39 +0200 (Thu, 30 Jun 2005)
+New Revision: 195
+
+Modified:
+   trunk/source/NavbarView.js
+   trunk/source/RootView.js
+   trunk/source/SectionView.js
+Log:
+Wired up NavBar to observe changes in the list of pages and only redraw the menu items when the list of pages changes.  Fixed a minor glitch involving scrolling and anchor tags for new pages.  Also did some minor clean-up work.
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-06-29 23:04:06 UTC (rev 194)
++++ trunk/source/NavbarView.js	2005-06-30 02:18:39 UTC (rev 195)
+@@ -32,24 +32,33 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window */
++/*global RootView */
+ // -------------------------------------------------------------------
+ 
+ 
++// -------------------------------------------------------------------
++// NavbarView public class constants
++// -------------------------------------------------------------------
++NavbarView.CSS_CLASS_MENU_ITEM = &quot;menu_item&quot;;
++
++
+ /**
+  * The RootView uses an instance of a NavbarView to display a navigation
+  * bar, with links to pages.
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inSuperView    The view that this LoginView is nested in. 
+- * @param    inHTMLElement    The HTMLElement to display the HTML in. 
++ * @param    superView    The view that this LoginView is nested in. 
++ * @param    htmlElement    The HTMLElement to display the HTML in. 
+  */
+ NavbarView.prototype = new View();  // makes NavbarView be a subclass of View
+-function NavbarView(inSuperView, inHTMLElement) {
+-  // instance properties
+-  this.setSuperview(inSuperView);
+-  this.setHTMLElement(inHTMLElement);
++function NavbarView(superView, htmlElement, htmlElementForAnchors) {
++  this.setSuperview(superView);
++  this.setHTMLElement(htmlElement);
++  this._htmlElementForAnchors = htmlElementForAnchors;
+ }
+ 
+ 
+@@ -59,39 +68,52 @@
+  *
+  * @scope    public instance method
+  */
+-NavbarView.prototype.refresh = function () {
++NavbarView.prototype.refresh = function() {
+   if (!this.hasEverBeenDisplayed()) {
+     this._rebuildView();
++    this._myHasEverBeenDisplayedFlag = true;
+   }
+ };
+ 
+ 
++// -------------------------------------------------------------------
++// Private instance methods
++// -------------------------------------------------------------------
++
+ /**
+  * Re-creates the HTML for the view, and hands the HTML to the 
+  * browser to be re-drawn.
+  *
+  * @scope    private instance method
+  */
+-NavbarView.prototype._rebuildView = function () {
++NavbarView.prototype._rebuildView = function() {
++  var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
++  categoryCalledPage.addObserver(this);
++  var listOfPages = this.getWorld().getItemsInCategory(categoryCalledPage);
++  var key;
++  var page;
++
++  for (key in listOfPages) {
++    page = listOfPages[key];
++    var anchor = View.createAndAppendElement(this._htmlElementForAnchors, &quot;a&quot;);
++    anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + page._getUuid());
++  }
++  
++  
+   var divElement = this.getHTMLElement();
+-  
+-  var rootView = this.getRootView();
+-  var listOfPages = rootView.getPages();
+-
+   //get rid of all child nodes 
+   divElement.innerHTML = '';
+ 
+   var listOfStrings = [];
+-
+   listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
+-  
+-  for (var key in listOfPages) {
+-    var page = listOfPages[key];
++  var rootView = this.getRootView();
++  for (key in listOfPages) {
++    page = listOfPages[key];
++    page.addObserver(this);
+     var menuText = page.getDisplayString();
+     var menuUrl = rootView.getUrlForItem(page);
+-    listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
++    listOfStrings.push(&quot;&lt;li class=\&quot;&quot; + NavbarView.CSS_CLASS_MENU_ITEM + &quot;\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
+   }
+-
+   listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
+   
+   // write out the new nav bar content 
+@@ -114,7 +136,7 @@
+  *
+  * @scope    private instance method
+  */
+-NavbarView.prototype._clickOnNewPageButton = function(inEventObject) {
++NavbarView.prototype._clickOnNewPageButton = function(eventObject) {
+   var rootView = this.getRootView();
+   var newPage = rootView.newPage();
+   window.location = rootView.getUrlForItem(newPage);
+@@ -123,5 +145,20 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Observer methods
++// -------------------------------------------------------------------
++
++/**
++ * Called after there's been some change to one of the pages displayed
++ * in the Navbar.
++ *
++ * @scope    public instance method
++ */
++NavbarView.prototype.observedItemHasChanged = function(item, listOfRecordsForItem) {
++  // alert(&quot;Navbar observed: &quot; + item.getDisplayString());
++  this._rebuildView();
++};
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-29 23:04:06 UTC (rev 194)
++++ trunk/source/RootView.js	2005-06-30 02:18:39 UTC (rev 195)
+@@ -32,10 +32,11 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   PageView.js
+-//   World.js
+-//   Util.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window, document, alert, HTMLDivElement */
++/*global Item, World, Util */
++/*global View, PageView, ItemView, NavbarView, LoginView */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -62,7 +63,7 @@
+ // -------------------------------------------------------------------
+ // RootView class properties
+ // -------------------------------------------------------------------
+-RootView.ourSingleInstance = null;
++RootView._ourSingleInstance = null;
+ 
+ 
+ /**
+@@ -73,7 +74,7 @@
+  * @scope    public instance constructor
+  * @syntax   var rootView = new RootView()
+  */
+-function RootView(inWorld) {
++function RootView(world) {
+   window.onerror = Util.handleError;
+   // window.onunload = window.doOnunloadActions;
+   // window.onfocus = window.doOnfocusActions;
+@@ -81,46 +82,29 @@
+   // window.onresize = window.doOnresizeActions;  
+   Util.setTargetsForExternalLinks();
+   
+-  RootView.ourSingleInstance = this;
++  RootView._ourSingleInstance = this;
+    
+-  Util.assert(inWorld instanceof World);
++  Util.assert(world instanceof World);
+ 
+   // instance properties
+-  this._myWorld = inWorld;
+-  this.myEditMode = false;
+-  this.myNumberOfCallsToDebug = 0;
+-  this.myDebugTextarea = null;
++  this._world = world;
++  this._editMode = false;
++  this._numberOfCallsToDebug = 0;
++  this._debugTextarea = null;
+   
+-  this._myHashTableOfItemViewsKeyedByUuid = {};
+-  this._myHashTableOfPageViewsKeyedByUuid = {};
+-  this._myCurrentContentView = null;
++  this._hashTableOfItemViewsKeyedByUuid = {};
++  this._hashTableOfPageViewsKeyedByUuid = {};
++  this._currentContentView = null;
+   this._homePage = null;
+   
+-  this.myHashTableOfPagesKeyedByUuid = {};
+-  var categoryCalledPage = this._myWorld.getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+-  var listOfPages = this._myWorld.getItemsInCategory(categoryCalledPage);
+-  if (listOfPages &amp;&amp; listOfPages.length &gt; 0) {
+-    this._homePage = listOfPages[0];
+-  }
+-  for (var key in listOfPages) {
+-    var page = listOfPages[key];
+-    this.myHashTableOfPagesKeyedByUuid[page._getUuid()] = page; 
+-  }
+-
+   window.document.body.innerHTML = &quot;&quot;;
+   var rootDiv = View.createAndAppendElement(window.document.body, &quot;div&quot;);
++  var anchorSpan = View.createAndAppendElement(rootDiv, &quot;span&quot;);
+  
+-  for (var uuid in this.myHashTableOfPagesKeyedByUuid) {
+-    var aPage = this.myHashTableOfPagesKeyedByUuid[uuid];
+-    var anchor = View.createAndAppendElement(rootDiv, &quot;a&quot;);
+-    anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + aPage._getUuid());
+-  }
+-  
+   var headerP = View.createAndAppendElement(rootDiv, &quot;p&quot;, &quot;header&quot;);
+   var logoSpan = View.createAndAppendElement(headerP, &quot;span&quot;, &quot;logo&quot;);
+   logoSpan.innerHTML = '&lt;a href=&quot;<A HREF="http://openrecord.org">http://openrecord.org</A>&quot;&gt;&lt;span class=&quot;logostart&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;logomiddle&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;logoend&quot;&gt;.org&lt;/span&gt;&lt;/a&gt;';
+-  var mainControlSpan = View.createAndAppendElement(headerP, &quot;span&quot;, null, &quot;main_control_span&quot;);
+-  mainControlSpan.className = RootView.CSS_CLASS_CONTROL_SPAN;
++  var mainControlSpan = View.createAndAppendElement(headerP, &quot;span&quot;, RootView.CSS_CLASS_CONTROL_SPAN, &quot;main_control_span&quot;);
+   View.createAndAppendElement(headerP, &quot;br&quot;);
+   var navbarDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;navbar&quot;);
+   var contentAreaDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;content_area&quot;);
+@@ -136,12 +120,13 @@
+   var statusBlurbSpan = View.createAndAppendElement(footerP, &quot;span&quot;, &quot;fileformat&quot;);
+   View.createAndAppendElement(footerP, &quot;br&quot;);
+   
+-  this.myMainControlSpanElement = mainControlSpan;
+-  this.myNavbarDivElement = navbarDiv;
+-  this._myContentViewDivElement = contentViewDiv;
+-  this.myDebugDivElement = debugDiv;
+-  this.myStatusBlurbSpanElement = statusBlurbSpan;
+-  this._myRootDiv = rootDiv;
++  this._mainControlSpanElement = mainControlSpan;
++  this._anchorSpan = anchorSpan;
++  this._navbarDivElement = navbarDiv;
++  this._contentViewDivElement = contentViewDiv;
++  this._debugDivElement = debugDiv;
++  this._statusBlurbSpanElement = statusBlurbSpan;
++  this._rootDiv = rootDiv;
+   
+   Util.setErrorReportCallback(RootView.displayTextInDebugTextarea);
+   this.setCurrentContentViewFromUrl();
+@@ -159,8 +144,8 @@
+  * @scope    public class method
+  * @return   The singleton instance of RootView. 
+  */
+-RootView.getRootView = function (inText) {
+-  return RootView.ourSingleInstance;
++RootView.getRootView = function() {
++  return RootView._ourSingleInstance;
+ };
+ 
+ 
+@@ -174,8 +159,8 @@
+  * @scope    public instance method
+  * @return   A World object. 
+  */
+-RootView.prototype.getWorld = function () {
+-  return this._myWorld;
++RootView.prototype.getWorld = function() {
++  return this._world;
+ };
+ 
+ 
+@@ -185,7 +170,16 @@
+  * @scope    public instance method
+  * @return   A page item.
+  */
+-RootView.prototype.getHomePage = function () {
++RootView.prototype.getHomePage = function() {
++  if (!this._homePage) {
++    var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
++    var listOfPages = this.getWorld().getItemsInCategory(categoryCalledPage);
++    if (listOfPages &amp;&amp; listOfPages.length &gt; 0) {
++      this._homePage = listOfPages[0];
++    } else {
++      Util.assert(false);
++    }
++  }
+   return this._homePage;
+ };
+ 
+@@ -196,7 +190,7 @@
+  * @scope    public instance method
+  * @return   This view.
+  */
+-RootView.prototype.getRootView = function () {
++RootView.prototype.getRootView = function() {
+   return this;
+ };
+ 
+@@ -207,8 +201,8 @@
+  * @scope    public instance method
+  * @return   A boolean value. True if we are in Edit Mode.
+  */
+-RootView.prototype.isInEditMode = function () {
+-  return this.myEditMode;
++RootView.prototype.isInEditMode = function() {
++  return this._editMode;
+ };
+ 
+     
+@@ -216,22 +210,22 @@
+  * Switches the UI into and out of edit mode.
+  *
+  * @scope    public instance method
+- * @param    inEditModeFlag    A boolean. True to switch into edit mode, false to switch out.
++ * @param    editModeFlag    A boolean. True to switch into edit mode, false to switch out.
+  */
+-RootView.prototype.setEditMode = function (inEditModeFlag) {
+-  if (inEditModeFlag != this.myEditMode) {
++RootView.prototype.setEditMode = function(editModeFlag) {
++  if (editModeFlag != this._editMode) {
+     var world = this.getWorld();
+-    if (this.myEditMode) {
++    if (this._editMode) {
+       // world.endTransaction();
+       // window.document.body.style.cursor = &quot;auto&quot;;
+     } else {
+       // world.beginTransaction();
+       // window.document.body.style.cursor = &quot;crosshair&quot;;
+     }
+-    this.myEditMode = !this.myEditMode;
++    this._editMode = !this._editMode;
+     this.display();
+-    // this.displayTextInDebugTextarea(this.myEditMode);
+-    // if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
++    // this.displayTextInDebugTextarea(this._editMode);
++    // if (!this._editMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
+     //  RootView.displayTextInDebugTextarea(world._getJsonStringRepresentingAllItems());
+     // }
+   }
+@@ -245,7 +239,7 @@
+  * @scope    public instance method
+  * @param    item    Any item.
+  */
+-RootView.prototype.getUrlForItem = function (item) {
++RootView.prototype.getUrlForItem = function(item) {
+   Util.assert(item instanceof Item);
+   var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   var prefix;
+@@ -266,7 +260,7 @@
+  *
+  * @scope    public instance method
+  */
+-RootView.prototype.setCurrentContentViewFromUrl = function () {
++RootView.prototype.setCurrentContentViewFromUrl = function() {
+   var contentViewToSwitchTo = null;
+   
+   if (window.location) {
+@@ -280,27 +274,27 @@
+       var isUrlForItem = (originalHash.indexOf(RootView.URL_HASH_ITEM_PREFIX) != -1);
+       if (isUrlForItem) {
+         uuidText = originalHash.replace(RootView.URL_HASH_ITEM_PREFIX, &quot;&quot;);
+-        contentViewToSwitchTo = this._myHashTableOfItemViewsKeyedByUuid[uuidText];
++        contentViewToSwitchTo = this._hashTableOfItemViewsKeyedByUuid[uuidText];
+         if (!contentViewToSwitchTo) {
+-          itemFromUuid = this._myWorld.getItemFromUuid(uuidText);
++          itemFromUuid = this._world.getItemFromUuid(uuidText);
+           if (itemFromUuid) {
+             divElement = window.document.createElement(&quot;div&quot;); 
+-            this._myContentViewDivElement.appendChild(divElement);
++            this._contentViewDivElement.appendChild(divElement);
+             contentViewToSwitchTo = new ItemView(this, divElement, itemFromUuid);
+-            this._myHashTableOfItemViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
++            this._hashTableOfItemViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
+           }
+         }
+       } else {
+         if (isUrlForPage) {
+           uuidText = originalHash.replace(RootView.URL_HASH_PAGE_PREFIX, &quot;&quot;);
+-          contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[uuidText];
++          contentViewToSwitchTo = this._hashTableOfPageViewsKeyedByUuid[uuidText];
+           if (!contentViewToSwitchTo) {
+-            pageFromUuid = this.myHashTableOfPagesKeyedByUuid[uuidText];
++            pageFromUuid = this.getWorld().getItemFromUuid(uuidText);
+             if (pageFromUuid) {
+               divElement = window.document.createElement(&quot;div&quot;); 
+-              this._myContentViewDivElement.appendChild(divElement);
++              this._contentViewDivElement.appendChild(divElement);
+               contentViewToSwitchTo = new PageView(this, divElement, pageFromUuid);
+-              this._myHashTableOfPageViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
++              this._hashTableOfPageViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
+             }
+           }
+         } 
+@@ -310,18 +304,18 @@
+   
+   if (!contentViewToSwitchTo) {
+     var page = this.getHomePage();
+-    contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[page._getUuid()];
++    contentViewToSwitchTo = this._hashTableOfPageViewsKeyedByUuid[page._getUuid()];
+     if (!contentViewToSwitchTo) {
+       divElement = window.document.createElement(&quot;div&quot;); 
+-      this._myContentViewDivElement.appendChild(divElement);
++      this._contentViewDivElement.appendChild(divElement);
+       contentViewToSwitchTo = new PageView(this, divElement, page);
+-      this._myHashTableOfPageViewsKeyedByUuid[page._getUuid()] = contentViewToSwitchTo;
++      this._hashTableOfPageViewsKeyedByUuid[page._getUuid()] = contentViewToSwitchTo;
+     }
+   }
+-  if (this._myCurrentContentView) {
+-    this._myCurrentContentView.includeOnScreen(false);
++  if (this._currentContentView) {
++    this._currentContentView.includeOnScreen(false);
+   }
+-  this._myCurrentContentView = contentViewToSwitchTo;
++  this._currentContentView = contentViewToSwitchTo;
+   this.display();
+ };
+ 
+@@ -332,15 +326,15 @@
+  *
+  * @scope    public instance method
+  */
+-RootView.prototype.display = function () {
+-  Util.assert(this._myCurrentContentView instanceof Object);
++RootView.prototype.display = function() {
++  Util.assert(this._currentContentView instanceof Object);
+ 
+-  document.title = this._myCurrentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
+-  this._myRootDiv.className = (this.isInEditMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
++  document.title = this._currentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
++  this._rootDiv.className = (this.isInEditMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
+   this._displayLoginSpan();
+   this._displayNavbar();
+   this._displayDebugArea();
+-  this._myCurrentContentView.includeOnScreen(true);
++  this._currentContentView.includeOnScreen(true);
+   window.focus();
+ };
+ 
+@@ -353,7 +347,7 @@
+  * @scope    public instance method
+  * @return   The newly created page item.
+  */
+-RootView.prototype.newPage = function () {
++RootView.prototype.newPage = function() {
+   var repository = this.getWorld();
+   repository.beginTransaction();
+   var newPage = repository.newItem(&quot;New Page&quot;);
+@@ -366,31 +360,24 @@
+ 
+   repository.endTransaction();
+   
+-  this.myHashTableOfPagesKeyedByUuid[newPage._getUuid()] = newPage;
+-  
+   return newPage;
+ };
+ 
+ 
+-/**
+- * Returns a list of the page items in the repository.
+- *
+- * @scope    public instance method
+- * @return   A list of items that represent pages.
+- */
+-RootView.prototype.getPages = function () {
+-  return this.myHashTableOfPagesKeyedByUuid;
+-};
+-
+-    
+-
+ // -------------------------------------------------------------------
+ // Private instance methods
+ // -------------------------------------------------------------------
++
++/**
++ * Creates the HTML for the LoginView, and hands the HTML to the browser 
++ * to be drawn.
++ *
++ * @scope    private instance method
++ */
+ RootView.prototype._displayLoginSpan = function() {
+-  if (!this.loginView) {
+-    this.loginView = new LoginView(this,this.myMainControlSpanElement);
+-    this.loginView.refresh();
++  if (!this._loginView) {
++    this._loginView = new LoginView(this, this._mainControlSpanElement);
++    this._loginView.refresh();
+   }
+ };
+ 
+@@ -399,13 +386,13 @@
+  * Re-creates the HTML for the Navbar, and hands the HTML to the browser 
+  * to be re-drawn.
+  *
+- * @scope    public instance method
++ * @scope    private instance method
+  */
+-RootView.prototype._displayNavbar = function () {
+-  if (!this.navbarView) {
+-    this.navbarView = new NavbarView(this, this.myNavbarDivElement);
++RootView.prototype._displayNavbar = function() {
++  if (!this._navbarView) {
++    this._navbarView = new NavbarView(this, this._navbarDivElement, this._anchorSpan);
+   }
+-  this.navbarView.refresh();
++  this._navbarView.refresh();
+ };
+ 
+ 
+@@ -413,16 +400,16 @@
+  * Re-creates the HTML for the Debug area, and hands the HTML to the browser 
+  * to be re-drawn.
+  *
+- * @scope    public instance method
++ * @scope    private instance method
+  */
+-RootView.prototype._displayDebugArea = function () {
+-  Util.assert(this.myDebugDivElement instanceof HTMLDivElement);
++RootView.prototype._displayDebugArea = function() {
++  Util.assert(this._debugDivElement instanceof HTMLDivElement);
+ 
+   var listOfStrings = [];
+   listOfStrings.push(&quot;&lt;textarea readonly id=\&quot;&quot; + RootView.ELEMENT_ID_DEBUG_TEXTAREA + &quot;\&quot; rows=\&quot;20\&quot; cols=\&quot;100\&quot; wrap=\&quot;virtual\&quot;&gt;&lt;/textarea&gt;&quot;);
+   var finalString = listOfStrings.join(&quot;&quot;);
+-  this.myDebugDivElement.innerHTML = finalString;
+-  this.myDebugTextarea = document.getElementById(RootView.ELEMENT_ID_DEBUG_TEXTAREA);
++  this._debugDivElement.innerHTML = finalString;
++  this._debugTextarea = document.getElementById(RootView.ELEMENT_ID_DEBUG_TEXTAREA);
+ };
+ 
+ 
+@@ -434,10 +421,10 @@
+  * Displays a text string in the status blurb span.
+  *
+  * @scope    public class method
+- * @param    inText    A text string to be displayed. 
++ * @param    text    A text string to be displayed. 
+  */
+-RootView.displayStatusBlurb = function (inText) {
+-  RootView.ourSingleInstance.displayStatusBlurb(inText);
++RootView.displayStatusBlurb = function(text) {
++  RootView._ourSingleInstance.displayStatusBlurb(text);
+ };
+ 
+ 
+@@ -445,10 +432,10 @@
+  * Displays a text string in the status blurb span.
+  *
+  * @scope    public instance method
+- * @param    inText    A text string to be displayed. 
++ * @param    text    A text string to be displayed. 
+  */
+-RootView.prototype.displayStatusBlurb = function (inText) {
+-  this.myStatusBlurbSpanElement.innerHTML = inText;
++RootView.prototype.displayStatusBlurb = function(text) {
++  this._statusBlurbSpanElement.innerHTML = text;
+ };
+ 
+ 
+@@ -456,10 +443,10 @@
+  * Displays a text string in the debug textarea.
+  *
+  * @scope    public class method
+- * @param    inText    A text string to be displayed. 
++ * @param    text    A text string to be displayed. 
+  */
+-RootView.displayTextInDebugTextarea = function (inText) {
+-  RootView.ourSingleInstance.displayTextInDebugTextarea(inText);
++RootView.displayTextInDebugTextarea = function(text) {
++  RootView._ourSingleInstance.displayTextInDebugTextarea(text);
+ };
+ 
+ 
+@@ -467,20 +454,22 @@
+  * Displays a text string in the debug textarea.
+  *
+  * @scope    public instance method
+- * @param    inText    A text string to be displayed. 
++ * @param    text    A text string to be displayed. 
+  */
+-RootView.prototype.displayTextInDebugTextarea = function (inText) {
+-  this.myNumberOfCallsToDebug += 1;
+-  if (this.myNumberOfCallsToDebug &gt; 20) {
++RootView.prototype.displayTextInDebugTextarea = function(text) {
++  this._numberOfCallsToDebug += 1;
++  if (this._numberOfCallsToDebug &gt; 20) {
+     return;
+   }
+-  if (this.myDebugTextarea) {
+-    this.myDebugTextarea.value += inText + &quot;\n\n============================\n\n&quot;;
+-    this.myDebugTextarea.style.visibility = &quot;visible&quot;;
+-    this.myDebugTextarea.style.display = &quot;block&quot;;
+-    this.myDebugTextarea.scrollIntoView();
++  if (this._debugTextarea) {
++    this._debugTextarea.value += text + &quot;\n\n============================\n\n&quot;;
++    this._debugTextarea.style.visibility = &quot;visible&quot;;
++    this._debugTextarea.style.display = &quot;block&quot;;
++    this._debugTextarea.scrollIntoView();
+   }
+-  else {alert(inText);}
++  else {
++    alert(text);
++  }
+ };
+ 
+ 
+@@ -489,12 +478,12 @@
+  * and displays them in the debug textarea.
+  *
+  * @scope    public instance method
+- * @param    inObject    Any sort of object. 
++ * @param    object    Any sort of object. 
+  */
+-RootView.prototype.displayObjectInDebugTextarea = function (inObject) {
++RootView.prototype.displayObjectInDebugTextarea = function(object) {
+   var outputText = &quot;&quot;;
+-  for (var property in inObject) {
+-    outputText += property + &quot; == &quot; + inObject[property] + &quot;\n&quot;;
++  for (var property in object) {
++    outputText += property + &quot; == &quot; + object[property] + &quot;\n&quot;;
+   }
+   this.displayTextInDebugTextarea(outputText);
+ };
+@@ -514,8 +503,8 @@
+  * @scope    public class method
+  * @param    inEventObject    An event object. 
+  */
+-RootView.clickOnLocalLink = function (inEventObject) {
+-  var eventObject = inEventObject || window.event;
++RootView.clickOnLocalLink = function(eventObject) {
++  eventObject = eventObject || window.event;
+   
+   var startTiming = new Date();
+   
+@@ -528,15 +517,16 @@
+   var htmlAnchorElement = Util.getTargetFromEvent(eventObject);
+   
+   window.location = htmlAnchorElement.href;
+-  RootView.ourSingleInstance.setCurrentContentViewFromUrl();
++  RootView._ourSingleInstance.setCurrentContentViewFromUrl();
+ 
+   // window.document.body.style.cursor = &quot;default&quot;;
+   
+   var stopTiming = new Date();
+   var delayInMilliseconds = stopTiming.getTime() - startTiming.getTime();
+-  RootView.ourSingleInstance.displayStatusBlurb(&quot;Page load: &quot; + delayInMilliseconds + &quot; milliseconds&quot;);
++  RootView._ourSingleInstance.displayStatusBlurb(&quot;Page load: &quot; + delayInMilliseconds + &quot; milliseconds&quot;);
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-29 23:04:06 UTC (rev 194)
++++ trunk/source/SectionView.js	2005-06-30 02:18:39 UTC (rev 195)
+@@ -398,7 +398,8 @@
+ 
+ /**
+  * Called when the query belong to this section has changed
+- * @scope public instance method
++ *
++ * @scope    public instance method
+  */
+ SectionView.prototype.observedItemHasChanged = function(item) {
+   item.removeObserver(this); //item no longer needs to be observed as query editor span is rebuilt
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000180.html">[openrecord-svn] r194 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000182.html">[openrecord-svn] r196 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#181">[ date ]</a>
+              <a href="thread.html#181">[ thread ]</a>
+              <a href="subject.html#181">[ subject ]</a>
+              <a href="author.html#181">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

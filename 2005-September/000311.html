@@ -1,0 +1,917 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r327 - in trunk: source/model source/util tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r327%20-%20in%20trunk%3A%20source/model%20source/util%20tests/util&In-Reply-To=%3C200509142101.j8EL1FlO017600%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000310.html">
+   <LINK REL="Next"  HREF="000312.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r327 - in trunk: source/model source/util tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r327%20-%20in%20trunk%3A%20source/model%20source/util%20tests/util&In-Reply-To=%3C200509142101.j8EL1FlO017600%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r327 - in trunk: source/model source/util tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Wed Sep 14 23:01:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000310.html">[openrecord-svn] r326 - in trunk: source/model source/util tests/util
+</A></li>
+        <LI>Next message: <A HREF="000312.html">[openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-14 23:01:14 +0200 (Wed, 14 Sep 2005)
+New Revision: 327
+
+Modified:
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/TestReorderingForSpecialCases.js
+   trunk/source/model/TestReorderingForTypicalOrdinals.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Uuid.js
+   trunk/tests/util/UuidTest.js
+Log:
+More work on UUIDs and unit tests.
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/source/model/StubVirtualServer.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -780,10 +780,14 @@
+  * Returns a newly created UUID.
+  *
+  * @scope    private instance method
+- * @param    pseudoNode    The pseudoNode value that the new UUID should have. 
++ * @param    node    The node value that the new UUID should have. 
+  */
+-StubVirtualServer.prototype._generateUuid = function(pseudoNode) {
+-  return new orp.util.TimeBasedUuid(pseudoNode);
++StubVirtualServer.prototype._generateUuid = function(node) {
++  if (node) {
++    return new orp.util.TimeBasedUuid({'node': node});
++  } else {
++    return new orp.util.TimeBasedUuid();
++  }
+ };
+ 
+ 
+@@ -797,10 +801,8 @@
+   var newUuid;
+   if (this._currentUser) {
+     var uuidOfCurrentUser = this._currentUser.getUuid();
+-    // var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
+-    // var pseudoNodeOfCurrentUser = arrayOfParts[4]; // &quot;0123456789AB&quot;;
+-    var pseudoNodeOfCurrentUser = uuidOfCurrentUser.getNode(); // &quot;0123456789AB&quot;;
+-    newUuid = this._generateUuid(pseudoNodeOfCurrentUser);
++    var nodeForCurrentUser = uuidOfCurrentUser.getNode(); // &quot;0123456789AB&quot;;
++    newUuid = this._generateUuid(nodeForCurrentUser);
+   } else {
+     newUuid = this._generateUuid();
+   }
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/source/model/TestReorderingForSpecialCases.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -55,12 +55,15 @@
+   Util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../..&quot;;
+   var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
++
++  realUuidGenerator = StubVirtualServer.prototype._generateUuid;
+   StubVirtualServer.prototype._generateUuid = mockUuidGenerator;
++
+   world = new World(virtualServer);
+ 
+-  annUuid1 = &quot;10000000-2222-3333-4444-555555555555&quot;;
+-  annUuid2 = &quot;10000001-2222-3333-4444-555555555555&quot;;
+-  annUuid3 = &quot;10000002-2222-3333-4444-555555555555&quot;;
++  annUuid1 = &quot;10000000-2222-1333-F444-555555555555&quot;;
++  annUuid2 = &quot;10000001-2222-1333-F444-555555555555&quot;;
++  annUuid3 = &quot;10000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(annUuid1);
+   mockUuidGenerator.queueOfUuids.push(annUuid2);
+   mockUuidGenerator.queueOfUuids.push(annUuid3);
+@@ -70,9 +73,9 @@
+   assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUuidString() == annUuid1);
+   world.login(userAnn, annsPassword);
+ 
+-  foodUuid1    = &quot;20000000-2222-3333-4444-555555555555&quot;;
+-  foodUuid2    = &quot;20000001-2222-3333-4444-555555555555&quot;;
+-  foodUuid3    = &quot;20000002-2222-3333-4444-555555555555&quot;;
++  foodUuid1    = &quot;20000000-2222-1333-F444-555555555555&quot;;
++  foodUuid2    = &quot;20000001-2222-1333-F444-555555555555&quot;;
++  foodUuid3    = &quot;20000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(foodUuid1);
+   mockUuidGenerator.queueOfUuids.push(foodUuid2);
+   mockUuidGenerator.queueOfUuids.push(foodUuid3);
+@@ -90,21 +93,24 @@
+ // -------------------------------------------------------------------
+ 
+ function testReorderBetweenTwoItemsWithTheSameOrdinal() {
+-  sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
+-  sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
++  sushiUuid     = &quot;40000000-2222-1333-F444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiUuid);
+   mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
+-  pestoUuid     = &quot;40000000-2222-3333-9999-555555555555&quot;;
+-  pestoNameUuid = &quot;40000001-2222-3333-9999-555555555555&quot;;
++  pestoUuid     = &quot;40000000-2222-1333-9999-555555555555&quot;;
++  pestoNameUuid = &quot;40000001-2222-1333-9999-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoUuid);
+   mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
+-  guavaUuid     = &quot;50000000-2222-3333-4444-555555555555&quot;;
+-  guavaNameUuid = &quot;50000001-2222-3333-4444-555555555555&quot;;
++  guavaUuid     = &quot;50000000-2222-1333-F444-555555555555&quot;;
++  guavaNameUuid = &quot;50000001-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaUuid);
+   mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
+   var sushi = world.newItem(&quot;Sushi&quot;);
+   var pesto = world.newItem(&quot;Pesto&quot;);
+   var guava = world.newItem(&quot;Guava&quot;);
++
++  StubVirtualServer.prototype._generateUuid = realUuidGenerator;
++  
+   assertTrue(sushi.getOrdinalNumber() == pesto.getOrdinalNumber());
+   guava.reorderBetween(sushi, pesto);
+   assertTrue(utilAssertReportedError);
+@@ -112,16 +118,16 @@
+ }
+ 
+ function testReorderBetweenTwoItemsWithTheSameTimestamp() {
+-  sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
+-  sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
++  sushiUuid     = &quot;40000000-2222-1333-F444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiUuid);
+   mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
+-  pestoUuid     = &quot;40000002-2222-3333-4444-555555555555&quot;;
+-  pestoNameUuid = &quot;40000003-2222-3333-4444-555555555555&quot;;
++  pestoUuid     = &quot;40000002-2222-1333-F444-555555555555&quot;;
++  pestoNameUuid = &quot;40000003-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoUuid);
+   mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
+-  guavaUuid     = &quot;40000004-2222-3333-4444-555555555555&quot;;
+-  guavaNameUuid = &quot;40000005-2222-3333-4444-555555555555&quot;;
++  guavaUuid     = &quot;40000004-2222-1333-F444-555555555555&quot;;
++  guavaNameUuid = &quot;40000005-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaUuid);
+   mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
+   var sushi = world.newItem(&quot;Sushi&quot;);
+@@ -130,16 +136,23 @@
+   assertTrue('Sushi and Pesto have same timestamp', sushi.getTimestamp() == pesto.getTimestamp());
+   assertTrue('Sushi and Guava have same timestamp', sushi.getTimestamp() == guava.getTimestamp());
+ 
++  StubVirtualServer.prototype._generateUuid = realUuidGenerator;
++
+   guava.reorderBetween(sushi, pesto);
+ 
+-  sushiLinkUuid    = &quot;60000000-2222-3333-4444-555555555555&quot;;
++  StubVirtualServer.prototype._generateUuid = mockUuidGenerator;
++
++  sushiLinkUuid    = &quot;60000000-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
+   sushi.assignToCategory(categoryCalledFood);
+-  pestoLinkUuid    = &quot;60000001-2222-3333-4444-555555555555&quot;;
++  pestoLinkUuid    = &quot;60000001-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoLinkUuid);
+   pesto.assignToCategory(categoryCalledFood);
+-  guavaLinkUuid    = &quot;60000002-2222-3333-4444-555555555555&quot;;
++  guavaLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
++  
++  StubVirtualServer.prototype._generateUuid = realUuidGenerator;
++
+   guava.assignToCategory(categoryCalledFood);
+ 
+   guava.reorderBetween(sushi, pesto);
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -58,8 +58,8 @@
+   utilAssertReportedError = false;
+   Util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../..&quot;;
+-  // var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
+   var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
++  var realUuidGenerator = StubVirtualServer.prototype._generateUuid;
+   StubVirtualServer.prototype._generateUuid = mockUuidGenerator;
+ /*
+ You can use DeltaVirtualServer instead if you want to append all transactions to a file for debugging purposes.
+@@ -70,9 +70,9 @@
+ 
+   world = new World(virtualServer);
+ 
+-  annUuid1 = &quot;10000000-2222-3333-4444-555555555555&quot;;
+-  annUuid2 = &quot;10000001-2222-3333-4444-555555555555&quot;;
+-  annUuid3 = &quot;10000002-2222-3333-4444-555555555555&quot;;
++  annUuid1 = &quot;10000000-2222-1333-F444-555555555555&quot;;
++  annUuid2 = &quot;10000001-2222-1333-F444-555555555555&quot;;
++  annUuid3 = &quot;10000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(annUuid1);
+   mockUuidGenerator.queueOfUuids.push(annUuid2);
+   mockUuidGenerator.queueOfUuids.push(annUuid3);
+@@ -82,28 +82,28 @@
+   assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUuidString() == annUuid1);
+   world.login(userAnn, annsPassword);
+ 
+-  foodUuid1    = &quot;20000000-2222-3333-4444-555555555555&quot;;
+-  foodUuid2    = &quot;20000001-2222-3333-4444-555555555555&quot;;
+-  foodUuid3    = &quot;20000002-2222-3333-4444-555555555555&quot;;
++  foodUuid1    = &quot;20000000-2222-1333-F444-555555555555&quot;;
++  foodUuid2    = &quot;20000001-2222-1333-F444-555555555555&quot;;
++  foodUuid3    = &quot;20000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(foodUuid1);
+   mockUuidGenerator.queueOfUuids.push(foodUuid2);
+   mockUuidGenerator.queueOfUuids.push(foodUuid3);
+   categoryCalledFood = world.newCategory(&quot;Food&quot;);
+ 
+-  sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
+-  sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
++  sushiUuid     = &quot;40000000-2222-1333-F444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiUuid);
+   mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
+-  pestoUuid     = &quot;40000010-2222-3333-4444-555555555555&quot;;
+-  pestoNameUuid = &quot;40000011-2222-3333-4444-555555555555&quot;;
++  pestoUuid     = &quot;40000010-2222-1333-F444-555555555555&quot;;
++  pestoNameUuid = &quot;40000011-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoUuid);
+   mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
+-  guavaUuid     = &quot;40000020-2222-3333-4444-555555555555&quot;;
+-  guavaNameUuid = &quot;40000021-2222-3333-4444-555555555555&quot;;
++  guavaUuid     = &quot;40000020-2222-1333-F444-555555555555&quot;;
++  guavaNameUuid = &quot;40000021-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaUuid);
+   mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
+-  taffyUuid     = &quot;40000030-2222-3333-4444-555555555555&quot;;
+-  taffyNameUuid = &quot;40000031-2222-3333-4444-555555555555&quot;;
++  taffyUuid     = &quot;40000030-2222-1333-F444-555555555555&quot;;
++  taffyNameUuid = &quot;40000031-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(taffyUuid);
+   mockUuidGenerator.queueOfUuids.push(taffyNameUuid);
+   sushi = world.newItem(&quot;Sushi&quot;);
+@@ -115,18 +115,20 @@
+   taffy = world.newItem(&quot;Taffy&quot;);
+   assertTrue(&quot;taffy has the expected uuid&quot;, taffy.getUuidString() == taffyUuid);
+ 
+-  sushiLinkUuid    = &quot;60000000-2222-3333-4444-555555555555&quot;;
++  sushiLinkUuid    = &quot;60000000-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
+   sushi.assignToCategory(categoryCalledFood);
+-  pestoLinkUuid    = &quot;60000001-2222-3333-4444-555555555555&quot;;
++  pestoLinkUuid    = &quot;60000001-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoLinkUuid);
+   pesto.assignToCategory(categoryCalledFood);
+-  guavaLinkUuid    = &quot;60000002-2222-3333-4444-555555555555&quot;;
++  guavaLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
+   guava.assignToCategory(categoryCalledFood);
+-  taffyLinkUuid    = &quot;60000002-2222-3333-4444-555555555555&quot;;
++  taffyLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(taffyLinkUuid);
+   taffy.assignToCategory(categoryCalledFood);
++
++  StubVirtualServer.prototype._generateUuid = realUuidGenerator;
+ }
+ 
+ function tearDown() {
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/source/util/RandomUuid.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -55,17 +55,31 @@
+  * For more info, see 
+  * <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
+  *
++ * Examples:
++ * &lt;pre&gt;
++ *   var uuid = new orp.util.RandomUuid();
++ *   var uuid = new orp.util.RandomUuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++ *   var uuid = new orp.util.RandomUuid({uuidString: &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;});
++ * &lt;/pre&gt;
++ *
+  * @scope    public instance constructor
++ * @param    uuidString    A 36-character string that conforms to the UUID spec. 
++ * @namedParam    uuidString    A 36-character string that conforms to the UUID spec. 
+  */
+ orp.util.RandomUuid = function(uuidString) {
+   orp.util.Uuid.call(this);
+   if (uuidString) {
++    if (Util.isObject(uuidString)) {
++      var namedParameters = uuidString;
++      uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++    }
+     Util.assert(Util.isString(uuidString));
+     Util.assert(uuidString.length == 36);
+     this._uuidString = uuidString;
+   } else {
+     this._uuidString = this._generateUuidString();
+   }
++  Util.assert(this.getVersion() == orp.util.Uuid.Version.RANDOM);
+ };
+ 
+ dj_inherits(orp.util.RandomUuid, orp.util.Uuid);  // makes RandomUuid be a subclass of Uuid
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -60,61 +60,63 @@
+  *   <A HREF="http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20">http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20</A>
+  *   <A HREF="http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html">http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html</A>
+  *
++ * Examples:
++ * &lt;pre&gt;
++ *   var uuid = new orp.util.TimeBasedUuid();
++ *   var uuid = new orp.util.TimeBasedUuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++ *   var uuid = new orp.util.TimeBasedUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++ *   var uuid = new orp.util.TimeBasedUuid({node: &quot;017BF397618A&quot;});
++ *   var uuid = new orp.util.TimeBasedUuid({node: &quot;F17BF397618A&quot;});
++ *   var uuid = new orp.util.TimeBasedUuid({hardwareNode: &quot;017BF397618A&quot;});
++ *   var uuid = new orp.util.TimeBasedUuid({pseudoNode:   &quot;F17BF397618A&quot;});
++ * &lt;/pre&gt;
++ *
+  * @scope    public instance constructor
++ * @param    uuidString    A 36-character string that conforms to the UUID spec. 
++ * @namedParam    uuidString    A 36-character string that conforms to the UUID spec. 
++ * @namedParam    node    A 12-character hex string representing a pseudoNode or hardwareNode. 
++ * @namedParam    hardwareNode    A 12-character hex string containing an IEEE 802.3 network node identificator. 
++ * @namedParam    pseudoNode    A 12-character hex string representing a pseudoNode. 
+  */
+-/*
+- * PENDING: refactor constructor API
+- // OLD API
+-var uuid = new orp.util.TimeBasedUuid();                 // new
+-var uuid = new orp.util.TimeBasedUuid(&quot;917BF397618A&quot;);   // pseudonode
+-var uuid = new orp.util.TimeBasedUuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;)
+-
+-// NEW API
+-var uuid = new orp.util.TimeBasedUuid();
+-var uuid = new orp.util.TimeBasedUuid({pseudoNode: &quot;917BF397618A&quot;});
+-var uuid = new orp.util.TimeBasedUuid({node: &quot;917BF397618A&quot;});
+-var uuid = new orp.util.TimeBasedUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
+-
+-
+-var uuid = new orp.util.RandomUuid();
+-var uuid = new orp.util.RandomUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
+-
+-var uuid = new orp.util.Uuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
+-var version = orp.util.Uuid.getVersionFromUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
+-var version = orp.util.Uuid.getVariantFromUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
+-var boolean = orp.util.Uuid.isRandomUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
+-var boolean = orp.util.Uuid.isTimeBasedUuidString(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
+-
+-// in Uuid.js
+-var Version = {
+-  TimeBased: 1,
+-  DCESecurity: 2,
+-  NameBasedMD5: 3,
+-  Random: 4,
+-  NameBasedSHA1: 5
+-}
+-
+-var Variant = {
+-  NCS: &quot;0&quot;,
+-  DCE: &quot;10&quot;,
+-  Microsoft: &quot;110&quot;
+-}
+-*/
+-orp.util.TimeBasedUuid = function(uuidStringOrPseudoNode) {
++orp.util.TimeBasedUuid = function(namedParameter) {
+   orp.util.Uuid.call(this);
+-  if (uuidStringOrPseudoNode) {
+-    Util.assert(Util.isString(uuidStringOrPseudoNode));
+-    var lengthOfPseudoNodeString = 12;
+-    if (uuidStringOrPseudoNode.length == lengthOfPseudoNodeString) {
+-      var pseudoNode = uuidStringOrPseudoNode;
+-      this._uuidString = this._generateUuidString(pseudoNode);
++  var uuidString;
++  if (namedParameter) {
++    if (Util.isObject(namedParameter)) {
++      uuidString = namedParameter[orp.util.Uuid.NamedParameters.uuidString];
++      var node = namedParameter[&quot;node&quot;];
++      var pseudoNode = namedParameter[&quot;pseudoNode&quot;];
++      var hardwareNode = namedParameter[&quot;hardwareNode&quot;];
++      var atLeastOneParameter = (uuidString || node || pseudoNode || hardwareNode) ? true : false;
++      Util.assert(atLeastOneParameter);
++      if (uuidString) {
++        Util.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
++        Util.assert(uuidString.length == 36);
++        this._uuidString = uuidString;
++      }
++      if (node || pseudoNode || hardwareNode) {
++        Util.assert((node || pseudoNode).length == 12);
++        var firstCharacter = (node || pseudoNode).charAt(0);
++        var firstDigit = parseInt(firstCharacter, orp.util.Uuid.HEX_RADIX);
++        if (hardwareNode) { 
++          Util.assert((firstDigit &gt;= 0x0) &amp;&amp; (firstDigit &lt;= 0x7)); 
++        }
++        if (pseudoNode) { 
++          Util.assert((firstDigit &gt;= 0x8) &amp;&amp; (firstDigit &lt;= 0xF)); 
++        }
++        this._uuidString = this._generateUuidString(node || pseudoNode || hardwareNode);
++      }
+     } else {
+-      Util.assert(uuidStringOrPseudoNode.length == 36);
+-      this._uuidString = uuidStringOrPseudoNode;
++      uuidString = namedParameter;
++      Util.assert(Util.isString(uuidString));
++      Util.assert(uuidString.length == 36);
++      this._uuidString = uuidString;
+     }
+   } else {
+     this._uuidString = this._generateUuidString();
+   }
++    
++  Util.assert(this.getVersion() == orp.util.Uuid.Version.TIME_BASED);
+ };
+ 
+ dj_inherits(orp.util.TimeBasedUuid, orp.util.Uuid);  // makes TimeBasedUuid be a subclass of Uuid
+@@ -123,10 +125,10 @@
+ // -------------------------------------------------------------------
+ // Public class constants
+ // -------------------------------------------------------------------
+-/* // Number of seconds between October 15, 1582 and January 1, 1970
+-   Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
+-*/
+-// Number of hours between October 15, 1582 and January 1, 1970
++// Number of seconds between October 15, 1582 and January 1, 1970:
++// orp.util.TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
++//
++// Number of hours between October 15, 1582 and January 1, 1970:
+ orp.util.TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
+ 
+ 
+@@ -357,7 +359,7 @@
+   // time-based UUIDs.
+   hexTimeHigh = hexTimeHigh.slice(1); 
+   
+-  returnString = hexTimeHigh + hexTimeMid + hexTimeLow;
++  var returnString = hexTimeHigh + hexTimeMid + hexTimeLow;
+   
+   Util.assert(returnString.length == 15);
+   return returnString;
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/source/util/Uuid.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -45,13 +45,30 @@
+  * The Uuid class offers methods for generating UUIDs and 
+  * inspecting existing UUIDs.
+  *
+- * THIS IS AN ABSTRACT SUPERCLASS.  
+- * DO NOT CALL THIS CONSTRUCTOR.
++ * Examples:
++ * &lt;pre&gt;
++ *   var uuid = new orp.util.Uuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++ *   var uuid = new orp.util.Uuid({uuidString: &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;});
++ * &lt;/pre&gt;
+  *
+  * @scope    public instance constructor
++ * @param    uuidString    A 36-character string that conforms to the UUID spec. 
++ * @namedParam    uuidString    A 36-character string that conforms to the UUID spec. 
+  */
+-orp.util.Uuid = function() {
++orp.util.Uuid = function(uuidString) {
+   this._uuidString = null;
++  if (uuidString) {
++    if (Util.isObject(uuidString)) {
++      var namedParameters = uuidString;
++      uuidString = namedParameters[&quot;uuidString&quot;];
++    }
++    if (Util.isString(uuidString)) {
++      this._uuidString = uuidString;
++    } else {
++      Util.assert(false);
++    }
++  }
++  this._uuidString = uuidString;
+ };
+ 
+ 
+@@ -59,16 +76,66 @@
+ // Public class constants
+ // -------------------------------------------------------------------
+ orp.util.Uuid.HEX_RADIX = 16;
++orp.util.Uuid.Version = {
++  UNKNOWN: 0,
++  TIME_BASED: 1,
++  DCE_SECURITY: 2,
++  NAME_BASED_MD5: 3,
++  RANDOM: 4,
++  NAME_BASED_SHA1: 5 };
++orp.util.Uuid.Variant = {
++  NCS: &quot;0&quot;,
++  DCE: &quot;10&quot;,
++  MICROSOFT: &quot;110&quot;,
++  UNKNOWN: &quot;111&quot; };
++orp.util.Uuid.NamedParameters = {
++  uuidString: &quot;uuidString&quot; };
+ 
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
+ 
++/**
++ * Given a 36-character string representing a UUID, returns a new UUID object.
++ *
++ * @scope    public class method
++ * @param    uuidString    A 36-character string that conforms to the UUID spec. 
++ * @return   A new instance of Uuid, TimeBasedUuid, or RandomUuid.
++ */
++orp.util.Uuid.newUuid = function(uuidString) {
++  dojo.require(&quot;orp.util.RandomUuid&quot;);
++  dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
++  if (Util.isObject(uuidString)) {
++    var namedParameters = uuidString;
++    uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++  }
++  Util.assert(Util.isString(uuidString));
++
++  var uuid = new orp.util.Uuid(uuidString);
++  if (uuid.getVersion() == orp.util.Uuid.Version.TIME_BASED) {
++    uuid = new orp.util.TimeBasedUuid(uuidString);
++  }
++  if (uuid.getVersion() == orp.util.Uuid.Version.RANDOM) {
++    uuid = new orp.util.RandomUuid(uuidString);
++  }
++  return uuid;
++};
++
++
+ // -------------------------------------------------------------------
++// Private class constants
++// -------------------------------------------------------------------
++orp.util.Uuid._ourVariantLookupTable = null;
++
++
++// -------------------------------------------------------------------
+ // Public instance methods
+ // -------------------------------------------------------------------
+ 
+ /**
+  * Returns a 36-character string representing the UUID, such as: 
+  * &lt;pre&gt;
+- *   3B12F1DF-5232-1804-897E-917BF397618A
++ *   &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;
+  * &lt;/pre&gt;
+  *
+  * @scope    public instance method
+@@ -79,6 +146,80 @@
+ };
+ 
+ 
++/**
++ * Returns a version number that indicates what type of UUID this is. 
++ * For example:
++ * &lt;pre&gt;
++ *   var uuid = new orp.util.Uuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++ *   var version = uuid.getVersion();
++ *   Util.assert(version == orp.util.Uuid.Version.TIME_BASED);
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @return   Returns one of the enumarted orp.util.Uuid.Version values.
++ */
++orp.util.Uuid.prototype.getVersion = function() {
++  // &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;
++  //                ^
++  //                |
++  //       (version 1 == TIME_BASED)
++  var versionCharacter = this._uuidString.charAt(14);
++  var versionNumber = parseInt(versionCharacter, orp.util.Uuid.HEX_RADIX);
++  return versionNumber;
++};
++
++
++/**
++ * Returns a variant code that indicates what type of UUID this is. 
++ * For example:
++ * &lt;pre&gt;
++ *   var uuid = new orp.util.Uuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++ *   var variant = uuid.getVariant();
++ *   Util.assert(variant == orp.util.Uuid.Variant.DCE);
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @return   Returns one of the enumarted orp.util.Uuid.Variant values.
++ */
++orp.util.Uuid.prototype.getVariant = function() {
++  // &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;
++  //                     ^
++  //                     |
++  //         (variant &quot;10__&quot; == DCE)
++  var variantCharacter = this._uuidString.charAt(19);
++  var variantNumber = parseInt(variantCharacter, orp.util.Uuid.HEX_RADIX);
++  Util.assert((variantNumber &gt;= 0) &amp;&amp; (variantNumber &lt;= 16));
++  
++  if (!orp.util.Uuid._ourVariantLookupTable) {
++    var Variant = orp.util.Uuid.Variant;
++    var lookupTable = [];
++    orp.util.Uuid._ourVariantLookupTable = lookupTable;
++    
++    lookupTable[0x0] = Variant.NCS;       // 0000
++    lookupTable[0x1] = Variant.NCS;       // 0001
++    lookupTable[0x2] = Variant.NCS;       // 0010
++    lookupTable[0x3] = Variant.NCS;       // 0011
++    
++    lookupTable[0x4] = Variant.NCS;       // 0100
++    lookupTable[0x5] = Variant.NCS;       // 0101
++    lookupTable[0x6] = Variant.NCS;       // 0110
++    lookupTable[0x7] = Variant.NCS;       // 0111
++
++    lookupTable[0x8] = Variant.DCE;       // 1000
++    lookupTable[0x9] = Variant.DCE;       // 1001
++    lookupTable[0xA] = Variant.DCE;       // 1010
++    lookupTable[0xB] = Variant.DCE;       // 1011
++    
++    lookupTable[0xC] = Variant.MICROSOFT; // 1100
++    lookupTable[0xD] = Variant.MICROSOFT; // 1101
++    lookupTable[0xE] = Variant.UNKNOWN;   // 1110
++    lookupTable[0xF] = Variant.UNKNOWN;   // 1111
++  }
++  
++  return orp.util.Uuid._ourVariantLookupTable[variantNumber];
++};
++
++
+ // -------------------------------------------------------------------
+ // Private instance methods
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/util/UuidTest.js
+===================================================================
+--- trunk/tests/util/UuidTest.js	2005-09-14 02:12:55 UTC (rev 326)
++++ trunk/tests/util/UuidTest.js	2005-09-14 21:01:14 UTC (rev 327)
+@@ -40,9 +40,11 @@
+ 
+ function setUp() {
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.Uuid&quot;);
+   dojo.require(&quot;orp.util.RandomUuid&quot;);
+   dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ 
++  Uuid = orp.util.Uuid;
+   RandomUuid = orp.util.RandomUuid;
+   TimeBasedUuid = orp.util.TimeBasedUuid;
+ }
+@@ -129,42 +131,56 @@
+   assert(result[3] === 20);  
+ }  
+ 
+-function testMethodsForWorkingWithRandomUuids() {
++function testRandomUuids() {
+   var uuid1 = new RandomUuid();
+   var uuid2 = new RandomUuid();
+-  uuid1 = uuid1.toString();
+-  uuid2 = uuid2.toString();
++  var uuid3 = new RandomUuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++  var uuid4 = new RandomUuid({uuidString: &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;});
+ 
+   // alert(uuid1 + &quot;\n&quot; + uuid2);
+-  checkUuidValidity(uuid1);
+-  checkUuidValidity(uuid2);
++  checkRandomUuidValidity(uuid1);
++  checkRandomUuidValidity(uuid2);
++  checkRandomUuidValidity(uuid3);
++  checkRandomUuidValidity(uuid4);
++
++  var uuidString1 = uuid1.toString();
++  var uuidString2 = uuid2.toString();
+   
+-  var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
+-  
+-  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
++  assertTrue(&quot;uuid1 != uuid2&quot;, uuidString1 != uuidString2);
+ }
+ 
+-function testMethodsForWorkingWithTimeBasedUuids() {
++function testTimeBasedUuids() {
+   var uuid1 = new TimeBasedUuid();
+   var uuid2 = new TimeBasedUuid();
+   var uuid3 = new TimeBasedUuid();
++  var uuid4 = new TimeBasedUuid({node: &quot;123456789ABC&quot;});
++  var uuid5 = new TimeBasedUuid({'node': &quot;123456789ABC&quot;});
++  var uuid6 = new TimeBasedUuid({pseudoNode: &quot;823456789ABC&quot;});
++  var uuid7 = new TimeBasedUuid({'pseudoNode': &quot;823456789ABC&quot;});
++  var uuid8 = new TimeBasedUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++  var uuid9 = new TimeBasedUuid({'uuidString': &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++  var uuid10 = new TimeBasedUuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++  
++  checkTimeBasedUuidValidity(uuid1);
++  checkTimeBasedUuidValidity(uuid2);
++  checkTimeBasedUuidValidity(uuid3);
++  checkTimeBasedUuidValidity(uuid4);
++  checkTimeBasedUuidValidity(uuid5);
++  checkTimeBasedUuidValidity(uuid6);
++  checkTimeBasedUuidValidity(uuid7);
++  checkTimeBasedUuidValidity(uuid8);
++  checkTimeBasedUuidValidity(uuid9);
++  checkTimeBasedUuidValidity(uuid10);
++
+   uuid1 = uuid1.toString();
+   uuid2 = uuid2.toString();
+   uuid3 = uuid3.toString();
+-  
+-  checkUuidValidity(uuid1);
+-  checkUuidValidity(uuid2);
+-  checkUuidValidity(uuid3);
++  uuid4 = uuid4.toString();
+ 
+   assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
+   assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
+   
+   var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
+-
+   var section4 = arrayOfParts[4];
+   var firstChar = section4.charAt(0);
+   var hexFirstChar = parseInt(firstChar, orp.util.Uuid.HEX_RADIX);
+@@ -179,12 +195,10 @@
+   //       &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+   assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+ 
+-  var uuid4 = new TimeBasedUuid(&quot;123456789ABC&quot;);
+-  uuid4 = uuid4.toString();
+-  checkUuidValidity(uuid4);
++
+   arrayOfParts = uuid4.split(&quot;-&quot;);
+   section4 = arrayOfParts[4];
+-  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
++  assertTrue('Section 4 = node input', section4 == &quot;123456789ABC&quot;);
+ 
+   /* 
+   // Old code that Brian wrote to try to get a sense of how
+@@ -242,30 +256,71 @@
+   */
+ }
+ 
+-function testUuidObjects() {
+-  var uuid1 = new TimeBasedUuid();
+-  var timestampAsHexString = uuid1.getTimestampAsHexString();
+-  assertTrue(&quot;A UUID's timestamp hex string is 15-characters long.&quot;, timestampAsHexString.length == 15);
++function testGenericUuids() {
++  // Time-based UUIDs
++  var uuid1 = new Uuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++  var uuid2 = new Uuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++
++  // Random UUIDs
++  var uuid3 = new Uuid({uuidString: &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;});
++  var uuid4 = new Uuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++  
++  assertTrue('Time-based UUIDs return Uuid.Version.TIME_BASED', (uuid1.getVersion() == Uuid.Version.TIME_BASED));    
++  assertTrue('Time-based UUIDs return Uuid.Version.TIME_BASED', (uuid2.getVersion() == Uuid.Version.TIME_BASED));    
++
++  assertTrue('Random UUIDs return Uuid.Version.RANDOM', (uuid3.getVersion() == Uuid.Version.RANDOM));    
++  assertTrue('Random UUIDs return Uuid.Version.RANDOM', (uuid4.getVersion() == Uuid.Version.RANDOM));    
++
++  checkUuidValidity(uuid1);
++  checkUuidValidity(uuid2);
++  checkUuidValidity(uuid3);
++  checkUuidValidity(uuid4);
+ }
+ 
++function testUuidFactory() {
++  // Time-based UUIDs
++  var uuid1 = Uuid.newUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
++  var uuid2 = Uuid.newUuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
+ 
++  // Random UUIDs
++  var uuid3 = Uuid.newUuid({uuidString: &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;});
++  var uuid4 = Uuid.newUuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
++  
++  assertTrue('Time-based UUIDs return Uuid.Version.TIME_BASED', (uuid1.getVersion() == Uuid.Version.TIME_BASED));    
++  assertTrue('Time-based UUIDs return Uuid.Version.TIME_BASED', (uuid2.getVersion() == Uuid.Version.TIME_BASED));    
++
++  assertTrue('Random UUIDs return Uuid.Version.RANDOM', (uuid3.getVersion() == Uuid.Version.RANDOM));    
++  assertTrue('Random UUIDs return Uuid.Version.RANDOM', (uuid4.getVersion() == Uuid.Version.RANDOM));    
++
++  checkTimeBasedUuidValidity(uuid1);
++  checkTimeBasedUuidValidity(uuid2);
++  
++  checkRandomUuidValidity(uuid3);
++  checkRandomUuidValidity(uuid4);
++}
++
+ // -------------------------------------------------------------------
+ // Helper functions
+ // -------------------------------------------------------------------
+ 
+ function checkUuidValidity(uuid) {
+-  assertTrue('UUIDs have 36 characters', (uuid.length == 36));
++  var variant = uuid.getVariant();
++  assertTrue('All of our UUIDs are DCE UUIDs', (variant == Uuid.Variant.DCE));  
++  
++  var uuidString = uuid.toString();
++  
++  assertTrue('UUIDs have 36 characters', (uuidString.length == 36));
+ 
+   var validCharacters = &quot;0123456789abcedfABCDEF-&quot;;
+   var character;
+   var position;
+   for (var i = 0; i &lt; 36; ++i) {
+-    character = uuid.charAt(i);
++    character = uuidString.charAt(i);
+     position = validCharacters.indexOf(character);
+     assertTrue('UUIDs have only valid characters', (position != -1));
+   }
+   
+-  var arrayOfParts = uuid.split(&quot;-&quot;);
++  var arrayOfParts = uuidString.split(&quot;-&quot;);
+   assertTrue('UUIDs have 5 sections separated by 4 hyphens', (arrayOfParts.length == 5));
+   assertTrue('Section 0 has 8 characters', (arrayOfParts[0].length == 8));
+   assertTrue('Section 1 has 4 characters', (arrayOfParts[1].length == 4));
+@@ -282,7 +337,42 @@
+   assertTrue(&quot;second bit of section 3 is 0&quot;, binaryString.charAt(1) == '0');
+ }
+ 
++function checkRandomUuidValidity(uuid) {
++  checkUuidValidity(uuid);
+ 
++  var version = uuid.getVersion();
++  assertTrue('Random UUIDs return Uuid.Version.RANDOM', (version == Uuid.Version.RANDOM));  
++  
++  var uuidString = uuid.toString();
++  var arrayOfParts = uuidString.split(&quot;-&quot;);
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
++}
++
++function checkTimeBasedUuidValidity(uuid) {
++  checkUuidValidity(uuid);
++
++  var version = uuid.getVersion();
++  assertTrue('TimeBased UUIDs return Uuid.Version.TIME_BASED', (version == Uuid.Version.TIME_BASED));  
++
++  var node = uuid.getNode();
++  assertTrue(&quot;A UUID's node is a string&quot;, (Util.isString(node)));
++  assertTrue(&quot;A UUID's node string is 12 characters long.&quot;, node.length == 12);
++
++  var date = uuid.getDate();
++  assertTrue(&quot;TimeBased UUIDs can return a Date&quot;, (date instanceof Date));
++
++  var timestampAsHexString = uuid.getTimestampAsHexString();
++  assertTrue(&quot;A UUID's timestamp hex string is 15 characters long.&quot;, timestampAsHexString.length == 15);
++  
++  var uuidString = uuid.toString();
++  var arrayOfParts = uuidString.split(&quot;-&quot;);
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
++
++
++}
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000310.html">[openrecord-svn] r326 - in trunk: source/model source/util tests/util
+</A></li>
+	<LI>Next message: <A HREF="000312.html">[openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#311">[ date ]</a>
+              <a href="thread.html#311">[ thread ]</a>
+              <a href="subject.html#311">[ subject ]</a>
+              <a href="author.html#311">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

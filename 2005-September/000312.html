@@ -1,0 +1,573 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r328%20-%20in%20trunk%3A%20documentation%20source/model%20source/util%20tests/dojo%20tests/util&In-Reply-To=%3C200509142250.j8EMoPdI018029%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000311.html">
+   <LINK REL="Next"  HREF="000313.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r328%20-%20in%20trunk%3A%20documentation%20source/model%20source/util%20tests/dojo%20tests/util&In-Reply-To=%3C200509142250.j8EMoPdI018029%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r328 - in trunk: documentation source/model source/util tests/dojo tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Thu Sep 15 00:50:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000311.html">[openrecord-svn] r327 - in trunk: source/model source/util tests/util
+</A></li>
+        <LI>Next message: <A HREF="000313.html">[openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-15 00:50:16 +0200 (Thu, 15 Sep 2005)
+New Revision: 328
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/model/ModelTest.js
+   trunk/source/model/RepositoryWritingTest.js
+   trunk/source/model/TestReorderingForSpecialCases.js
+   trunk/source/model/TestReorderingForTypicalOrdinals.js
+   trunk/source/util/CsvParser.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Uuid.js
+   trunk/tests/dojo/SimpleDojoTest.js
+   trunk/tests/util/CsvParserTest.js
+   trunk/tests/util/UuidTest.js
+Log:
+More conversion to Dojo, plus bug fixes and more unit tests. 
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/documentation/release_planning.txt	2005-09-14 22:50:16 UTC (rev 328)
+@@ -352,10 +352,10 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-brian  |          | done    |  1. look into using the Dojo Package System
+-       |          |         |     convert code to use Dojo Package System
+-brian  | 0.25 IED | 0   IED |     move scrap_yard contents to the tests_of_external_code directory and delete scrap_yard
+-brian  | 0.25 IED |         |     refactor UUID constructor API
++brian  |          | 0.5  IED|  1. look into using the Dojo Package System
++       |          | 0.5+    |     convert code to use Dojo Package System
++brian  | 0.25 IED | 0    IED|     move scrap_yard contents to the tests_of_external_code directory and delete scrap_yard
++brian  | 0.25 IED | 0.25 IED|     refactor UUID constructor API, and other UUID improvements
+        |          |         |  2. create a FakeStorage class, + rename FileSaver + HttpSaver
+        |          |         |  3. rename Dehydrate and Rehydrate to Serialize and Deserialize
+        |          |         |  4. merge StubVirtualServer + DeltaVirtualServer, and re-name
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/model/ModelTest.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -48,6 +48,8 @@
+ 
+ function setUp() {
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++
+   ModelTestVars = {};
+ 
+   var pathToTrunkDirectory = &quot;../..&quot;;
+
+Modified: trunk/source/model/RepositoryWritingTest.js
+===================================================================
+--- trunk/source/model/RepositoryWritingTest.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/model/RepositoryWritingTest.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -42,6 +42,7 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+ 
+   utilAssertReportedError = false;
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/model/TestReorderingForSpecialCases.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -49,6 +49,7 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+ 
+   utilAssertReportedError = false;
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -53,6 +53,7 @@
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+ 
+   utilAssertReportedError = false;
+
+Modified: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/util/CsvParser.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -28,9 +28,15 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.CsvParser&quot;);
++dojo.require(&quot;dojo.lang.*&quot;);
+ // dojo.require(&quot;orp.util.Util&quot;);
+ 
++
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ /*global Util  */
+@@ -72,7 +78,7 @@
+  * @return   Returns an array containing sub-arrays containing strings.
+  */
+ orp.util.CsvParser.prototype.getStringValuesFromCsvData = function(csvData) {
+-  Util.assert(Util.isString(csvData));
++  Util.assert(dojo.lang.isString(csvData));
+   
+   var lineEndingCharacters = new RegExp(&quot;\r\n|\n|\r&quot;);
+   var leadingWhiteSpaceCharacters = new RegExp(&quot;^\\s+&quot;,'g');
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/util/RandomUuid.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -66,14 +66,20 @@
+  * @param    uuidString    A 36-character string that conforms to the UUID spec. 
+  * @namedParam    uuidString    A 36-character string that conforms to the UUID spec. 
+  */
+-orp.util.RandomUuid = function(uuidString) {
++orp.util.RandomUuid = function(namedParameters) {
+   orp.util.Uuid.call(this);
+-  if (uuidString) {
+-    if (Util.isObject(uuidString)) {
+-      var namedParameters = uuidString;
+-      uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++  var uuidString;
++  if (namedParameters) {
++    if (dojo.lang.isString(namedParameters)) {
++      uuidString = namedParameters;
++    } else {
++      if (dojo.lang.isObject(namedParameters)) {
++        uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++      } else {
++        Util.assert(false);
++      }
+     }
+-    Util.assert(Util.isString(uuidString));
++    Util.assert(dojo.lang.isString(uuidString));
+     Util.assert(uuidString.length == 36);
+     this._uuidString = uuidString;
+   } else {
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -78,39 +78,42 @@
+  * @namedParam    hardwareNode    A 12-character hex string containing an IEEE 802.3 network node identificator. 
+  * @namedParam    pseudoNode    A 12-character hex string representing a pseudoNode. 
+  */
+-orp.util.TimeBasedUuid = function(namedParameter) {
++orp.util.TimeBasedUuid = function(namedParameters) {
+   orp.util.Uuid.call(this);
+   var uuidString;
+-  if (namedParameter) {
+-    if (Util.isObject(namedParameter)) {
+-      uuidString = namedParameter[orp.util.Uuid.NamedParameters.uuidString];
+-      var node = namedParameter[&quot;node&quot;];
+-      var pseudoNode = namedParameter[&quot;pseudoNode&quot;];
+-      var hardwareNode = namedParameter[&quot;hardwareNode&quot;];
+-      var atLeastOneParameter = (uuidString || node || pseudoNode || hardwareNode) ? true : false;
+-      Util.assert(atLeastOneParameter);
+-      if (uuidString) {
+-        Util.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
+-        Util.assert(uuidString.length == 36);
+-        this._uuidString = uuidString;
+-      }
+-      if (node || pseudoNode || hardwareNode) {
+-        Util.assert((node || pseudoNode).length == 12);
+-        var firstCharacter = (node || pseudoNode).charAt(0);
+-        var firstDigit = parseInt(firstCharacter, orp.util.Uuid.HEX_RADIX);
+-        if (hardwareNode) { 
+-          Util.assert((firstDigit &gt;= 0x0) &amp;&amp; (firstDigit &lt;= 0x7)); 
++  if (namedParameters) {
++    if (dojo.lang.isString(namedParameters)) {
++      uuidString = namedParameters;
++      Util.assert(uuidString.length == 36);
++      this._uuidString = uuidString;
++    } else {
++      if (dojo.lang.isObject(namedParameters)) {
++        uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++        var node = namedParameters[&quot;node&quot;];
++        var pseudoNode = namedParameters[&quot;pseudoNode&quot;];
++        var hardwareNode = namedParameters[&quot;hardwareNode&quot;];
++        var atLeastOneParameter = (uuidString || node || pseudoNode || hardwareNode) ? true : false;
++        Util.assert(atLeastOneParameter);
++        if (uuidString) {
++          Util.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
++          Util.assert(uuidString.length == 36);
++          this._uuidString = uuidString;
+         }
+-        if (pseudoNode) { 
+-          Util.assert((firstDigit &gt;= 0x8) &amp;&amp; (firstDigit &lt;= 0xF)); 
++        if (node || pseudoNode || hardwareNode) {
++          Util.assert((node || pseudoNode).length == 12);
++          var firstCharacter = (node || pseudoNode).charAt(0);
++          var firstDigit = parseInt(firstCharacter, orp.util.Uuid.HEX_RADIX);
++          if (hardwareNode) { 
++            Util.assert((firstDigit &gt;= 0x0) &amp;&amp; (firstDigit &lt;= 0x7)); 
++          }
++          if (pseudoNode) { 
++            Util.assert((firstDigit &gt;= 0x8) &amp;&amp; (firstDigit &lt;= 0xF)); 
++          }
++          this._uuidString = this._generateUuidString(node || pseudoNode || hardwareNode);
+         }
+-        this._uuidString = this._generateUuidString(node || pseudoNode || hardwareNode);
++      } else {
++        Util.assert(false);
+       }
+-    } else {
+-      uuidString = namedParameter;
+-      Util.assert(Util.isString(uuidString));
+-      Util.assert(uuidString.length == 36);
+-      this._uuidString = uuidString;
+     }
+   } else {
+     this._uuidString = this._generateUuidString();
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/source/util/Uuid.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -35,6 +35,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.Uuid&quot;);
++dojo.require(&quot;dojo.lang.*&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -58,17 +59,17 @@
+ orp.util.Uuid = function(uuidString) {
+   this._uuidString = null;
+   if (uuidString) {
+-    if (Util.isObject(uuidString)) {
+-      var namedParameters = uuidString;
+-      uuidString = namedParameters[&quot;uuidString&quot;];
+-    }
+-    if (Util.isString(uuidString)) {
++    if (dojo.lang.isString(uuidString)) {
+       this._uuidString = uuidString;
+     } else {
+-      Util.assert(false);
++      if (dojo.lang.isObject(uuidString)) {
++        var namedParameters = uuidString;
++        this._uuidString = namedParameters[&quot;uuidString&quot;];
++      } else {
++        Util.assert(false);
++      }
+     }
+   }
+-  this._uuidString = uuidString;
+ };
+ 
+ 
+@@ -100,16 +101,21 @@
+  *
+  * @scope    public class method
+  * @param    uuidString    A 36-character string that conforms to the UUID spec. 
++ * @namedParam    uuidString    A 36-character string that conforms to the UUID spec. 
+  * @return   A new instance of Uuid, TimeBasedUuid, or RandomUuid.
+  */
+-orp.util.Uuid.newUuid = function(uuidString) {
++orp.util.Uuid.newUuid = function(namedParameters) {
+   dojo.require(&quot;orp.util.RandomUuid&quot;);
+   dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+-  if (Util.isObject(uuidString)) {
+-    var namedParameters = uuidString;
++  
++  var uuidString;
++  if (dojo.lang.isString(namedParameters)) {
++    uuidString = namedParameters;
++  } else {
++    Util.assert(dojo.lang.isObject(namedParameters));
+     uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++    Util.assert(dojo.lang.isString(uuidString));
+   }
+-  Util.assert(Util.isString(uuidString));
+ 
+   var uuid = new orp.util.Uuid(uuidString);
+   if (uuid.getVersion() == orp.util.Uuid.Version.TIME_BASED) {
+
+Modified: trunk/tests/dojo/SimpleDojoTest.js
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/tests/dojo/SimpleDojoTest.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -30,15 +30,27 @@
+ 
+ function setUp() {
+   dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+-  dojo.require(&quot;dojo.text.*&quot;);
+ }
+ 
+ function testDojoTextTrim() {
++  // alert(&quot;Dojo version: &quot; + dojo.version.toString()); 
++    // Dojo version: 0.1.0 (1321)
++  // alert(&quot;dojo.hostenv.getBaseScriptUri() = &quot; + dojo.hostenv.getBaseScriptUri());
++    // dojo.hostenv.getBaseScriptUri() = ../../third_party/dojo/dojo-0.1.0
++
++  dojo.require(&quot;dojo.text.*&quot;);
++
+   var string = &quot;     Just Foo    &quot;;
+   var trimmedString = dojo.text.trim(string);
+   assertTrue(&quot;'Just Foo' remains after trimming.&quot;, trimmedString == &quot;Just Foo&quot;);
+ }
+ 
++function testDojoLang() {
++  dojo.require(&quot;dojo.lang.*&quot;);
++
++  assertTrue(&quot;'Iggy Pop' is a string.&quot;, dojo.lang.isString(&quot;Iggy Pop&quot;));
++}
++
+ function tearDown() {
+   // do nothing
+ }
+
+Modified: trunk/tests/util/CsvParserTest.js
+===================================================================
+--- trunk/tests/util/CsvParserTest.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/tests/util/CsvParserTest.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -30,7 +30,17 @@
+  
+ var CsvData = null;
+ 
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;dojo.lang.*&quot;);
++  dojo.require(&quot;orp.util.CsvParser&quot;);
++
+   var CsvRecords = ['Title, Year, Producer',
+                     '2001: A Space Odyssey, 1968, Stanley Kubrick',
+                     '&quot;This is a &quot;&quot;fake&quot;&quot; movie title&quot;, 1957, Sidney Lumet',
+@@ -42,38 +52,16 @@
+   CsvData = CsvRecords.join('\n');
+ }
+ 
+-function testDojoAccess() {
+-  // alert(&quot;Dojo version: &quot; + dojo.version.toString()); 
+-    // Dojo version: 0.1.0 (1321)
+-  // alert(&quot;dojo.hostenv.getBaseScriptUri() = &quot; + dojo.hostenv.getBaseScriptUri());
+-    // dojo.hostenv.getBaseScriptUri() = ../../third_party/dojo/dojo-0.1.0
+-  
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+-  dojo.require(&quot;dojo.text.*&quot;);
+-  
+-  var string = &quot;     Just Foo    &quot;;
+-  var trimmedString = dojo.text.trim(string);
+-  assertTrue(&quot;'Just Foo' remains after trimming.&quot;, trimmedString == &quot;Just Foo&quot;);
++function tearDown() {
++  CsvData = null;
+ }
+ 
+-/*
+-function testShapesAccess() {
+-  dojo.hostenv.setModulePrefix(&quot;shapes&quot;, &quot;../../../../source/shapes&quot;);
+-  
+-  dojo.require(&quot;shapes.Ship&quot;);
+-  var ship = new shapes.Ship();
+-  var box1 = new shapes.Box(4, 5); // area == 20
+-  var box2 = new shapes.Box(5, 6); // area == 30
+-  ship.addBox(box1);
+-  ship.addBox(box2);
+-  assertTrue(&quot;The ship has an area of 50.&quot;, ship.getArea() == 50);
+-}
+-*/
+ 
+-function testCsvParser() {
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+-  dojo.require(&quot;orp.util.CsvParser&quot;);
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
+ 
++function testCsvParser() {
+   var csvParser = new orp.util.CsvParser();
+   var listOfRecords = csvParser.getStringValuesFromCsvData(CsvData);
+   var whiteSpaceCharacters = &quot; \t\n\r&quot;;
+@@ -84,7 +72,7 @@
+     assertTrue('Each row has 3 fields', row.length == 3);
+     for (var j in row) {
+       var field = row[j];
+-      assertTrue('Each field is a string', Util.isString(field));
++      assertTrue('Each field is a string', dojo.lang.isString(field));
+       var firstChar = field.charAt(0);
+       var lastChar = field.charAt(field.length - 1);
+       assertTrue('The first character is not white space', whiteSpaceCharacters.indexOf(firstChar) == -1);
+@@ -93,11 +81,21 @@
+   }
+ }
+ 
+-
+-function tearDown() {
+-  CsvData = null;
++/*
++function testShapesAccess() {
++  dojo.hostenv.setModulePrefix(&quot;shapes&quot;, &quot;../../../../source/shapes&quot;);
++  
++  dojo.require(&quot;shapes.Ship&quot;);
++  var ship = new shapes.Ship();
++  var box1 = new shapes.Box(4, 5); // area == 20
++  var box2 = new shapes.Box(5, 6); // area == 30
++  ship.addBox(box1);
++  ship.addBox(box2);
++  assertTrue(&quot;The ship has an area of 50.&quot;, ship.getArea() == 50);
+ }
++*/
+ 
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/util/UuidTest.js
+===================================================================
+--- trunk/tests/util/UuidTest.js	2005-09-14 21:01:14 UTC (rev 327)
++++ trunk/tests/util/UuidTest.js	2005-09-14 22:50:16 UTC (rev 328)
+@@ -40,9 +40,11 @@
+ 
+ function setUp() {
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.require(&quot;orp.util.Uuid&quot;);
+   dojo.require(&quot;orp.util.RandomUuid&quot;);
+   dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
++  dojo.require(&quot;dojo.lang.*&quot;);
+ 
+   Uuid = orp.util.Uuid;
+   RandomUuid = orp.util.RandomUuid;
+@@ -136,12 +138,14 @@
+   var uuid2 = new RandomUuid();
+   var uuid3 = new RandomUuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
+   var uuid4 = new RandomUuid({uuidString: &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;});
++  var uuid5 = new RandomUuid(new String(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;));
+ 
+   // alert(uuid1 + &quot;\n&quot; + uuid2);
+   checkRandomUuidValidity(uuid1);
+   checkRandomUuidValidity(uuid2);
+   checkRandomUuidValidity(uuid3);
+   checkRandomUuidValidity(uuid4);
++  checkRandomUuidValidity(uuid5);
+ 
+   var uuidString1 = uuid1.toString();
+   var uuidString2 = uuid2.toString();
+@@ -160,6 +164,7 @@
+   var uuid8 = new TimeBasedUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
+   var uuid9 = new TimeBasedUuid({'uuidString': &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
+   var uuid10 = new TimeBasedUuid(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;);
++  var uuid11 = new TimeBasedUuid(new String(&quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;));
+   
+   checkTimeBasedUuidValidity(uuid1);
+   checkTimeBasedUuidValidity(uuid2);
+@@ -171,6 +176,7 @@
+   checkTimeBasedUuidValidity(uuid8);
+   checkTimeBasedUuidValidity(uuid9);
+   checkTimeBasedUuidValidity(uuid10);
++  checkTimeBasedUuidValidity(uuid11);
+ 
+   uuid1 = uuid1.toString();
+   uuid2 = uuid2.toString();
+@@ -304,6 +310,8 @@
+ // -------------------------------------------------------------------
+ 
+ function checkUuidValidity(uuid) {
++  assertTrue('All UUIDs are instances of Uuid', (uuid instanceof Uuid));
++
+   var variant = uuid.getVariant();
+   assertTrue('All of our UUIDs are DCE UUIDs', (variant == Uuid.Variant.DCE));  
+   
+@@ -340,6 +348,8 @@
+ function checkRandomUuidValidity(uuid) {
+   checkUuidValidity(uuid);
+ 
++  assertTrue('Random UUIDs are instances of RandomUuid', (uuid instanceof RandomUuid));
++  
+   var version = uuid.getVersion();
+   assertTrue('Random UUIDs return Uuid.Version.RANDOM', (version == Uuid.Version.RANDOM));  
+   
+@@ -352,11 +362,13 @@
+ function checkTimeBasedUuidValidity(uuid) {
+   checkUuidValidity(uuid);
+ 
++  assertTrue('TimeBased UUIDs are instances of RandomUuid', (uuid instanceof TimeBasedUuid));
++
+   var version = uuid.getVersion();
+   assertTrue('TimeBased UUIDs return Uuid.Version.TIME_BASED', (version == Uuid.Version.TIME_BASED));  
+ 
+   var node = uuid.getNode();
+-  assertTrue(&quot;A UUID's node is a string&quot;, (Util.isString(node)));
++  assertTrue(&quot;A UUID's node is a string&quot;, dojo.lang.isString(node));
+   assertTrue(&quot;A UUID's node string is 12 characters long.&quot;, node.length == 12);
+ 
+   var date = uuid.getDate();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000311.html">[openrecord-svn] r327 - in trunk: source/model source/util tests/util
+</A></li>
+	<LI>Next message: <A HREF="000313.html">[openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,471 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r9 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r9%20-%20trunk/source&In-Reply-To=%3C200503302326.j2UNQLhR016716%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000007.html">
+   <LINK REL="Next"  HREF="000009.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r9 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r9%20-%20trunk/source&In-Reply-To=%3C200503302326.j2UNQLhR016716%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r9 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Mar 31 01:26:21 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000007.html">[openrecord-svn] r8 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000009.html">[openrecord-svn] r11 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-03-31 01:26:14 +0200 (Thu, 31 Mar 2005)
+New Revision: 9
+
+Modified:
+   trunk/source/bar_chart_layout.js
+   trunk/source/detail_layout.js
+   trunk/source/outline_layout.js
+   trunk/source/section_view.js
+   trunk/source/text_view.js
+Log:
+Worked on JavaDoc comments.
+
+Modified: trunk/source/bar_chart_layout.js
+===================================================================
+--- trunk/source/bar_chart_layout.js	2005-03-30 22:52:24 UTC (rev 8)
++++ trunk/source/bar_chart_layout.js	2005-03-30 23:26:14 UTC (rev 9)
+@@ -43,10 +43,14 @@
+ // -------------------------------------------------------------------
+ SectionView.ourHashTableOfLayoutClassesKeyedByLayoutName[SectionView.LAYOUT_BAR_CHART] = BarChartLayout;
+ 
+-// -------------------------------------------------------------------
+-// new BarChartLayout()
+-//   public instance constructor
+-// -------------------------------------------------------------------
++
++/**
++ * A BarChartLayout displays a set of content items for a SectionView. 
++ *
++ * @scope    public instance constructor
++ * @param    inSectionView    The SectionView that serves as the superview for this view. 
++ * @syntax   var barChart = new BarChartLayout()
++ */
+ function BarChartLayout(inSectionView) {
+   Util.assert(inSectionView instanceof SectionView);
+   this.mySectionView = inSectionView;
+@@ -54,19 +58,23 @@
+ }
+ 
+ 
+-// -------------------------------------------------------------------
+-// barChartLayout.getLayoutName()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Returns the registered name of this type of layout.
++ *
++ * @scope    public instance method
++ * @return   A string.
++ */
+ BarChartLayout.prototype.getLayoutName = function () {
+   return SectionView.LAYOUT_BAR_CHART;
+ };
+ 
+-  
+-// -------------------------------------------------------------------
+-// barChartLayout.setDivElement()
+-//   public instance method
+-// -------------------------------------------------------------------
++
++/**
++ * Tells the BarChartLayout what HTMLDivElement to display the bar chart in.
++ *
++ * @scope    public instance method
++ * @param    inDivElement    The HTMLDivElement to display the bar chart in. 
++ */
+ BarChartLayout.prototype.setDivElement = function (inDivElement) {
+   Util.assert(inDivElement instanceof HTMLDivElement);
+   this._myDivElement = inDivElement;
+@@ -74,10 +82,12 @@
+ };
+ 
+ 
+-// -------------------------------------------------------------------
+-// barChartLayout.display()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Re-creates all the HTML for the BarChartLayout, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
+ BarChartLayout.prototype.display = function () {
+   var listOfStrings = [];
+ 
+
+Modified: trunk/source/detail_layout.js
+===================================================================
+--- trunk/source/detail_layout.js	2005-03-30 22:52:24 UTC (rev 8)
++++ trunk/source/detail_layout.js	2005-03-30 23:26:14 UTC (rev 9)
+@@ -43,10 +43,13 @@
+ SectionView.ourHashTableOfLayoutClassesKeyedByLayoutName[SectionView.LAYOUT_DETAIL] = DetailLayout;
+ 
+ 
+-// -------------------------------------------------------------------
+-// new DetailLayout()
+-//   public instance constructor
+-// -------------------------------------------------------------------
++/**
++ * A DetailLayout display one or more content items. 
++ *
++ * @scope    public instance constructor
++ * @param    inSuperView    The superview for this view. 
++ * @syntax   var detailLayout = new DetailLayout()
++ */
+ function DetailLayout(inSuperView) {
+   Util.assert((inSuperView instanceof SectionView) || (inSuperView instanceof ItemView));
+   
+@@ -55,19 +58,23 @@
+ }
+ 
+ 
+-// -------------------------------------------------------------------
+-// detailLayout.getLayoutName()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Returns the registered name of this type of layout.
++ *
++ * @scope    public instance method
++ * @return   A string.
++ */
+ DetailLayout.prototype.getLayoutName = function () {
+   return SectionView.LAYOUT_DETAIL;
+ };
+ 
+   
+-// -------------------------------------------------------------------
+-// detailLayout.setDivElement()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Tells the DetailLayout what HTMLDivElement to display itself in.
++ *
++ * @scope    public instance method
++ * @param    inDivElement    The HTMLDivElement to display in. 
++ */
+ DetailLayout.prototype.setDivElement = function (inDivElement) {
+   Util.assert(inDivElement instanceof HTMLDivElement);
+   
+@@ -76,10 +83,12 @@
+ };
+ 
+ 
+-// -------------------------------------------------------------------
+-// detailLayout.display()
+-//   public method
+-// -------------------------------------------------------------------
++/**
++ * Re-creates all the HTML for the DetailLayout, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
+ DetailLayout.prototype.display = function () {
+   var listOfStrings = [];
+ 
+@@ -97,10 +106,14 @@
+ };
+ 
+ 
+-// -------------------------------------------------------------------
+-// detailLayout.getXhtmlTableForItem()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Given an item to be display, returns a string with XHTML to display
++ * the item.
++ *
++ * @scope    public instance method
++ * @param    inItem    An item to be displayed. 
++ * @return   A string containing the XHTML to display the item.
++ */
+ DetailLayout.prototype.getXhtmlTableForItem = function (inItem) {
+   Util.assert(inItem instanceof Item);
+   
+
+Modified: trunk/source/outline_layout.js
+===================================================================
+--- trunk/source/outline_layout.js	2005-03-30 22:52:24 UTC (rev 8)
++++ trunk/source/outline_layout.js	2005-03-30 23:26:14 UTC (rev 9)
+@@ -42,10 +42,13 @@
+ SectionView.ourHashTableOfLayoutClassesKeyedByLayoutName[SectionView.LAYOUT_OUTLINE] = OutlineLayout;
+ 
+ 
+-// -------------------------------------------------------------------
+-// new OutlineLayout()
+-//   public instance constructor
+-// -------------------------------------------------------------------
++/**
++ * An OutlineLayout displays a set of content items for a SectionView. 
++ *
++ * @scope    public instance constructor
++ * @param    inSectionView    The SectionView that serves as the superview for this view. 
++ * @syntax   var outline = new OutlineLayout()
++ */
+ function OutlineLayout(inSectionView) {
+   Util.assert(inSectionView instanceof SectionView);
+ 
+@@ -54,19 +57,23 @@
+ }
+ 
+ 
+-// -------------------------------------------------------------------
+-// outlineLayout.getLayoutName()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Returns the registered name of this type of layout.
++ *
++ * @scope    public instance method
++ * @return   A string.
++ */
+ OutlineLayout.prototype.getLayoutName = function () {
+   return SectionView.LAYOUT_OUTLINE;
+ };
+ 
+   
+-// -------------------------------------------------------------------
+-// outlineLayout.setDivElement()
+-//   public instance method
+-// -------------------------------------------------------------------
++/**
++ * Tells the OutlineLayout what HTMLDivElement to display the bar chart in.
++ *
++ * @scope    public instance method
++ * @param    inDivElement    The HTMLDivElement to display the bar chart in. 
++ */
+ OutlineLayout.prototype.setDivElement = function (inDivElement) {
+   Util.assert(inDivElement instanceof HTMLDivElement);
+ 
+@@ -75,10 +82,12 @@
+ };
+ 
+ 
+-// -------------------------------------------------------------------
+-// outlineLayout.display()
+-//   public method
+-// -------------------------------------------------------------------
++/**
++ * Re-creates all the HTML for the OutlineLayout, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
+ OutlineLayout.prototype.display = function () {
+   var listOfStrings = [];
+ 
+
+Modified: trunk/source/section_view.js
+===================================================================
+--- trunk/source/section_view.js	2005-03-30 22:52:24 UTC (rev 8)
++++ trunk/source/section_view.js	2005-03-30 23:26:14 UTC (rev 9)
+@@ -83,7 +83,7 @@
+  * @param    inSectionNumber    The number of the section on the page (1, 2, 3, 4...). 
+  * @syntax   var sectionView = new SectionView()
+  */
+- function SectionView(inPageView, inSection, inSectionNumber) {
++function SectionView(inPageView, inSection, inSectionNumber) {
+   Util.assert(inPageView instanceof PageView);
+   Util.assert(inSection instanceof Item);
+   
+
+Modified: trunk/source/text_view.js
+===================================================================
+--- trunk/source/text_view.js	2005-03-30 22:52:24 UTC (rev 8)
++++ trunk/source/text_view.js	2005-03-30 23:26:14 UTC (rev 9)
+@@ -36,16 +36,18 @@
+ //   util.js
+ // -------------------------------------------------------------------
+ 
++
+ /**
+  * An instance of MultiLineTextView can be placed in any parent container View
+  * to display and (if in edit mode) edit multi-lines of text
+  *
+  * @scope    public instance constructor
+- * @param    theItem         The Item to be displayed and edited by this view. 
+- * @param    theAttribute    The attribute of the item to be displayed 
+- * @param    theDivElement   The HTMLDivElement to display the HTML in. 
++ * @param    theItem    The Item to be displayed and edited by this view. 
++ * @param    theAttribute    The attribute of the item to be displayed.
++ * @param    theDivElement    The HTMLDivElement to display the HTML in. 
++ * @param    theClassType    A string that gives a class name to assign to the HTML element. 
+  */
+-function MultiLineTextView(theItem, theAttribute, theDivElement, classType) {
++function MultiLineTextView(theItem, theAttribute, theDivElement, theClassType) {
+   Util.assert(theItem instanceof Item);
+   //Util.assert(theAttribute instanceof Attribute); FIXME need to check that attribute is an attribute
+   //Util.assert(inDivElement instanceof HTMLDivElement);
+@@ -55,15 +57,18 @@
+   this.editMode = true;
+   this.editField = null;
+   this.textObj = null;
+-  this.classType = classType;
++  this.classType = theClassType;
+   this.setDivElement(theDivElement);
+   this.isEditing = false;
+ };
+ 
+-// -------------------------------------------------------------------
+-// MultiLineTextView.setDivElement()
+-//   public instance method
+-// -------------------------------------------------------------------
++
++/**
++ * Tells the MultiLineTextView what HTMLDivElement to display itself in.
++ *
++ * @scope    public instance method
++ * @param    inDivElement    The HTMLDivElement to display in. 
++ */
+ MultiLineTextView.prototype.setDivElement = function(theDivElement) {
+   Util.assert(theDivElement instanceof HTMLDivElement);
+   this.divElement = theDivElement;
+@@ -76,6 +81,13 @@
+   }
+ };
+ 
++
++/**
++ * Re-creates all the HTML for the MultiLineTextView, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
+ MultiLineTextView.prototype.display = function() {
+   if (!this.divElement) return;
+   Util.assert(this.divElement instanceof HTMLDivElement);
+@@ -88,23 +100,14 @@
+   
+   this.textNode = document.createTextNode(textString);
+   this.divElement.appendChild(this.textNode);
+-}
+-  
+-// -------------------------------------------------------------------
+-// MultiLineTextView.onClick()
+-//  public instance method
+-//  handle mouse click on text view. Called by listener   
+-// -------------------------------------------------------------------
+-MultiLineTextView.prototype.onClick = function(eventObj) {
+-  eventObj = eventObj || window.event;
+-  this.startEditing();
+-}
++};
+ 
+-// -------------------------------------------------------------------
+-// MultiLineTextView.onClick()
+-//  public instance method
+-//  Switch to edit text field for editing 
+-// -------------------------------------------------------------------
++
++/**
++ * Switch to edit text field for editing.
++ *
++ * @scope    public instance method
++ */
+ MultiLineTextView.prototype.startEditing = function() {
+   if (!this.isEditing) {
+     var editField = this.editField;
+@@ -126,20 +129,42 @@
+   }
+ };
+ 
++
+ // -------------------------------------------------------------------
+-// MultiLineTextView.onClick()
+-//  public instance method
+-//  handles loss of focus for text view. Called by listener   
+-//  switches back to static text from editable text
++// Event handler methods
+ // -------------------------------------------------------------------
+-MultiLineTextView.prototype.onBlur = function(eventObj) {
++
++/**
++ * Called when the user clicks on the text.
++ *
++ * Handles the mouse click event on text view. Called by listener.
++ *
++ * @scope    public instance method
++ * @param    inEventObject    An event object. 
++ */
++MultiLineTextView.prototype.onClick = function(inEventObject) {
++  inEventObject = inEventObject || window.event;
++  this.startEditing();
++};
++
++
++/**
++ * Called when focus leaves the text view.
++ *
++ * Handles loss of focus for text view. Called by listener. Switches back 
++ * to static text from editable text.
++ *
++ * @scope    public instance method
++ * @param    inEventObject    An event object. 
++ */
++MultiLineTextView.prototype.onBlur = function(inEventObject) {
+   var newText = this.editField.value;
+   this.textItem.clear(this.attribute);
+   this.textItem.assign(this.attribute,newText); //FIXME: need to deal with multi valued attrs
+   this.textNode.data = newText;
+   this.divElement.replaceChild(this.textNode,this.editField);
+   this.isEditing = false;
+-}
++};
+ 
+ 
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000007.html">[openrecord-svn] r8 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000009.html">[openrecord-svn] r11 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#8">[ date ]</a>
+              <a href="thread.html#8">[ thread ]</a>
+              <a href="subject.html#8">[ subject ]</a>
+              <a href="author.html#8">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

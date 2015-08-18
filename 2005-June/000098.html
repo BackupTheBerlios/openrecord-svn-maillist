@@ -1,0 +1,1645 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r111 - in trunk/source: . model repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r111%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506020616.j526Gg2u009088%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000097.html">
+   <LINK REL="Next"  HREF="000099.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r111 - in trunk/source: . model repositories/demo_page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r111%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506020616.j526Gg2u009088%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r111 - in trunk/source: . model repositories/demo_page">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  2 08:16:42 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000097.html">[openrecord-svn] r110 - in trunk/source: . model
+</A></li>
+        <LI>Next message: <A HREF="000099.html">[openrecord-svn] r112 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-02 08:16:32 +0200 (Thu, 02 Jun 2005)
+New Revision: 111
+
+Modified:
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+   trunk/source/repositories/demo_page/2005_may_chronological_list.json
+Log:
+Added data model support for expected data types.
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-02 03:56:11 UTC (rev 110)
++++ trunk/source/PageView.js	2005-06-02 06:16:32 UTC (rev 111)
+@@ -84,7 +84,11 @@
+  */
+ PageView.prototype.getPageTitle = function () {
+   var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+-  return this.myPage.getSingleStringValueFromAttribute(attributeCalledShortName);
++  var pageTitle = this.myPage.getSingleStringValueFromAttribute(attributeCalledShortName);
++  if (!pageTitle) {
++    pageTitle = this.myPage.getDisplayName();
++  }
++  return pageTitle;
+ };
+ 
+   
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-02 03:56:11 UTC (rev 110)
++++ trunk/source/RootView.js	2005-06-02 06:16:32 UTC (rev 111)
+@@ -331,7 +331,7 @@
+ RootView.prototype.display = function () {
+   Util.assert(this._myCurrentContentView instanceof Object);
+ 
+-  document.title = this._myCurrentContentView.getPageTitle() + &quot; - openagenda.org&quot;;
++  document.title = this._myCurrentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
+   this._myRootDiv.className = (this.isInEditMode()) ? RootView.ELEMENT_CLASS_EDIT_MODE : RootView.ELEMENT_CLASS_VIEW_MODE;
+   this._displayLoginSpan();
+   this._displayNavbar();
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-02 03:56:11 UTC (rev 110)
++++ trunk/source/model/StubVirtualServer.js	2005-06-02 06:16:32 UTC (rev 111)
+@@ -633,6 +633,7 @@
+   var name;
+   var item;
+   var entry;
++  var key;
+   
+   this.__myWorld.beginTransaction();
+   var axiomaticUser = this.__getItemFromUuidOrCreateNewItem(World.UUID_FOR_USER_AMY);
+@@ -643,17 +644,16 @@
+   
+   // associate display names with the UUIDs of all the attributes
+   var hashTableOfAttributeNamesKeyedByUuid = {};
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_NAME] = &quot;Name&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SHORT_NAME] = &quot;Short Name&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SUMMARY] = &quot;Summary&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY] = &quot;Body&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY] = &quot;Category&quot;;
+-  // hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SECTION] = &quot;Section&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY] = &quot;Query&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_NAME]          = &quot;Name&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SHORT_NAME]    = &quot;Short Name&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SUMMARY]       = &quot;Summary&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY]          = &quot;Body&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY]      = &quot;Category&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY]         = &quot;Query&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = &quot;Matching Category&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = &quot;Matching Item&quot;;
+-  // hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_PLUGIN_NAME] = &quot;Plugin Name&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED] = &quot;Unfiled Entry&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED]       = &quot;Unfiled Entry&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE] = &quot;Expected Type&quot;;
+ 
+   // create all the Item objects for the attributes
+   for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
+@@ -663,28 +663,65 @@
+   // associate display names with the UUIDs of all the categories
+   var hashTableOfCategoryNamesKeyedByUuid = {};
+   hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_ATTRIBUTE] = &quot;Attribute&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_CATEGORY] = &quot;Category&quot;;
+-  // hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_PAGE] = &quot;Page&quot;;
+-  // hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_SECTION] = &quot;Section&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_QUERY] = &quot;Query&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_CATEGORY]  = &quot;Category&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_QUERY]     = &quot;Query&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_TYPE]      = &quot;Type&quot;;
+ 
+   // create all the Item objects for the categories
+   for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
+     this.__getItemFromUuidOrCreateNewItem(uuid);
+   }
+  
++  // associate display names with the UUIDs of all the types
++  var hashTableOfTypeNamesKeyedByUuid = {};
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_TEXT]       = &quot;Text&quot;;
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_NUMBER]     = &quot;Number&quot;;
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_DATE]       = &quot;Date&quot;;
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_CHECK_MARK] = &quot;Check Mark&quot;;
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_URL]        = &quot;Url&quot;;
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_ITEM]       = &quot;Item&quot;;
++  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_ANYTHING]   = &quot;Anything&quot;;
++  
++  // create all the Item objects for the types
++  for (uuid in hashTableOfTypeNamesKeyedByUuid) {
++    this.__getItemFromUuidOrCreateNewItem(uuid);
++  }
++  
++  // associate expected data types with the UUIDs of some of the attributes
++  var hashTableOfExpectedTypesKeyedByUuid = {};
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_NAME]          = [World.UUID_FOR_TYPE_TEXT];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SHORT_NAME]    = [World.UUID_FOR_TYPE_TEXT];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SUMMARY]       = [World.UUID_FOR_TYPE_TEXT];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY]          = [World.UUID_FOR_TYPE_TEXT];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY]      = [World.UUID_FOR_CATEGORY_CATEGORY];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY]         = [World.UUID_FOR_CATEGORY_QUERY];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = [World.UUID_FOR_CATEGORY_CATEGORY];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = [World.UUID_FOR_TYPE_ITEM];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED]       = [World.UUID_FOR_TYPE_ANYTHING];
++  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE] = [World.UUID_FOR_CATEGORY_TYPE, World.UUID_FOR_CATEGORY_CATEGORY];
++
++  var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
++
+   // set the name of the axiomaticUser
+-  var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+   axiomaticUser.addEntryForAttribute(attributeCalledName, &quot;Amy ex machina&quot;);
+   
+-  // set the names of all the attributes, and put them in the category called &quot;Attribute&quot;
++  // set the names of all the attributes, 
++  // and put them in the category called &quot;Attribute&quot;
++  // and set their expected data types
+   var categoryCalledAttribute = this.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+   var attributeCalledCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
++  var attributeCalledExpectedType = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
+   for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
+     item = this.getItemFromUuid(uuid);
+     name = hashTableOfAttributeNamesKeyedByUuid[uuid];
+     item.addEntryForAttribute(attributeCalledName, name);
+     item.addEntryForAttribute(attributeCalledCategory, categoryCalledAttribute);
++    var listOfExpectedTypes = hashTableOfExpectedTypesKeyedByUuid[uuid];
++    for (key in listOfExpectedTypes) {
++      var uuidOfExpectedType = listOfExpectedTypes[key];
++      expectedType = this.getItemFromUuid(uuidOfExpectedType);
++      item.addEntryForAttribute(attributeCalledExpectedType, expectedType);
++    }
+   }
+   
+   // set the names of all the categories, and put them in the category called &quot;Category&quot;
+@@ -695,10 +732,19 @@
+     item.addEntryForAttribute(attributeCalledName, name);
+     item.addEntryForAttribute(attributeCalledCategory, categoryCalledCategory);
+   }
+-  
++
++  // set the names of all the types, and put them in the category called &quot;Type&quot;
++  var categoryCalledType = this.__getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_TYPE);
++  for (uuid in hashTableOfTypeNamesKeyedByUuid) {
++    item = this.getItemFromUuid(uuid);
++    name = hashTableOfTypeNamesKeyedByUuid[uuid];
++    item.addEntryForAttribute(attributeCalledName, name);
++    item.addEntryForAttribute(attributeCalledCategory, categoryCalledType);
++  }
++
+   this.__myCurrentUser = null;
+ 
+-  for (var key in this.__myChronologicalListOfNewlyCreatedRecords) {
++  for (key in this.__myChronologicalListOfNewlyCreatedRecords) {
+     var newRecord = this.__myChronologicalListOfNewlyCreatedRecords[key];
+     this.__myChronologicalListOfRecords.push(newRecord);
+   }
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-02 03:56:11 UTC (rev 110)
++++ trunk/source/model/World.js	2005-06-02 06:16:32 UTC (rev 111)
+@@ -45,27 +45,37 @@
+ World.RETRIEVAL_FILTER_DEMOCRATIC = &quot;RETRIEVAL_FILTER_DEMOCRATIC&quot;;
+ World.RETRIEVAL_FILTER_UNABRIDGED = &quot;RETRIEVAL_FILTER_UNABRIDGED&quot;;
+ 
+-// World.UUID_FOR_ATTRIBUTE_UUID = 100;
+-// &quot;00000000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-World.UUID_FOR_USER_AMY              = &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.NULL_UUID                        = &quot;00000000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.IDENTITY_UUID                    = &quot;00000001-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-World.UUID_FOR_ATTRIBUTE_NAME        = &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_SHORT_NAME  = &quot;00000102-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_SUMMARY     = &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_BODY        = &quot;00000104-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_CATEGORY    = &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_QUERY       = &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_USER_AMY                = &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++
++World.UUID_FOR_ATTRIBUTE_NAME          = &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_SHORT_NAME    = &quot;00000102-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_SUMMARY       = &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_BODY          = &quot;00000104-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_CATEGORY      = &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_QUERY         = &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY = &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM = &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_ATTRIBUTE_UNFILED     = &quot;00000109-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_UNFILED       = &quot;00000109-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE = &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-World.UUID_FOR_CATEGORY_BOOK         = &quot;0000010e-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+-World.UUID_FOR_CATEGORY_MOVIE        = &quot;0000010f-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
+-World.UUID_FOR_CATEGORY_ATTRIBUTE    = &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_CATEGORY_CATEGORY     = &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+-World.UUID_FOR_CATEGORY_QUERY        = &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_BOOK           = &quot;0000010e-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
++World.UUID_FOR_CATEGORY_MOVIE          = &quot;0000010f-ce7f-11d9-8cd5-0011113ae5d6&quot;;  // here as an example only
++World.UUID_FOR_CATEGORY_ATTRIBUTE      = &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_CATEGORY       = &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_QUERY          = &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_CATEGORY_TYPE           = &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
++World.UUID_FOR_TYPE_TEXT               = &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_TYPE_NUMBER             = &quot;00000121-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_TYPE_DATE               = &quot;00000122-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_TYPE_CHECK_MARK         = &quot;00000123-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_TYPE_URL                = &quot;00000124-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_TYPE_ITEM               = &quot;00000130-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++World.UUID_FOR_TYPE_ANYTHING           = &quot;00000140-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ // -------------------------------------------------------------------
+ // World private class constants
+@@ -82,35 +92,50 @@
+  * a world to edit the items there.
+  *
+  * @scope    public instance constructor
+- * @param    inVirtualServer    Optional. The datastore that this world gets its data from. 
++ * @param    virtualServer    Optional. The datastore that this world gets its data from. 
+  */
+-function World(inVirtualServer) {
+-  this.__myCountOfNestedTransactions = 0;
+-  this.__myHashTableOfObserverListsKeyedByItemUuid = {};
+-  this.__myListOfListObserverTuples = [];
++function World(virtualServer) {
++  this._countOfNestedTransactions = 0;
++  this._hashTableOfObserverListsKeyedByItemUuid = {};
++  this._listOfListObserverTuples = [];
+ 
+-  this.__myCurrentRetrievalFilter = World.RETRIEVAL_FILTER_LAST_EDIT_WINS;
+-  if (inVirtualServer) {
+-    this.__myVirtualServer = inVirtualServer;
++  this._currentRetrievalFilter = World.RETRIEVAL_FILTER_LAST_EDIT_WINS;
++
++  var server;
++  if (virtualServer) {
++    server = virtualServer;
+   } else {
+-    this.__myVirtualServer = new StubVirtualServer();
++    server = new StubVirtualServer();
+   }
+-  this.__myVirtualServer.setWorldAndLoadAxiomaticItems(this);
++  this._virtualServer = server;
++
++  server.setWorldAndLoadAxiomaticItems(this);
+   
+   // load the axiomatic attributes
+-  this.__myAttributeCalledName = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-  this.__myAttributeCalledShortName = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SHORT_NAME);
+-  this.__myAttributeCalledSummary = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
+-  this.__myAttributeCalledCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
+-  this.__myAttributeCalledQuery = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
+-  this.__myAttributeCalledQueryMatchingCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  this.__myAttributeCalledQueryMatchingItem = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+-  this.__myAttributeCalledUnfiled = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
++  this._attributeCalledName                  = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
++  this._attributeCalledShortName             = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SHORT_NAME);
++  this._attributeCalledSummary               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_SUMMARY);
++  this._attributeCalledCategory              = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
++  this._attributeCalledQuery                 = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
++  this._attributeCalledQueryMatchingCategory = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  this._attributeCalledQueryMatchingItem     = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  this._attributeCalledUnfiled               = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_UNFILED);
++  this._attributeCalledExpectedType          = server.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
+ 
+   // load the axiomatic categories
+-  this.__myCategoryCalledAttribute = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+-  this.__myCategoryCalledCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
+-  this.__myCategoryCalledQuery = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_QUERY);
++  this._categoryCalledAttribute   = server.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
++  this._categoryCalledCategory    = server.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
++  this._categoryCalledQuery       = server.getItemFromUuid(World.UUID_FOR_CATEGORY_QUERY);
++  this._categoryCalledType        = server.getItemFromUuid(World.UUID_FOR_CATEGORY_TYPE);
++
++  // load the axiomatic types
++  this._typeCalledText      = server.getItemFromUuid(World.UUID_FOR_TYPE_TEXT);
++  this._typeCalledNumber    = server.getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
++  this._typeCalledDate      = server.getItemFromUuid(World.UUID_FOR_TYPE_DATE);
++  this._typeCalledCheckMark = server.getItemFromUuid(World.UUID_FOR_TYPE_CHECK_MARK);
++  this._typeCalledUrl       = server.getItemFromUuid(World.UUID_FOR_TYPE_URL);
++  this._typeCalledItem      = server.getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
++  this._typeCalledAnything  = server.getItemFromUuid(World.UUID_FOR_TYPE_ANYTHING);
+ }
+ 
+ 
+@@ -128,8 +153,8 @@
+  *
+  * @scope    public instance method
+  */
+-World.prototype.beginTransaction = function () {
+-  this.__myCountOfNestedTransactions += 1;
++World.prototype.beginTransaction = function() {
++  this._countOfNestedTransactions += 1;
+   // PENDING:
+   //   This is just a stub method for now.  Once we start implementing
+   //   support for transactions we'll have to put some real code here.
+@@ -141,17 +166,17 @@
+  *
+  * @scope    public instance method
+  */
+-World.prototype.endTransaction = function () {
+-  this.__myCountOfNestedTransactions -= 1;
+-  Util.assert(this.__myCountOfNestedTransactions &gt;= 0);
++World.prototype.endTransaction = function() {
++  this._countOfNestedTransactions -= 1;
++  Util.assert(this._countOfNestedTransactions &gt;= 0);
+   // PENDING:
+   //   This is just a stub method for now.  Once we start implementing
+   //   support for transactions we'll have to put some real code here.
+-  if (this.__myCountOfNestedTransactions === 0) {
+-    var listOfChangesMade = this.__myVirtualServer.saveChangesToServer();
++  if (this._countOfNestedTransactions === 0) {
++    var listOfChangesMade = this._virtualServer.saveChangesToServer();
+     if (listOfChangesMade.length &gt; 0) {
+       Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
+-      this.__notifyObserversOfChanges(listOfChangesMade);
++      this._notifyObserversOfChanges(listOfChangesMade);
+     }
+   }
+ };
+@@ -164,9 +189,9 @@
+  * about any new changes to items or lists that they're observers of.
+  *
+  * @scope    private instance method
+- * @param    inListOfNewlyCreatedRecords    A list of records representing the changes. 
++ * @param    listOfNewlyCreatedRecords    A list of records representing the changes. 
+  */
+-World.prototype.__notifyObserversOfChanges = function (inListOfNewlyCreatedRecords) {
++World.prototype._notifyObserversOfChanges = function(listOfNewlyCreatedRecords) {
+   var hashTableOfNewlyCreatedRecordsKeyedByItemUuid = {};
+   var key;
+   var uuid;
+@@ -179,8 +204,8 @@
+   // and build a hash table that divides up the records based on the item
+   // being changed, so that we can easily find all the records that impact
+   // a given item.
+-  for (key in inListOfNewlyCreatedRecords) {
+-    var record = inListOfNewlyCreatedRecords[key];
++  for (key in listOfNewlyCreatedRecords) {
++    var record = listOfNewlyCreatedRecords[key];
+     item = null;
+     if (record instanceof Item) {
+       item = record;
+@@ -212,7 +237,7 @@
+   for (uuid in hashTableOfNewlyCreatedRecordsKeyedByItemUuid) {
+     item = this.getItemFromUuid(uuid);
+     listOfRecordsForItem = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[uuid];
+-    var listOfObserversForItem = this.__myHashTableOfObserverListsKeyedByItemUuid[uuid];
++    var listOfObserversForItem = this._hashTableOfObserverListsKeyedByItemUuid[uuid];
+     for (key in listOfObserversForItem) {
+       observer = listOfObserversForItem[key];
+       if (Util.isFunction(observer)) {
+@@ -231,8 +256,8 @@
+   // Look at all the observers who have registered interest in a 
+   // list of items rather than in an individual item.  For each of
+   // those observers, notify them of all the changes to all the items.
+-  for (var ikey in this.__myListOfListObserverTuples) {
+-    var observerTuple = this.__myListOfListObserverTuples[ikey];
++  for (var ikey in this._listOfListObserverTuples) {
++    var observerTuple = this._listOfListObserverTuples[ikey];
+     var listBeingObserved = observerTuple[World.__TUPLE_KEY_LIST];
+     var setOfObservers = observerTuple[World.__TUPLE_KEY_OBSERVERS];
+     var listOfItemChangeReports = null;
+@@ -276,8 +301,8 @@
+  * @scope    public instance method
+  * @return   A string constant representing one of the three supported retrieval filters.
+  */
+-World.prototype.getRetrievalFilter = function () {
+-  return this.__myCurrentRetrievalFilter;
++World.prototype.getRetrievalFilter = function() {
++  return this._currentRetrievalFilter;
+ };
+ 
+ 
+@@ -285,14 +310,14 @@
+  * Sets the retrieval filter that this world will use.
+  *
+  * @scope    public instance method
+- * @param    inFilter    A string constant representing one of the three supported retrieval filters.
++ * @param    filter    A string constant representing one of the three supported retrieval filters.
+  */
+-World.prototype.setRetrievalFilter = function (inFilter) {
+-  Util.assert(inFilter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS ||
+-              inFilter == World.RETRIEVAL_FILTER_SINGLE_USER ||
+-              inFilter == World.RETRIEVAL_FILTER_DEMOCRATIC ||
+-              inFilter == World.RETRIEVAL_FILTER_UNABRIDGED);
+-  this.__myCurrentRetrievalFilter = inFilter;
++World.prototype.setRetrievalFilter = function(filter) {
++  Util.assert(filter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS ||
++              filter == World.RETRIEVAL_FILTER_SINGLE_USER ||
++              filter == World.RETRIEVAL_FILTER_DEMOCRATIC ||
++              filter == World.RETRIEVAL_FILTER_UNABRIDGED);
++  this._currentRetrievalFilter = filter;
+ };
+ 
+ 
+@@ -342,56 +367,97 @@
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic attributes
+ // -------------------------------------------------------------------
+-World.prototype.getAttributeCalledName = function () {
+-  return this.__myAttributeCalledName;
++World.prototype.getAttributeCalledName = function() {
++  return this._attributeCalledName;
+ };
+ 
+-World.prototype.getAttributeCalledShortName = function () {
+-  return this.__myAttributeCalledShortName;
++World.prototype.getAttributeCalledShortName = function() {
++  return this._attributeCalledShortName;
+ };
+ 
+-World.prototype.getAttributeCalledSummary = function () {
+-  return this.__myAttributeCalledSummary;
++World.prototype.getAttributeCalledSummary = function() {
++  return this._attributeCalledSummary;
+ };
+ 
+-World.prototype.getAttributeCalledCategory = function () {
+-  return this.__myAttributeCalledCategory;
++World.prototype.getAttributeCalledCategory = function() {
++  return this._attributeCalledCategory;
+ };
+ 
+-World.prototype.getAttributeCalledQuery = function () {
+-  return this.__myAttributeCalledQuery;
++World.prototype.getAttributeCalledQuery = function() {
++  return this._attributeCalledQuery;
+ };
+ 
+-World.prototype.getAttributeCalledQueryMatchingCategory = function () {
+-  return this.__myAttributeCalledQueryMatchingCategory;
++World.prototype.getAttributeCalledQueryMatchingCategory = function() {
++  return this._attributeCalledQueryMatchingCategory;
+ };
+ 
+-World.prototype.getAttributeCalledQueryMatchingItem = function () {
+-  return this.__myAttributeCalledQueryMatchingItem;
++World.prototype.getAttributeCalledQueryMatchingItem = function() {
++  return this._attributeCalledQueryMatchingItem;
+ };
+ 
+-World.prototype.getAttributeCalledUnfiled = function () {
+-  return this.__myAttributeCalledUnfiled;
++World.prototype.getAttributeCalledUnfiled = function() {
++  return this._attributeCalledUnfiled;
+ };
+ 
++World.prototype.getAttributeCalledExpectedType = function() {
++  return this._attributeCalledExpectedType;
++};
+ 
++
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic categories
+ // -------------------------------------------------------------------
+-World.prototype.getCategoryCalledAttribute = function () {
+-  return this.__myCategoryCalledAttribute;
++World.prototype.getCategoryCalledAttribute = function() {
++  return this._categoryCalledAttribute;
+ };
+ 
+-World.prototype.getCategoryCalledCategory = function () {
+-  return this.__myCategoryCalledCategory;
++World.prototype.getCategoryCalledCategory = function() {
++  return this._categoryCalledCategory;
+ };
+ 
+-World.prototype.getCategoryCalledQuery = function () {
+-  return this.__myCategoryCalledQuery;
++World.prototype.getCategoryCalledQuery = function() {
++  return this._categoryCalledQuery;
+ };
+ 
++World.prototype.getCategoryCalledType = function() {
++  return this._categoryCalledType;
++};
+ 
++
+ // -------------------------------------------------------------------
++// Accessor methods for axiomatic categories
++// -------------------------------------------------------------------
++World.prototype.getTypeCalledText = function() {
++  return this._typeCalledText;
++};
++
++World.prototype.getTypeCalledNumber = function() {
++  return this._typeCalledNumber;
++};
++
++World.prototype.getTypeCalledDate = function() {
++  return this._typeCalledDate;
++};
++
++World.prototype.getTypeCalledCheckMark = function() {
++  return this._typeCalledCheckMark;
++};
++
++World.prototype.getTypeCalledUrl = function() {
++  return this._typeCalledUrl;
++};
++
++World.prototype.getTypeCalledItem = function() {
++  return this._typeCalledItem;
++};
++
++World.prototype.getTypeCalledAnything = function() {
++  return this._typeCalledAnything;
++};
++
++
++
++// -------------------------------------------------------------------
+ // Login and logout methods
+ // -------------------------------------------------------------------
+ 
+@@ -399,12 +465,12 @@
+  * Attempts to login a user.
+  *
+  * @scope    public instance method
+- * @param    inUser    The user to be logged in. 
+- * @param    inAuthentication    Authentication info for the user. 
++ * @param    user    The user to be logged in. 
++ * @param    authentication    Authentication info for the user. 
+  * @return   True if we were able to log in the user. False if the login failed.
+  */
+-World.prototype.login = function (inUser, inAuthentication) {
+-  return this.__myVirtualServer.login(inUser, inAuthentication);
++World.prototype.login = function(user, authentication) {
++  return this._virtualServer.login(user, authentication);
+ };
+ 
+ 
+@@ -414,8 +480,8 @@
+  * @scope    public instance method
+  * @return   True if the current user was logged out. False if there was no current user logged in.
+  */
+-World.prototype.logout = function () {
+-  return this.__myVirtualServer.logout();
++World.prototype.logout = function() {
++  return this._virtualServer.logout();
+ };
+ 
+ 
+@@ -429,8 +495,8 @@
+  * @scope    public instance method
+  * @return   A list of items that represent users.
+  */
+-World.prototype.getUsers = function () {
+-  var listOfUsers = this.__myVirtualServer.getUsers();
++World.prototype.getUsers = function() {
++  var listOfUsers = this._virtualServer.getUsers();
+   return this._getFilteredList(listOfUsers);
+ };
+ 
+@@ -441,8 +507,8 @@
+  * @scope    public instance method
+  * @return   An item representing the user who is currently logged in.
+  */
+-World.prototype.getCurrentUser = function () {
+-  return this.__myVirtualServer.getCurrentUser();
++World.prototype.getCurrentUser = function() {
++  return this._virtualServer.getCurrentUser();
+ };
+ 
+ 
+@@ -450,15 +516,15 @@
+  * Creates a new item, where the new item represents a user of this datastore.
+  *
+  * @scope    public instance method
+- * @param    inName    A string, which will be assigned to the name attribute of the new item. 
+- * @param    inAuthentication    A string which will be used as the login password for the user. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    name    A string, which will be assigned to the name attribute of the new item. 
++ * @param    authentication    A string which will be used as the login password for the user. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing a user.
+  * @throws   Throws an Error if a user is logged in.
+  */
+-World.prototype.newUser = function (inName, inAuthentication, inObserver) {
++World.prototype.newUser = function(name, authentication, observer) {
+   this.beginTransaction();
+-  var newUser = this.__myVirtualServer.newUser(inName, inAuthentication, inObserver);
++  var newUser = this._virtualServer.newUser(name, authentication, observer);
+   this.endTransaction();
+   return newUser;
+ };
+@@ -472,14 +538,14 @@
+  * Returns a newly created item.
+  *
+  * @scope    public instance method
+- * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    name    Optional. A string, which will be assigned to the name attribute of the new item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-World.prototype.newItem = function (inName, inObserver) {
++World.prototype.newItem = function(name, observer) {
+   this.beginTransaction();
+-  var item = this.__myVirtualServer.newItem(inName, inObserver);
++  var item = this._virtualServer.newItem(name, observer);
+   this.endTransaction();
+   return item;
+ };
+@@ -493,12 +559,12 @@
+  * an entry is set for one of the item's attributes.
+  *
+  * @scope    public instance method
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created provisional item.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-World.prototype.newProvisionalItem = function (inObserver) {
+-  return this.__myVirtualServer.newProvisionalItem(inObserver);
++World.prototype.newProvisionalItem = function(observer) {
++  return this._virtualServer.newProvisionalItem(observer);
+ };
+ 
+ 
+@@ -506,10 +572,10 @@
+  * Records the fact that a provisional item just became real.
+  *
+  * @scope    package instance method
+- * @param    inItem    The item that was provisional and just became real. 
++ * @param    item    The item that was provisional and just became real. 
+  */
+-World.prototype._provisionalItemJustBecameReal = function (inItem) {
+-  this.__myVirtualServer._provisionalItemJustBecameReal(inItem);
++World.prototype._provisionalItemJustBecameReal = function(item) {
++  this._virtualServer._provisionalItemJustBecameReal(item);
+ };
+ 
+ 
+@@ -517,14 +583,14 @@
+  * Returns a newly created item representing an attribute.
+  *
+  * @scope    public instance method
+- * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    name    Optional. A string, which will be assigned to the name attribute of the new item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing an attribute.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-World.prototype.newAttribute = function (inName, inObserver) {
++World.prototype.newAttribute = function(name, observer) {
+   this.beginTransaction();
+-  var item = this.__myVirtualServer.newItem(inName, inObserver);
++  var item = this._virtualServer.newItem(name, observer);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+   item.addEntryForAttribute(attributeCalledCategory, categoryCalledAttribute);
+@@ -537,14 +603,14 @@
+  * Returns a newly created item representing a category.
+  *
+  * @scope    public instance method
+- * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    name    Optional. A string, which will be assigned to the name attribute of the new item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing a category.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-World.prototype.newCategory = function (inName, inObserver) {
++World.prototype.newCategory = function(name, observer) {
+   this.beginTransaction();
+-  var item = this.__myVirtualServer.newItem(inName, inObserver);
++  var item = this._virtualServer.newItem(name, observer);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+   item.addEntryForAttribute(attributeCalledCategory, categoryCalledCategory);
+@@ -557,25 +623,27 @@
+  * Returns a newly created item representing a query.
+  *
+  * @scope    public instance method
+- * @param    inCategory    Optional. A category item, or an array of category items. 
++ * @param    category    Optional. A category item, or an array of category items. 
+  * @return   A newly created item representing a query.
+  */
+-World.prototype.newQueryForItemsByCategory = function (inCategory) {
++World.prototype.newQueryForItemsByCategory = function(categoryOrListOfCategories) {
+   this.beginTransaction();
+-  var item = this.__myVirtualServer.newItem(&quot;A query&quot;);
++  var item = this._virtualServer.newItem(&quot;A query&quot;);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+   item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+ 
+   var attributeCalledQueryMatchingCategory = this.getAttributeCalledQueryMatchingCategory();
+-  if (inCategory) {
+-    if (inCategory instanceof Item) {
+-      item.addEntryForAttribute(attributeCalledQueryMatchingCategory, inCategory);
++  var category;
++  if (categoryOrListOfCategories) {
++    if (categoryOrListOfCategories instanceof Item) {
++      category = categoryOrListOfCategories;
++      item.addEntryForAttribute(attributeCalledQueryMatchingCategory, category);
+     }
+-    if (Util.isArray(inCategory)) {
+-      var listOfCategories = inCategory;
++    if (Util.isArray(categoryOrListOfCategories)) {
++      var listOfCategories = categoryOrListOfCategories;
+       for (var key in listOfCategories) {
+-        var category = listOfCategories[key];
++        category = listOfCategories[key];
+         item.addEntryForAttribute(attributeCalledQueryMatchingCategory, category);
+       }
+     }
+@@ -590,23 +658,23 @@
+  * Returns a newly created item representing a query.
+  *
+  * @scope    public instance method
+- * @param    inItems    Optional. An item, or an array of items. 
++ * @param    itemOrListOfItems    Optional. An item, or an array of items. 
+  * @return   A newly created item representing a query.
+  */
+-World.prototype.newQueryForSpecificItems = function (inItems) {
++World.prototype.newQueryForSpecificItems = function(itemOrListOfItems) {
+   this.beginTransaction();
+-  var item = this.__myVirtualServer.newItem(&quot;A query&quot;);
++  var item = this._virtualServer.newItem(&quot;A query&quot;);
+   var attributeCalledCategory = this.getAttributeCalledCategory();
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+   item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+ 
+   var attributeCalledQueryMatchingItem = this.getAttributeCalledQueryMatchingItem();
+-  if (inItems) {
+-    if (inItems instanceof Item) {
+-      item.addEntryForAttribute(attributeCalledQueryMatchingItem, inItems);
++  if (itemOrListOfItems) {
++    if (itemOrListOfItems instanceof Item) {
++      item.addEntryForAttribute(attributeCalledQueryMatchingItem, itemOrListOfItems);
+     }
+-    if (Util.isArray(inItems)) {
+-      var listOfItems = inItems;
++    if (Util.isArray(itemOrListOfItems)) {
++      var listOfItems = itemOrListOfItems;
+       for (var key in listOfItems) {
+         var matchingItem = listOfItems[key];
+         item.addEntryForAttribute(attributeCalledQueryMatchingItem, matchingItem);
+@@ -623,14 +691,14 @@
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
+- * @param    inItemOrEntry    The item that this is a entry of, or the old entry that this entry is replacing. 
+- * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+- * @param    inValue    The value to initialize the entry with. 
++ * @param    itemOrEntry    The item that this is a entry of, or the old entry that this entry is replacing. 
++ * @param    attribute    The attribute that this entry is assigned to. May be null. 
++ * @param    value    The value to initialize the entry with. 
+  * @return   A newly created entry.
+  */
+-World.prototype._newEntry = function (inItemOrEntry, inAttribute, inValue) {
++World.prototype._newEntry = function(itemOrEntry, attribute, value) {
+   this.beginTransaction();
+-  var entry = this.__myVirtualServer.newEntry(inItemOrEntry, inAttribute, inValue);
++  var entry = this._virtualServer.newEntry(itemOrEntry, attribute, value);
+   this.endTransaction();
+   return entry;
+ };
+@@ -640,13 +708,13 @@
+  * Returns a newly created ordinal.
+  *
+  * @scope    protected instance method
+- * @param    inIdentifiedRecord    The identifiedRecord that this is an ordinal for. 
+- * @param    inOrdinalNumber    The ordinal number itself. 
++ * @param    identifiedRecord    The identifiedRecord that this is an ordinal for. 
++ * @param    ordinalNumber    The ordinal number itself. 
+  * @return   A newly created ordinal.
+  */
+-World.prototype._newOrdinal = function (inIdentifiedRecord, inOrdinalNumber) {
++World.prototype._newOrdinal = function(identifiedRecord, ordinalNumber) {
+   this.beginTransaction();
+-  var ordinal = this.__myVirtualServer.newOrdinal(inIdentifiedRecord, inOrdinalNumber);
++  var ordinal = this._virtualServer.newOrdinal(identifiedRecord, ordinalNumber);
+   this.endTransaction();
+   return ordinal;
+ };
+@@ -656,13 +724,13 @@
+  * Returns a newly created vote.
+  *
+  * @scope    protected instance method
+- * @param    inIdentifiedRecord    The identifiedRecord to attach this vote to. 
+- * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
++ * @param    identifiedRecord    The identifiedRecord to attach this vote to. 
++ * @param    retainFlag    True if this is a vote to retain. False if this is a vote to delete. 
+  * @return   A newly created vote.
+  */
+-World.prototype._newVote = function (inIdentifiedRecord, inRetainFlag) {
++World.prototype._newVote = function(identifiedRecord, retainFlag) {
+   this.beginTransaction();
+-  var vote = this.__myVirtualServer.newVote(inIdentifiedRecord, inRetainFlag);
++  var vote = this._virtualServer.newVote(identifiedRecord, retainFlag);
+   this.endTransaction();
+   return vote;
+ };
+@@ -672,12 +740,12 @@
+  * Given a UUID, returns the item identified by that UUID.
+  *
+  * @scope    public instance method
+- * @param    inUuid    The UUID of the item to be returned. 
+- * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @param    uuid    The UUID of the item to be returned. 
++ * @param    observer    Optional. An object to be registered as an observer of the returned item. 
+  * @return   The item identified by the given UUID.
+  */
+-World.prototype.getItemFromUuid = function (inUuid, inObserver) {
+-  return (this.__myVirtualServer.getItemFromUuid(inUuid, inObserver));
++World.prototype.getItemFromUuid = function(uuid, observer) {
++  return (this._virtualServer.getItemFromUuid(uuid, observer));
+ };
+ 
+ 
+@@ -690,13 +758,13 @@
+  * match the query criteria.
+  *
+  * @scope    public instance method
+- * @param    inQuery    A query item. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    query    A query item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A list of items.
+  */
+-World.prototype.getResultItemsForQuery = function (inQuery, inObserver) {
+-  var listOfItems = this.__myVirtualServer.getResultItemsForQuery(inQuery);
+-  this.__addListObserver(listOfItems, inObserver);
++World.prototype.getResultItemsForQuery = function(query, observer) {
++  var listOfItems = this._virtualServer.getResultItemsForQuery(query);
++  this.__addListObserver(listOfItems, observer);
+   return listOfItems;
+ };
+ 
+@@ -707,12 +775,12 @@
+  * included in query result list.
+  *
+  * @scope    public instance method
+- * @param    inItem    An item, which will be modified so that it matches the query. 
+- * @param    inQuery    A query item. 
++ * @param    item    An item, which will be modified so that it matches the query. 
++ * @param    query    A query item. 
+  * @throws   Throws an Error if no user is logged in.
+  */
+-World.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
+-  this.__myVirtualServer.setItemToBeIncludedInQueryResultList(inItem, inQuery);
++World.prototype.setItemToBeIncludedInQueryResultList = function(item, query) {
++  this._virtualServer.setItemToBeIncludedInQueryResultList(item, query);
+ };
+ 
+ 
+@@ -721,13 +789,13 @@
+  * assigned to that category.
+  *
+  * @scope    public instance method
+- * @param    inCategory    A category item. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    category    A category item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A list of items.
+  */
+-World.prototype.getItemsInCategory = function (inCategory, inObserver) {
+-  var listOfItems = this.__myVirtualServer.getItemsInCategory(inCategory);
+-  this.__addListObserver(listOfItems, inObserver);
++World.prototype.getItemsInCategory = function(category, observer) {
++  var listOfItems = this._virtualServer.getItemsInCategory(category);
++  this.__addListObserver(listOfItems, observer);
+   return listOfItems;
+ };
+ 
+@@ -738,8 +806,8 @@
+  * @scope    public instance method
+  * @return   A list of items that represent categories.
+  */
+-World.prototype.getCategories = function () {
+-  var listOfCategories = this.__myVirtualServer.getCategories();
++World.prototype.getCategories = function() {
++  var listOfCategories = this._virtualServer.getCategories();
+   return this._getFilteredList(listOfCategories);
+ };
+ 
+@@ -758,28 +826,28 @@
+  * of the query should be notified.
+  *
+  * @scope    private instance method
+- * @param    inList    The list of items to be observed. 
+- * @param    inObserver    An object or method to be registered as an observer of the item. 
++ * @param    listOfItems    The list of items to be observed. 
++ * @param    observer    An object or method to be registered as an observer of the item. 
+  */
+-World.prototype.__addListObserver = function (inList, inObserver) {
++World.prototype.__addListObserver = function(listOfItems, observer) {
+   var observerWasAdded = false;
+-  if (!inObserver) {
++  if (!observer) {
+     return observerWasAdded;
+   }
+   var weNeedToMakeANewTupleForThisList = true;
+-  var listOfTuples = this.__myListOfListObserverTuples;
++  var listOfTuples = this._listOfListObserverTuples;
+   for (var key in listOfTuples) {
+     var tuple = listOfTuples[key];
+-    if (tuple[World.__TUPLE_KEY_LIST] == inList) {
++    if (tuple[World.__TUPLE_KEY_LIST] == listOfItems) {
+       weNeedToMakeANewTupleForThisList = false;
+       var setOfObservers = tuple[World.__TUPLE_KEY_OBSERVERS];
+-      observerWasAdded = Util.addObjectToSet(inObserver, setOfObservers);
++      observerWasAdded = Util.addObjectToSet(observer, setOfObservers);
+     }
+   }
+   if (weNeedToMakeANewTupleForThisList) {
+     var newTuple = {};
+-    newTuple[World.__TUPLE_KEY_LIST] = inList;
+-    newTuple[World.__TUPLE_KEY_OBSERVERS] = [inObserver];
++    newTuple[World.__TUPLE_KEY_LIST] = listOfItems;
++    newTuple[World.__TUPLE_KEY_OBSERVERS] = [observer];
+     listOfTuples.push(newTuple);
+     observerWasAdded = true;
+   }
+@@ -792,17 +860,17 @@
+  * the observer will no longer be notified when items in the list change.
+  *
+  * @scope    public instance method
+- * @param    inList    The list of items that was being observed. 
+- * @param    inObserver    The object or method to be removed from the set of observers. 
++ * @param    listOfItems    The list of items that was being observed. 
++ * @param    observer    The object or method to be removed from the set of observers. 
+  */
+-World.prototype.removeListObserver = function (inList, inObserver) {
++World.prototype.removeListObserver = function(listOfItems, observer) {
+   var observerWasRemoved = false;
+-  var listOfTuples = this.__myListOfListObserverTuples;
++  var listOfTuples = this._listOfListObserverTuples;
+   for (var key in listOfTuples) {
+     var tuple = listOfTuples[key];
+-    if (tuple[World.__TUPLE_KEY_LIST] == inList) {
++    if (tuple[World.__TUPLE_KEY_LIST] == listOfItems) {
+       var setOfObservers = tuple[World.__TUPLE_KEY_OBSERVERS];
+-      observerWasRemoved = Util.removeObjectFromSet(inObserver, setOfObservers);
++      observerWasRemoved = Util.removeObjectFromSet(observer, setOfObservers);
+     }
+   }
+   return observerWasRemoved;
+@@ -814,16 +882,16 @@
+  * the observer will be notified when the item changes.
+  *
+  * @scope    public instance method
+- * @param    inItem    The item to be observed. 
+- * @param    inObserver    An object or method to be registered as an observer of the item. 
++ * @param    item    The item to be observed. 
++ * @param    observer    An object or method to be registered as an observer of the item. 
+  */
+-World.prototype.addItemObserver = function (inItem, inObserver) {
+-  var observerList = this.__myHashTableOfObserverListsKeyedByItemUuid[inItem._getUuid()];
++World.prototype.addItemObserver = function(item, observer) {
++  var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item._getUuid()];
+   if (!observerList) {
+     observerList = [];
+-    this.__myHashTableOfObserverListsKeyedByItemUuid[inItem._getUuid()] = observerList;
++    this._hashTableOfObserverListsKeyedByItemUuid[item._getUuid()] = observerList;
+   }
+-  var observerWasAdded = Util.addObjectToSet(inObserver, observerList);
++  var observerWasAdded = Util.addObjectToSet(observer, observerList);
+   return observerWasAdded;
+ };
+ 
+@@ -833,14 +901,14 @@
+  * that the observer will no longer be notified when the item changes.
+  *
+  * @scope    public instance method
+- * @param    inItem    The item that was being observed. 
+- * @param    inObserver    The object or method to be removed from the set of observers. 
++ * @param    item    The item that was being observed. 
++ * @param    observer    The object or method to be removed from the set of observers. 
+  */
+-World.prototype.removeItemObserver = function (inItem, inObserver) {
++World.prototype.removeItemObserver = function(item, observer) {
+   var observerWasRemoved = false;
+-  var observerList = this.__myHashTableOfObserverListsKeyedByItemUuid[inItem._getUuid()];
++  var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item._getUuid()];
+   if (observerList) {
+-    observerWasRemoved = Util.removeObjectFromSet(inObserver, observerList);
++    observerWasRemoved = Util.removeObjectFromSet(observer, observerList);
+   } 
+   return observerWasRemoved;
+ };
+
+Modified: trunk/source/repositories/demo_page/2005_may_chronological_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-02 03:56:11 UTC (rev 110)
++++ trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-02 06:16:32 UTC (rev 111)
+@@ -37,12 +37,6 @@
+       &quot;timestamp&quot;: &quot;1114819457203&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Section
+-           &quot;uuid&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457203&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Query
+            &quot;uuid&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+@@ -67,10 +61,10 @@
+       &quot;timestamp&quot;: &quot;1114819457234&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Plugin Name
+-           &quot;uuid&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  { &quot;Item&quot;: {                             // Expected Type
++           &quot;uuid&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457240&quot; }
++      &quot;timestamp&quot;: &quot;1114819457234&quot; }
+   },
+   // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Attribute
+@@ -85,24 +79,84 @@
+       &quot;timestamp&quot;: &quot;1114819457250&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Query
++           &quot;uuid&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Text
++           &quot;uuid&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Number
++           &quot;uuid&quot;: &quot;00000121-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Date
++           &quot;uuid&quot;: &quot;00000122-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Check Mark
++           &quot;uuid&quot;: &quot;00000123-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // URL
++           &quot;uuid&quot;: &quot;00000124-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Item
++           &quot;uuid&quot;: &quot;00000125-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Anything
++           &quot;uuid&quot;: &quot;00000126-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Page
+            &quot;uuid&quot;: &quot;00000200-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457265&quot; }
++      &quot;timestamp&quot;: &quot;1114819457282&quot; }
+   },
+   // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Section
+-           &quot;uuid&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;uuid&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457265&quot; }
++      &quot;timestamp&quot;: &quot;1114819457300&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Query
+-           &quot;uuid&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  { &quot;Item&quot;: {                             // Plugin Name
++           &quot;uuid&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457281&quot; }
++      &quot;timestamp&quot;: &quot;1114819457301&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Section
++           &quot;uuid&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457265&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Amy ex machina
+            &quot;uuid&quot;: &quot;1471&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -130,6 +184,15 @@
+       &quot;timestamp&quot;: &quot;1114819457312&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Text
++           &quot;uuid&quot;: &quot;1473888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Short Name
+            &quot;uuid&quot;: &quot;1474&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -148,6 +211,15 @@
+       &quot;timestamp&quot;: &quot;1114819457343&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Text
++           &quot;uuid&quot;: &quot;1475888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000102-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Short Name
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Summary
+            &quot;uuid&quot;: &quot;1476&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -166,6 +238,15 @@
+       &quot;timestamp&quot;: &quot;1114819457359&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Text
++           &quot;uuid&quot;: &quot;1477888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Body
+            &quot;uuid&quot;: &quot;1478&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -184,6 +265,15 @@
+       &quot;timestamp&quot;: &quot;1114819457390&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Text
++           &quot;uuid&quot;: &quot;1479888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000104-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Body
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Category
+            &quot;uuid&quot;: &quot;1480&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -202,24 +292,15 @@
+       &quot;timestamp&quot;: &quot;1114819457406&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Section
+-           &quot;uuid&quot;: &quot;1482&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Section&quot; },
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;1481888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457421&quot; }
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Attribute
+-           &quot;uuid&quot;: &quot;1483&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+-      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457437&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Query
+            &quot;uuid&quot;: &quot;1484&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -238,6 +319,15 @@
+       &quot;timestamp&quot;: &quot;1114819457453&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Query
++           &quot;uuid&quot;: &quot;1485888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Matching Category
+            &quot;uuid&quot;: &quot;1486&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -256,6 +346,15 @@
+       &quot;timestamp&quot;: &quot;1114819457484&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;1487888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Matching Item
+            &quot;uuid&quot;: &quot;1488&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -274,6 +373,15 @@
+       &quot;timestamp&quot;: &quot;1114819457500&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Item
++           &quot;uuid&quot;: &quot;1489888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Item
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000130-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Unfiled Entry
+            &quot;uuid&quot;: &quot;1490&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -292,24 +400,51 @@
+       &quot;timestamp&quot;: &quot;1114819457531&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Plugin Name
+-           &quot;uuid&quot;: &quot;1469&quot;,
++  { &quot;Entry&quot;: {                             // Anything
++           &quot;uuid&quot;: &quot;14891888&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;00000109-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Unfiled Entry
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000140-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Expected Type
++           &quot;uuid&quot;: &quot;88803&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Plugin Name&quot; },
++           &quot;item&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Expected Type&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457537&quot; }
++      &quot;timestamp&quot;: &quot;1114819457515&quot; }
+   },
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Attribute
+-           &quot;uuid&quot;: &quot;1470&quot;,
++           &quot;uuid&quot;: &quot;88804&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++           &quot;item&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
+           &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457543&quot; }
++      &quot;timestamp&quot;: &quot;1114819457531&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88804007&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;88804008&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457312&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Attribute
+            &quot;uuid&quot;: &quot;1492&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -346,6 +481,173 @@
+       &quot;timestamp&quot;: &quot;1114819457578&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Query
++           &quot;uuid&quot;: &quot;1500&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;1501&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Type
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Type&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;88802&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Type
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++
++  
++  
++  
++  
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Text
++           &quot;uuid&quot;: &quot;88801200&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Text
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Text&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801201&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000120-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Text
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Number
++           &quot;uuid&quot;: &quot;88801210&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000121-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Number
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Number&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801211&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000121-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Number
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Date
++           &quot;uuid&quot;: &quot;88801220&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000122-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Date
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Date&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801221&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000122-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Date
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Check Mark
++           &quot;uuid&quot;: &quot;88801230&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000123-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Check Mark
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Check Mark&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801231&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000123-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Check Mark
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // URL
++           &quot;uuid&quot;: &quot;88801240&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000124-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // URL
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;URL&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801241&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000124-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // URL
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Item
++           &quot;uuid&quot;: &quot;88801300&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000130-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Item
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Item&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801301&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000130-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Item
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Anything
++           &quot;uuid&quot;: &quot;88801400&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000140-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Anything
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Anything&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Type
++           &quot;uuid&quot;: &quot;88801401&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000140-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Anything
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000113-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Page
+            &quot;uuid&quot;: &quot;1496&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+@@ -365,39 +667,57 @@
+   },
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Section
+-           &quot;uuid&quot;: &quot;1498&quot;,
++           &quot;uuid&quot;: &quot;1482&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
++           &quot;item&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+           &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Section&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457625&quot; }
++      &quot;timestamp&quot;: &quot;1114819457421&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Category
+-           &quot;uuid&quot;: &quot;1499&quot;,
++  { &quot;Entry&quot;: {                             // Attribute
++           &quot;uuid&quot;: &quot;1483&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++           &quot;item&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457625&quot; }
++      &quot;timestamp&quot;: &quot;1114819457437&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query
+-           &quot;uuid&quot;: &quot;1500&quot;,
++  { &quot;Entry&quot;: {                             // Plugin Name
++           &quot;uuid&quot;: &quot;1469&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query&quot; },
++           &quot;item&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Plugin Name&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457640&quot; }
++      &quot;timestamp&quot;: &quot;1114819457537&quot; }
+   },
+   // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Attribute
++           &quot;uuid&quot;: &quot;1470&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457543&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Section
++           &quot;uuid&quot;: &quot;1498&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Section&quot; },
++      &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
++      &quot;timestamp&quot;: &quot;1114819457625&quot; }
++  },
++  // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Category
+-           &quot;uuid&quot;: &quot;1501&quot;,
++           &quot;uuid&quot;: &quot;1499&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++           &quot;item&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+           &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+-      &quot;timestamp&quot;: &quot;1114819457656&quot; }
++      &quot;timestamp&quot;: &quot;1114819457625&quot; }
+   },
+   // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Guest
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000097.html">[openrecord-svn] r110 - in trunk/source: . model
+</A></li>
+	<LI>Next message: <A HREF="000099.html">[openrecord-svn] r112 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#98">[ date ]</a>
+              <a href="thread.html#98">[ thread ]</a>
+              <a href="subject.html#98">[ subject ]</a>
+              <a href="author.html#98">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

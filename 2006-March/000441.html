@@ -1,0 +1,242 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r460 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-March/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r460%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200603140424.k2E4Oqxa021522%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000440.html">
+   <LINK REL="Next"  HREF="000442.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r460 - in trunk/source: . model</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r460%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200603140424.k2E4Oqxa021522%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r460 - in trunk/source: . model">mignon at berlios.de
+       </A><BR>
+    <I>Tue Mar 14 05:24:52 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000440.html">[openrecord-svn] r459 - in trunk/source: . model view
+</A></li>
+        <LI>Next message: <A HREF="000442.html">[openrecord-svn] r461 - trunk/web_pages/content
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-03-14 05:24:28 +0100 (Tue, 14 Mar 2006)
+New Revision: 460
+
+Modified:
+   trunk/source/DetailPlugin.js
+   trunk/source/TablePlugin.js
+   trunk/source/model/World.js
+Log:
+Undid the change to orp.model.World.prototype.newAttribute that set the expected type to Text, and instead do that in orp.TablePlugin.getAttributeFromComboBoxValue and orp.DetailPlugin.getAttributeFromComboBoxValue.  Removed some no longer needed code in TablePlugin.  Made some lint fixes.
+
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2006-03-14 01:54:10 UTC (rev 459)
++++ trunk/source/DetailPlugin.js	2006-03-14 04:24:28 UTC (rev 460)
+@@ -168,14 +168,15 @@
+     var cssLine = &quot;comboBox&quot;;
+     var newAttributeCell = orp.view.View.appendNewElement(newRow, &quot;td&quot;, cssLine);
+     newAttributeCell.superView = this;
+-    var listOfAttributes = this.getWorld().getAttributes();
++    listOfAttributes = this.getWorld().getAttributes();
+     
+     var comboData = new Array();
+     var j = 0;
+     for (var i = 0; i &lt; listOfAttributes.length; ++i) {
+       // Only list attributes that aren't already in the table.
+-      if (inItem.getSingleEntryFromAttribute(listOfAttributes[i]) == null) {
+-        comboData[j++] = new Array(listOfAttributes[i].getDisplayName(), listOfAttributes[i].getUuidString());
++      if (inItem.getSingleEntryFromAttribute(listOfAttributes[i]) === null) {
++        comboData[j] = new Array(listOfAttributes[i].getDisplayName(), listOfAttributes[i].getUuidString());
++        ++j;
+       }
+     }
+     var comboBox = dojo.widget.createWidget(&quot;ComboBox&quot;, {}, newAttributeCell, &quot;last&quot;);
+@@ -223,6 +224,9 @@
+   }
+   if (i == listOfAttributes.length) {
+     attribute = world.newAttribute(comboBoxValue);
++    var attributeCalledExpectedType = world.getAttributeCalledExpectedType();
++    var typeCalledText = world.getTypeCalledText();
++    attribute.addEntry({attribute: attributeCalledExpectedType, value: typeCalledText});
+   }
+   return attribute;
+ };
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2006-03-14 01:54:10 UTC (rev 459)
++++ trunk/source/TablePlugin.js	2006-03-14 04:24:28 UTC (rev 460)
+@@ -225,56 +225,36 @@
+   var headerCell = orp.view.View.appendNewElement(headerRow, &quot;th&quot;, cssClass);
+   headerCell.superView = this;
+   
+-  var ADD_COLUMN_CONTROL_USES_HTML_INSTEAD_OF_DOJO = false;
+-  if (ADD_COLUMN_CONTROL_USES_HTML_INSTEAD_OF_DOJO) {
+-    var emptySpan = orp.view.View.appendNewElement(headerCell, &quot;span&quot;);
+-    orp.view.View.appendNewTextNode(emptySpan, &quot; &quot;);
+-    orp.view.View.appendNewElement(headerCell, &quot;br&quot;);
+-    var selectElt = orp.view.View.appendNewElement(headerCell, &quot;select&quot;);
+-    var listOfAttributes = this.getWorld().getAttributes();
+-    var optionElt = orp.view.View.appendNewElement(selectElt, &quot;option&quot;);
+-    optionElt.text = &quot;Add column...&quot;;
+-    for (var i in listOfAttributes) {
+-      var attribute = listOfAttributes[i];
+-      if (!orp.util.isObjectInSet(attribute, this._displayAttributes)) {
+-        optionElt = orp.view.View.appendNewElement(selectElt, &quot;option&quot;);
+-        optionElt.text += attribute.getDisplayString();
+-        optionElt.value = attribute.getUuidString();
+-        dojo.event.connect(optionElt, &quot;onclick&quot;, this, &quot;_attributeEditorChanged&quot;);
+-      }
++  var listOfAttributes = this.getWorld().getAttributes();    
++  var comboData = new Array();
++  var j = 0;
++  for (var i = 0; i &lt; listOfAttributes.length; ++i) {
++    var attribute = listOfAttributes[i];
++    if (!orp.util.isObjectInSet(attribute, this._displayAttributes)) {
++      comboData[j] = new Array(listOfAttributes[i].getDisplayName(), listOfAttributes[i].getUuidString());
++      ++j;
+     }
+-    this._selectElement = selectElt;
+-  } else {
+-    var listOfAttributes = this.getWorld().getAttributes();    
+-    var comboData = new Array();
+-    var j = 0;
+-    for (var i = 0; i &lt; listOfAttributes.length; ++i) {
+-      var attribute = listOfAttributes[i];
+-      if (!orp.util.isObjectInSet(attribute, this._displayAttributes)) {
+-        comboData[j++] = new Array(listOfAttributes[i].getDisplayName(), listOfAttributes[i].getUuidString());
+-      }
++  }
++  var comboBox = dojo.widget.createWidget(&quot;ComboBox&quot;, {}, headerCell, &quot;last&quot;);
++  var provider = comboBox.dataProvider;
++  provider.setData(comboData);
++  
++  var _this = this;
++  headerCell.onComboBoxKeyUp = function(evt) {
++    if (evt.keyCode != orp.util.ASCII.RETURN) {
++      return;
+     }
+-    var comboBox = dojo.widget.createWidget(&quot;ComboBox&quot;, {}, headerCell, &quot;last&quot;);
+-    var provider = comboBox.dataProvider;
+-    provider.setData(comboData);
+-    
+-    var _this = this;
+-    headerCell.onComboBoxKeyUp = function(evt) {
+-      if (evt.keyCode != orp.util.ASCII.RETURN) {
+-        return;
+-      }
+-      var attribute = orp.TablePlugin.getAttributeFromComboBoxValue(evt.target.value, this.superView.getWorld());
++    var attribute = orp.TablePlugin.getAttributeFromComboBoxValue(evt.target.value, this.superView.getWorld());
++    _this._addOrRemoveOneColumn(attribute);
++  };
++  dojo.event.connect(comboBox, &quot;onKeyUp&quot;, headerCell, &quot;onComboBoxKeyUp&quot;);
++  headerCell.selectOption = function(evt) {
++    if (evt &amp;&amp; evt.type == &quot;click&quot; &amp;&amp; evt.target &amp;&amp; evt.target.textContent) {
++      var attribute = orp.TablePlugin.getAttributeFromComboBoxValue(evt.target.textContent, this.superView.getWorld());
+       _this._addOrRemoveOneColumn(attribute);
+-    };
+-    dojo.event.connect(comboBox, &quot;onKeyUp&quot;, headerCell, &quot;onComboBoxKeyUp&quot;);
+-    headerCell.selectOption = function(evt) {
+-      if (evt &amp;&amp; evt.type == &quot;click&quot; &amp;&amp; evt.target &amp;&amp; evt.target.textContent) {
+-        var attribute = orp.TablePlugin.getAttributeFromComboBoxValue(evt.target.textContent, this.superView.getWorld());
+-        _this._addOrRemoveOneColumn(attribute);
+-      }
+-    };
+-    dojo.event.connect(comboBox, &quot;selectOption&quot;, headerCell, &quot;selectOption&quot;);
+-  }
++    }
++  };
++  dojo.event.connect(comboBox, &quot;selectOption&quot;, headerCell, &quot;selectOption&quot;);
+ };
+ 
+ /**
+@@ -566,6 +546,9 @@
+   }
+   if (i == listOfAttributes.length) {
+     attribute = world.newAttribute(comboBoxValue);
++    var attributeCalledExpectedType = world.getAttributeCalledExpectedType();
++    var typeCalledText = world.getTypeCalledText();
++    attribute.addEntry({attribute: attributeCalledExpectedType, value: typeCalledText});
+   }
+   return attribute;
+ };
+@@ -822,20 +805,6 @@
+ };
+ 
+ 
+-/**
+- * Called when the user clicks on attribute editor item, either to add or 
+- * remove attribute column
+- * 
+- * @scope    private class method
+- */
+-orp.TablePlugin.prototype._attributeEditorChanged = function(eventObject) {
+-  var attributeUuid = eventObject.target.value;
+-  if (attributeUuid) {
+-    var changedAttribute = this.getWorld().getItemFromUuid(attributeUuid);
+-    this._addOrRemoveOneColumn(changedAttribute);
+-  } 
+-};
+-
+ // Add a column to the table, or remove a column from the table.
+ orp.TablePlugin.prototype._addOrRemoveOneColumn = function(attribute) {
+   var changedAttribute = attribute;
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2006-03-14 01:54:10 UTC (rev 459)
++++ trunk/source/model/World.js	2006-03-14 04:24:28 UTC (rev 460)
+@@ -748,9 +748,6 @@
+   var item = this._archive.newItem(name, observer);
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+   item.assignToCategory(categoryCalledAttribute);
+-  var attributeCalledExpectedType = this.getAttributeCalledExpectedType();
+-  var typeCalledText = this.getTypeCalledText();
+-  item.addEntry({attribute: attributeCalledExpectedType, value: typeCalledText});
+   this.endTransaction();
+   return item;
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000440.html">[openrecord-svn] r459 - in trunk/source: . model view
+</A></li>
+	<LI>Next message: <A HREF="000442.html">[openrecord-svn] r461 - trunk/web_pages/content
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#441">[ date ]</a>
+              <a href="thread.html#441">[ thread ]</a>
+              <a href="subject.html#441">[ subject ]</a>
+              <a href="author.html#441">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

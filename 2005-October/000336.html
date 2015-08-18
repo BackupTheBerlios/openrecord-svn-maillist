@@ -1,0 +1,674 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r353 - in trunk: documentation source/archive source/model tests/model tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r353%20-%20in%20trunk%3A%20documentation%20source/archive%20source/model%20tests/model%20tests/util&In-Reply-To=%3C200510070330.j973Ue3E010087%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000335.html">
+   <LINK REL="Next"  HREF="000337.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r353 - in trunk: documentation source/archive source/model tests/model tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r353%20-%20in%20trunk%3A%20documentation%20source/archive%20source/model%20tests/model%20tests/util&In-Reply-To=%3C200510070330.j973Ue3E010087%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r353 - in trunk: documentation source/archive source/model tests/model tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Fri Oct  7 05:30:40 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000335.html">[openrecord-svn] r352 - in trunk: documentation source source/archive source/model source/util source/uuid tests tests/model tests/util tests/uuid
+</A></li>
+        <LI>Next message: <A HREF="000337.html">[openrecord-svn] r354 - in trunk: documentation source/model source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#336">[ date ]</a>
+              <a href="thread.html#336">[ thread ]</a>
+              <a href="subject.html#336">[ subject ]</a>
+              <a href="author.html#336">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-07 05:30:33 +0200 (Fri, 07 Oct 2005)
+New Revision: 353
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/archive/DeltaArchive.js
+   trunk/source/archive/JsonDeserializer.js
+   trunk/source/archive/StubArchive.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/World.js
+   trunk/tests/model/RepositoryWritingTest.js
+   trunk/tests/util/XmlConverterMultiplePassesTest.js
+Log:
+Renamed some variables and methods in an effort to make our terminology more clear and consistent.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/documentation/release_planning.txt	2005-10-07 03:30:33 UTC (rev 353)
+@@ -407,7 +407,7 @@
+ brian  |          | 0.1  IED|  3. move UUID files from source/util to source/uuid
+ brian  | 0.5  IED | (0.5+)  |  4. Make Item.js use namedParameter based API
+ brian  |          | 0.5  IED|  5. split half the code in source/model off into source/_____
+-brian  |          | (0.25+) |  6. use terms Serialize and Deserialize for that code (replace some Dehydrate and Rehydrate) 
++brian  |          | 0.35 IED|  6. use terms Serialize and Deserialize for that code (replace some Dehydrate and Rehydrate) 
+        |          |         |  7. merge StubArchive + DeltaArchive, and re-name the result
+ brian  |          | 0.25 IED|  8. create a FakeStorage class, + rename FileSaver + HttpSaver
+        |          |         |     update unit tests to use the FakeStorage instead of StubArchive
+@@ -695,7 +695,6 @@
+ ===========================       
+ Issues for post iteration#2
+ ===========================       
+- + How should we rename &quot;VirtualServer&quot;?
+  + How should we interoperate with other repositories(openrecord + other sources of data)?
+  + Should we rename &quot;World&quot;?
+  + BUG: Can't really create own plugins yet (e.g. UUID need to be assigned, plugin item created)
+
+Modified: trunk/source/archive/DeltaArchive.js
+===================================================================
+--- trunk/source/archive/DeltaArchive.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/source/archive/DeltaArchive.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -95,7 +95,7 @@
+  */
+ orp.archive.DeltaArchive.prototype.setWorldAndLoadAxiomaticItems = function(world) {
+   this._initialize(world);
+-  this._loadAxiomaticItemsFromFileAtURL(this._dehydratedAxiomFileURL);
++  this._loadAxiomaticItemsFromFileAtURL(this._axiomaticJsonFileURL);
+ 
+   var repositoryFileName = this._repositoryName + &quot;.json&quot;;
+   var repositoryUrl = &quot;&quot;;
+@@ -116,10 +116,10 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Loads a world of items from a dehydrated JSON string.
++ * Loads a world of items from a serialized JSON string.
+  *
+  * Given a world of items in JSON format, bootstraps new 
+- * instances of items corresponding to the dehydrated data.
++ * instances of items corresponding to the serialized data.
+  * 
+  * @scope    private instance method
+  * @param    jsonRepositoryString    A JSON string literal representing the world of items. 
+
+Modified: trunk/source/archive/JsonDeserializer.js
+===================================================================
+--- trunk/source/archive/JsonDeserializer.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/source/archive/JsonDeserializer.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -73,6 +73,8 @@
+  * @param    jsonString    A JSON string containing serialized records. 
+  */
+ orp.archive.JsonDeserializer.prototype.deserializeFromString = function(jsonString) {
++  
++  // See the _rehydrateRecords() method for a note on what &quot;dehydratedRecords&quot; means.
+   var dehydratedRecords = null;
+   dehydratedRecords = eval(&quot;(&quot; + jsonString + &quot;)&quot;);
+   
+@@ -104,6 +106,23 @@
+ /**
+  * Given a dehydrated list of records, rehydrates each of the records.
+  *
++ * A note on terminology: For the time being, we're using the term &quot;dehydrated&quot; 
++ * to refer to records in an itermediate stage of the deserialization process.
++ * When the records are represented as a text string, either in memory or
++ * in a file, we say that the records have been &quot;serialized&quot;.  When the
++ * records are represented as instances of orp.model.Record (and its 
++ * subclasses, like orp.model.Item and orp.model.Entry), we say that the
++ * records have been completely &quot;deserialized&quot; or &quot;revived&quot;.  Between the two 
++ * stages, the records pass through a &quot;dehydrated&quot; state, where they are 
++ * represented as &quot;anonymous JavaScript objects&quot;.  
++ * 
++ * For example:
++ * &lt;pre&gt;
++ *   serializedBox = &quot;({length: 4, width: 5})&quot;;
++ *   dehydratedBox = eval(serializedBox);
++ *   revivedBox = new orp.model.Box(dehydratedBox.length, dehydratedBox.width);
++ * &lt;/pre&gt;
++ *
+  * @scope    private instance method
+  * @param    listOfDehydratedRecords    A list of dehydrated records. 
+  */
+@@ -197,7 +216,7 @@
+           
+           var pairOfItems = [firstItem, secondItem];
+           var pairOfAttributes = [firstAttribute, secondAttribute];
+-          entry._rehydrate(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
++          entry._revive(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
+         } else {
+           itemUuid = dehydratedEntry[JSON_MEMBER.ITEM];
+           item = archiveLoader.getItemFromUuidOrBootstrapItem(itemUuid);
+@@ -230,7 +249,7 @@
+             default:
+               orp.lang.assert(false, 'Unknown data type while _rehydrating()');
+           }
+-          entry._rehydrate(item, attribute, finalData, previousEntry, dataType);
++          entry._revive(item, attribute, finalData, previousEntry, dataType);
+         }
+         archiveLoader.addRecordToChronologicalList(entry);
+       }
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/source/archive/StubArchive.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -63,7 +63,7 @@
+  */
+ orp.archive.StubArchive = function(pathToTrunkDirectory) {
+   var fileName = &quot;2005_june_axiomatic_items.json&quot;;
+-  var relUrlForAxiomaticFile = &quot;source/model/&quot; + fileName;
++  var relativeUrlForAxiomaticFile = &quot;source/model/&quot; + fileName;
+   if (pathToTrunkDirectory) {
+     this._needCompletePath = true;
+     var thisUrl = window.location.pathname; //e.g. /openrecord/trunk/source/model/TestRepositoryWriting.html.
+@@ -71,10 +71,10 @@
+     arrayOfPathComponents.pop();
+     var thisDirectory = arrayOfPathComponents.join('/'); //e.g. /openrecord/trunk/source/model
+     this._completePathToTrunkDirectory = thisDirectory + '/' + pathToTrunkDirectory;
+-    this._dehydratedAxiomFileURL = this._completePathToTrunkDirectory + '/' + relUrlForAxiomaticFile;
++    this._axiomaticJsonFileURL = this._completePathToTrunkDirectory + '/' + relativeUrlForAxiomaticFile;
+   } else {
+     this._needCompletePath = false;
+-    this._dehydratedAxiomFileURL = relUrlForAxiomaticFile;    
++    this._axiomaticJsonFileURL = relativeUrlForAxiomaticFile;    
+   }
+ };
+ 
+@@ -118,7 +118,7 @@
+  */
+ orp.archive.StubArchive.prototype.setWorldAndLoadAxiomaticItems = function(world) {
+   this._initialize(world);
+-  this._loadAxiomaticItemsFromFileAtURL(this._dehydratedAxiomFileURL);
++  this._loadAxiomaticItemsFromFileAtURL(this._axiomaticJsonFileURL);
+ };
+ 
+ 
+@@ -513,8 +513,8 @@
+  */
+ orp.archive.StubArchive.prototype._saveChangesToServer = function () {
+   // The StubArchive doesn't ever actually talk to a server.
+-  // Other VirtualServer implementations would be expected to actually
+-  // implement this method such that it saves changes to the server
++  // Other orp.archive implementations would be expected to actually
++  // implement this method such that it saves changes to the server.
+   var listOfChangesMade = this._currentTransaction.getRecords();
+   this._currentTransaction = null;
+   return listOfChangesMade;
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/source/model/Entry.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -54,8 +54,8 @@
+  * Instances of the Entry class hold literal values (like strings
+  * and numbers), or reference values (pointers to Items).
+  *
+- * WARNING: This constructor method should be called ONLY from a 
+- * VirtualServer implementation.
++ * WARNING: This constructor method should be called ONLY from an 
++ * orp.archive implementation.
+  *
+  * If you're writing code in a view class, instead of calling this
+  * constructor, call a method on Item, like item.addAttributeEntry()
+@@ -85,12 +85,12 @@
+ /**
+  * Initializes a new entry that has just been created by a user action.
+  *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
++ * WARNING: This method should be called ONLY from an orp.archive
++ * implementation.
+  *
+- * This method is NOT used for setting the properties of entrys that
+- * are being rehydrated from a dehydrated JSON string.  For that, you
+- * need to call entry.rehydrate();
++ * This method is NOT used for setting the properties of Entries that
++ * are being revived from a serialized JSON string.  For that, you
++ * need to call entry._revive();
+  *
+  * @scope    protected instance method
+  * @param    inItemOrEntry    The item that this is a entry of, or the old entry that this entry replaces. 
+@@ -136,12 +136,12 @@
+ /**
+  * Initializes a new entry that has just been created by a user action.
+  *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
++ * WARNING: This method should be called ONLY from an orp.archive 
++ * implementation.
+  *
+  * This method is NOT used for setting the properties of entrys that
+- * are being rehydrated from a dehydrated JSON string.  For that, you
+- * need to call entry.rehydrate();
++ * are being revived from a serialized JSON string.  For that, you
++ * need to call entry._revive();
+  *
+  * @scope    protected instance method
+  * @param    previousEntry    The entry that this entry will replace. Can be null.
+@@ -165,14 +165,12 @@
+ 
+ 
+ /**
+- * Sets the properties of a newly rehydrated entry object.
++ * Sets the properties of a newly deserialized Entry object.
+  *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
++ * WARNING: This method should be called ONLY from an orp.archive
++ * implementation. This method should only be called from orp.archive
++ * code that is reviving serialized Entry objects. 
+  *
+- * This method should only be called from VirtualServer code that is
+- * rehydrating dehydrated entry objects. 
+- *
+  * @scope    protected instance method
+  * @param    item    The item that this is an entry of. 
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+@@ -180,7 +178,7 @@
+  * @param    previousEntry    Optional. An old entry that this entry replaces. 
+  * @param    type    Optional. An item representing a data type. 
+  */
+-orp.model.Entry.prototype._rehydrate = function(item, attribute, value, previousEntry, type) {
++orp.model.Entry.prototype._revive = function(item, attribute, value, previousEntry, type) {
+   this._item = item;
+   if (previousEntry) {
+     this._previousEntry = previousEntry;
+@@ -195,7 +193,7 @@
+   this._type = type;
+ 
+   if (this._item instanceof orp.model.Item) {
+-    this._item._addRehydratedEntry(this, this._attribute);
++    this._item._addRevivedEntry(this, this._attribute);
+   } else {
+     orp.lang.assertType(this._item, Array);
+     orp.lang.assertType(this._attribute, Array);
+@@ -204,8 +202,8 @@
+     
+     var firstItem = this._item[0];
+     var secondItem = this._item[1];
+-    firstItem._addRehydratedEntry(this, this._attribute[0]);
+-    secondItem._addRehydratedEntry(this, this._attribute[1]);
++    firstItem._addRevivedEntry(this, this._attribute[0]);
++    secondItem._addRevivedEntry(this, this._attribute[1]);
+   }
+ };
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/source/model/Item.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -55,8 +55,8 @@
+  * Instances of the Item class know how to store and retrieve their
+  * attribute entries.
+  *
+- * WARNING: This constructor method should be called ONLY from a 
+- * VirtualServer implementation.
++ * WARNING: This constructor method should be called ONLY from an 
++ * orp.archive implementation.
+  *
+  * If you're writing code in a view class, instead of calling this
+  * constructor, call the newItem() method on World: world.newItem()
+@@ -97,12 +97,11 @@
+ /**
+  * Initializes a new item that has just been created by a user action.
+  *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
++ * WARNING: This method should be called ONLY from an 
++ * orp.archive implementation.
+  *
+  * This method is NOT used for setting the properties of entries that
+- * are being rehydrated from a dehydrated JSON string.  For that, you
+- * need to call item.rehydrate();
++ * are being revived from a serialized JSON string.  
+  *
+  * @scope    protected instance method
+  * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+@@ -727,16 +726,16 @@
+ 
+ /**
+  * Adds a new entry to the item when the items and entries are first
+- * being loaded by the backing store.
++ * being loaded from storage.
+  *
+  * WARNING: This method should be called ONLY from the  
+- * entry._rehydrate() method.
++ * entry._revive() method.
+  * 
+  * @scope    protected instance method
+  * @param    entry    The entry to be associated with this item. 
+  * @param    attribute    The attribute that this entry is assigned to. 
+  */
+-orp.model.Item.prototype._addRehydratedEntry = function(entry, attribute) {
++orp.model.Item.prototype._addRevivedEntry = function(entry, attribute) {
+   this._addEntryToListOfEntriesForAttribute(entry, attribute);
+ };
+   
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/source/model/World.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -62,18 +62,17 @@
+  * a world to edit the items there.
+  *
+  * @scope    public instance constructor
+- * @param    virtualServer    Optional. The datastore that this world gets its data from. 
++ * @param    archive    Optional. The orp.archive that this world gets its data from. 
+  */
+-orp.model.World = function(virtualServer) {
++orp.model.World = function(archive) {
+   this._hashTableOfObserverListsKeyedByItemUuid = {};
+   this._listOfListObserverTuples = [];
+   
+   this._registeredQueryRunners = [];
+   this._currentRetrievalFilter = &quot;RETRIEVAL_FILTER_LAST_EDIT_WINS&quot;;
+ 
+-  var server;
+-  if (virtualServer) {
+-    server = virtualServer;
++  if (archive) {
++    this._archive = archive;
+   } else {
+     var filepath = window.location.pathname;
+     var arrayOfSegments = filepath.split('/');
+@@ -81,11 +80,10 @@
+     var arrayWithFilenameAndExtension = lastSegment.split('.');
+     var filename = arrayWithFilenameAndExtension[0];
+     var repositoryName = filename;
+-    server = new orp.archive.DeltaArchive(repositoryName);
++    this._archive = new orp.archive.DeltaArchive(repositoryName);
+   }
+-  this._virtualServer = server;
+ 
+-  server.setWorldAndLoadAxiomaticItems(this);
++  this._archive.setWorldAndLoadAxiomaticItems(this);
+   this._loadAxiomaticItems();
+ };
+ 
+@@ -153,7 +151,7 @@
+  */
+ orp.model.World.prototype._loadAxiomaticItems = function() {
+   var UUID = orp.model.World.UUID;
+-  var server = this._virtualServer;
++  var server = this._archive;
+ 
+   // load the axiomatic attributes
+   this._attributeCalledName                   = server.getItemFromUuid(UUID.ATTRIBUTE_NAME);
+@@ -206,7 +204,7 @@
+  * @scope    public instance method
+  */
+ orp.model.World.prototype.beginTransaction = function() {
+-  this._virtualServer.beginTransaction();
++  this._archive.beginTransaction();
+ };
+  
+ 
+@@ -216,7 +214,7 @@
+  * @scope    public instance method
+  */
+ orp.model.World.prototype.endTransaction = function() {
+-  this._virtualServer.endTransaction();
++  this._archive.endTransaction();
+ };
+ 
+ 
+@@ -582,7 +580,7 @@
+  * @return   True if we were able to log in the user. False if the login failed.
+  */
+ orp.model.World.prototype.login = function(user, authentication) {
+-  return this._virtualServer.login(user, authentication);
++  return this._archive.login(user, authentication);
+ };
+ 
+ 
+@@ -593,7 +591,7 @@
+  * @return   True if the current user was logged out. False if there was no current user logged in.
+  */
+ orp.model.World.prototype.logout = function() {
+-  return this._virtualServer.logout();
++  return this._archive.logout();
+ };
+ 
+ 
+@@ -608,7 +606,7 @@
+  * @return   A list of items that represent users.
+  */
+ orp.model.World.prototype.getUsers = function() {
+-  var listOfUsers = this._virtualServer.getUsers();
++  var listOfUsers = this._archive.getUsers();
+   return this._getFilteredList(listOfUsers);
+ };
+ 
+@@ -620,7 +618,7 @@
+  * @return   An item representing the user who is currently logged in.
+  */
+ orp.model.World.prototype.getCurrentUser = function() {
+-  return this._virtualServer.getCurrentUser();
++  return this._archive.getCurrentUser();
+ };
+ 
+ 
+@@ -636,7 +634,7 @@
+  */
+ orp.model.World.prototype.newUser = function(name, authentication, observer) {
+   this.beginTransaction();
+-  var newUser = this._virtualServer.newUser(name, authentication, observer);
++  var newUser = this._archive.newUser(name, authentication, observer);
+   this.endTransaction();
+   return newUser;
+ };
+@@ -657,7 +655,7 @@
+  */
+ orp.model.World.prototype.newItem = function(name, observer) {
+   this.beginTransaction();
+-  var item = this._virtualServer.newItem(name, observer);
++  var item = this._archive.newItem(name, observer);
+   this.endTransaction();
+   return item;
+ };
+@@ -676,7 +674,7 @@
+  * @throws   Throws an Error if no user is logged in.
+  */
+ orp.model.World.prototype.newProvisionalItem = function(observer) {
+-  return this._virtualServer.newProvisionalItem(observer);
++  return this._archive.newProvisionalItem(observer);
+ };
+ 
+ 
+@@ -687,7 +685,7 @@
+  * @param    item    The item that was provisional and just became real. 
+  */
+ orp.model.World.prototype._provisionalItemJustBecameReal = function(item) {
+-  this._virtualServer._provisionalItemJustBecameReal(item);
++  this._archive._provisionalItemJustBecameReal(item);
+ };
+ 
+ 
+@@ -702,7 +700,7 @@
+  */
+ orp.model.World.prototype.newAttribute = function(name, observer) {
+   this.beginTransaction();
+-  var item = this._virtualServer.newItem(name, observer);
++  var item = this._archive.newItem(name, observer);
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+   item.assignToCategory(categoryCalledAttribute);
+   this.endTransaction();
+@@ -721,7 +719,7 @@
+  */
+ orp.model.World.prototype.newCategory = function(name, observer) {
+   this.beginTransaction();
+-  var item = this._virtualServer.newItem(name, observer);
++  var item = this._archive.newItem(name, observer);
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+   item.assignToCategory(categoryCalledCategory);
+   this.endTransaction();
+@@ -740,7 +738,7 @@
+ orp.model.World.prototype.newQuery = function(matchingAttribute, matchingEntryOrListOfEntries) {
+   orp.lang.assert(matchingAttribute instanceof orp.model.Item);
+   this.beginTransaction();
+-  var item = this._virtualServer.newItem(&quot;A query&quot;);
++  var item = this._archive.newItem(&quot;A query&quot;);
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+   item.assignToCategory(categoryCalledQuery);
+ 
+@@ -837,7 +835,7 @@
+  */
+ orp.model.World.prototype._newEntry = function(item, previousEntry, attribute, value, type) {
+   this.beginTransaction();
+-  var entry = this._virtualServer.newEntry(item, previousEntry, attribute, value, type);
++  var entry = this._archive.newEntry(item, previousEntry, attribute, value, type);
+   this.endTransaction();
+   return entry;
+ };
+@@ -856,7 +854,7 @@
+  */
+ orp.model.World.prototype._newConnectionEntry = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
+   this.beginTransaction();
+-  var entry = this._virtualServer.newConnectionEntry(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
++  var entry = this._archive.newConnectionEntry(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
+   this.endTransaction();
+   return entry;
+ };
+@@ -872,7 +870,7 @@
+  */
+ orp.model.World.prototype._newOrdinal = function(contentRecord, ordinalNumber) {
+   this.beginTransaction();
+-  var ordinal = this._virtualServer.newOrdinal(contentRecord, ordinalNumber);
++  var ordinal = this._archive.newOrdinal(contentRecord, ordinalNumber);
+   this.endTransaction();
+   return ordinal;
+ };
+@@ -888,7 +886,7 @@
+  */
+ orp.model.World.prototype._newVote = function(contentRecord, retainFlag) {
+   this.beginTransaction();
+-  var vote = this._virtualServer.newVote(contentRecord, retainFlag);
++  var vote = this._archive.newVote(contentRecord, retainFlag);
+   this.endTransaction();
+   return vote;
+ };
+@@ -903,7 +901,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ orp.model.World.prototype.getItemFromUuid = function(uuid, observer) {
+-  return (this._virtualServer.getItemFromUuid(uuid, observer));
++  return (this._archive.getItemFromUuid(uuid, observer));
+ };
+ 
+ 
+@@ -915,7 +913,7 @@
+  * @return   The entry identified by the given UUID.
+  */
+ orp.model.World.prototype.getEntryFromUuid = function(uuid) {
+-  return (this._virtualServer._getEntryFromUuid(uuid));
++  return (this._archive._getEntryFromUuid(uuid));
+ };
+ 
+ 
+@@ -932,7 +930,7 @@
+  * @return   A list of items.
+  */
+ orp.model.World.prototype.getResultItemsForQueryRunner = function(queryRunner) {
+-  var listOfItems = this._virtualServer.getResultItemsForQueryRunner(queryRunner);
++  var listOfItems = this._archive.getResultItemsForQueryRunner(queryRunner);
+   return listOfItems;
+ };
+ 
+@@ -948,7 +946,7 @@
+  * @throws   Throws an Error if no user is logged in.
+  */
+ orp.model.World.prototype.setItemToBeIncludedInQueryResultList = function(item, query) {
+-  this._virtualServer.setItemToBeIncludedInQueryResultList(item, query);
++  this._archive.setItemToBeIncludedInQueryResultList(item, query);
+ };
+ 
+ 
+@@ -962,7 +960,7 @@
+  * @return   A list of items.
+  */
+ orp.model.World.prototype.getItemsInCategory = function(category, observer) {
+-  var listOfItems = this._virtualServer.getItemsInCategory(category);
++  var listOfItems = this._archive.getItemsInCategory(category);
+   // listOfItems = this._getFilteredList(listOfItems); PENDING: not sure if I should call this?
+   this._addListObserver(listOfItems, observer);
+   return (listOfItems);
+
+Modified: trunk/tests/model/RepositoryWritingTest.js
+===================================================================
+--- trunk/tests/model/RepositoryWritingTest.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/tests/model/RepositoryWritingTest.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -109,17 +109,17 @@
+ }
+ 
+ function testCreateNewRepository() {
+-  var virtualServer = new orp.archive.DeltaArchive(fileName, pathToTrunkDirectoryFromThisDirectory);
++  var archive = new orp.archive.DeltaArchive(fileName, pathToTrunkDirectoryFromThisDirectory);
+   var overwriteIfExists = true;
+-  virtualServer._createNewRepository(overwriteIfExists);
++  archive._createNewRepository(overwriteIfExists);
+   assertTrue(&quot;Contents should be '{ \&quot;format\&quot;: \&quot;2005_JUNE_CHRONOLOGICAL_LIST\&quot;, ...'.&quot;, fileHasExpectedContents(expectedRepositoryHeader));
+ }
+ 
+ function testAppendToRepository() {
+-  var virtualServer = new orp.archive.DeltaArchive(fileName, pathToTrunkDirectoryFromThisDirectory);
++  var archive = new orp.archive.DeltaArchive(fileName, pathToTrunkDirectoryFromThisDirectory);
+   var overwriteIfExists = true;
+-  virtualServer._createNewRepository(overwriteIfExists);
+-  var world = new orp.model.World(virtualServer);
++  archive._createNewRepository(overwriteIfExists);
++  var world = new orp.model.World(archive);
+   var listOfUsers = world.getUsers();
+   var mignon = null;
+   for (var key in listOfUsers) {
+
+Modified: trunk/tests/util/XmlConverterMultiplePassesTest.js
+===================================================================
+--- trunk/tests/util/XmlConverterMultiplePassesTest.js	2005-10-07 02:46:57 UTC (rev 352)
++++ trunk/tests/util/XmlConverterMultiplePassesTest.js	2005-10-07 03:30:33 UTC (rev 353)
+@@ -52,8 +52,8 @@
+   // var pathToTrunkDirectoryFromThisFile = &quot;../../../&quot;;
+   var pathToTrunkDirectoryFromThisFile = &quot;../..&quot;;
+   
+-  var virtualServer = new orp.archive.StubArchive(pathToTrunkDirectoryFromThisFile);  
+-  world = new orp.model.World(virtualServer);
++  var archive = new orp.archive.StubArchive(pathToTrunkDirectoryFromThisFile);  
++  world = new orp.model.World(archive);
+   var annsPassword = &quot;Ann's password&quot;;
+   var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+   world.login(userAnn, annsPassword);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000335.html">[openrecord-svn] r352 - in trunk: documentation source source/archive source/model source/util source/uuid tests tests/model tests/util tests/uuid
+</A></li>
+	<LI>Next message: <A HREF="000337.html">[openrecord-svn] r354 - in trunk: documentation source/model source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#336">[ date ]</a>
+              <a href="thread.html#336">[ thread ]</a>
+              <a href="subject.html#336">[ subject ]</a>
+              <a href="author.html#336">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

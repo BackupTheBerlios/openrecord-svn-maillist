@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r183 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r183%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506242320.j5ONKjVC031344%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000168.html">
+   <LINK REL="Next"  HREF="000170.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r183 - in trunk/source: . model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r183%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506242320.j5ONKjVC031344%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r183 - in trunk/source: . model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Sat Jun 25 01:20:45 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000168.html">[openrecord-svn] r182 - in trunk: . source
+</A></li>
+        <LI>Next message: <A HREF="000170.html">[openrecord-svn] r184 - in trunk: documentation source source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#169">[ date ]</a>
+              <a href="thread.html#169">[ thread ]</a>
+              <a href="subject.html#169">[ subject ]</a>
+              <a href="author.html#169">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-25 01:20:39 +0200 (Sat, 25 Jun 2005)
+New Revision: 183
+
+Modified:
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/base_style.css
+   trunk/source/model/Entry.js
+Log:
+1) Added lozenge support for TextView. Short-term issue: Entries cannot be replaced by new value any more
+2) Cosmetic CSS fixes
+3) Numerous bug fixes
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-24 21:27:09 UTC (rev 182)
++++ trunk/source/PageView.js	2005-06-24 23:20:39 UTC (rev 183)
+@@ -174,7 +174,7 @@
+   
+   for (var key in listOfEntriesForSections) {
+     var entryForSection = listOfEntriesForSections[key];
+-    var section = entryForSection.getConnectedItem();
++    var section = entryForSection.getConnectedItem(this.myPage);
+     if (section) {
+       this._buildNewSection(section);
+     }
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-24 21:27:09 UTC (rev 182)
++++ trunk/source/RootView.js	2005-06-24 23:20:39 UTC (rev 183)
+@@ -358,14 +358,7 @@
+   newPage.addEntryForAttribute(attributeCalledCategory, categoryCalledPage);
+   newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
+ 
+-  // PENDING:
+-  //   This line automatically creates one new section on the new page.  
+-  //   I commented it out because somehow there was a bug with using it.
+-  //   I can't figure out what causes the bug, but for some reason when
+-  //   we create a section this way, the new section has no Layout Data,
+-  //   and for some reason that causes the section never to be displayed
+-  //   in the UI, which makes it harmless but completely useless.
+-  // PageView.newSection(repository, newPage);
++  PageView.newSection(repository, newPage);
+ 
+   repository.endTransaction();
+   
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-24 21:27:09 UTC (rev 182)
++++ trunk/source/TablePlugin.js	2005-06-24 23:20:39 UTC (rev 183)
+@@ -526,25 +526,32 @@
+     var repository = this.getWorld();
+     var attrTableColumns = repository.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
+     var entriesTableColumns = this._layout.getEntriesForAttribute(attrTableColumns);
++    var noStoredColumns = entriesTableColumns.length === 0;
+     var changedAttribute = this.getWorld().getItemFromUuid(attributeUuid);
+-    if (Util.removeObjectFromSet(changedAttribute,this._displayAttributes)) {
++    var removeAttribute = Util.removeObjectFromSet(changedAttribute,this._displayAttributes);
++    var typeCalledItem = repository.getTypeCalledItem();
++    if (removeAttribute) {
+       for (var i=0;i &lt; entriesTableColumns.length;++i) {
+         if (changedAttribute == entriesTableColumns[i].getValue()) {
+           entriesTableColumns[i].voteToDelete();
+           break;
+         }
+       }
+-      Util.assert(i &lt; entriesTableColumns.length);
+       delete this._hashTableOfEntries[attributeUuid];
+     }
+     else {
+-      // var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+       this._displayAttributes.push(changedAttribute);
+-      this._layout.addEntryForAttribute(attrTableColumns,changedAttribute,repository.getTypeCalledItem());
+-      // if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+       this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(changedAttribute);
+-      // }
+     }
++    if (noStoredColumns) {
++      for (i=0;i&lt;this._displayAttributes.length;++i) {
++        var anAttribute = this._displayAttributes[i];
++        this._layout.addEntryForAttribute(attrTableColumns,anAttribute,typeCalledItem);
++      }
++    }
++    else {
++      this._layout.addEntryForAttribute(attrTableColumns,changedAttribute,typeCalledItem);
++    }
+     this._buildTable(true);
+   }
+ };
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-24 21:27:09 UTC (rev 182)
++++ trunk/source/TextView.js	2005-06-24 23:20:39 UTC (rev 183)
+@@ -42,6 +42,7 @@
+ // TextView public class constants
+ // -------------------------------------------------------------------
+ TextView.ELEMENT_CLASS_TEXT_BLOCK = &quot;text_block&quot;; 
++TextView.CSS_CLASS_VALUE_IS_ITEM = &quot;textViewItem&quot;;
+ TextView.PROVISIONAL_COLOR = '#999999';
+ 
+ 
+@@ -83,6 +84,9 @@
+   if (this._isProvisional) {
+     this._provisionalText = inAttribute.getDisplayName();
+   }
++  else if (inEntry &amp;&amp; inEntry.getValue() instanceof Item) {
++    this._valueIsItem = true;
++  }
+ }
+ 
+ 
+@@ -159,6 +163,9 @@
+   }
+ };
+ 
++TextView.prototype._isLozenge = function() {
++  return this._valueIsItem &amp;&amp; !this._alwaysUseEditField;
++};
+ 
+ /**
+  * Re-creates all the HTML for the TextView, and hands the HTML to the 
+@@ -176,6 +183,9 @@
+     this._oldColor = htmlElement.style.color;
+     htmlElement.style.color = TextView.PROVISIONAL_COLOR;
+   }
++  else if (this._isLozenge()) {
++    htmlElement.className += &quot; &quot; + TextView.CSS_CLASS_VALUE_IS_ITEM;
++  }
+   this._textNode = document.createTextNode(textString);
+   htmlElement.appendChild(this._textNode);
+   htmlElement.onclick =  this.onClick.bindAsEventListener(this);
+@@ -186,6 +196,9 @@
+   this._myHasEverBeenDisplayedFlag = true;
+ };
+ 
++TextView.prototype._canStartEditing = function() {
++  return (!this._isEditing  &amp;&amp; !(this._valueIsItem &amp;&amp; !this._alwaysUseEditField));
++};
+ 
+ /**
+  * Switch to edit text field for editing.
+@@ -193,7 +206,8 @@
+  * @scope    public instance method
+  */
+ TextView.prototype.startEditing = function(dontSelect) {
+-  if (!this._isEditing) {
++  var canStartEditing = !(this._isEditing || this._isLozenge());
++  if (canStartEditing) {
+     var editField = this._editField;
+     if (!editField) {
+       if (this._isMultiLine) {
+@@ -352,6 +366,13 @@
+       if (superview._provisionalItemJustBecomeReal) {
+         superview._provisionalItemJustBecomeReal(this._item);
+       }
++      if (value instanceof Item) {
++        this._valueIsItem = true;
++        var htmlElement = this.getHTMLElement();
++        if (this._isLozenge() &amp;&amp; !htmlElement.className.match(TextView.CSS_CLASS_VALUE_IS_ITEM)) {
++          htmlElement.className += &quot; &quot; + TextView.CSS_CLASS_VALUE_IS_ITEM;
++        }
++      }
+     }    
+     this.getWorld().endTransaction();
+   }
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-24 21:27:09 UTC (rev 182)
++++ trunk/source/base_style.css	2005-06-24 23:20:39 UTC (rev 183)
+@@ -439,8 +439,8 @@
+ td.plain {
+   font-family: Arial, Verdana, sans-serif;
+   text-align: left;
+-  border: none;
+-  padding: 2px;
++  border: thin solid #CCC;
++  padding: 3px;
+   margin: 0px;
+ }
+ 
+@@ -618,6 +618,13 @@
+   /* overflow: visible; */
+ }
+ 
++.textViewItem {
++	background-color:#DEE7F8;
++	padding: 1px;
++	border: thin solid #A4BDEC;	
++	-moz-border-radius: 6px; //WARNING: Mozilla only attribute. This just makes a rect, a rounded-rect
++}
++
+ /* obsolete? 
+ div.editmode .text_block:hover {
+   background: rgb(100%, 100%, 70%);
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-24 21:27:09 UTC (rev 182)
++++ trunk/source/model/Entry.js	2005-06-24 23:20:39 UTC (rev 183)
+@@ -279,6 +279,7 @@
+  * @return   The item that is connected to the given item.
+  */
+ Entry.prototype.getConnectedItem = function (item) {
++  Util.assert(item instanceof Item);
+   if (this.__myItem == item) {
+     if (this._myType == this.getWorld().getTypeCalledItem()) {
+       return this.__myValue;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000168.html">[openrecord-svn] r182 - in trunk: . source
+</A></li>
+	<LI>Next message: <A HREF="000170.html">[openrecord-svn] r184 - in trunk: documentation source source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#169">[ date ]</a>
+              <a href="thread.html#169">[ thread ]</a>
+              <a href="subject.html#169">[ subject ]</a>
+              <a href="author.html#169">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

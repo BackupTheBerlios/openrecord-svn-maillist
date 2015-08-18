@@ -1,0 +1,526 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r326 - in trunk: source/model source/util tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r326%20-%20in%20trunk%3A%20source/model%20source/util%20tests/util&In-Reply-To=%3C200509140213.j8E2D0Cu031678%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000309.html">
+   <LINK REL="Next"  HREF="000311.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r326 - in trunk: source/model source/util tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r326%20-%20in%20trunk%3A%20source/model%20source/util%20tests/util&In-Reply-To=%3C200509140213.j8E2D0Cu031678%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r326 - in trunk: source/model source/util tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Wed Sep 14 04:13:00 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000309.html">[openrecord-svn] r325 - in trunk: documentation source source/model source/util tests/util
+</A></li>
+        <LI>Next message: <A HREF="000311.html">[openrecord-svn] r327 - in trunk: source/model source/util tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-14 04:12:55 +0200 (Wed, 14 Sep 2005)
+New Revision: 326
+
+Modified:
+   trunk/source/model/ContentRecord.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Uuid.js
+   trunk/tests/util/UuidTest.js
+Log:
+More clean-up work on the UUIDs.
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-09-14 01:25:38 UTC (rev 325)
++++ trunk/source/model/ContentRecord.js	2005-09-14 02:12:55 UTC (rev 326)
+@@ -37,7 +37,6 @@
+ /*global Util  */
+ /*global World  */
+ /*global Record  */
+-/*global RandomUuid  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -255,12 +254,13 @@
+  * @param    contentRecordThird    The contentRecord that should come after this one. 
+  */
+ ContentRecord.prototype.reorderBetween = function(contentRecordFirst, contentRecordThird) {
+-  var RandomUuid = orp.util.RandomUuid;
+-  
+   var firstOrdinalNumber = null;
+   var secondOrdinalNumber = null;
+   var thirdOrdinalNumber = null;
+   
++  // PENDING: this is a hack
++  var sourceOfRandomness = contentRecordFirst ? contentRecordFirst.getUuid() : contentRecordThird.getUuid();
++  
+   if (contentRecordFirst) {
+     firstOrdinalNumber = contentRecordFirst.getOrdinalNumber();
+   }
+@@ -278,16 +278,20 @@
+         firstOrdinalNumber = thirdOrdinalNumber;
+         thirdOrdinalNumber = temp;
+       }
+-      secondOrdinalNumber = firstOrdinalNumber + RandomUuid._generateRandomEightCharacterHexString();
++      // PENDING: we should not be calling the private method _generateRandomEightCharacterHexString()
++      var randomEightCharacterHexString = sourceOfRandomness._generateRandomEightCharacterHexString();
++      secondOrdinalNumber = firstOrdinalNumber + randomEightCharacterHexString;
+       var zeroes = &quot;&quot;;
+       while (secondOrdinalNumber &gt;= thirdOrdinalNumber) {
+         zeroes += &quot;0&quot;;
+-        secondOrdinalNumber = firstOrdinalNumber + zeroes + RandomUuid._generateRandomEightCharacterHexString();
++        // PENDING: we should not be calling the private method _generateRandomEightCharacterHexString()
++        randomEightCharacterHexString = sourceOfRandomness._generateRandomEightCharacterHexString();
++        secondOrdinalNumber = firstOrdinalNumber + zeroes + randomEightCharacterHexString;
+       }
+     }
+   }
+   if (firstOrdinalNumber &amp;&amp; !thirdOrdinalNumber) {
+-    secondOrdinalNumber = firstOrdinalNumber + RandomUuid._generateRandomEightCharacterHexString();
++    secondOrdinalNumber = firstOrdinalNumber + sourceOfRandomness._generateRandomEightCharacterHexString();
+   }
+   if (!firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+     secondOrdinalNumber = thirdOrdinalNumber;
+@@ -303,7 +307,7 @@
+     while (secondOrdinalNumber.length &lt; origLen) {
+       secondOrdinalNumber += &quot;f&quot;;
+     }
+-    secondOrdinalNumber += RandomUuid._generateRandomEightCharacterHexString();
++    secondOrdinalNumber += sourceOfRandomness._generateRandomEightCharacterHexString();
+   }
+   this.getWorld()._newOrdinal(this, secondOrdinalNumber);
+ };
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-14 01:25:38 UTC (rev 325)
++++ trunk/source/util/RandomUuid.js	2005-09-14 02:12:55 UTC (rev 326)
+@@ -29,9 +29,14 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.RandomUuid&quot;);
+ dojo.require(&quot;orp.util.Uuid&quot;);
+ 
++
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ /*global Util  */
+@@ -39,6 +44,10 @@
+ // -------------------------------------------------------------------
+ 
+ 
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++
+ /**
+  * The RandomUuid class offers methods for working with 
+  * random UUIDs, meaning &quot;version 4&quot; UUIDs.
+@@ -48,7 +57,6 @@
+  *
+  * @scope    public instance constructor
+  */
+-// orp.util.RandomUuid.prototype = new orp.util.Uuid();  
+ orp.util.RandomUuid = function(uuidString) {
+   orp.util.Uuid.call(this);
+   if (uuidString) {
+@@ -56,7 +64,7 @@
+     Util.assert(uuidString.length == 36);
+     this._uuidString = uuidString;
+   } else {
+-    this._uuidString = orp.util.RandomUuid._generateUuidString();
++    this._uuidString = this._generateUuidString();
+   }
+ };
+ 
+@@ -64,12 +72,6 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Public class constants
+-// -------------------------------------------------------------------
+-orp.util.RandomUuid.HEX_RADIX = 16;
+-
+-
+-// -------------------------------------------------------------------
+ // Private class methods
+ // -------------------------------------------------------------------
+ 
+@@ -77,19 +79,19 @@
+  * Generates a random UUID, meaning a &quot;version 4&quot; UUID.  Hopefully this 
+  * implementation conforms to the existing standards for UUIDs and GUIDs.  
+  * 
+- * @scope    public class method
++ * @scope    public instance method
+  * @return   Returns a 36-character string, which will look something like &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;.
+  */
+-orp.util.RandomUuid._generateUuidString = function() {
++orp.util.RandomUuid.prototype._generateUuidString = function() {
+   var hyphen = &quot;-&quot;;
+   var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;; // 8 == binary2hex(&quot;0100&quot;)
+   var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
+-  var a = orp.util.RandomUuid._generateRandomEightCharacterHexString();
+-  var b = orp.util.RandomUuid._generateRandomEightCharacterHexString();
++  var a = this._generateRandomEightCharacterHexString();
++  var b = this._generateRandomEightCharacterHexString();
+   b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
+-  var c = orp.util.RandomUuid._generateRandomEightCharacterHexString();
++  var c = this._generateRandomEightCharacterHexString();
+   c = variantCodeForDCEUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
+-  var d = orp.util.RandomUuid._generateRandomEightCharacterHexString();
++  var d = this._generateRandomEightCharacterHexString();
+   var result = a + hyphen + b + hyphen + c + d;
+   
+   return result;
+@@ -102,28 +104,13 @@
+  *
+  * @scope    private class method
+  */
++/*
+ orp.util.RandomUuid._generateRandom32bitNumber = function() {
+   return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
+ };
++*/
+ 
+ 
+-/**
+- * Returns a randomly generated 8-character string of hex digits.
+- *
+- * @scope    private class method
+- */
+-orp.util.RandomUuid._generateRandomEightCharacterHexString = function() {
+-  // PENDING: 
+-  // This isn't really random.  We should find some source of real 
+-  // randomness, and feed it to an MD5 hash algorithm.     
+-  var eightCharacterString = orp.util.RandomUuid._generateRandom32bitNumber().toString(orp.util.RandomUuid.HEX_RADIX);
+-  while (eightCharacterString.length &lt; 8) {
+-    eightCharacterString = &quot;0&quot; + eightCharacterString;
+-  }
+-  return eightCharacterString;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-14 01:25:38 UTC (rev 325)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-14 02:12:55 UTC (rev 326)
+@@ -30,10 +30,14 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.TimeBasedUuid&quot;);
+ dojo.require(&quot;orp.util.Uuid&quot;);
+-dojo.require(&quot;orp.util.RandomUuid&quot;);
+ 
++
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ /*global Util  */
+@@ -41,6 +45,10 @@
+ // -------------------------------------------------------------------
+ 
+ 
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++
+ /**
+  * The TimeBasedUuid class offers methods for working with 
+  * time-based UUIDs, meaning &quot;version 1&quot; UUIDs.
+@@ -92,7 +100,6 @@
+   Microsoft: &quot;110&quot;
+ }
+ */
+-// orp.util.TimeBasedUuid.prototype = new orp.util.Uuid();  // makes TimeBasedUuid be a subclass of Uuid
+ orp.util.TimeBasedUuid = function(uuidStringOrPseudoNode) {
+   orp.util.Uuid.call(this);
+   if (uuidStringOrPseudoNode) {
+@@ -100,30 +107,31 @@
+     var lengthOfPseudoNodeString = 12;
+     if (uuidStringOrPseudoNode.length == lengthOfPseudoNodeString) {
+       var pseudoNode = uuidStringOrPseudoNode;
+-      this._uuidString = orp.util.TimeBasedUuid._generateUuidString(pseudoNode);
++      this._uuidString = this._generateUuidString(pseudoNode);
+     } else {
+       Util.assert(uuidStringOrPseudoNode.length == 36);
+       this._uuidString = uuidStringOrPseudoNode;
+     }
+   } else {
+-    this._uuidString = orp.util.TimeBasedUuid._generateUuidString();
++    this._uuidString = this._generateUuidString();
+   }
+ };
+ 
+-dj_inherits(orp.util.TimeBasedUuid, orp.util.Uuid);  // makes RandomUuid be a subclass of Uuid
++dj_inherits(orp.util.TimeBasedUuid, orp.util.Uuid);  // makes TimeBasedUuid be a subclass of Uuid
+ 
+ 
+ // -------------------------------------------------------------------
+-// TimeBasedUuid public class constants
++// Public class constants
+ // -------------------------------------------------------------------
+-// Number of seconds between October 15, 1582 and January 1, 1970
+-// Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
++/* // Number of seconds between October 15, 1582 and January 1, 1970
++   Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
++*/
++// Number of hours between October 15, 1582 and January 1, 1970
+ orp.util.TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
+-orp.util.TimeBasedUuid.HEX_RADIX = 16;
+ 
+ 
+ // -------------------------------------------------------------------
+-// Uuid private global class variables
++// Private class variables
+ // -------------------------------------------------------------------
+ orp.util.TimeBasedUuid._ourUuidClockSeqString = null;
+ orp.util.TimeBasedUuid._ourDateValueOfPreviousUuid = null;
+@@ -180,7 +188,7 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Private class methods
++// Private instance methods
+ // -------------------------------------------------------------------
+ 
+ /**
+@@ -190,11 +198,12 @@
+  * Hopefully this implementation conforms to the existing standards for 
+  * UUIDs and GUIDs.  
+  * 
+- * @scope    private class method
++ * @scope    private instance method
+  * @param    pseudoNode    Optional. A 12-character string to use as the node in the new UUID.
+  * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
+  */
+-orp.util.TimeBasedUuid._generateUuidString = function(pseudoNode) {
++orp.util.TimeBasedUuid.prototype._generateUuidString = function(pseudoNode) {
++  var Uuid          = orp.util.Uuid;
+   var TimeBasedUuid = orp.util.TimeBasedUuid;
+   
+   Util.assert(!pseudoNode || Util.isString(pseudoNode));  
+@@ -203,13 +212,13 @@
+   } else {
+     var pseudoNodeIndicatorBit = 0x8000;
+     var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
+-    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(TimeBasedUuid.HEX_RADIX);
+-    pseudoNode = leftmost4HexCharacters + orp.util.RandomUuid._generateRandomEightCharacterHexString();
++    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Uuid.HEX_RADIX);
++    pseudoNode = leftmost4HexCharacters + this._generateRandomEightCharacterHexString();
+   }
+   if (!TimeBasedUuid._ourUuidClockSeqString) {
+     var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
+     var random14bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 14) );
+-    TimeBasedUuid._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(TimeBasedUuid.HEX_RADIX);
++    TimeBasedUuid._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(Uuid.HEX_RADIX);
+   }
+ 
+   // Maybe someday think about trying to make the code more readable to
+@@ -255,12 +264,12 @@
+     TimeBasedUuid._ourNextIntraMillisecondIncrement = 1;
+   }
+   
+-  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(TimeBasedUuid.HEX_RADIX);
+-  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(TimeBasedUuid.HEX_RADIX);
++  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(Uuid.HEX_RADIX);
++  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(Uuid.HEX_RADIX);
+   var hexTimeLow = TimeBasedUuid._padWithLeadingZeros(hexTimeLowLeftHalf, 4) + TimeBasedUuid._padWithLeadingZeros(hexTimeLowRightHalf, 4);
+-  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(TimeBasedUuid.HEX_RADIX);
++  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(Uuid.HEX_RADIX);
+   hexTimeMid = TimeBasedUuid._padWithLeadingZeros(hexTimeMid, 4);
+-  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(TimeBasedUuid.HEX_RADIX);
++  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(Uuid.HEX_RADIX);
+   hexTimeHigh = TimeBasedUuid._padWithLeadingZeros(hexTimeHigh, 3);
+   var hyphen = &quot;-&quot;;
+   var versionCodeForTimeBasedUuids = &quot;1&quot;; // binary2hex(&quot;0001&quot;)
+@@ -271,6 +280,10 @@
+ };
+ 
+ 
++// -------------------------------------------------------------------
++// Private class methods
++// -------------------------------------------------------------------
++
+ /**
+  * Given a 36-character UUID string, this method returns the &quot;node&quot; or 
+  * &quot;pseudonode&quot; portion of the UUID, which is the rightmost 12 characters.
+@@ -295,14 +308,15 @@
+  * @return   Returns a JavaScript Date objects
+  */
+ orp.util.TimeBasedUuid._getDateFromUuidString = function(uuidString) {
++  var Uuid          = orp.util.Uuid;
+   var TimeBasedUuid = orp.util.TimeBasedUuid;
+   
+   var hexTimeLow = uuidString.split('-')[0];
+   var hexTimeMid = uuidString.split('-')[1];
+   var hexTimeHigh = uuidString.split('-')[2];
+-  var timeLow = parseInt(hexTimeLow, TimeBasedUuid.HEX_RADIX);
+-  var timeMid = parseInt(hexTimeMid, TimeBasedUuid.HEX_RADIX);
+-  var timeHigh = parseInt(hexTimeHigh, TimeBasedUuid.HEX_RADIX);
++  var timeLow = parseInt(hexTimeLow, Uuid.HEX_RADIX);
++  var timeMid = parseInt(hexTimeMid, Uuid.HEX_RADIX);
++  var timeHigh = parseInt(hexTimeHigh, Uuid.HEX_RADIX);
+   var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
+   hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
+   hundredNanosecondIntervalsSince1582 += timeMid;
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-14 01:25:38 UTC (rev 325)
++++ trunk/source/util/Uuid.js	2005-09-14 02:12:55 UTC (rev 326)
+@@ -30,13 +30,17 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.Uuid&quot;);
+ 
++
+ // -------------------------------------------------------------------
+-// Dependencies, expressed in the syntax that JSLint understands:
++// Constructor
+ // -------------------------------------------------------------------
+ 
+-
+ /**
+  * The Uuid class offers methods for generating UUIDs and 
+  * inspecting existing UUIDs.
+@@ -52,6 +56,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Public class constants
++// -------------------------------------------------------------------
++orp.util.Uuid.HEX_RADIX = 16;
++
++
++// -------------------------------------------------------------------
+ // Public instance methods
+ // -------------------------------------------------------------------
+ 
+@@ -70,5 +80,33 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Private instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a randomly generated 8-character string of hex digits.
++ *
++ * @scope    private instance method
++ */
++orp.util.Uuid.prototype._generateRandomEightCharacterHexString = function() {
++  // PENDING: 
++  // This isn't really random.  We should find some source of real 
++  // randomness, and feed it to an MD5 hash algorithm.
++  
++  
++  // random32bitNumber is a randomly generated floating point number 
++  // between 0 and (4,294,967,296 - 1), inclusive.
++  var random32bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
++  
++  var eightCharacterString = random32bitNumber.toString(orp.util.Uuid.HEX_RADIX);
++  while (eightCharacterString.length &lt; 8) {
++    eightCharacterString = &quot;0&quot; + eightCharacterString;
++  }
++  return eightCharacterString;
++};
++
++
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/util/UuidTest.js
+===================================================================
+--- trunk/tests/util/UuidTest.js	2005-09-14 01:25:38 UTC (rev 325)
++++ trunk/tests/util/UuidTest.js	2005-09-14 02:12:55 UTC (rev 326)
+@@ -167,7 +167,7 @@
+ 
+   var section4 = arrayOfParts[4];
+   var firstChar = section4.charAt(0);
+-  var hexFirstChar = parseInt(firstChar, TimeBasedUuid.HEX_RADIX);
++  var hexFirstChar = parseInt(firstChar, orp.util.Uuid.HEX_RADIX);
+   binaryString = hexFirstChar.toString(2);
+   var firstBit;
+   if (binaryString.length == 4) {
+@@ -176,7 +176,7 @@
+     firstBit = '0';
+   }
+   // alert(&quot;firstChar = &quot; + firstChar + &quot;\n as number = &quot; + hexFirstChar + 
+-  //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
++  //       &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+   assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+ 
+   var uuid4 = new TimeBasedUuid(&quot;123456789ABC&quot;);
+@@ -274,7 +274,7 @@
+   assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+   
+   var section3 = arrayOfParts[3];
+-  var hex3 = parseInt(section3, TimeBasedUuid.HEX_RADIX);
++  var hex3 = parseInt(section3, orp.util.Uuid.HEX_RADIX);
+   var binaryString = hex3.toString(2);
+   // alert(&quot;section3 = &quot; + section3 + &quot;\n binaryString = &quot; + binaryString);
+   assertTrue('section 3 has 16 bits', binaryString.length == 16);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000309.html">[openrecord-svn] r325 - in trunk: documentation source source/model source/util tests/util
+</A></li>
+	<LI>Next message: <A HREF="000311.html">[openrecord-svn] r327 - in trunk: source/model source/util tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

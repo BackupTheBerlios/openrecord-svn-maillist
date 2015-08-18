@@ -1,0 +1,685 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r145 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r145%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506160715.j5G7FVC4012798%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000130.html">
+   <LINK REL="Next"  HREF="000132.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r145 - in trunk/source: . model</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r145%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506160715.j5G7FVC4012798%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r145 - in trunk/source: . model">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 16 09:15:31 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000130.html">[openrecord-svn] r144 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000132.html">[openrecord-svn] r146 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#131">[ date ]</a>
+              <a href="thread.html#131">[ thread ]</a>
+              <a href="subject.html#131">[ subject ]</a>
+              <a href="author.html#131">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-16 09:15:21 +0200 (Thu, 16 Jun 2005)
+New Revision: 145
+
+Modified:
+   trunk/source/MultiEntriesView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+1) Added UI for editing new-style queries, but still has bug mentioned in Dev mail
+2) Added several TextView capabilities e.g. ability to appear EditField all the time, better auto-sizing, and to be able to manually set &quot;ExpectedType&quot; instead of relying on attribute's ExpectedType
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-15 22:22:04 UTC (rev 144)
++++ trunk/source/MultiEntriesView.js	2005-06-16 07:15:21 UTC (rev 145)
+@@ -141,19 +141,8 @@
+ };
+ 
+ /**
+- * Returns width for TextView edit field to set
+- * HACK: See <A HREF="http://lists.berlios.de/pipermail/openrecord-dev/2005-June/000120.html">http://lists.berlios.de/pipermail/openrecord-dev/2005-June/000120.html</A>
+  *
+- * @scope    public instance method
+  */
+-
+-MultiEntriesView.prototype.getTextViewWidth = function() {
+-  return this._myHTMLElement.offsetWidth;
+-};
+-
+-/**
+- *
+- */
+ MultiEntriesView.prototype._handleClick = function(inEvent, inTextView) {
+   if (this._clickFunction &amp;&amp; this._clickFunction(inEvent, inTextView)) {
+     return true;
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-15 22:22:04 UTC (rev 144)
++++ trunk/source/SectionView.js	2005-06-16 07:15:21 UTC (rev 145)
+@@ -240,14 +240,12 @@
+     optionElement.innerHTML = pluginName;
+   }
+   
+-  var textOf = document.createTextNode(&quot; of &quot;);
+-  controlArea.appendChild(textOf);
++  View.createAndAppendTextNode(controlArea,&quot; of items whose &quot;);
+ 
+   this._queryEditSpan = View.createAndAppendElement(controlArea, &quot;span&quot;);
+   // this._refreshQueryEditSpan();
+ 
+-  var textItems = document.createTextNode(&quot; items.&quot;);
+-  controlArea.appendChild(textItems);
++  View.createAndAppendTextNode(controlArea,&quot;.&quot;);
+ 
+   // create a div element for the plugin class to use
+   this._myPluginDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+@@ -265,27 +263,49 @@
+ SectionView.prototype._refreshQueryEditSpan = function () {
+   this._queryEditSpan.innerHTML = '';
+   
++  var myQuery = this.getQuery();
++  var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
++  var listOfMatchingAttrs = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++  var matchingAttribute;
++  if (listOfMatchingAttrs.length === 0) {
++    // by default matching attribute is category
++    matchingAttribute = this.getWorld().getAttributeCalledCategory();
++  }
++  else {
++    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    matchingAttribute = listOfMatchingAttrs[0].getValue();
++  }
+   var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+-  var listOfMatchingEntries = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-  var isCategoryMatchingQuery = (listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0));
+-  var selectedCategoryName = isCategoryMatchingQuery ? listOfMatchingEntries[0].getValue().getDisplayName() : &quot;no category selected&quot;;
+-
+-  var isEmptyQuery = false;
+-  var listener = this; 
+-  var querySelectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
+-  var listOfCategories = this.getWorld().getCategories();
+-  var optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
+-  optionElement.setAttribute(&quot;value&quot;, null);
+-  Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
+-  optionElement.innerHTML = &quot;(none)&quot;;
+-  for (var key in listOfCategories) {
+-    var category = listOfCategories[key];
+-    optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
+-    optionElement.selected = (selectedCategoryName == category.getDisplayName());
+-    optionElement.setAttribute(&quot;value&quot;, category._getUuid());
+-    Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
+-    optionElement.innerHTML = category.getDisplayName();
++  var listOfMatchingEntries = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var hasMatchingEntries = (listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0));
++  var matchingEntry = hasMatchingEntries ? listOfMatchingEntries[0] : null;
++  
++  var listOfAttributes = this.getWorld().getCategories();
++  var selectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
++  for (var key in listOfAttributes) {
++    var anAttribute = listOfAttributes[key];
++    optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
++    optionElement.selected = (matchingAttribute.getDisplayName() == anAttribute.getDisplayName());
++    optionElement.value = anAttribute._getUuid();
++    optionElement.onclick = this.clickOnAttributeMenu.bindAsEventListener(this);
++    optionElement.text = anAttribute.getDisplayName();
+   }
++  
++  View.createAndAppendTextNode(this._queryEditSpan, &quot; is &quot;);
++  
++  var listOfPossibleEntries = this.getWorld().getSuggestedItemsForAttribute(matchingAttribute);
++  var entrySpan = View.createAndAppendElement(this._queryEditSpan, &quot;span&quot;);
++  
++  var entryTextView =  new TextView(this, entrySpan, myQuery, attributeCalledQueryMatchingValue, matchingEntry,
++    RootView.ELEMENT_CLASS_EDIT_MODE);
++  entryTextView.setSuggestions(listOfPossibleEntries);
++  entryTextView.alwaysUseEditField();
++  entryTextView.setAutoWiden(true);
++  var attributeCalledExpectedType = this.getWorld().getAttributeCalledExpectedType();
++  var listOfExpectedTypeEntries = matchingAttribute.getEntriesForAttribute(attributeCalledExpectedType);
++  entryTextView.setExpectedTypeEntries(listOfExpectedTypeEntries);
++  entryTextView.refresh();
++  myQuery.addObserver(this);
+ };
+ 
+ 
+@@ -294,6 +314,19 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Called when the query belong to this section has changed
++ * @scope public instance method
++ */
++SectionView.prototype.observedItemHasChanged = function(item) {
++  var myQuery = this.getQuery();
++  Util.assert(item == myQuery);
++  var pluginName = this._myPlugin.getPluginName();
++  this._myPlugin.endOfLife();
++  this._myPlugin = this.getPluginFromPluginName(pluginName, this._myPluginDiv);
++  this.refresh();
++};
++
++/**
+  * Called when the user clicks on any of the plugin option-select controls.
+  * Called from an HTML option element within an HTML select element.
+  *
+@@ -334,7 +367,7 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-SectionView.prototype.clickOnQueryCategorySelectionMenu = function (inEventObject) {
++SectionView.prototype.clickOnAttributeMenu = function (inEventObject) {
+   var eventObject = inEventObject || window.event;
+   var optionElement = Util.getTargetFromEvent(eventObject);
+   // PENDING: We could replace the lines above with &quot;var optionElement = this;&quot;
+@@ -342,21 +375,38 @@
+   
+   var selectElement = optionElement.parentNode;
+   var newChoiceUuid = optionElement.value;
+-  var newQueryMatchingCategory = this.getWorld().getItemFromUuid(newChoiceUuid);
+-  var newChoiceName = newQueryMatchingCategory.getDisplayName();
++  var newQueryMatchingAttribute = this.getWorld().getItemFromUuid(newChoiceUuid);
++  var newChoiceName = newQueryMatchingAttribute.getDisplayName();
+   
+-  var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+-  var listOfMatchingEntries = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-  var currentQueryMatchingCategoryEntry = listOfMatchingEntries.length &gt; 0? listOfMatchingEntries[0] : null;
+-  var currentQueryMatchingCategory = listOfMatchingEntries.length &gt; 0? listOfMatchingEntries[0].getValue() : null;
+-  var currentCategoryName = currentQueryMatchingCategory? currentQueryMatchingCategory.getDisplayName() : &quot;none&quot;;
+- 
+-  if (currentCategoryName != newChoiceName) {
+-    if (currentQueryMatchingCategory) {
+-      this.getQuery().replaceEntry(currentQueryMatchingCategoryEntry, newQueryMatchingCategory);
++  var myQuery = this.getQuery();
++  var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
++  var listOfMatchingAttrs = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++  var matchingAttribute;
++  if (listOfMatchingAttrs.length === 0) {
++    // by default matching attribute is category
++    matchingAttribute = this.getWorld().getAttributeCalledCategory();
++  }
++  else {
++    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    matchingAttribute = listOfMatchingAttrs[0].getValue();
++  }
++  if (matchingAttribute.getDisplayName() != newChoiceName) {
++    if (listOfMatchingAttrs.length == 0) {
++      myQuery.addEntryForAttribute(attributeCalledQueryMatchingAttribute, newQueryMatchingAttribute);
+     } else {
+-      this.getQuery().addEntryForAttribute(attributeCalledQueryMatchingValue, newQueryMatchingCategory);
++      myQuery.replaceEntry(listOfMatchingAttrs[0], newQueryMatchingAttribute);
+     }
++
++    /* PENDING, PROBLEM: Can't delete entries already created by previous matching attribute
++    var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
++    var listOfMatchingEntries = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++    for (var i in listOfMatchingEntries) {
++      var anEntry = listOfMatchingEntries[i];
++      myQuery.replaceEntry(anEntry,null);
++    }
++    listOfMatchingEntries = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);;
++    Util.assert(listOfMatchingEntries.length === 0);*/
++    
+     // I think we need these next 3 lines in to make sure the view gets updated  
+     // to reflect the new query.  When we get a chance we should probably do 
+     // some refactoring so that the plugin can register as an observer of the
+@@ -366,7 +416,7 @@
+     this._myPlugin.endOfLife();
+     this._myPlugin = this.getPluginFromPluginName(pluginName, this._myPluginDiv);
+ 
+-    // PENDING:
++    /*// PENDING:
+     // These next 8 lines look like a mistake.  Maybe they're a result of a 
+     // copy &amp; paste error.  I think we can just delete them, but I'm not brave
+     // enough right now!
+@@ -377,7 +427,7 @@
+       this.mySection.replaceEntry(oldEntry, pluginName);
+     } else {
+       this.mySection.addEntryForAttribute(attributeCalledPluginName, pluginName);
+-    }
++    }*/
+ 
+     this.refresh();
+   }
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-15 22:22:04 UTC (rev 144)
++++ trunk/source/TablePlugin.js	2005-06-16 07:15:21 UTC (rev 145)
+@@ -128,7 +128,7 @@
+         // PENDING we may only want to do this for certain attributes
+         var itemEntries = contentItem.getEntriesForAttribute(attribute);
+         if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+-          hashTableOfEntries[attributeKeyString] = this._getSuggestedItemsForAttribute(attribute);
++          hashTableOfEntries[attributeKeyString] = this.getWorld().getSuggestedItemsForAttribute(attribute);
+         } else {
+           if (!hashTableOfEntries[attributeKeyString]) {
+             hashTableOfEntries[attributeKeyString] = {};
+@@ -159,50 +159,6 @@
+ 
+ 
+ /**
+- *
+- */
+-TablePlugin.prototype._getSuggestedItemsForAttribute = function(attribute) {
+-  var listOfSuggestedItems = [];
+-  var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+-  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+-    var key;
+-    var categoryCalledCategory = this.getWorld().getCategoryCalledCategory();
+-    var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+-    var attributeCalledExpectedType = this.getWorld().getAttributeCalledExpectedType();
+-    var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
+-    var listOfCategories = [];
+-    for (key in listOfExpectedTypeEntries) {
+-      var expectedTypeEntry = listOfExpectedTypeEntries[key];
+-      var expectedType = expectedTypeEntry.getValue();
+-      if (expectedType.isInCategory(categoryCalledCategory)) {
+-        listOfCategories.push(expectedType);
+-      }
+-      /* WRONG -- DELETE ME
+-      var listOfCategoryEntriesForExpectedType = expectedType.getEntriesForAttribute(attributeCalledCategory);
+-      var categoryEntryForExpectedType = listOfCategoryEntriesForExpectedType[0]; // PENDING: should look at whole list, not just element 0
+-      var categoryForExpectedType = categoryEntryForExpectedType.getValue();
+-      if (categoryForExpectedType.isInCategory(categoryCalledCategory)) {
+-        listOfCategories.push(categoryForExpectedType);
+-      }
+-      */
+-    }
+-    for (key in listOfCategories) {
+-      var category = listOfCategories[key];
+-      var listOfItems = this.getWorld().getItemsInCategory(category);
+-      for (var keyToo in listOfItems) {
+-        var item = listOfItems[keyToo];
+-        Util.addObjectToSet(item, listOfSuggestedItems);
+-      }
+-    }
+-  }
+-  if (listOfSuggestedItems.length === 0) {
+-    listOfSuggestedItems = null;
+-  }
+-  return listOfSuggestedItems;
+-};
+-
+-
+-/**
+  * Builds editor to add/remove attribute columns of table
+  *
+  * @scope    private instance method
+@@ -439,8 +395,12 @@
+       this._hashTableOfEntries[attributeUuid] = [];
+     }
+     else {
+-      this._hashTableOfAttributes[attributeUuid] = this.getWorld().getItemFromUuid(attributeUuid);
+-      this._hashTableOfEntries[attributeUuid] = []; //PENDING need to set this to right attribute
++      var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
++      var attribute = this.getWorld().getItemFromUuid(attributeUuid);
++      this._hashTableOfAttributes[attributeUuid] = attribute;
++      if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++        this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(attribute);
++      }
+     }
+     this._buildTable(true);
+   }
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-15 22:22:04 UTC (rev 144)
++++ trunk/source/TextView.js	2005-06-16 07:15:21 UTC (rev 145)
+@@ -67,7 +67,7 @@
+   
+   this.setSuperview(theSuperview);
+   this.setHTMLElement(inElement);
+-  //inElement.style.width =
++  inElement.style.width =
+   inElement.style.height = &quot;100%&quot;; // make this element expand to fill parent element where possible
+   this._item = inItem;
+   this._attribute = inAttribute;
+@@ -77,6 +77,7 @@
+   this._isMultiLine = isMultiLine;
+   this._isEditing = false;
+   this._proxyOnKeyFunction = null;
++  this._alwaysUseEditField = null;
+   
+   this._isProvisional = inItem.isProvisional();
+   if (this._isProvisional) {
+@@ -92,13 +93,49 @@
+   if (this._suggestions) {
+     var suggestionBox = new AttributeSuggestionBox(this._editField, this._suggestions);
+     this._suggestionBox = suggestionBox;
++    if (this._editField &amp;&amp; this._autoWiden) {
++      var maxLength = 4;
++      for (var i=0; i &lt; this._suggestions.length;++i) {
++        var aSuggestion = this._suggestions[i];
++        if (aSuggestion.getDisplayName().length &gt; maxLength) {maxLength = aSuggestion.getDisplayName().length;}
++      }
++      this._editField.size = maxLength;
++    }
+   }
+ };
+ 
++/**
++ *
++ */
++TextView.prototype.alwaysUseEditField = function() {
++  this._alwaysUseEditField = true;
++  if (this._myHasEverBeenDisplayedFlag) {
++    this.startEditing(true);
++  }
++};
+ 
+ /**
+  *
+  */
++TextView.prototype.setAutoWiden = function(inAutoWiden) {
++  this._autoWiden = inAutoWiden;
++};
++
++/**
++ *
++ */
++TextView.prototype.setExpectedTypeEntries = function(expectedTypeEntries) {
++  Util.assert(Util.isArray(expectedTypeEntries));
++  for(var i=0;i &lt; expectedTypeEntries.length; ++i) {
++    Util.assert(expectedTypeEntries[i] instanceof Entry);
++  }
++  this._expectedTypeEntries = expectedTypeEntries;
++};
++
++
++/**
++ *
++ */
+ TextView.prototype.setSuggestions = function(suggestionList) {
+   if (suggestionList) {Util.assert(Util.isArray(suggestionList));}
+   this._suggestions = suggestionList;
+@@ -141,8 +178,10 @@
+   }
+   this._textNode = document.createTextNode(textString);
+   htmlElement.appendChild(this._textNode);
+-
+   htmlElement.onclick =  this.onClick.bindAsEventListener(this);
++  if (this._alwaysUseEditField) {
++    this.startEditing(true);
++  }
+     
+   this._myHasEverBeenDisplayedFlag = true;
+ };
+@@ -153,7 +192,7 @@
+  *
+  * @scope    public instance method
+  */
+-TextView.prototype.startEditing = function() {
++TextView.prototype.startEditing = function(dontSelect) {
+   if (!this._isEditing) {
+     var editField = this._editField;
+     if (!editField) {
+@@ -161,10 +200,9 @@
+         editField = this._editField = document.createElement(&quot;textarea&quot;);
+       }
+       else {
+-        editField = document.createElement(&quot;input&quot;);
++        editField = this._editField= document.createElement(&quot;input&quot;);
+         editField.type = 'text';
+       }
+-      this._editField = editField;
+       editField.className = this._className;
+       var listener = this; 
+       editField.onblur = this.onBlur.bindAsEventListener(this);
+@@ -172,18 +210,15 @@
+       editField.onkeyup = this.onKeyUp.bindAsEventListener(this);
+       editField.onfocus = this.onFocus.bindAsEventListener(this);
+       editField.defaultValue = this._isProvisional ? '' : this._textNode.data;
++      editField.size = 5; //editField.defaultValue.length+1;
+     }
+     
+-    if (this._mySuperview.getTextViewWidth) {
+-      //editField.style.width = this._mySuperview.getTextViewWidth() + &quot;px&quot;;
+-      editField.size = 1;
+-    }
+     //editField.style.width = this.getHTMLElement().offsetWidth + &quot;px&quot;;    
+     //editField.style.height = (this.getHTMLElement().offsetHeight) + &quot;px&quot;;
+     
+     this._setupSuggestionBox();
+     this.getHTMLElement().replaceChild(editField, this._textNode);
+-    editField.select();
++    if (!dontSelect) {editField.select();}
+     //editField.focus();
+     this._isEditing = true;
+   }
+@@ -204,28 +239,29 @@
+     if (!newValue) {
+       newValue = this._editField.value;
+     }
+-    var newText = this._editField.value;
+     var stillProvisional = this._isProvisional &amp;&amp; !newValue;
+     var htmlElement = this.getHTMLElement();
+ 
+-    this._isEditing = false;
+ 
+     if (this._suggestionBox) {
+       this._suggestionBox._blurOnInputField();
+     }
+-    if (stillProvisional) {
+-      newValue = this._provisionalText;
++    if (!this._alwaysUseEditField) {
++      this._isEditing = false;
++      if (stillProvisional) {
++        newValue = this._provisionalText;
++      }
++      var newValueDisplayString = &quot;&quot;;
++      if (Util.isString(newValue)) {
++        newValueDisplayString = newValue;
++      }
++      else if (newValue instanceof Item) {
++        newValueDisplayString = newValue.getDisplayName();
++      }
++      this._textNode.data = newValueDisplayString;
++      this._suggestionBox = null;
++      this.getHTMLElement().replaceChild(this._textNode, this._editField);
+     }
+-    var newValueDisplayString = &quot;&quot;;
+-    if (Util.isString(newValue)) {
+-      newValueDisplayString = newValue;
+-    }
+-    else if (newValue instanceof Item) {
+-      newValueDisplayString = newValue.getDisplayName();
+-    }
+-    this._textNode.data = newValueDisplayString;
+-    this._suggestionBox = null;
+-    this.getHTMLElement().replaceChild(this._textNode, this._editField);
+ 
+     // we need this _writeValue() to be after all display related code, because this may trigger an observer call
+     if (!stillProvisional) { this._writeValue(newValue); }
+@@ -246,8 +282,14 @@
+ TextView.prototype._transformToExpectedType = function(value) {
+ if (value &amp;&amp; Util.isString(value)) {
+     var repository = this.getWorld();
+-    var attributeCalledExpectedType = repository.getAttributeCalledExpectedType();
+-    var listOfExpectedTypeEntries = this._attribute.getEntriesForAttribute(attributeCalledExpectedType);
++    var listOfExpectedTypeEntries;
++    if (this._expectedTypeEntries) {
++      listOfExpectedTypeEntries = this._expectedTypeEntries;
++    }
++    else {
++      var attributeCalledExpectedType = repository.getAttributeCalledExpectedType();
++      listOfExpectedTypeEntries = this._attribute.getEntriesForAttribute(attributeCalledExpectedType);
++    }
+     var categoryCalledCategory = repository.getCategoryCalledCategory();
+     var typeCalledText = repository.getTypeCalledText();
+     var typeCalledDate = repository.getTypeCalledDate();
+@@ -452,7 +494,7 @@
+ 
+   // ATTEMPT #2: 
+   // slightly clunky, but better than nothing!
+-  if (editField.scrollHeight &gt; editField.clientHeight) {
++  if (this._isMultiLine &amp;&amp; (editField.scrollHeight &gt; editField.clientHeight)) {
+     editField.style.height = editField.scrollHeight + &quot;px&quot;;
+   }
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-15 22:22:04 UTC (rev 144)
++++ trunk/source/model/StubVirtualServer.js	2005-06-16 07:15:21 UTC (rev 145)
+@@ -339,24 +339,38 @@
+   return this.__myListOfUsers;
+ };
+ 
+-
+ /**
+  *
+  */
+-StubVirtualServer.prototype.getCategories = function () {
+-  var listOfCategories = [];
++StubVirtualServer.prototype.getItemsOfCategory = function (inCategory) {
++  var listOfItems = [];
+   for (var key in this.__myHashTableOfItemsKeyedByUuid) {
+     var item = this.__myHashTableOfItemsKeyedByUuid[key];
+-    var categoryCalledCategory = this.getItemFromUuid(World.UUID_FOR_CATEGORY_CATEGORY);
+-    if (item.isInCategory(categoryCalledCategory)) {
+-      listOfCategories.push(item);
++    if (item.isInCategory(inCategory)) {
++      listOfItems.push(item);
+     }
+   }
+-  return listOfCategories;
++  return listOfItems;
+ };
+ 
++/**
++ *
++ */
++StubVirtualServer.prototype.getCategories = function () {
++  var categoryCalledCategory = this.getWorld().getCategoryCalledCategory();
++  return this.getItemsOfCategory(categoryCalledCategory);
++};
+ 
+ /**
++ *
++ */
++StubVirtualServer.prototype.getAttributes = function () {
++  var categoryCalledAttribute = this.getWorld().getCategoryCalledAttribute();
++  return this.getItemsOfCategory(categoryCalledAttribute);
++};
++
++
++/**
+  * Returns an item representing the user who is currently logged in.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-15 22:22:04 UTC (rev 144)
++++ trunk/source/model/World.js	2005-06-16 07:15:21 UTC (rev 145)
+@@ -810,7 +810,62 @@
+   return this._getFilteredList(listOfCategories);
+ };
+ 
++/**
++ * Returns an list of all the items that represent attributes.
++ *
++ * @scope    public instance method
++ * @return   A list of items that represent attributes.
++ */
++World.prototype.getAttributes = function() {
++  var listOfAttributes = this._virtualServer.getAttributes();
++  return this._getFilteredList(listOfAttributes);
++};
+ 
++/**
++ *
++ */
++World.prototype.getSuggestedItemsForAttribute = function(attribute) {
++  var listOfSuggestedItems = [];
++  var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
++  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++    var key;
++    var categoryCalledCategory = this.getCategoryCalledCategory();
++    var attributeCalledCategory = this.getAttributeCalledCategory();
++    var attributeCalledExpectedType = this.getAttributeCalledExpectedType();
++    var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
++    var listOfCategories = [];
++    for (key in listOfExpectedTypeEntries) {
++      var expectedTypeEntry = listOfExpectedTypeEntries[key];
++      var expectedType = expectedTypeEntry.getValue();
++      if (expectedType.isInCategory(categoryCalledCategory)) {
++        listOfCategories.push(expectedType);
++      }
++      /* WRONG -- DELETE ME
++      var listOfCategoryEntriesForExpectedType = expectedType.getEntriesForAttribute(attributeCalledCategory);
++      var categoryEntryForExpectedType = listOfCategoryEntriesForExpectedType[0]; // PENDING: should look at whole list, not just element 0
++      var categoryForExpectedType = categoryEntryForExpectedType.getValue();
++      if (categoryForExpectedType.isInCategory(categoryCalledCategory)) {
++        listOfCategories.push(categoryForExpectedType);
++      }
++      */
++    }
++    for (key in listOfCategories) {
++      var category = listOfCategories[key];
++      var listOfItems = this.getItemsInCategory(category);
++      for (var keyToo in listOfItems) {
++        var item = listOfItems[keyToo];
++        Util.addObjectToSet(item, listOfSuggestedItems);
++      }
++    }
++  }
++  if (listOfSuggestedItems.length === 0) {
++    listOfSuggestedItems = null;
++  }
++  return listOfSuggestedItems;
++};
++
++
++
+ // -------------------------------------------------------------------
+ // Observer methods
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000130.html">[openrecord-svn] r144 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000132.html">[openrecord-svn] r146 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#131">[ date ]</a>
+              <a href="thread.html#131">[ thread ]</a>
+              <a href="subject.html#131">[ subject ]</a>
+              <a href="author.html#131">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

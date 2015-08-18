@@ -1,0 +1,268 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r72 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r72%20-%20trunk/source/model&In-Reply-To=%3C200505200400.j4K40hoY004947%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000060.html">
+   <LINK REL="Next"  HREF="000062.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r72 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r72%20-%20trunk/source/model&In-Reply-To=%3C200505200400.j4K40hoY004947%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r72 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 20 06:00:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000060.html">[openrecord-svn] r71 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000062.html">[openrecord-svn] r73 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-20 06:00:29 +0200 (Fri, 20 May 2005)
+New Revision: 72
+
+Modified:
+   trunk/source/model/Item.js
+   trunk/source/model/World.js
+Log:
+Minor clean-up work.
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-20 03:15:34 UTC (rev 71)
++++ trunk/source/model/Item.js	2005-05-20 04:00:29 UTC (rev 72)
+@@ -117,6 +117,7 @@
+  * @scope    public instance method
+  * @param    inValue    The value to initialize the entry to.
+  * @return   An entry object.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.addEntry = function (inValue) {
+   var attributeCalledUnfiled = this.getWorld().getAttributeCalledUnfiled();
+@@ -144,6 +145,7 @@
+  * @param    inAttribute    The attribute to assign the entry to. 
+  * @param    inValue    The value to initialize the entry with.
+  * @return   An entry object.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.addEntryForAttribute = function (inAttribute, inValue) {
+   return this.replaceEntryWithEntryForAttribute(null, inAttribute, inValue);
+@@ -157,6 +159,7 @@
+  * @param    inEntry    The old entry to be replaced.
+  * @param    inValue    The value to initialize the new entry to.
+  * @return   The new replacement entry object.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.replaceEntry = function (inEntry, inValue) {
+   var attribute = inEntry.getAttribute();
+@@ -173,6 +176,7 @@
+  * @param    inAttribute    The attribute to assign the entry to. 
+  * @param    inValue    The value to initialize the new entry to.
+  * @return   The new replacement entry object.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.replaceEntryWithEntryForAttribute = function (inEntry, inAttribute, inValue) {
+   if (this.__myProvisionalFlag) {
+@@ -184,7 +188,6 @@
+   var entry = this.getWorld()._newEntry(itemOrEntry, inAttribute, inValue);
+   this.__addEntryToListOfEntriesForAttribute(entry);
+   return entry;
+-  
+ };
+ 
+ 
+@@ -246,20 +249,6 @@
+   }
+   filteredListOfEntries.sort(IdentifiedRecord.compareOrdinals);
+   return filteredListOfEntries;
+-
+-  /* DELETE_ME
+-  var listOfEntriesForAttribute = [];
+-  var listOfEntries = this.getEntries();
+-  for (var key in listOfEntries) {
+-    var entry = listOfEntries[key];
+-    var attribute = entry.getAttribute();
+-    if (attribute == inAttribute) {
+-      listOfEntriesForAttribute.push(entry);
+-    }
+-  }
+-  listOfEntriesForAttribute.sort(IdentifiedRecord.compareOrdinals);
+-  return listOfEntriesForAttribute;
+-  */
+ };
+ 
+ 
+@@ -280,42 +269,6 @@
+     }
+   }
+   return listOfAllEntries;
+-  
+-/* DELETE_ME
+-  var filter = this.getWorld().getRetrievalFilter();
+-  var listOfEntries = this.__myListOfEntries;
+-  var filteredListOfEntries = [];
+-  var key;
+-  var entry;
+-  
+-  switch (filter) {
+-    case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
+-      for (key in listOfEntries) {
+-        entry = listOfEntries[key];
+-        if (!entry.hasBeenReplaced() &amp;&amp; !entry.hasBeenDeleted()) {
+-          filteredListOfEntries.push(entry);
+-        }
+-      }
+-      break;
+-    case World.RETRIEVAL_FILTER_SINGLE_USER:
+-      // PENDING: This still needs to be implemented.
+-      Util.assert(false);
+-      break;
+-    case World.RETRIEVAL_FILTER_DEMOCRATIC:
+-      // PENDING: This still needs to be implemented.
+-      Util.assert(false);
+-      break;
+-    case World.RETRIEVAL_FILTER_UNABRIDGED:
+-      filteredListOfEntries = listOfEntries;
+-      break;
+-    default:
+-      // We should never get here.  If we get here, it's an error.
+-      Util.assert(false);
+-      break;
+-  }
+-  filteredListOfEntries.sort(IdentifiedRecord.compareOrdinals);
+-  return filteredListOfEntries;
+-*/
+ };
+ 
+ 
+@@ -334,18 +287,6 @@
+     listOfAttributes.push(attribute);
+   }
+   return listOfAttributes;
+-
+-  /* DELETE_ME
+-  var listOfAttributes = [];
+-  var listOfEntries = this.getEntries();
+-  for (var key in listOfEntries) {
+-    var entry = listOfEntries[key];
+-    var attribute = entry.getAttribute();
+-    Util.addObjectToSet(attribute, listOfAttributes);
+-  }
+-  listOfAttributes.sort(IdentifiedRecord.compareOrdinals);
+-  return listOfAttributes;
+-  */
+ };
+ 
+ 
+@@ -464,6 +405,7 @@
+     }
+   }
+   
++  /*
+   // look at all the categories this item is assigned to, and see if one of them
+   // is in turn in the category &quot;inCategory&quot;
+   for (key in entryList) {
+@@ -480,6 +422,7 @@
+       return true;
+     }
+   }
++  */
+   return false;
+ };
+  
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-05-20 03:15:34 UTC (rev 71)
++++ trunk/source/model/World.js	2005-05-20 04:00:29 UTC (rev 72)
+@@ -446,6 +446,7 @@
+  * @param    inAuthentication    A string which will be used as the login password for the user. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing a user.
++ * @throws   Throws an Error if a user is logged in.
+  */
+ World.prototype.newUser = function (inName, inAuthentication, inObserver) {
+   this.beginTransaction();
+@@ -466,6 +467,7 @@
+  * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ World.prototype.newItem = function (inName, inObserver) {
+   this.beginTransaction();
+@@ -485,6 +487,7 @@
+  * @scope    public instance method
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created provisional item.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ World.prototype.newProvisionalItem = function (inObserver) {
+   return this.__myVirtualServer.newProvisionalItem(inObserver);
+@@ -509,6 +512,7 @@
+  * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing an attribute.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ World.prototype.newAttribute = function (inName, inObserver) {
+   this.beginTransaction();
+@@ -528,6 +532,7 @@
+  * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing a category.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ World.prototype.newCategory = function (inName, inObserver) {
+   this.beginTransaction();
+@@ -696,6 +701,7 @@
+  * @scope    public instance method
+  * @param    inItem    An item, which will be modified so that it matches the query. 
+  * @param    inQuery    A query item. 
++ * @throws   Throws an Error if no user is logged in.
+  */
+ World.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
+   this.__myVirtualServer.setItemToBeIncludedInQueryResultList(inItem, inQuery);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000060.html">[openrecord-svn] r71 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000062.html">[openrecord-svn] r73 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#61">[ date ]</a>
+              <a href="thread.html#61">[ thread ]</a>
+              <a href="subject.html#61">[ subject ]</a>
+              <a href="author.html#61">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

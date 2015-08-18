@@ -1,0 +1,2971 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r188 - in trunk/source: . model repositories
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r188%20-%20in%20trunk/source%3A%20.%20model%20repositories&In-Reply-To=%3C200506280229.j5S2T2dQ026618%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000173.html">
+   <LINK REL="Next"  HREF="000175.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r188 - in trunk/source: . model repositories</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r188%20-%20in%20trunk/source%3A%20.%20model%20repositories&In-Reply-To=%3C200506280229.j5S2T2dQ026618%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r188 - in trunk/source: . model repositories">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Tue Jun 28 04:29:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000173.html">[openrecord-svn] r187 - in trunk/source: . model repositories
+</A></li>
+        <LI>Next message: <A HREF="000175.html">[openrecord-svn] r189 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#174">[ date ]</a>
+              <a href="thread.html#174">[ thread ]</a>
+              <a href="subject.html#174">[ subject ]</a>
+              <a href="author.html#174">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-28 04:28:55 +0200 (Tue, 28 Jun 2005)
+New Revision: 188
+
+Modified:
+   trunk/source/NavbarView.js
+   trunk/source/PageView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/Util.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/Record.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/repositories/dogfood.json
+Log:
+Switched to using short-name instead of name in lozenges and elsewhere. Added more info to the comments in the generated JSON records. Created an initial prototype of the Dogfood site.
+
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/NavbarView.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -81,17 +81,13 @@
+   //get rid of all child nodes 
+   divElement.innerHTML = '';
+ 
+-  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+   var listOfStrings = [];
+ 
+   listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
+   
+   for (var key in listOfPages) {
+     var page = listOfPages[key];
+-    var menuText = page.getSingleStringValueFromAttribute(attributeCalledShortName);
+-    if (!menuText) {
+-      menuText = page.getDisplayName();
+-    }
++    var menuText = page.getDisplayString();
+     var menuUrl = rootView.getUrlForItem(page);
+     listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
+   }
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/PageView.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -112,11 +112,7 @@
+  * @return   A string that gives the name of the page.
+  */
+ PageView.prototype.getPageTitle = function () {
+-  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+-  var pageTitle = this.myPage.getSingleStringValueFromAttribute(attributeCalledShortName);
+-  if (!pageTitle) {
+-    pageTitle = this.myPage.getDisplayName();
+-  }
++  var pageTitle = this.myPage.getDisplayString();
+   return pageTitle;
+ };
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/SectionView.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -263,11 +263,9 @@
+     optionElement.selected = (selectedPluginClass == pluginClass);
+     optionElement.value = pluginClass.getPluginItemUuid();
+     var pluginItem = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+-    optionElement.text = pluginItem.getDisplayName();
+-    // Util.addEventListener(optionElement, &quot;click&quot;, SectionView.clickOnPluginSelectionMenu);
++    optionElement.text = pluginItem.getDisplayString();
+     listener = this; 
+     Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
+-    // optionElement.innerHTML = pluginName;
+   }
+   
+   View.createAndAppendTextNode(controlArea,&quot; of items whose &quot;);
+@@ -312,7 +310,7 @@
+   var categoryCalledLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_CATEGORY_LAYOUT_DATA);
+   var attributeCalledSectionThisLayoutDataBelongsTo = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO);
+   repository.beginTransaction();
+-  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayName() + &quot; of &quot; + this.mySection.getDisplayName());
++  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayString() + &quot; of &quot; + this.mySection.getDisplayString());
+   layoutItem.assignToCategory(categoryCalledLayoutData);
+   layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginType);
+   // this.mySection.addEntryForAttribute(attrLayoutData, layoutItem, repository.getTypeCalledItem());
+@@ -352,10 +350,10 @@
+   for (var key in listOfAttributes) {
+     var anAttribute = listOfAttributes[key];
+     optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
+-    optionElement.selected = (matchingAttribute.getDisplayName() == anAttribute.getDisplayName());
++    optionElement.selected = (matchingAttribute.getDisplayString() == anAttribute.getDisplayString());
+     optionElement.value = anAttribute._getUuid();
+     optionElement.onclick = this.clickOnAttributeMenu.bindAsEventListener(this);
+-    optionElement.text = anAttribute.getDisplayName();
++    optionElement.text = anAttribute.getDisplayString();
+   }
+   
+   View.createAndAppendTextNode(this._queryEditSpan, &quot; is &quot;);
+@@ -473,7 +471,7 @@
+   var selectElement = optionElement.parentNode;
+   var newChoiceUuid = optionElement.value;
+   var newQueryMatchingAttribute = this.getWorld().getItemFromUuid(newChoiceUuid);
+-  var newChoiceName = newQueryMatchingAttribute.getDisplayName();
++  var newChoiceName = newQueryMatchingAttribute.getDisplayString();
+   
+   var myQuery = this.getQuery();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+@@ -487,7 +485,7 @@
+     Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
+     matchingAttribute = listOfMatchingAttrs[0].getValue();
+   }
+-  if (matchingAttribute.getDisplayName() != newChoiceName) {
++  if (matchingAttribute.getDisplayString() != newChoiceName) {
+     if (listOfMatchingAttrs.length === 0) {
+       myQuery.addEntryForAttribute(attributeCalledQueryMatchingAttribute, newQueryMatchingAttribute);
+     } else {
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/TablePlugin.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -175,35 +175,11 @@
+       if (attribute != attributeCalledCategory) {
+         var attributeKeyString = attribute.getUniqueKeyString();
+         hashTableOfAttributes[attributeKeyString] = attribute;
+-        
+         hashTableOfEntries[attributeKeyString] = this.getWorld().getSuggestedItemsForAttribute(attribute);
+-/*
+-        // build entries representing this attribute in this table 
+-        // PENDING we may only want to do this for certain attributes
+-        var itemEntries = contentItem.getEntriesForAttribute(attribute);
+-        if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+-          hashTableOfEntries[attributeKeyString] = this.getWorld().getSuggestedItemsForAttribute(attribute);
+-        } else {
+-          if (!hashTableOfEntries[attributeKeyString]) {
+-            hashTableOfEntries[attributeKeyString] = {};
+-          }
+-          for (var entryKey in itemEntries) {
+-            var entry = itemEntries[entryKey];
+-            hashTableOfEntries[attributeKeyString][entry.getUniqueKeyString()] = entry;
+-          }
+-        }
+-*/
+       }
+     }
+   }
+   
+-/*  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+-  } else {
+-    for (attributeKey in hashTableOfEntries) {
+-      hashTableOfEntries[attributeKey] = Util.hashTableValues(hashTableOfEntries[attributeKey]);
+-    }
+-  }
+-*/
+   this._hashTableOfEntries = hashTableOfEntries;
+   if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
+     var attributeCalledName = this.getWorld().getAttributeCalledName();
+@@ -229,7 +205,7 @@
+   for (var i = 0; i &lt; listOfAttributes.length; ++i) {
+     optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
+     if (Util.isObjectInSet(listOfAttributes[i],this._displayAttributes)) {optionElt.text = '*';}
+-    optionElt.text += listOfAttributes[i].getDisplayName();
++    optionElt.text += listOfAttributes[i].getDisplayString();
+     optionElt.value = listOfAttributes[i].getUniqueKeyString();
+     optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
+   }
+@@ -341,12 +317,12 @@
+   // add header row
+   var headerRow = this.myTable.insertRow(0);
+   var numCols = 0;
+-  for (var i=0;i&lt;this._displayAttributes.length;++i) {
++  for (var i=0; i&lt;this._displayAttributes.length; ++i) {
+     var attribute = this._displayAttributes[i];
+     if (!this._sortAttribute) {this._sortAttribute = attribute;}
+     var aCell = document.createElement(&quot;th&quot;);
+-    var headerStr = attribute.getDisplayName();
+-    aCell.appendChild(document.createTextNode(headerStr));
++    var headerString = attribute.getDisplayString();
++    aCell.appendChild(document.createTextNode(headerString));
+     if (this._sortAttribute == attribute) {
+       aCell.appendChild(this.getSortIcon());
+     }
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/TextView.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -82,7 +82,7 @@
+   
+   this._isProvisional = inItem.isProvisional();
+   if (this._isProvisional) {
+-    this._provisionalText = inAttribute.getDisplayName();
++    this._provisionalText = inAttribute.getDisplayString();
+   }
+   else if (inEntry &amp;&amp; inEntry.getValue(this._item) instanceof Item) {
+     this._valueIsItem = true;
+@@ -101,7 +101,7 @@
+       var maxLength = 4;
+       for (var i=0; i &lt; this._suggestions.length;++i) {
+         var aSuggestion = this._suggestions[i];
+-        if (aSuggestion.getDisplayName().length &gt; maxLength) {maxLength = aSuggestion.getDisplayName().length;}
++        if (aSuggestion.getDisplayString().length &gt; maxLength) {maxLength = aSuggestion.getDisplayString().length;}
+       }
+       this._editField.size = maxLength;
+     }
+@@ -269,7 +269,7 @@
+         newValueDisplayString = newValue;
+       }
+       else if (newValue instanceof Item) {
+-        newValueDisplayString = newValue.getDisplayName();
++        newValueDisplayString = newValue.getDisplayString();
+       }
+       this._textNode.data = newValueDisplayString;
+       this._suggestionBox = null;
+@@ -608,8 +608,8 @@
+  *
+  */
+ AttributeSuggestionBox._compareItemDisplayNames = function (itemOne, itemTwo) {
+-  var displayNameOne = itemOne.getDisplayName();
+-  var displayNameTwo = itemTwo.getDisplayName();
++  var displayNameOne = itemOne.getDisplayString();
++  var displayNameTwo = itemTwo.getDisplayString();
+   if (displayNameOne == displayNameTwo) {
+     return 0;
+   } else {
+@@ -682,12 +682,13 @@
+     return true;
+   }
+   if (doSelectItem) {
+-    this._myInputField.value = this._selectedItem.getDisplayName();
++    this._myInputField.value = this._selectedItem.getDisplayString();
+     this._setShouldHide(true);
+   }
+   return false;
+ };
+ 
++
+ /**
+  *
+  */
+@@ -710,9 +711,9 @@
+  */
+ AttributeSuggestionBox.prototype._clickOnSelection = function (inEventObject, item) {
+   this._selectedItem = item;
+-  //this._myInputField.value = item.getDisplayName();  // PENDING: need to pass back the item, not a string
+ };
+ 
++
+ /**
+  *
+  */
+@@ -743,7 +744,7 @@
+ 
+   for (key in this._listOfSuggestedItems) {
+     item = this._listOfSuggestedItems[key];
+-    var lowerCaseEntryString = item.getDisplayName().toLowerCase();
++    var lowerCaseEntryString = item.getDisplayString().toLowerCase();
+     var lowerCaseInputString = partialInputString.toLowerCase();
+     var numberOfCharactersToCompare = lowerCaseInputString.length;
+     var shortEntryString = lowerCaseEntryString.substring(0, numberOfCharactersToCompare);
+@@ -764,7 +765,7 @@
+     var columnNumber = 0;
+     for (key in listOfMatchingItems) {
+       item = listOfMatchingItems[key];
+-      var textNode = document.createTextNode(item.getDisplayName());
++      var textNode = document.createTextNode(item.getDisplayString());
+       var row = table.insertRow(rowNumber);
+       var cell = row.insertCell(columnNumber);
+       row.className = (this._selectedItem == item) ? &quot;selected&quot;:&quot;&quot;;
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/Util.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -506,6 +506,16 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Methods that operate on Dates
++// -------------------------------------------------------------------
++
++Util.getStringMonthDayYear = function(date) {
++  var returnString = Util.ABBREV_MONTHS_ARRAY[date.getMonth()] + ' ' + date.getDate() + ', ' + (date.getYear()+1900);
++  return returnString;
++};
++
++
++// -------------------------------------------------------------------
+ // Methods for doing encryption
+ // -------------------------------------------------------------------
+ 
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-28 02:28:55 UTC (rev 188)
+@@ -27,7 +27,7 @@
+              &quot;uuid&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Attribute: Query Spec.
++    { &quot;Item&quot;: {                                               // Attribute: Query Spec
+              &quot;uuid&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -107,13 +107,13 @@
+              &quot;uuid&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Category: Query Spec.
++    { &quot;Item&quot;: {                                               // Category: Query Spec
+              &quot;uuid&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Category: Type
+-             &quot;uuid&quot;: &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+-    },
++    // (Category: Type)
++    // 
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot; } },
+     // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Category: Tag
+              &quot;uuid&quot;: &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+@@ -252,27 +252,27 @@
+             &quot;value&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Query Spec.
++    { &quot;Entry&quot;: {                                              // Query Spec
+              &quot;uuid&quot;: &quot;0001006a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Query Spec.
++             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Query Spec
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Query Spec.&quot; }
++            &quot;value&quot;: &quot;Query Spec&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              
+-             // in item (Attribute: Query Spec.) assign (Attribute: Category) = (Category: Attribute)
+-             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Query Spec.)
++             // in item (Attribute: Query Spec) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Query Spec)
+              &quot;uuid&quot;: &quot;0001006b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;item&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Query Spec.
++    { &quot;Entry&quot;: {                                              // Query Spec
+              &quot;uuid&quot;: &quot;0001006c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Query Spec.
++             &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Query Spec
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -385,9 +385,9 @@
+             &quot;value&quot;: &quot;Inverse Attribute&quot; }
+     },
+     // -----------------------------------------------------------------------
++    // in item (Attribute: Inverse Attribute) assign (Attribute: Category) = (Category: Attribute)
++    // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Inverse Attribute)
+     { &quot;Entry&quot;: {                                              
+-             // in item (Attribute: Inverse Attribute) assign (Attribute: Category) = (Category: Attribute)
+-             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Inverse Attribute)
+              &quot;uuid&quot;: &quot;000100bb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;item&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
+@@ -690,17 +690,17 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // &quot;Query Spec.&quot;
++    { &quot;Entry&quot;: {                                              // &quot;Query Spec&quot;
+              &quot;uuid&quot;: &quot;0001212a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Query Spec.
++             &quot;item&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Query Spec
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Query Spec.&quot; }
++            &quot;value&quot;: &quot;Query Spec&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              
+-             // in item (Category: Query Spec.) assign (Attribute: Category) = (Category: Category)
+-             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Query Spec.)
++             // in item (Category: Query Spec) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Query Spec)
+              &quot;uuid&quot;: &quot;0001212b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;item&quot;: [&quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
+@@ -1028,8 +1028,8 @@
+     },  
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              
+-             // in item (Attribute: Query Spec.) assign (Attribute: Inverse Attribute) = (Attribute: Section this query spec belongs to)
+-             // in item (Attribute: Section this query spec belongs to) assign (Attribute: Inverse Attribute) = (Attribute: Query Spec.)
++             // in item (Attribute: Query Spec) assign (Attribute: Inverse Attribute) = (Attribute: Section this query spec belongs to)
++             // in item (Attribute: Section this query spec belongs to) assign (Attribute: Inverse Attribute) = (Attribute: Query Spec)
+              &quot;uuid&quot;: &quot;0040105c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;item&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;],
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -171,6 +171,24 @@
+ 
+ 
+ /**
++ *
++ */
++DeltaVirtualServer.prototype._getTypedDisplayStringForItem = function (item) {
++  var returnString = &quot;(&quot;;
++  if (item) {
++    Util.assert(item instanceof Item);
++    var category = item.getFirstCategory();
++    if (category) {
++      returnString += this.truncateString(category.getDisplayString(&quot;???&quot;)) + &quot;: &quot;;
++    }
++    returnString += this.truncateString(item.getDisplayString(&quot;???&quot;));
++  }
++  returnString += &quot;)&quot;;
++  return returnString;
++};
++
++  
++/**
+  * Returns a big string, containing JavaScript &quot;object literal&quot;
+  * representations of the records.
+  *
+@@ -187,6 +205,7 @@
+   var itemDisplayNameSubstring;
+   var entryDisplayNameSubstring;
+   var listOfUsers = null;
++  var commentString;
+ 
+   for (key in inListOfRecords) {
+     var record = inListOfRecords[key];
+@@ -199,13 +218,13 @@
+ 
+     if (record instanceof Item) {
+       var item = record;
+-      listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ' + '{');
+-      itemDisplayNameSubstring = this.truncateString(item.getDisplayName());
+-      listOfStrings.push('                                               // ' + itemDisplayNameSubstring + '\n');
+-      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + item._getUuid() + '&quot;');
+-      listOfStrings.push('  }\n');
+-      listOfStrings.push(indent + '}');
+-     
++      listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
++      listOfStrings.push(indent + '//           by (' + item.getUserstamp().getDisplayString() + ')');
++      listOfStrings.push(' on (' + Util.getStringMonthDayYear(item.getGetCreationDate()) + ')\n');
++      listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ');
++      listOfStrings.push('{ &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + item._getUuid() + '&quot; }');
++      listOfStrings.push(' }');
++      
+       if (!listOfUsers) {
+         listOfUsers = this.getUsers();
+       }
+@@ -251,87 +270,73 @@
+ 
+     if (record instanceof Entry) {
+       var entry = record;
+-      listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{');
+-      entryDisplayNameSubstring = this.truncateString(entry.getDisplayString());
+-      listOfStrings.push('                                              // ' + entryDisplayNameSubstring + '\n');
+-      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + entry._getUuid() + '&quot;,\n');
++      var entryType = entry.getType();
++      var typeToken = this._getTypeTokenFromType(entryType);
++      var typeUuid = entryType._getUuid();
++      commentString = &quot;&quot;;
++      var entryString = &quot;&quot;;
++      entryString += indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{\n';
++      entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + entry._getUuid() + '&quot;,\n';
+       var previousEntry = entry.getPreviousEntry();
+       if (previousEntry) {
+-        listOfStrings.push(indent + '&quot;' + StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n');
++        entryString += indent + '&quot;' + StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: &quot;' + previousEntry._getUuid() + '&quot;,\n';
+       }
+-      var entryType = entry.getType();
+-      var typeToken = this._getTypeTokenFromType(entryType);
+-      // listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeToken + '&quot;,\n');
+-      // if (typeToken == StubVirtualServer.JSON_TYPE_CONNECTION) {
+-      var typeUuid = entryType._getUuid();
+-      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid + '&quot;,');
+-      listOfStrings.push('  // ' + typeToken + '\n');
++      entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid + '&quot;,\n';
+       if (typeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+         var pairOfItems = entry.getItem();
+         var firstItem = pairOfItems[0];
+         var secondItem = pairOfItems[1];
+-        listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: [&quot;' + firstItem._getUuid() + '&quot;, &quot;' + secondItem._getUuid() + '&quot;],\n');
++        entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: [&quot;' + firstItem._getUuid() + '&quot;, &quot;' + secondItem._getUuid() + '&quot;],\n';
+         var pairOfAttributes = entry.getAttribute();
+         var firstAttribute = pairOfAttributes[0];
+         var secondAttribute = pairOfAttributes[1];
+-        listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: [&quot;' + firstAttribute._getUuid() + '&quot;, &quot;' + secondAttribute._getUuid() + '&quot;]');
++        entryString += indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: [&quot;' + firstAttribute._getUuid() + '&quot;, &quot;' + secondAttribute._getUuid() + '&quot;]';
++        commentString += indent + '// On item ' + this._getTypedDisplayStringForItem(firstItem);
++        commentString += &quot; assign &quot; + this._getTypedDisplayStringForItem(firstAttribute);
++        commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(secondItem) + &quot;\n&quot;;
++        commentString += indent + '// On item ' + this._getTypedDisplayStringForItem(secondItem);
++        commentString += &quot; assign &quot; + this._getTypedDisplayStringForItem(secondAttribute);
++        commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(firstItem) + &quot;\n&quot;;
+       } else {
+         var attribute = entry.getAttribute();
+-        if (attribute) {
+-          var attributeName = attribute.getDisplayName();
+-          listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: &quot;' + attribute._getUuid() + '&quot;,');
+-          var attributeNameSubstring = this.truncateString(attributeName);
+-          listOfStrings.push('  // ' + attributeNameSubstring + '\n');
+-        }
+-        listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: &quot;' + entry.getItem()._getUuid() + '&quot;,');
+-        itemDisplayNameSubstring = this.truncateString(entry.getItem().getDisplayName());
+-        listOfStrings.push('  // ' + itemDisplayNameSubstring + '\n');
++        entryString += indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: &quot;' + attribute._getUuid() + '&quot;,\n';
++        entryString += indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_ITEM + '&quot;: &quot;' + entry.getItem()._getUuid() + '&quot;,\n';
+         var contentData = entry.getValue();
+         
+         var valueString = null;
+-/*
+-        switch (typeToken) {
+-          case StubVirtualServer.JSON_TYPE_NUMBER_VALUE: 
+-            valueString = contentData;
+-            break;
+-          case StubVirtualServer.JSON_TYPE_TEXT_VALUE: 
+-            valueString = '&quot;' + contentData + '&quot;';
+-            break;
+-          case StubVirtualServer.JSON_TYPE_DATE_VALUE: 
+-            valueString = '&quot;' + contentData.toString() + '&quot;';
+-            break;
+-          case StubVirtualServer.JSON_TYPE_RELATED_UUID: 
+-            valueString = '&quot;' + contentData._getUuid() + '&quot;';
+-            break;
+-          default:
+-            Util.assert(false, &quot;no such type: &quot; + typeToken);
+-        }
+-*/
++        var valueComment = null;
+         switch (typeUuid) {
+           case World.UUID_FOR_TYPE_NUMBER: 
+-            valueString = contentData;
++            valueString = '&quot;' + contentData + '&quot;';
++            valueComment = contentData;
+             break;
+           case World.UUID_FOR_TYPE_TEXT: 
+             valueString = '&quot;' + contentData + '&quot;';
++            valueComment = this.truncateString(valueString);
+             break;
+           case World.UUID_FOR_TYPE_DATE: 
+             valueString = '&quot;' + contentData.toString() + '&quot;';
++            valueComment = valueString;
+             break;
+           case World.UUID_FOR_TYPE_ITEM: 
+             valueString = '&quot;' + contentData._getUuid() + '&quot;';
++            valueComment = this._getTypedDisplayStringForItem(contentData);
+             break;
+           default:
+             Util.assert(false, &quot;no such type: &quot; + typeToken);
+         }
+-        listOfStrings.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + '');
++        entryString += indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString;
++        commentString += indent + '// On item ' + this._getTypedDisplayStringForItem(entry.getItem());
++        commentString += &quot; assign &quot; + this._getTypedDisplayStringForItem(attribute);
++        commentString += &quot; = &quot; + valueComment + &quot;\n&quot;;
+       }
++      commentString += indent + '//           by (' + entry.getUserstamp().getDisplayString() + ')';
++      commentString += ' on (' + Util.getStringMonthDayYear(entry.getGetCreationDate()) + ')\n';
++      listOfStrings.push(commentString);
++      listOfStrings.push(entryString);
+       listOfStrings.push('  }\n');
+       listOfStrings.push(indent + '}');
+     }
+-    
+-    // var userDisplayName = record.getUserstamp().getDisplayName();
+-    // var userDisplayNameSubstring = this.truncateString(userDisplayName);
+-    // listOfStrings.push('  // by (' + userDisplayNameSubstring + ')\n');
+   }
+   
+   var finalString = listOfStrings.join(&quot;&quot;);
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/model/Entry.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -335,21 +335,21 @@
+       break;
+     case this.getWorld().getTypeCalledDate():
+       var aDate = this.__myValue;
+-      returnString = Util.ABBREV_MONTHS_ARRAY[aDate.getMonth()] + ' ' + aDate.getDate() + ', '+ (aDate.getYear()+1900);
++      returnString = Util.getStringMonthDayYear(aDate);
+       break;
+     case this.getWorld().getTypeCalledItem():
+-      returnString = this.__myValue.getDisplayName();
++      returnString = this.__myValue.getDisplayString();
+       break;
+     case this.getWorld().getTypeCalledConnection():
+       var firstItem = this.__myItem[0];
+       var secondItem = this.__myItem[1];
+       if (myItem) {
+-        if (myItem == firstItem) {returnString = secondItem.getDisplayName();}
+-        else if (myItem == secondItem) {returnString = firstItem.getDisplayName();}
++        if (myItem == firstItem) {returnString = secondItem.getDisplayString();}
++        else if (myItem == secondItem) {returnString = firstItem.getDisplayString();}
+         else {Util.assert(false, &quot;myItem isn't part of this Entry&quot;);}
+       }
+       else {
+-        returnString = 'connection between &quot;' + firstItem.getDisplayName() + '&quot; and &quot;' + secondItem.getDisplayName() + '&quot;';
++        returnString = 'connection between &quot;' + firstItem.getDisplayString() + '&quot; and &quot;' + secondItem.getDisplayString() + '&quot;';
+       }
+       break;
+   }
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/model/Item.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -382,6 +382,20 @@
+ };
+ 
+ 
++/**
++ *
++ */
++Item.prototype.getFirstCategory = function () {
++  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++  var listOfCategoryEntries = this.getEntriesForAttribute(attributeCalledCategory);
++  var returnEntry = null;
++  if (listOfCategoryEntries &amp;&amp; listOfCategoryEntries.length &gt; 0) {
++    var firstEntry = listOfCategoryEntries[0];
++    var returnCategory = firstEntry.getValue(this);
++  }
++  return returnCategory;
++};
++
+ // -------------------------------------------------------------------
+ // Attribute accessor methods
+ // -------------------------------------------------------------------
+@@ -398,7 +412,7 @@
+ 
+ 
+ /**
+- * Returns a display name for the item.
++ * Returns a string with the display name of the item.
+  *
+  * @scope    public instance method
+  * @param    defaultString    Optional.  This string will be returned if the item has no display name. 
+@@ -416,6 +430,32 @@
+   
+ 
+ /**
++ * Returns a string with either the short name of the item or the name of the item.
++ *
++ * @scope    public instance method
++ * @param    defaultString    Optional.  This string will be returned if the item has no short name or name. 
++ * @return   A string with a name for the item.
++ */
++Item.prototype.getDisplayString = function (defaultString) {
++  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
++  var shortNameString = this.getSingleStringValueFromAttribute(attributeCalledShortName);
++  if (!shortNameString) {
++    shortNameString = this.getDisplayName(defaultString);
++  }
++  return shortNameString;
++};
++
++
++/**
++ *
++ */
++Item.prototype.getDisplayStringForEntry = function (entry) {
++  Util.assert(entry instanceof Entry);
++  return entry.getDisplayString(this);
++};
++
++
++/**
+  * Returns a list of the entries assigned to the &quot;name&quot; attribute.
+  *
+  * @scope    public instance method
+@@ -470,15 +510,6 @@
+ 
+ 
+ /**
+- *
+- */
+-Item.prototype.getDisplayStringForEntry = function (entry) {
+-  Util.assert(entry instanceof Entry);
+-  return entry.getDisplayString(this);
+-};
+-
+-
+-/**
+  * Returns a string describing the item.
+  *
+  * @scope    public instance method
+@@ -491,10 +522,10 @@
+   for (var key in listOfCategories) {
+     var category = listOfCategories[key];
+     if (category instanceof Item) {
+-      returnString += &quot;(&quot; + category.getDisplayName() + &quot;)&quot;;
++      returnString += &quot;(&quot; + category.getDisplayString() + &quot;)&quot;;
+     }
+   }
+-  returnString += &quot; \&quot;&quot; + this.getDisplayName() + &quot;\&quot;&quot; + &quot;]&quot;;
++  returnString += &quot; \&quot;&quot; + this.getDisplayString() + &quot;\&quot;&quot; + &quot;]&quot;;
+   return returnString; 
+ };
+ 
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/model/Record.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -104,7 +104,7 @@
+   }
+   var allUsers = this._world.getUsers();
+   var myPseudonode = this._uuid.split('-')[4];
+-  for (key in allUsers) {
++  for (var key in allUsers) {
+     var usersPseudonode = allUsers[key]._getUuid().split('-')[4];
+     if (usersPseudonode == myPseudonode) {
+       this._creationUserstamp = allUsers[key];
+@@ -116,10 +116,10 @@
+ 
+ 
+ /**
+- * Returns a Date object with the creation timestamp for this item.
++ * Returns ???.
+  *
+  * @scope    public instance method
+- * @return   A Date object.
++ * @return   ???.
+  */
+ Record.prototype.getTimestamp = function() {
+   if (this._creationTimestamp) {
+@@ -157,6 +157,18 @@
+ };
+ 
+ 
++/**
++ * Returns a Date object with the creation timestamp for this item.
++ *
++ * @scope    public instance method
++ * @return   A Date object.
++ */
++Record.prototype.getGetCreationDate = function() {
++  var date = new Date(this.getTimestamp());
++  return date;
++};
++
++
+ // -------------------------------------------------------------------
+ // Package/module methods           
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/model/StubVirtualServer.js	2005-06-28 02:28:55 UTC (rev 188)
+@@ -849,7 +849,7 @@
+       return token;
+     }
+   }
+-  Util.assert(false, &quot;no such type: &quot; + inType.getDisplayName());
++  Util.assert(false, &quot;no such type: &quot; + inType.getDisplayString());
+ };
+ 
+ 
+
+Modified: trunk/source/repositories/dogfood.json
+===================================================================
+--- trunk/source/repositories/dogfood.json	2005-06-27 21:29:52 UTC (rev 187)
++++ trunk/source/repositories/dogfood.json	2005-06-28 02:28:55 UTC (rev 188)
+@@ -40,4 +40,2124 @@
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This web site is where people working on OpenRecord keep track of the work being done.&quot; }
+     } ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;82ca34a0-e775-11d9-89df-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Page: People) assign (Attribute: Name) = &quot;People&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a0-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82ca34a0-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;People&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: People) assign (Attribute: Category) = (Category: Page)
++    // On item (Category: Page) assign (Attribute: Items in Category) = (Page: People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a1-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82ca34a0-e775-11d9-89df-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: People) assign (Attribute: Summary) = &quot;This is the people page.&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a2-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82ca34a0-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is the people page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: List of People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;82cca5a3-e775-11d9-89df-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of People) assign (Attribute: Name) = &quot;List of People&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a4-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82cca5a3-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;List of People&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of People) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: List of People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a5-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82cca5a3-e775-11d9-89df-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: People) assign (Attribute: Sections In Page) = (Section: List of People)
++    // On item (Section: List of People) assign (Attribute: Page this section appears on) = (Page: People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a6-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82ca34a0-e775-11d9-89df-000c414ce854&quot;, &quot;82cca5a3-e775-11d9-89df-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of People) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a7-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82cca5a3-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;82cca5a8-e775-11d9-89df-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5a9-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82cca5a8-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5aa-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82cca5a8-e775-11d9-89df-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of People) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: List of People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82cca5ab-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82cca5a3-e775-11d9-89df-000c414ce854&quot;, &quot;82cca5a8-e775-11d9-89df-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of List of People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;82d3d190-e775-11d9-89df-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Name) = &quot;Layout data for Table of List of People&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82d3d191-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82d3d190-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of List of People&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of List of People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82d61b80-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82d3d190-e775-11d9-89df-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82d61b81-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;82d3d190-e775-11d9-89df-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of People) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of List of People)
++    // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Section this layout data belongs to) = (Section: List of People)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;82d61b82-e775-11d9-89df-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;82cca5a3-e775-11d9-89df-000c414ce854&quot;, &quot;82d3d190-e775-11d9-89df-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;5555ef80-e777-11d9-8aaf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Page: Iterations) assign (Attribute: Name) = &quot;Iterations&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef81-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;5555ef80-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iterations&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Iterations) assign (Attribute: Category) = (Category: Page)
++    // On item (Category: Page) assign (Attribute: Items in Category) = (Page: Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef82-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;5555ef80-e777-11d9-8aaf-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Iterations) assign (Attribute: Summary) = &quot;This is the iterations page.&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef83-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;5555ef80-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is the iterations page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: List of Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Iterations) assign (Attribute: Name) = &quot;List of Iterations&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef85-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;List of Iterations&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Iterations) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: List of Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef86-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Iterations) assign (Attribute: Sections In Page) = (Section: List of Iterations)
++    // On item (Section: List of Iterations) assign (Attribute: Page this section appears on) = (Page: Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef87-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;5555ef80-e777-11d9-8aaf-000c414ce854&quot;, &quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Iterations) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef88-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;5555ef89-e777-11d9-8aaf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef8a-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;5555ef89-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef8b-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;5555ef89-e777-11d9-8aaf-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Iterations) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: List of Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;5555ef8c-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot;, &quot;5555ef89-e777-11d9-8aaf-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of List of Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Name) = &quot;Layout data for Table of List of Iterations&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;555d1b71-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of List of Iterations&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of List of Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;555d1b72-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;555d1b73-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Iterations) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of List of Iterations)
++    // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Section this layout data belongs to) = (Section: List of Iterations)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;555d1b74-e777-11d9-8aaf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;5555ef84-e777-11d9-8aaf-000c414ce854&quot;, &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;a7ef69b0-e777-11d9-80cf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Page: Stories) assign (Attribute: Name) = &quot;Stories&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b1-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7ef69b0-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Stories&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Stories) assign (Attribute: Category) = (Category: Page)
++    // On item (Category: Page) assign (Attribute: Items in Category) = (Page: Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b2-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7ef69b0-e777-11d9-80cf-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Stories) assign (Attribute: Summary) = &quot;This is the stories page.&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b3-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7ef69b0-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is the stories page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: List of Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Stories) assign (Attribute: Name) = &quot;List of Stories&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b5-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;List of Stories&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Stories) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: List of Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b6-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Stories) assign (Attribute: Sections In Page) = (Section: List of Stories)
++    // On item (Section: List of Stories) assign (Attribute: Page this section appears on) = (Page: Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b7-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7ef69b0-e777-11d9-80cf-000c414ce854&quot;, &quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Stories) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69b8-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;a7ef69b9-e777-11d9-80cf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69ba-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7ef69b9-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69bb-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7ef69b9-e777-11d9-80cf-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Stories) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: List of Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7ef69bc-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot;, &quot;a7ef69b9-e777-11d9-80cf-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of List of Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Stories) assign (Attribute: Name) = &quot;Layout data for Table of List of Stories&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7f8df91-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of List of Stories&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Stories) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of List of Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7f8df92-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Stories) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7f8df93-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Stories) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of List of Stories)
++    // On item (Layout Data: Layout data for Table of List of Stories) assign (Attribute: Section this layout data belongs to) = (Section: List of Stories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;a7f8df94-e777-11d9-80cf-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a7ef69b4-e777-11d9-80cf-000c414ce854&quot;, &quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d99a41b0-e777-11d9-8b8e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Page: Tasks) assign (Attribute: Name) = &quot;Tasks&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b1-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d99a41b0-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Tasks&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Tasks) assign (Attribute: Category) = (Category: Page)
++    // On item (Category: Page) assign (Attribute: Items in Category) = (Page: Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b2-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d99a41b0-e777-11d9-8b8e-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Tasks) assign (Attribute: Summary) = &quot;This is the tasks page.&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b3-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d99a41b0-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is the tasks page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: List of Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Tasks) assign (Attribute: Name) = &quot;List of Tasks&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b5-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;List of Tasks&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Tasks) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: List of Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b6-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Tasks) assign (Attribute: Sections In Page) = (Section: List of Tasks)
++    // On item (Section: List of Tasks) assign (Attribute: Page this section appears on) = (Page: Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b7-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d99a41b0-e777-11d9-8b8e-000c414ce854&quot;, &quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Tasks) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41b8-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d99a41b9-e777-11d9-8b8e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41ba-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d99a41b9-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41bb-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d99a41b9-e777-11d9-8b8e-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Tasks) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: List of Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d99a41bc-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot;, &quot;d99a41b9-e777-11d9-8b8e-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of List of Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Name) = &quot;Layout data for Table of List of Tasks&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d9a3b791-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of List of Tasks&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of List of Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d9a3b792-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d9a3b793-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Tasks) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of List of Tasks)
++    // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Section this layout data belongs to) = (Section: List of Tasks)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d9a3b794-e777-11d9-8b8e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d99a41b4-e777-11d9-8b8e-000c414ce854&quot;, &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0def0400-e778-11d9-bab6-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Page: Bugs) assign (Attribute: Name) = &quot;Bugs&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0def0401-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0def0400-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Bugs&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Bugs) assign (Attribute: Category) = (Category: Page)
++    // On item (Category: Page) assign (Attribute: Items in Category) = (Page: Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0def0402-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0def0400-e778-11d9-bab6-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Bugs) assign (Attribute: Summary) = &quot;This is the bugs page.&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0def0403-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0def0400-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is the bugs page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: List of Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0df14df0-e778-11d9-bab6-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Bugs) assign (Attribute: Name) = &quot;List of Bugs&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df1-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0df14df0-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;List of Bugs&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Bugs) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: List of Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df2-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0df14df0-e778-11d9-bab6-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Bugs) assign (Attribute: Sections In Page) = (Section: List of Bugs)
++    // On item (Section: List of Bugs) assign (Attribute: Page this section appears on) = (Page: Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df3-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0def0400-e778-11d9-bab6-000c414ce854&quot;, &quot;0df14df0-e778-11d9-bab6-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Bugs) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df4-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0df14df0-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0df14df5-e778-11d9-bab6-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df6-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0df14df5-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df7-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0df14df5-e778-11d9-bab6-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Bugs) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: List of Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df14df8-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0df14df0-e778-11d9-bab6-000c414ce854&quot;, &quot;0df14df5-e778-11d9-bab6-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of List of Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0df879e0-e778-11d9-bab6-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Bugs) assign (Attribute: Name) = &quot;Layout data for Table of List of Bugs&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df879e1-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0df879e0-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of List of Bugs&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Bugs) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of List of Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df879e2-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0df879e0-e778-11d9-bab6-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Bugs) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df879e3-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0df879e0-e778-11d9-bab6-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Bugs) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of List of Bugs)
++    // On item (Layout Data: Layout data for Table of List of Bugs) assign (Attribute: Section this layout data belongs to) = (Section: List of Bugs)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0df879e4-e778-11d9-bab6-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0df14df0-e778-11d9-bab6-000c414ce854&quot;, &quot;0df879e0-e778-11d9-bab6-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: Introspection)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4bfcc9d0-e778-11d9-a869-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Page: Introspection) assign (Attribute: Name) = &quot;Introspection&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bfcc9d1-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4bfcc9d0-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Introspection&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Introspection) assign (Attribute: Category) = (Category: Page)
++    // On item (Category: Page) assign (Attribute: Items in Category) = (Page: Introspection)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bfcc9d2-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bfcc9d0-e778-11d9-a869-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Introspection) assign (Attribute: Summary) = &quot;This is the introspection page.&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bfcc9d3-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4bfcc9d0-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is the introspection page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: List of Categories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Categories) assign (Attribute: Name) = &quot;List of Categories&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bfcc9d5-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;List of Categories&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Categories) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: List of Categories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bfcc9d6-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Introspection) assign (Attribute: Sections In Page) = (Section: List of Categories)
++    // On item (Section: List of Categories) assign (Attribute: Page this section appears on) = (Page: Introspection)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bfcc9d7-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bfcc9d0-e778-11d9-a869-000c414ce854&quot;, &quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Categories) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bff3ad0-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4bff3ad1-e778-11d9-a869-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bff3ad2-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4bff3ad1-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bff3ad3-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bff3ad1-e778-11d9-a869-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Categories) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: List of Categories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4bff3ad4-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot;, &quot;4bff3ad1-e778-11d9-a869-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of List of Categories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4c063fb0-e778-11d9-a869-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Categories) assign (Attribute: Name) = &quot;Layout data for Table of List of Categories&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4c063fb1-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4c063fb0-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of List of Categories&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Categories) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of List of Categories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4c063fb2-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4c063fb0-e778-11d9-a869-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of List of Categories) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4c063fb3-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4c063fb0-e778-11d9-a869-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: List of Categories) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of List of Categories)
++    // On item (Layout Data: Layout data for Table of List of Categories) assign (Attribute: Section this layout data belongs to) = (Section: List of Categories)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4c063fb4-e778-11d9-a869-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bfcc9d4-e778-11d9-a869-000c414ce854&quot;, &quot;4c063fb0-e778-11d9-a869-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: Category)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;7fb1c9b0-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;4bff3ad1-e778-11d9-a869-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: Person)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;9c0d9d50-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;82cca5a8-e775-11d9-89df-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: Iteration)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Category: Iteration) assign (Attribute: Name) = &quot;Iteration&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;aa24f1e0-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iteration&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Category: Iteration) assign (Attribute: Category) = (Category: Category)
++    // On item (Category: Category) assign (Attribute: Items in Category) = (Category: Iteration)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;aa24f1e1-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: User Story)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;aa273bd0-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Category: User Story) assign (Attribute: Name) = &quot;User Story&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b1532bd0-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;aa273bd0-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;User Story&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Category: User Story) assign (Attribute: Category) = (Category: Category)
++    // On item (Category: Category) assign (Attribute: Items in Category) = (Category: User Story)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b1532bd1-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;aa273bd0-e778-11d9-a7da-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: Task)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;b15575c0-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Category: Task) assign (Attribute: Name) = &quot;Task&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b3f37930-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;b15575c0-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Task&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Category: Task) assign (Attribute: Category) = (Category: Category)
++    // On item (Category: Category) assign (Attribute: Items in Category) = (Category: Task)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b3f37931-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;b15575c0-e778-11d9-a7da-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: Bug)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;b3f37932-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Category: Bug) assign (Attribute: Name) = &quot;Bug&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b6a46860-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;b3f37932-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Bug&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Category: Bug) assign (Attribute: Category) = (Category: Category)
++    // On item (Category: Category) assign (Attribute: Items in Category) = (Category: Bug)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b6a46861-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;b3f37932-e778-11d9-a7da-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: Iteration)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;bb8cf810-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;5555ef89-e777-11d9-8aaf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: User Story)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;c6262260-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;a7ef69b9-e777-11d9-80cf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;aa273bd0-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: Task)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;c9283ed0-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d99a41b9-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;b15575c0-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: Bug)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;cd0ccc00-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;0df14df5-e778-11d9-bab6-000c414ce854&quot;,
++          &quot;value&quot;: &quot;b3f37932-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Iteration: Iteration 1)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 1) assign (Attribute: Name) = &quot;Iteration 1&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e0d99d30-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iteration 1&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 1) assign (Attribute: Category) = (Category: Iteration)
++    // On item (Category: Iteration) assign (Attribute: Items in Category) = (Iteration: Iteration 1)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e0d99d31-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;, &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Iteration: Iteration 2)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;e0dc0e30-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 2) assign (Attribute: Name) = &quot;Iteration 2&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e2a0efb0-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;e0dc0e30-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iteration 2&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 2) assign (Attribute: Category) = (Category: Iteration)
++    // On item (Category: Iteration) assign (Attribute: Items in Category) = (Iteration: Iteration 2)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e2a0efb1-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;e0dc0e30-e778-11d9-a7da-000c414ce854&quot;, &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Iteration: Iteration 3)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;e2a360b0-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 3) assign (Attribute: Name) = &quot;Iteration 3&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e7208460-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;e2a360b0-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iteration 3&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 3) assign (Attribute: Category) = (Category: Iteration)
++    // On item (Category: Iteration) assign (Attribute: Items in Category) = (Iteration: Iteration 3)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e7208461-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;e2a360b0-e778-11d9-a7da-000c414ce854&quot;, &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Iteration: Iteration 4)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;e7208462-e778-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 4) assign (Attribute: Name) = &quot;Iteration 4&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ecdae300-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;e7208462-e778-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iteration 4&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Iteration: Iteration 4) assign (Attribute: Category) = (Category: Iteration)
++    // On item (Category: Iteration) assign (Attribute: Items in Category) = (Iteration: Iteration 4)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ecdae301-e778-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;e7208462-e778-11d9-a7da-000c414ce854&quot;, &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Table Columns) = (Attribute: Short Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;f117a251-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Table Columns) = (Attribute: Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;f117a250-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 1) assign (Attribute: Short Name) = &quot;Iteration 1&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;f53f04e0-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 1&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 2) assign (Attribute: Short Name) = &quot;Iteration 2&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;f6f0d390-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;e0dc0e30-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 2&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 3) assign (Attribute: Short Name) = &quot;Iteration 3&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;f89b9d60-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;e2a360b0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 3&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 4) assign (Attribute: Short Name) = &quot;Iteration 4&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;fc8c3880-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;e7208462-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 4&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 1) assign (Attribute: Name) = &quot;Iteration 1 - May 2005&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;113b7a70-e779-11d9-a7da-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;e0d99d30-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 1 - May 2005&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 1) assign (Attribute: Name) = &quot;Iteration 1 &#8211; May 2005&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;26d20f20-e779-11d9-a7da-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;113b7a70-e779-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 1 &#8211; May 2005&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 2) assign (Attribute: Name) = &quot;Iteration 2 &#8211; June 2005&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2d8db120-e779-11d9-a7da-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;e2a0efb0-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;e0dc0e30-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 2 &#8211; June 2005&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 3) assign (Attribute: Name) = &quot;Iteration 3 &#8211; July 2005&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;31b2c9c0-e779-11d9-a7da-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;e7208460-e778-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;e2a360b0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iteration 3 &#8211; July 2005&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Section: New Section)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4b113be0-e779-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Section: New Section) assign (Attribute: Name) = &quot;New Section&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b113be1-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: New Section) assign (Attribute: Category) = (Category: Section)
++    // On item (Category: Section) assign (Attribute: Items in Category) = (Section: New Section)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b13ace0-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Page: Introspection) assign (Attribute: Sections In Page) = (Section: New Section)
++    // On item (Section: New Section) assign (Attribute: Page this section appears on) = (Page: Introspection)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b13ace1-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4bfcc9d0-e778-11d9-a869-000c414ce854&quot;, &quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: New Section) assign (Attribute: Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b13ace2-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4b13ace3-e779-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b13ace4-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4b13ace3-e779-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Query Spec: New Query) assign (Attribute: Category) = (Category: Query Spec)
++    // On item (Category: Query Spec) assign (Attribute: Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b13ace5-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4b13ace3-e779-11d9-a7da-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: New Section) assign (Attribute: Query Spec) = (Query Spec: New Query)
++    // On item (Query Spec: New Query) assign (Attribute: Section this query spec belongs to) = (Section: New Section)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b13ace6-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;, &quot;4b13ace3-e779-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;4b1867d0-e779-11d9-a7da-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of New Section) assign (Attribute: Name) = &quot;Layout data for Table of New Section&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b1867d1-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4b1867d0-e779-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of New Section) assign (Attribute: Category) = (Category: Layout Data)
++    // On item (Category: Layout Data) assign (Attribute: Items in Category) = (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b1867d2-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4b1867d0-e779-11d9-a7da-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Layout Data: Layout data for Table of New Section) assign (Attribute: Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b1867d3-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;4b1867d0-e779-11d9-a7da-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Section: New Section) assign (Attribute: Layout Data) = (Layout Data: Layout data for Table of New Section)
++    // On item (Layout Data: Layout data for Table of New Section) assign (Attribute: Section this layout data belongs to) = (Section: New Section)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;4b1867d4-e779-11d9-a7da-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;, &quot;4b1867d0-e779-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Query Spec: New Query) assign (Attribute: Matching Value) = (Category: Attribute)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;556c72d0-e779-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;4b13ace3-e779-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Section: List of Attributes) assign (Attribute: Name) = &quot;List of Attributes&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;5ee9f3f0-e779-11d9-a7da-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;4b113be1-e779-11d9-a7da-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;4b113be0-e779-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;List of Attributes&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (User Story: Deletion)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;add58150-e779-11d9-93ea-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (User Story: Deletion) assign (Attribute: Name) = &quot;Deletion&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b3f3f8f0-e779-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;add58150-e779-11d9-93ea-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Deletion&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (User Story: Deletion) assign (Attribute: Category) = (Category: User Story)
++    // On item (Category: User Story) assign (Attribute: Items in Category) = (User Story: Deletion)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;b3f3f8f1-e779-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;add58150-e779-11d9-93ea-000c414ce854&quot;, &quot;aa273bd0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Stories) assign (Attribute: Table Columns) = (Attribute: Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;b8f42f50-e779-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Stories) assign (Attribute: Table Columns) = (Attribute: Summary)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;b8f42f51-e779-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;a7f8df90-e777-11d9-80cf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (User Story: Deletion) assign (Attribute: Summary) = &quot;A logged-in user can delete items&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;bac78fc0-e779-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;add58150-e779-11d9-93ea-000c414ce854&quot;,
++          &quot;value&quot;: &quot;A logged-in user can delete items&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (User Story: Reliable data-store)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;b8f6a050-e779-11d9-93ea-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (User Story: Reliable data-store) assign (Attribute: Name) = &quot;Reliable data-store&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ccdb3f40-e779-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;b8f6a050-e779-11d9-93ea-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Reliable data-store&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (User Story: Reliable data-store) assign (Attribute: Category) = (Category: User Story)
++    // On item (Category: User Story) assign (Attribute: Items in Category) = (User Story: Reliable data-store)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ccdb3f41-e779-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;b8f6a050-e779-11d9-93ea-000c414ce854&quot;, &quot;aa273bd0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (User Story: Reliable data-store) assign (Attribute: Summary) = &quot;Users can trust that data won't be lost.&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;dad39a20-e779-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;b8f6a050-e779-11d9-93ea-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Users can trust that data won't be lost.&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Task: DOM level 2)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;fd8967c0-e779-11d9-93ea-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Task: DOM level 2) assign (Attribute: Name) = &quot;DOM level 2&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;036c35f0-e77a-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;fd8967c0-e779-11d9-93ea-000c414ce854&quot;,
++            &quot;value&quot;: &quot;DOM level 2&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Task: DOM level 2) assign (Attribute: Category) = (Category: Task)
++    // On item (Category: Task) assign (Attribute: Items in Category) = (Task: DOM level 2)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;036c35f1-e77a-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;fd8967c0-e779-11d9-93ea-000c414ce854&quot;, &quot;b15575c0-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Table Columns) = (Attribute: Summary)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;0503ecf1-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Table Columns) = (Attribute: Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;0503ecf0-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Task: DOM level 2) assign (Attribute: Summary) = &quot;Convert UI code from DOM level 0 to DOM level 2&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;08598090-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;fd8967c0-e779-11d9-93ea-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Convert UI code from DOM level 0 to DOM level 2&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Bugs) assign (Attribute: Table Columns) = (Attribute: Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;15ed9b60-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;0df879e0-e778-11d9-bab6-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Bugs) assign (Attribute: Table Columns) = (Attribute: Summary)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;15ed9b61-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;0df879e0-e778-11d9-bab6-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Bug: Back button)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;15efe550-e77a-11d9-93ea-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Bug: Back button) assign (Attribute: Name) = &quot;Back button&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;18630830-e77a-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;15efe550-e77a-11d9-93ea-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Back button&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Bug: Back button) assign (Attribute: Category) = (Category: Bug)
++    // On item (Category: Bug) assign (Attribute: Items in Category) = (Bug: Back button)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;18630831-e77a-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;15efe550-e77a-11d9-93ea-000c414ce854&quot;, &quot;b3f37932-e778-11d9-a7da-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Bug: Back button) assign (Attribute: Summary) = &quot;back button is broken.&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;1b81ad50-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;15efe550-e77a-11d9-93ea-000c414ce854&quot;,
++          &quot;value&quot;: &quot;back button is broken.&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Bug: Back button) assign (Attribute: Summary) = &quot;The back button is broken.&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;1f87a530-e77a-11d9-93ea-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;1b81ad50-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;15efe550-e77a-11d9-93ea-000c414ce854&quot;,
++          &quot;value&quot;: &quot;The back button is broken.&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Completion Date)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Completion Date) assign (Attribute: Name) = &quot;Completion Date&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;457ff3a0-e77a-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Completion Date&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Completion Date) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Completion Date)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;457ff3a1-e77a-11d9-93ea-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Completion Date) assign (Attribute: Expected Type) = (Type: Date)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;4782ef90-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Table Columns) = (Attribute: Completion Date)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;572f8a20-e77a-11d9-8196-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 1) assign (Attribute: Completion Date) = &quot;Mon May 30 2005 00:00:00 GMT-0700 (Pacific Standard Time)&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;6892d560-e77a-11d9-8196-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;item&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Mon May 30 2005 00:00:00 GMT-0700 (Pacific Standard Time)&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 1) assign (Attribute: Completion Date) = &quot;Mon Jun 06 2005 00:00:00 GMT-0700 (Pacific Standard Time)&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;7c85cc30-e77a-11d9-8196-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;6892d560-e77a-11d9-8196-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;item&quot;: &quot;ceb795d0-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Mon Jun 06 2005 00:00:00 GMT-0700 (Pacific Standard Time)&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Iteration: Iteration 2) assign (Attribute: Completion Date) = &quot;Tue Jul 05 2005 00:00:00 GMT-0700 (Pacific Standard Time)&quot;
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;84c88360-e77a-11d9-8196-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;3af52130-e77a-11d9-93ea-000c414ce854&quot;,
++           &quot;item&quot;: &quot;e0dc0e30-e778-11d9-a7da-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Tue Jul 05 2005 00:00:00 GMT-0700 (Pacific Standard Time)&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Tasks Scheduled)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;99cff770-e77a-11d9-8196-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Tasks Scheduled) assign (Attribute: Name) = &quot;Tasks Scheduled&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dbf938f0-e77a-11d9-8196-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;99cff770-e77a-11d9-8196-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Tasks Scheduled&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Tasks Scheduled) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Tasks Scheduled)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dbf938f1-e77a-11d9-8196-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;99cff770-e77a-11d9-8196-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Tasks Scheduled) assign (Attribute: Expected Type) = (Category: Task)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;dd877a10-e77a-11d9-8196-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;99cff770-e77a-11d9-8196-000c414ce854&quot;,
++          &quot;value&quot;: &quot;b15575c0-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Scheduled For)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;dbfba9f0-e77a-11d9-8196-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Scheduled For) assign (Attribute: Name) = &quot;Scheduled For&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e26fe2b0-e77a-11d9-8196-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;dbfba9f0-e77a-11d9-8196-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Scheduled For&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Scheduled For) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Scheduled For)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e26fe2b1-e77a-11d9-8196-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;dbfba9f0-e77a-11d9-8196-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Scheduled For) assign (Attribute: Expected Type) = (Category: Iteration)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;e4ae8810-e77a-11d9-8196-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;dbfba9f0-e77a-11d9-8196-000c414ce854&quot;,
++          &quot;value&quot;: &quot;a5dc24a0-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Tasks Scheduled) assign (Attribute: Inverse Attribute) = (Attribute: Scheduled For)
++  // On item (Attribute: Scheduled For) assign (Attribute: Inverse Attribute) = (Attribute: Tasks Scheduled)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;f6aa69d0-e77a-11d9-964e-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: [&quot;99cff770-e77a-11d9-8196-000c414ce854&quot;, &quot;dbfba9f0-e77a-11d9-8196-000c414ce854&quot;],
++      &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Estimate)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;10f9a490-e77b-11d9-964e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Estimate) assign (Attribute: Name) = &quot;Estimate&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;1d49a6a0-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;10f9a490-e77b-11d9-964e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Estimate&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Estimate) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Estimate)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;1d49a6a1-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;10f9a490-e77b-11d9-964e-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Estimate) assign (Attribute: Expected Type) = (Type: Number)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2113f510-e77b-11d9-964e-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;10f9a490-e77b-11d9-964e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Actual)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;1d49a6a2-e77b-11d9-964e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Actual) assign (Attribute: Name) = &quot;Actual&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;23e64ef0-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;1d49a6a2-e77b-11d9-964e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Actual&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Actual) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Actual)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;23e64ef1-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;1d49a6a2-e77b-11d9-964e-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Actual) assign (Attribute: Expected Type) = (Type: Number)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2582c0e0-e77b-11d9-964e-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;1d49a6a2-e77b-11d9-964e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Signed-up Person)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;23e8bff0-e77b-11d9-964e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Signed-up Person) assign (Attribute: Name) = &quot;Signed-up Person&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;44c8e330-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;23e8bff0-e77b-11d9-964e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Signed-up Person&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Signed-up Person) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Signed-up Person)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;44cb5430-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;23e8bff0-e77b-11d9-964e-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Signed-up Person) assign (Attribute: Expected Type) = (Category: Person)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;464d8760-e77b-11d9-964e-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;23e8bff0-e77b-11d9-964e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Tasks signed-up for)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;44cb5431-e77b-11d9-964e-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Tasks signed-up for) assign (Attribute: Name) = &quot;Tasks signed-up for&quot;
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;516c3560-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;44cb5431-e77b-11d9-964e-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Tasks signed-up for&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // On item (Attribute: Tasks signed-up for) assign (Attribute: Category) = (Category: Attribute)
++    // On item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Tasks signed-up for)
++    //           by (Brian) on (Jun 27, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;516c3561-e77b-11d9-964e-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;44cb5431-e77b-11d9-964e-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Tasks signed-up for) assign (Attribute: Expected Type) = (Category: Task)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;52f80580-e77b-11d9-964e-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;44cb5431-e77b-11d9-964e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;b15575c0-e778-11d9-a7da-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Attribute: Tasks signed-up for) assign (Attribute: Inverse Attribute) = (Attribute: Signed-up Person)
++  // On item (Attribute: Signed-up Person) assign (Attribute: Inverse Attribute) = (Attribute: Tasks signed-up for)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;6ae02b50-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: [&quot;44cb5431-e77b-11d9-964e-000c414ce854&quot;, &quot;23e8bff0-e77b-11d9-964e-000c414ce854&quot;],
++      &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Table Columns) = (Attribute: Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;78f50ee0-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;82d3d190-e775-11d9-89df-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Table Columns) = (Attribute: Tasks signed-up for)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;78f50ee1-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;82d3d190-e775-11d9-89df-000c414ce854&quot;,
++          &quot;value&quot;: &quot;44cb5431-e77b-11d9-964e-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of People) assign (Attribute: Table Columns) = (Attribute: Short Name)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;78f2c4f0-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;82d3d190-e775-11d9-89df-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Table Columns) = (Attribute: Signed-up Person)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;85475ae0-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;23e8bff0-e77b-11d9-964e-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Table Columns) = (Attribute: Estimate)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;8bd84360-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;10f9a490-e77b-11d9-964e-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Table Columns) = (Attribute: Actual)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;932ca2f0-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;1d49a6a2-e77b-11d9-964e-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Tasks) assign (Attribute: Table Columns) = (Attribute: Scheduled For)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;a9c71310-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d9a3b790-e777-11d9-8b8e-000c414ce854&quot;,
++          &quot;value&quot;: &quot;dbfba9f0-e77a-11d9-8196-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // On item (Layout Data: Layout data for Table of List of Iterations) assign (Attribute: Table Columns) = (Attribute: Tasks Scheduled)
++  //           by (Brian) on (Jun 27, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;b95242f0-e77b-11d9-95dd-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;555d1b70-e777-11d9-8aaf-000c414ce854&quot;,
++          &quot;value&quot;: &quot;99cff770-e77a-11d9-8196-000c414ce854&quot;  }
+   }
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000173.html">[openrecord-svn] r187 - in trunk/source: . model repositories
+</A></li>
+	<LI>Next message: <A HREF="000175.html">[openrecord-svn] r189 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#174">[ date ]</a>
+              <a href="thread.html#174">[ thread ]</a>
+              <a href="subject.html#174">[ subject ]</a>
+              <a href="author.html#174">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

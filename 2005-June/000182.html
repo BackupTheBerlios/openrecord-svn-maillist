@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r196 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r196%20-%20trunk/source&In-Reply-To=%3C200506300354.j5U3sn6h000368%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000181.html">
+   <LINK REL="Next"  HREF="000183.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r196 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r196%20-%20trunk/source&In-Reply-To=%3C200506300354.j5U3sn6h000368%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r196 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 05:54:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000181.html">[openrecord-svn] r195 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000183.html">[openrecord-svn] r197 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#182">[ date ]</a>
+              <a href="thread.html#182">[ thread ]</a>
+              <a href="subject.html#182">[ subject ]</a>
+              <a href="author.html#182">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-30 05:54:39 +0200 (Thu, 30 Jun 2005)
+New Revision: 196
+
+Modified:
+   trunk/source/LoginView.js
+   trunk/source/MultiEntriesView.js
+   trunk/source/NavbarView.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/PluginView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/View.js
+Log:
+Converted NavbarView from DOM level 0 to DOM level 2.  Replaced a bunch of lines like &quot;foo.innerHTML = '';&quot; with calls to a new View helper method, removeChildrenOfElement().  Did some other minor clean-up.
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/LoginView.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -97,8 +97,7 @@
+ LoginView.prototype._rebuildView = function () {
+   var mySpan = this.getHTMLElement();
+   
+-  //get rid of all child nodes 
+-  mySpan.innerHTML = '';
++  View.removeChildrenOfElement(mySpan);
+   
+   var currentUser = this.getWorld().getCurrentUser();
+   if (!currentUser) {
+@@ -220,7 +219,9 @@
+  * @scope    private instance method
+  */
+ LoginView.prototype._clickOnSignoutLink = function(inEventObject) {
+-  if (this.isInEditMode()) {this.getRootView().setEditMode(false);}
++  if (this.isInEditMode()) {
++    this.getRootView().setEditMode(false);
++  }
+   this.myCookie.userUuid = null;
+   this.myCookie.store();
+   this.getWorld().logout();
+@@ -457,7 +458,7 @@
+     // make the suggestion box disappear
+     this._mySuggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+-    this._mySuggestionBoxDivElement.innerHTML = &quot;&quot;;
++    View.removeChildrenOfElement(this._mySuggestionBoxDivElement);
+     var table = document.createElement('table');
+     var rowNumber = 0;
+     var columnNumber = 0;
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/MultiEntriesView.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -262,7 +262,7 @@
+  */
+ MultiEntriesView.prototype._buildView = function() {
+   var htmlElement = this.getHTMLElement();
+-  htmlElement.innerHTML = '';
++  View.removeChildrenOfElement(htmlElement);
+   this._entryViews = [];
+   
+   var entries = this._item.getEntriesForAttribute(this._attribute);
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/NavbarView.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -42,6 +42,7 @@
+ // -------------------------------------------------------------------
+ // NavbarView public class constants
+ // -------------------------------------------------------------------
++NavbarView.CSS_CLASS_MENU      = &quot;menu&quot;;
+ NavbarView.CSS_CLASS_MENU_ITEM = &quot;menu_item&quot;;
+ 
+ 
+@@ -93,33 +94,29 @@
+   var key;
+   var page;
+ 
++  View.removeChildrenOfElement(this._htmlElementForAnchors);
+   for (key in listOfPages) {
+     page = listOfPages[key];
+     var anchor = View.createAndAppendElement(this._htmlElementForAnchors, &quot;a&quot;);
+     anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + page._getUuid());
+   }
+   
+-  
+   var divElement = this.getHTMLElement();
+-  //get rid of all child nodes 
+-  divElement.innerHTML = '';
+-
+-  var listOfStrings = [];
+-  listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
++  View.removeChildrenOfElement(divElement); 
++  var ulElement = View.createAndAppendElement(divElement, &quot;ul&quot;, NavbarView.CSS_CLASS_MENU);
+   var rootView = this.getRootView();
+   for (key in listOfPages) {
+     page = listOfPages[key];
+     page.addObserver(this);
+-    var menuText = page.getDisplayString();
++    var liElement = View.createAndAppendElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM);
++    var anchorElement = View.createAndAppendElement(liElement, &quot;a&quot;);
+     var menuUrl = rootView.getUrlForItem(page);
+-    listOfStrings.push(&quot;&lt;li class=\&quot;&quot; + NavbarView.CSS_CLASS_MENU_ITEM + &quot;\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
++    anchorElement.setAttribute(&quot;href&quot;, menuUrl);
++    var menuText = page.getDisplayString();
++    View.createAndAppendTextNode(anchorElement, menuText);
++    anchorElement.onclick = RootView.clickOnLocalLink.bindAsEventListener();
+   }
+-  listOfStrings.push(&quot;&lt;/ul&gt;&quot;);
+   
+-  // write out the new nav bar content 
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  divElement.innerHTML = finalString;
+-  
+   var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
+   newPageButton.type = &quot;button&quot;;
+   newPageButton.value = &quot;New Page&quot;;
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/OutlinePlugin.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -97,7 +97,7 @@
+ OutlinePlugin.prototype.refresh = function () {
+   var listOfContentItems = this.fetchItems();
+   var outlineDiv = this.getHTMLElement();
+-  outlineDiv.innerHTML = &quot;&quot;;
++  View.removeChildrenOfElement(outlineDiv);
+   var ulElement = View.createAndAppendElement(outlineDiv, &quot;ul&quot;);
+   for (var contentItemKey in listOfContentItems) {
+     var contentItem = listOfContentItems[contentItemKey];
+
+Modified: trunk/source/PluginView.js
+===================================================================
+--- trunk/source/PluginView.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/PluginView.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -117,7 +117,7 @@
+  * @scope    public instance method
+  */
+ PluginView.prototype.endOfLife = function () {
+-  this.getHTMLElement().innerHTML = &quot;&quot;;
++  View.removeChildrenOfElement(this.getHTMLElement());
+ };
+ 
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/SectionView.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -326,7 +326,7 @@
+  *
+  */
+ SectionView.prototype._refreshQueryEditSpan = function () {
+-  this._queryEditSpan.innerHTML = '';
++  View.removeChildrenOfElement(this._queryEditSpan);
+   
+   var myQuery = this.getQuerySpec();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/TablePlugin.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -349,7 +349,7 @@
+   }
+   
+   //create new table, remove old table if already exists
+-  this._myHTMLElement.innerHTML = '';
++  View.removeChildrenOfElement(this._myHTMLElement);
+   this.myTable = document.createElement(&quot;table&quot;);
+   this.myTable.className = this.myClass;
+   
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/TextView.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -68,7 +68,7 @@
+   
+   this.setSuperview(theSuperview);
+   this.setHTMLElement(inElement);
+-  inElement.style.width =
++  inElement.style.width = &quot;100%&quot;;
+   inElement.style.height = &quot;100%&quot;; // make this element expand to fill parent element where possible
+   this._item = inItem;
+   this._attribute = inAttribute;
+@@ -175,7 +175,7 @@
+  */
+ TextView.prototype._buildView = function() {
+   var htmlElement = this.getHTMLElement();
+-  htmlElement.innerHTML = '';
++  View.removeChildrenOfElement(htmlElement);
+   
+   var textString = this._getText();
+   
+@@ -732,7 +732,6 @@
+ };
+ 
+ 
+-
+ /**
+  *
+  */
+@@ -761,7 +760,7 @@
+     // make the suggestion box disappear
+     this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+-    this._myAttributeSuggestionBoxDivElement.innerHTML = &quot;&quot;;
++    View.removeChildrenOfElement(this._myAttributeSuggestionBoxDivElement);
+     var table = document.createElement('table');
+     var rowNumber = 0;
+     var columnNumber = 0;
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-06-30 02:18:39 UTC (rev 195)
++++ trunk/source/View.js	2005-06-30 03:54:39 UTC (rev 196)
+@@ -184,6 +184,19 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Given an HTML element, this method deletes all of the contents from
++ * within the element.
++ *
++ * @scope    public class method
++ * @param    element    An HTML element. 
++ */
++View.removeChildrenOfElement = function(element) {
++  Util.assert(element instanceof HTMLElement);
++  element.innerHTML = '';
++};
++
++
++/**
+  * Given an HTML element, we first call document.createElement() to 
+  * create a new element, and then call appendChild() to add the new 
+  * element to the given element.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000181.html">[openrecord-svn] r195 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000183.html">[openrecord-svn] r197 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#182">[ date ]</a>
+              <a href="thread.html#182">[ thread ]</a>
+              <a href="subject.html#182">[ subject ]</a>
+              <a href="author.html#182">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

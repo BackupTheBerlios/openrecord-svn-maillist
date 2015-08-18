@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r260 - trunk/source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r260%20-%20trunk/source/util&In-Reply-To=%3C200507252342.j6PNgmdh009499%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000244.html">
+   <LINK REL="Next"  HREF="000246.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r260 - trunk/source/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r260%20-%20trunk/source/util&In-Reply-To=%3C200507252342.j6PNgmdh009499%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r260 - trunk/source/util">skinner at berlios.de
+       </A><BR>
+    <I>Tue Jul 26 01:42:48 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000244.html">[openrecord-svn] r259 - in trunk: documentation source/model source/util
+</A></li>
+        <LI>Next message: <A HREF="000246.html">[openrecord-svn] r261 - in trunk: . documentation repositories source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#245">[ date ]</a>
+              <a href="thread.html#245">[ thread ]</a>
+              <a href="subject.html#245">[ subject ]</a>
+              <a href="author.html#245">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-26 01:42:46 +0200 (Tue, 26 Jul 2005)
+New Revision: 260
+
+Modified:
+   trunk/source/util/Uuid.js
+Log:
+Added a few new Uuid instance methods.
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-07-22 23:30:45 UTC (rev 259)
++++ trunk/source/util/Uuid.js	2005-07-25 23:42:46 UTC (rev 260)
+@@ -51,10 +51,9 @@
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+ function Uuid() {
+-  throw new Error(&quot;Uuid is a static class. You can't create instances of it.&quot;);
++  this._uuidString = Uuid.generateTimeBasedUuid();
+ }
+ 
+-
+ // -------------------------------------------------------------------
+ // Uuid public class constants
+ // -------------------------------------------------------------------
+@@ -72,6 +71,42 @@
+ Uuid._ourNextIntraMillisecondIncrement = 0;
+ 
+ 
++/**
++ * Returns a 36-character string representing the UUID, such as 
++ * &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
++ * 
++ * @scope    public instance method
++ * @return   Returns a 36-character UUID string.
++ */
++Uuid.prototype.toString = function() {
++  return this._uuidString;
++};
++
++
++/**
++ * Returns a 12-character string with the &quot;node&quot; or &quot;pseudonode&quot; portion of 
++ * the UUID, which is the rightmost 12 characters.
++ * 
++ * @scope    public instance method
++ * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
++ */
++Uuid.prototype.getNode = function() {
++  return Uuid.getNodeFromUuid(this._uuidString);
++};
++
++
++/**
++ * Returns a JavaScript Date object with a value equal to the value in the
++ * time fields of the UUID.
++ * 
++ * @scope    public class method
++ * @return   Returns a JavaScript Date object.
++ */
++Uuid.prototype.getDate = function() {
++  return Uuid.getDateFromUuid(this._uuidString);
++};
++
++
+ // -------------------------------------------------------------------
+ // Public methods for working with UUIDs
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000244.html">[openrecord-svn] r259 - in trunk: documentation source/model source/util
+</A></li>
+	<LI>Next message: <A HREF="000246.html">[openrecord-svn] r261 - in trunk: . documentation repositories source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#245">[ date ]</a>
+              <a href="thread.html#245">[ thread ]</a>
+              <a href="subject.html#245">[ subject ]</a>
+              <a href="author.html#245">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

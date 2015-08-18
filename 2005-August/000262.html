@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r277 - in trunk: documentation source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r277%20-%20in%20trunk%3A%20documentation%20source/util&In-Reply-To=%3C200508082025.j78KPwaH031873%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000261.html">
+   <LINK REL="Next"  HREF="000263.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r277 - in trunk: documentation source/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r277%20-%20in%20trunk%3A%20documentation%20source/util&In-Reply-To=%3C200508082025.j78KPwaH031873%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r277 - in trunk: documentation source/util">skinner at berlios.de
+       </A><BR>
+    <I>Mon Aug  8 22:25:58 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000261.html">[openrecord-svn] r276 - in trunk/source: model util
+</A></li>
+        <LI>Next message: <A HREF="000263.html">[openrecord-svn] r278 - in trunk: . meeting_notes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#262">[ date ]</a>
+              <a href="thread.html#262">[ thread ]</a>
+              <a href="subject.html#262">[ subject ]</a>
+              <a href="author.html#262">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-08 22:25:57 +0200 (Mon, 08 Aug 2005)
+New Revision: 277
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/util/CsvParser.js
+   trunk/source/util/CsvParserTest.js
+Log:
+Minor bug fix.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-08-05 06:21:02 UTC (rev 276)
++++ trunk/documentation/release_planning.txt	2005-08-08 20:25:57 UTC (rev 277)
+@@ -369,6 +369,8 @@
+        |          |         | 63. Write scalability tests 
+        |          |         | 64. Ensure that PHP scripts and file I/O works for concurrent multi-user access
+        |          |         | 65. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
++       |          |         |     Make RootView subclass from View, or add comments explaining why it doesn't
++       |          |         |     Make DateValue subclass from Date, or wrap an internal Date object
+ -------+----------+---------+----------------------------------------------
+        
+ 
+
+Modified: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-08-05 06:21:02 UTC (rev 276)
++++ trunk/source/util/CsvParser.js	2005-08-08 20:25:57 UTC (rev 277)
+@@ -58,7 +58,7 @@
+  * 
+  * For example, given this CSV string as input:
+  * &lt;pre&gt;
+- *   &quot;Alien, 1979, Ridley Scott \n Blade Runner, 1982, Ridley Scott&quot;
++ *   &quot;Title, Year, Producer \n Alien, 1979, Ridley Scott \n Blade Runner, 1982, Ridley Scott&quot;
+  * &lt;/pre&gt;
+  * We will return this data structure:
+  * &lt;pre&gt;
+@@ -75,12 +75,14 @@
+   var lineEndingCharacters = new RegExp(&quot;\r\n|\n|\r&quot;);
+   var leadingWhiteSpaceCharacters = new RegExp(&quot;^\\s+&quot;,'g');
+   var trailingWhiteSpaceCharacters = new RegExp(&quot;\\s+$&quot;,'g');
++  var doubleQuotes = new RegExp('&quot;&quot;','g');
+   var listOfOutputRecords = [];
+   
+   var listOfInputLines = csvData.split(lineEndingCharacters);
++  var firstLine = true;
+   for (var i in listOfInputLines) {
+     var singleLine = listOfInputLines[i];
+-    if (singleLine.length &gt; 0) {
++    if ((!firstLine) &amp;&amp; (singleLine.length &gt; 0)) {
+       var listOfFields = singleLine.split(',');
+       var j = 0;
+       while (j &lt; listOfFields.length) {
+@@ -90,12 +92,17 @@
+         var firstCharacter = field.charAt(0);
+         var lastCharacter = field.charAt(field.length - 1);
+         if ((firstCharacter == '&quot;') &amp;&amp; (lastCharacter != '&quot;')) {
++          if (j+1 === listOfFields.length) {
++            alert(&quot;The last field in record &quot; + i + &quot; is corrupted.&quot;);
++            return null;
++          }
+           var nextField = listOfFields[j+1];
+           listOfFields[j] = field_space + ',' + nextField;
+           listOfFields.splice(j+1, 1); // delete element [j+1] from the list
+         } else {
+           if ((firstCharacter == '&quot;') &amp;&amp; (lastCharacter == '&quot;')) {
+-            field = field.slice(1, (field.length - 1)); // trim the &quot; characters off
++            field = field.slice(1, (field.length - 1)); // trim the &quot; characters off the ends
++            field = field.replace(doubleQuotes, '&quot;');   // replace &quot;&quot; with &quot;
+           }
+           listOfFields[j] = field;
+           j += 1;
+@@ -103,6 +110,7 @@
+       }
+       listOfOutputRecords.push(listOfFields);
+     }
++    firstLine = false;
+   }
+   return listOfOutputRecords;
+ };
+
+Modified: trunk/source/util/CsvParserTest.js
+===================================================================
+--- trunk/source/util/CsvParserTest.js	2005-08-05 06:21:02 UTC (rev 276)
++++ trunk/source/util/CsvParserTest.js	2005-08-08 20:25:57 UTC (rev 277)
+@@ -31,8 +31,9 @@
+ var CsvData = null;
+ 
+ function setUp() {
+-  var CsvRecords = ['2001: A Space Odyssey, 1968, Stanley Kubrick',
+-                    '12 Angry Men, 1957, Sidney Lumet',
++  var CsvRecords = ['Title, Year, Producer',
++                    '2001: A Space Odyssey, 1968, Stanley Kubrick',
++                    '&quot;This is a &quot;&quot;fake&quot;&quot; movie title&quot;, 1957, Sidney Lumet',
+                     'Alien, 1979, Ridley Scott  ',
+                     'Blade Runner, 1982, Ridley Scott',
+                     '&quot;Caine Mutiny, The&quot;, 1954, Edward Dymtryk',
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000261.html">[openrecord-svn] r276 - in trunk/source: model util
+</A></li>
+	<LI>Next message: <A HREF="000263.html">[openrecord-svn] r278 - in trunk: . meeting_notes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#262">[ date ]</a>
+              <a href="thread.html#262">[ thread ]</a>
+              <a href="subject.html#262">[ subject ]</a>
+              <a href="author.html#262">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

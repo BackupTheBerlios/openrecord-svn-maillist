@@ -1,0 +1,408 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r218 - in trunk/source: . view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r218%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507052003.j65K3Bso006289%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000203.html">
+   <LINK REL="Next"  HREF="000205.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r218 - in trunk/source: . view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r218%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507052003.j65K3Bso006289%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r218 - in trunk/source: . view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Jul  5 22:03:11 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000203.html">[openrecord-svn] r217 - in trunk: . source source/view
+</A></li>
+        <LI>Next message: <A HREF="000205.html">[openrecord-svn] r219 - in trunk/source: util view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-05 22:03:10 +0200 (Tue, 05 Jul 2005)
+New Revision: 218
+
+Modified:
+   trunk/source/base_style.css
+   trunk/source/view/EntryView.js
+   trunk/source/view/SuggestionBox.js
+Log:
+Fixed a suggestion box bug caused by my earlier switch from using names to using short names.  Also did some minor clean-up. 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-05 19:05:49 UTC (rev 217)
++++ trunk/source/base_style.css	2005-07-05 20:03:10 UTC (rev 218)
+@@ -574,13 +574,28 @@
+ 
+ 
+ /****************************************/
+-/* Control span styles                     */
++/* LoginView styles                     */
++
+ .LoginView {
+   font-size: x-small;
+   float: right;
+ }
+ 
+-.suggestion_box {
++
++/****************************************/
++/* SectionView styles                 */
++
++div.SectionView {
++  border-top: solid thin rgb(0%, 0%, 50%);
++  margin-top: 3em;
++  padding-left: 0px;
++}
++
++
++/****************************************/
++/* SuggestionBox styles                 */
++
++.SuggestionBox {
+   background: rgb(100%, 100%, 100%);
+   font-size: small;
+   border-style: solid;
+@@ -593,7 +608,7 @@
+   position: absolute;
+ }
+ 
+-.suggestion_box table {
++.SuggestionBox table {
+   margin: 0px;
+   border: 0px;
+   padding: 0px;
+@@ -601,21 +616,21 @@
+   border-collapse: collapse; 
+ }
+ 
+-.suggestion_box tr {
++.SuggestionBox tr {
+   margin: 0px;
+   border: 0px;
+   padding: 0px;
+   width: 100%;
+ }
+ 
+-.suggestion_box td {
++.SuggestionBox td {
+   margin: 0px;
+   border: 0px;
+   padding: 2px;
+   width: 100%;
+ }
+ 
+-.suggestion_box tr:hover {
++.SuggestionBox tr:hover {
+   background: rgb(100%, 100%, 70%);
+ }
+ 
+@@ -666,11 +681,6 @@
+   color: rgb(0%,0%,0%);
+ }
+ 
+-div.SectionView {
+-  border-top: solid thin rgb(0%, 0%, 50%);
+-  margin-top: 3em;
+-  padding-left: 0px;
+-}
+ 
+ /****************************************/
+ /* END                                  */
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-05 19:05:49 UTC (rev 217)
++++ trunk/source/view/EntryView.js	2005-07-05 20:03:10 UTC (rev 218)
+@@ -110,6 +110,7 @@
+   }
+ };
+ 
++
+ /**
+  *
+  */
+@@ -120,6 +121,7 @@
+   }
+ };
+ 
++
+ /**
+  *
+  */
+@@ -127,6 +129,7 @@
+   this._autoWiden = autoWiden;
+ };
+ 
++
+ /**
+  *
+  */
+@@ -260,6 +263,7 @@
+     var newValue;
+     if (this._suggestionBox) {
+       newValue = this._suggestionBox.getSelectedItem();
++      // alert(newValue);
+     }
+     if (!newValue) {
+       newValue = this._editField.value;
+@@ -289,7 +293,9 @@
+     }
+ 
+     // we need this _writeValue() to be after all display related code, because this may trigger an observer call
+-    if (!stillProvisional) { this._writeValue(newValue); }
++    if (!stillProvisional) { 
++      this._writeValue(newValue); 
++    }
+   }
+ };
+ 
+@@ -306,7 +312,7 @@
+  * @param    value    The new value to be saved. 
+  */
+ EntryView.prototype._transformToExpectedType = function(value) {
+-if (value &amp;&amp; Util.isString(value)) {
++  if (value &amp;&amp; Util.isString(value)) {
+     var repository = this.getWorld();
+     var listOfExpectedTypeEntries;
+     if (this._expectedTypeEntries) {
+@@ -352,6 +358,8 @@
+   }
+   return value;
+ };
++
++
+ /**
+  * Writes edited value back into item entry of repository.
+  *
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-07-05 19:05:49 UTC (rev 217)
++++ trunk/source/view/SuggestionBox.js	2005-07-05 20:03:10 UTC (rev 218)
+@@ -41,19 +41,23 @@
+ 
+ 
+ /**
++ * A DetailPlugin display one or more content items. 
+  *
++ * @scope    public instance constructor
++ * @param    htmlInputField    The HTMLElement that this suggestion box is associated with. 
++ * @param    listOfItems    The items to populate the suggestion box with.
+  */
+-function SuggestionBox(inHTMLInputField, listOfItems) {
+-  this._inputField = inHTMLInputField;
+-  this._listOfSuggestedItems = listOfItems.sort(SuggestionBox._compareItemDisplayNames);
++function SuggestionBox(htmlInputField, listOfItems) {
++  this._inputField = htmlInputField;
++  this._listOfSuggestedItems = listOfItems.sort(SuggestionBox._compareItemDisplayStrings);
+   this._selectedItem = null;
+-  this._shouldHide = inHTMLInputField.value.length === 0;
++  this._shouldHide = htmlInputField.value.length === 0;
+   
+-  this._attributeSuggestionBoxDivElement = document.createElement('div');
+-  // this._attributeSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
+-  this._attributeSuggestionBoxDivElement.style.zIndex = 11;
+-  this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+-  document.body.appendChild(this._attributeSuggestionBoxDivElement);
++  this._suggestionBoxDivElement = View.createAndAppendElement(document.body, &quot;div&quot;, &quot;SuggestionBox&quot;);
++  // this._suggestionBoxDivElement = document.createElement('div');
++  this._suggestionBoxDivElement.style.zIndex = 11;
++  this._suggestionBoxDivElement.style.display = &quot;none&quot;;
++  // document.body.appendChild(this._suggestionBoxDivElement);
+ 
+  /* this._inputField.onkeyup = this._keyPressOnInputField.bindAsEventListener(this);
+   this._inputField.onfocus = this._focusOnInputField.bindAsEventListener(this);
+@@ -65,13 +69,20 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype.getSelectedItem = function () {
++SuggestionBox.prototype.getSelectedItem = function() {
+   if (!this._selectedItem) {
+     // check if typed item is identical to suggested item
+     var editValue = this._inputField.value;
+-    for (var i = 0; i &lt; this._listOfSuggestedItems.length; ++i) {
+-      var item = this._listOfSuggestedItems[i];
+-      if (editValue.toLowerCase() == item.getDisplayName().toLowerCase()) {return item;}
++    // for (var i = 0; i &lt; this._listOfSuggestedItems.length; ++i) {
++    //   var item = this._listOfSuggestedItems[i];
++    for (var key in this._listOfSuggestedItems) {
++      var item = this._listOfSuggestedItems[key];
++      if (editValue.toLowerCase() == item.getDisplayName().toLowerCase()) {
++        return item;
++      }
++      if (editValue.toLowerCase() == item.getDisplayString().toLowerCase()) {
++        return item;
++      }
+     }
+   }
+   return this._selectedItem;
+@@ -81,7 +92,7 @@
+ /**
+  *
+  */
+-SuggestionBox._compareItemDisplayNames = function (itemOne, itemTwo) {
++SuggestionBox._compareItemDisplayStrings = function(itemOne, itemTwo) {
+   var displayNameOne = itemOne.getDisplayString();
+   var displayNameTwo = itemTwo.getDisplayString();
+   if (displayNameOne == displayNameTwo) {
+@@ -95,7 +106,7 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype._focusOnInputField = function (inEventObject) {
++SuggestionBox.prototype._focusOnInputField = function(eventObject) {
+   this._redisplaySuggestionBox();
+ };
+ 
+@@ -103,11 +114,11 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype._keyPressOnInputField = function (inEventObject) {
++SuggestionBox.prototype._keyPressOnInputField = function(eventObject) {
+   var numberOfMatchingItems = this._listOfMatchingItems.length;
+   if (numberOfMatchingItems === 0) {return false;}
+ 
+-  var asciiValueOfKey = inEventObject.keyCode;
++  var asciiValueOfKey = eventObject.keyCode;
+   var index = -1;
+   var doSelectItem = false;
+   switch (asciiValueOfKey) {
+@@ -165,7 +176,7 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype._keyUpOnInputField = function (inEventObject) {
++SuggestionBox.prototype._keyUpOnInputField = function(eventObject) {
+   this._redisplaySuggestionBox();
+ };
+ 
+@@ -173,16 +184,16 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype._blurOnInputField = function () {
++SuggestionBox.prototype._blurOnInputField = function() {
+   // make the suggestion box disappear
+-  this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++  this._suggestionBoxDivElement.style.display = &quot;none&quot;;
+ };
+ 
+ 
+ /**
+  *
+  */
+-SuggestionBox.prototype._clickOnSelection = function (inEventObject, item) {
++SuggestionBox.prototype._clickOnSelection = function(eventObject, item) {
+   this._selectedItem = item;
+ };
+ 
+@@ -190,12 +201,12 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype._setShouldHide = function (shouldHide) {
++SuggestionBox.prototype._setShouldHide = function(shouldHide) {
+   // make the suggestion box disappear
+   this._shouldHide = shouldHide;
+   this._selectedItem = null;
+   if (shouldHide) {
+-    this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++    this._suggestionBoxDivElement.style.display = &quot;none&quot;;
+   }
+   else {
+     this._redisplaySuggestionBox();
+@@ -206,7 +217,7 @@
+ /**
+  *
+  */
+-SuggestionBox.prototype._redisplaySuggestionBox = function () {
++SuggestionBox.prototype._redisplaySuggestionBox = function() {
+   //if (this._shouldHide) {return;} // if SuggestionBox is in hide mode, don't show the box
+   
+   var partialInputString = this._inputField.value;
+@@ -229,9 +240,9 @@
+ 
+   if (this._shouldHide || listOfMatchingItems.length === 0) {
+     // make the suggestion box disappear
+-    this._attributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
++    this._suggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+-    View.removeChildrenOfElement(this._attributeSuggestionBoxDivElement);
++    View.removeChildrenOfElement(this._suggestionBoxDivElement);
+     var table = document.createElement('table');
+     var rowNumber = 0;
+     var columnNumber = 0;
+@@ -246,20 +257,19 @@
+       cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, item);
+       rowNumber += 1;
+     }
+-    this._attributeSuggestionBoxDivElement.appendChild(table);
++    this._suggestionBoxDivElement.appendChild(table);
+ 
+     // set-up the suggestion box to open just below the input field it comes from
+     var suggestionBoxTop = Util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
+     var suggestionBoxLeft = Util.getOffsetLeftFromElement(this._inputField);
+-    this._attributeSuggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
+-    this._attributeSuggestionBoxDivElement.style.left = suggestionBoxLeft + &quot;px&quot;;
++    this._suggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
++    this._suggestionBoxDivElement.style.left = suggestionBoxLeft + &quot;px&quot;;
+     // alert(this._inputField.offsetWidth);
+-    this._attributeSuggestionBoxDivElement.style.width = (this._inputField.offsetWidth - 2)+ &quot;px&quot;;
++    this._suggestionBoxDivElement.style.width = (this._inputField.offsetWidth - 2)+ &quot;px&quot;;
+ 
+-    // this._attributeSuggestionBoxDivElement.style.zIndex = 11;
+-    this._attributeSuggestionBoxDivElement.className = &quot;suggestion_box&quot;;
+-    this._attributeSuggestionBoxDivElement.style.visibility = &quot;visible&quot;;
+-    this._attributeSuggestionBoxDivElement.style.display = &quot;block&quot;;
++    // this._suggestionBoxDivElement.className = &quot;suggestion_box&quot;;
++    this._suggestionBoxDivElement.style.visibility = &quot;visible&quot;;
++    this._suggestionBoxDivElement.style.display = &quot;block&quot;;
+   }
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000203.html">[openrecord-svn] r217 - in trunk: . source source/view
+</A></li>
+	<LI>Next message: <A HREF="000205.html">[openrecord-svn] r219 - in trunk/source: util view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#204">[ date ]</a>
+              <a href="thread.html#204">[ thread ]</a>
+              <a href="subject.html#204">[ subject ]</a>
+              <a href="author.html#204">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

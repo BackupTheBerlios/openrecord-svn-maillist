@@ -1,0 +1,309 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r141 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r141%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506150657.j5F6vNdB017542%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000126.html">
+   <LINK REL="Next"  HREF="000128.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r141 - in trunk: documentation source source/model</H1>
+    <B>Mignon Belongie at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r141%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200506150657.j5F6vNdB017542%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r141 - in trunk: documentation source source/model">mignon at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 15 08:57:23 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000126.html">[openrecord-svn] r140 - in trunk: documentation source/model
+</A></li>
+        <LI>Next message: <A HREF="000128.html">[openrecord-svn] r142 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#127">[ date ]</a>
+              <a href="thread.html#127">[ thread ]</a>
+              <a href="subject.html#127">[ subject ]</a>
+              <a href="author.html#127">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-06-15 08:57:22 +0200 (Wed, 15 Jun 2005)
+New Revision: 141
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/Util.js
+   trunk/source/model/IdentifiedRecord.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+identifiedRecord.getUserstamp() and .getTimestamp() now get their values from the UUID (except when using _rehydrateIdentifiedRecord, for the sake of temporary backward compatibility.)  Util.generateTimeBasedUuid is now used instead of Util.generateRandomUuid.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-14 23:41:57 UTC (rev 140)
++++ trunk/documentation/release_planning.txt	2005-06-15 06:57:22 UTC (rev 141)
+@@ -156,8 +156,8 @@
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+        |          |         |  1. Set up a prototype of the OpenRecord.org &quot;dogfood&quot; site
+-mignon | 0.25 IED |         |  2. Have identifiedRecord.getUserstamp() get the user from the UUID
+-mignon | 0.5  IED |         |  3. Switch data model to use time-based UUIDs for timestamps &amp; userstamps
++mignon | 0.25 IED | 0.5 IED |  2. Have identifiedRecord.getUserstamp() get the user from the UUID
++mignon | 0.5  IED | 0.5 IED |  3. Switch data model to use time-based UUIDs for timestamps &amp; userstamps
+ brian  | 0.5  IED | 0.5 IED |  4. Store transaction info in repository
+        |          |         |  5. UI for deleting a row from a table
+ brian  | 0.5  IED |         |  6. Save provisional item and then set the category, in that order, and in on transaction
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-14 23:41:57 UTC (rev 140)
++++ trunk/source/Util.js	2005-06-15 06:57:22 UTC (rev 141)
+@@ -75,7 +75,6 @@
+ // -------------------------------------------------------------------
+ // Util global class variables
+ // -------------------------------------------------------------------
+-Util._ourUuidPseudoNodeString = null;
+ Util._ourUuidClockSeqString = null;
+ Util._ourDateValueOfPreviousUuid = null;
+ Util._ourNextIntraMillisecondIncrement = 0;
+@@ -663,13 +662,10 @@
+     Util.assert(pseudoNode.length == 12);  
+   }
+   else {
+-    if (!Util._ourUuidPseudoNodeString) {
+-      var pseudoNodeIndicatorBit = 0x8000;
+-      var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
+-      var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Util.HEX_RADIX);
+-      Util._ourUuidPseudoNodeString = leftmost4HexCharacters + Util.getRandomEightCharacterHexString();
+-    }
+-    pseudoNode = Util._ourUuidPseudoNodeString;
++    var pseudoNodeIndicatorBit = 0x8000;
++    var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
++    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Util.HEX_RADIX);
++    pseudoNode = leftmost4HexCharacters + Util.getRandomEightCharacterHexString();
+   }
+   if (!Util._ourUuidClockSeqString) {
+     var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
+
+Modified: trunk/source/model/IdentifiedRecord.js
+===================================================================
+--- trunk/source/model/IdentifiedRecord.js	2005-06-14 23:41:57 UTC (rev 140)
++++ trunk/source/model/IdentifiedRecord.js	2005-06-15 06:57:22 UTC (rev 141)
+@@ -82,8 +82,6 @@
+  * @scope    protected instance method
+  */
+ IdentifiedRecord.prototype._initializeIdentifiedRecord = function () {
+-  this.__myCreationTimestamp = new Date();
+-  this.__myCreationUserstamp = this.getWorld().getCurrentUser();
+ };
+ 
+ 
+@@ -168,8 +166,35 @@
+  * @scope    public instance method
+  * @return   A Date object.
+  */
+-IdentifiedRecord.prototype.getTimestamp = function () {
+-  return this.__myCreationTimestamp;
++IdentifiedRecord.prototype.getTimestamp = function() {
++  if (this.__myCreationTimestamp) {
++    // This case is now here only for the (temporary) benefit of _rehydrateIdentifiedRecord.
++    return this.__myCreationTimestamp;
++  }
++  var hexTimeLow = this.__myUuid.split('-')[0];
++  var hexTimeMid = this.__myUuid.split('-')[1];
++  var hexTimeHigh = this.__myUuid.split('-')[2];
++  var timeLow = parseInt(hexTimeLow, Util.HEX_RADIX);
++  var timeMid = parseInt(hexTimeMid, Util.HEX_RADIX);
++  var timeHigh = parseInt(hexTimeHigh, Util.HEX_RADIX);
++  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
++  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
++  hundredNanosecondIntervalsSince1582 += timeMid;
++  // What we really want to do next is shift left 32 bits, but the result will be too big
++  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
++  hundredNanosecondIntervalsSince1582 *= 0x100000000;
++  hundredNanosecondIntervalsSince1582 += timeLow;
++  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
++
++  // Again, this will be a floating point approximation.
++  // We can make things exact later if we need to.
++  var secondsPerHour = 60 * 60;
++  var hoursBetween1582and1970 = Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
++  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
++  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
++
++  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
++  return millisecondsSince1970;
+ };
+ 
+ 
+@@ -179,8 +204,20 @@
+  * @scope    public instance method
+  * @return   A user item.
+  */
+-IdentifiedRecord.prototype.getUserstamp = function () {
+-  return this.__myCreationUserstamp;
++IdentifiedRecord.prototype.getUserstamp = function() {
++  if (this.__myCreationUserstamp) {
++    // This case is now here only for the (temporary) benefit of _rehydrateIdentifiedRecord.
++    return this.__myCreationUserstamp;
++  }
++  var allUsers = this.__myWorld.getUsers();
++  var myPseudonode = this.__myUuid.split('-')[4];
++  for (key in allUsers) {
++    var usersPseudonode = allUsers[key]._getUuid().split('-')[4];
++    if (usersPseudonode == myPseudonode) {
++      return allUsers[key];
++    }
++  }
++  throw new Error(&quot;User not found.  Database may be corrupted.&quot;);
+ };
+ 
+ 
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-14 23:41:57 UTC (rev 140)
++++ trunk/source/model/ModelTest.js	2005-06-15 06:57:22 UTC (rev 141)
+@@ -35,7 +35,64 @@
+   ModelTestVars = {};
+ }
+ 
++function testGetUserstamp() {
++  var world = new World();
++  var listOfUsers = world.getUsers();  
++  var axiomaticUser = listOfUsers[0];
++  assertTrue('The axiomaticUser created the axiomaticUser', (axiomaticUser.getUserstamp() == axiomaticUser));
+ 
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  var passwordForChris = &quot;Kringlishous!&quot;;
++  var userChris = world.newUser(&quot;Chris Kringle&quot;, passwordForChris);
++
++  world.login(userJane, janesPassword);
++
++  assertTrue('The user Jane created the user Jane', (userJane.getUserstamp() == userJane));
++  
++  var starWars = world.newItem(&quot;Star Wars&quot;);
++  var recoveredUser = starWars.getUserstamp();
++  assertTrue(&quot;The user that created 'starWars' should be Jane&quot;, recoveredUser == userJane);
++  
++  world.logout();
++  world.login(userChris, passwordForChris);
++  var elephant = world.newItem(&quot;Elephant&quot;);
++  recoveredUser = elephant.getUserstamp();
++  assertTrue(&quot;The user that created 'elephant' should be Chris&quot;, recoveredUser == userChris);
++  recoveredUser = starWars.getUserstamp();
++  assertTrue(&quot;The user that created 'starWars' should be Jane&quot;, recoveredUser == userJane);  
++}
++
++function waitForNextMillisecond() {
++  var now = new Date();
++  var then = now;
++  while (now.valueOf() == then.valueOf()) {
++    now = new Date();
++  };
++}
++
++function testGetTimestamp() {
++  var world = new World();
++  var tZero = new Date();
++  var janesPassword = &quot;jane's password&quot;;
++  waitForNextMillisecond();
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++  waitForNextMillisecond();
++  var starWars = world.newItem(&quot;Star Wars&quot;);
++  var starWarsTimestamp = starWars.getTimestamp();
++  waitForNextMillisecond();
++  var now = new Date();
++  assertTrue('&quot;Star Wars&quot; has a timestamp in the past', now.valueOf() &gt; starWarsTimestamp);
++  assertTrue('&quot;Star Wars&quot; was created after tZero', starWarsTimestamp &gt; tZero.valueOf());
++  waitForNextMillisecond();
++  var starTrek = world.newItem(&quot;Star Trek&quot;);
++  var starTrekTimestamp = starTrek.getTimestamp();
++  assertTrue('&quot;Star Wars&quot; was created before &quot;Star Trek&quot;', starWarsTimestamp &lt; starTrekTimestamp);
++  var janesTimestamp = userJane.getTimestamp();
++  assertTrue('&quot;Star Wars&quot; was created after user Jane', starWarsTimestamp &gt; janesTimestamp);
++}
++
+ function testLoginLogout() {
+   var world = new World();
+   var listOfUsers;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-14 23:41:57 UTC (rev 140)
++++ trunk/source/model/StubVirtualServer.js	2005-06-15 06:57:22 UTC (rev 141)
+@@ -311,7 +311,6 @@
+   }
+ 
+   var newUser = this._createNewItem(inObserver, false);
+-  newUser.__myCreationUserstamp = newUser;
+   this.__myListOfUsers.push(newUser);
+   
+   var md5Authentication = null;
+@@ -644,10 +643,17 @@
+  * @scope    private instance method
+  * @return   A newly created UUID.
+  */
+-StubVirtualServer.prototype._getNewUuid = function () {
+-  // var newUuid = this.__myNextAvailableUuid;
+-  // this.__myNextAvailableUuid += 1;
+-  var newUuid = Util.generateRandomUuid();
++StubVirtualServer.prototype._getNewUuid = function() {
++  var newUuid;
++  if (this.__myCurrentUser) {
++    var uuidOfCurrentUser = this.__myCurrentUser._getUuid();
++    var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
++    var pseudoNodeOfCurrentUser = arrayOfParts[4];//&quot;0123456789AB&quot;;
++    newUuid = Util.generateTimeBasedUuid(pseudoNodeOfCurrentUser);
++  }
++  else {
++    newUuid = Util.generateTimeBasedUuid();
++  }
+   return newUuid;
+ };
+ 
+@@ -701,7 +707,6 @@
+   
+   this.__myWorld.beginTransaction();
+   var axiomaticUser = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_USER_AMY);
+-  axiomaticUser.__myCreationUserstamp = axiomaticUser;
+   this.__myListOfUsers.push(axiomaticUser);
+   this.__myHashTableOfUserAuthenticationInfo[axiomaticUser.getUniqueKeyString()] = null;
+   this.__myCurrentUser = axiomaticUser;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000126.html">[openrecord-svn] r140 - in trunk: documentation source/model
+</A></li>
+	<LI>Next message: <A HREF="000128.html">[openrecord-svn] r142 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#127">[ date ]</a>
+              <a href="thread.html#127">[ thread ]</a>
+              <a href="subject.html#127">[ subject ]</a>
+              <a href="author.html#127">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

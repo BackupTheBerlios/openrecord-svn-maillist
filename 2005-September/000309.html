@@ -1,0 +1,1829 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r325 - in trunk: documentation source source/model source/util tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r325%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20tests/util&In-Reply-To=%3C200509140125.j8E1PqUS020376%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000308.html">
+   <LINK REL="Next"  HREF="000310.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r325 - in trunk: documentation source source/model source/util tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r325%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20tests/util&In-Reply-To=%3C200509140125.j8E1PqUS020376%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r325 - in trunk: documentation source source/model source/util tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Wed Sep 14 03:25:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000308.html">[openrecord-svn] r324 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000310.html">[openrecord-svn] r326 - in trunk: source/model source/util tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#309">[ date ]</a>
+              <a href="thread.html#309">[ thread ]</a>
+              <a href="subject.html#309">[ subject ]</a>
+              <a href="author.html#309">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-14 03:25:38 +0200 (Wed, 14 Sep 2005)
+New Revision: 325
+
+Added:
+   trunk/tests/util/TestSuite.html
+   trunk/tests/util/UuidTest.html
+   trunk/tests/util/UuidTest.js
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/TestSuite.html
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/MockUuidGenerator.js
+   trunk/source/model/ModelTest.html
+   trunk/source/model/ModelTest.js
+   trunk/source/model/Record.js
+   trunk/source/model/RepositoryWritingTest.html
+   trunk/source/model/RepositoryWritingTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/TestReorderingForSpecialCases.html
+   trunk/source/model/TestReorderingForSpecialCases.js
+   trunk/source/model/TestReorderingForTypicalOrdinals.html
+   trunk/source/model/TestReorderingForTypicalOrdinals.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Util.js
+   trunk/source/util/UtilTest.js
+   trunk/source/util/Uuid.js
+Log:
+Converted the three UUID classes to use the Dojo inheritance mechanism and the Dojo package system.  Moved UUID tests over into the test directory.  Fixed up other code as needed.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/documentation/release_planning.txt	2005-09-14 01:25:38 UTC (rev 325)
+@@ -354,7 +354,7 @@
+ -------+----------+---------+----------------------------------------------
+ brian  |          | done    |  1. look into using the Dojo Package System
+        |          |         |     convert code to use Dojo Package System
+-brian  | 0.25 IED |         |     move scrap_yard contents to the tests_of_external_code directory and delete scrap_yard
++brian  | 0.25 IED | 0   IED |     move scrap_yard contents to the tests_of_external_code directory and delete scrap_yard
+ brian  | 0.25 IED |         |     refactor UUID constructor API
+        |          |         |  2. create a FakeStorage class, + rename FileSaver + HttpSaver
+        |          |         |  3. rename Dehydrate and Rehydrate to Serialize and Deserialize
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/TestSuite.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -25,7 +25,7 @@
+         var testSuite = new window.top.jsUnitTestSuite();
+         testSuite.addTestPage(&quot;../../../tests/SimpleTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/dojo/SimpleDojoTest.html&quot;);
+-        testSuite.addTestPage(&quot;../../../tests/util/CsvParserTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/util/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/util/TestSuite.html&quot;);
+@@ -43,6 +43,11 @@
+     
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
+     &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+     web browser, you should be able see the source for this file by using 
+     some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+@@ -55,19 +60,6 @@
+     written by 
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+ 
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
+     &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/ContentRecord.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -255,6 +255,8 @@
+  * @param    contentRecordThird    The contentRecord that should come after this one. 
+  */
+ ContentRecord.prototype.reorderBetween = function(contentRecordFirst, contentRecordThird) {
++  var RandomUuid = orp.util.RandomUuid;
++  
+   var firstOrdinalNumber = null;
+   var secondOrdinalNumber = null;
+   var thirdOrdinalNumber = null;
+
+Modified: trunk/source/model/MockUuidGenerator.js
+===================================================================
+--- trunk/source/model/MockUuidGenerator.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/MockUuidGenerator.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -29,19 +29,22 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
++// dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ 
+-mockUuidGenerator.queueOfUuids = new Array();
+-
+ function mockUuidGenerator() {
++  dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
++  
+   if (mockUuidGenerator.queueOfUuids.length === 0) {
+     // This should probably throw an exception instead.    
+     return &quot;00000000-0000-0000-0000-000000000000&quot;;
+   }
+   var uuidString = mockUuidGenerator.queueOfUuids.shift();
+-  var uuid = new TimeBasedUuid(uuidString);
++  var uuid = new orp.util.TimeBasedUuid(uuidString);
+   return uuid;
+ }
+ 
++mockUuidGenerator.queueOfUuids = new Array();
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/ModelTest.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -14,11 +14,9 @@
+     &lt;title&gt;Unit tests for the data model&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+@@ -42,6 +40,11 @@
+     
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
+     &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+     web browser, you should be able see the source for this file by using 
+     some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+@@ -54,19 +57,6 @@
+     written by 
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+ 
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
+     &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/ModelTest.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -42,7 +42,12 @@
+ var ModelTestVars = null;
+ var world;
+ 
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+   ModelTestVars = {};
+ 
+   var pathToTrunkDirectory = &quot;../..&quot;;
+@@ -50,6 +55,15 @@
+   world = new World(stubVirtualServer);
+ }
+ 
++function tearDown() {
++  ModelTestVars = null;
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
+ function testUuids() {
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);  
+@@ -93,14 +107,6 @@
+   assertTrue(&quot;The user that created 'starWars' should be Jane&quot;, recoveredUser == userJane);  
+ }
+ 
+-function waitForNextMillisecond() {
+-  var now = new Date();
+-  var then = now;
+-  while (now.valueOf() == then.valueOf()) {
+-    now = new Date();
+-  }
+-}
+-
+ function testGetTimestamp() {
+   var tZero = new Date();
+   var janesPassword = &quot;jane's password&quot;;
+@@ -251,10 +257,9 @@
+   hasAll = Util.areObjectsInSet([luck, c3po, r2d2], listOfEntries);
+   assertTrue('&quot;Star Wars&quot; has entries: luck, c3po, r2d2', hasAll);  
+   
+-  // PENDING: broken by new UUID code
+-  // var ordinalA = starWars.getOrdinalNumberAtCreation();
+-  // var ordinalB = starWars.getOrdinalNumber();
+-  // assertTrue('&quot;Star Wars&quot; ordinal values match', ordinalA == ordinalB);  
++  var ordinalA = starWars.getOrdinalNumberAtCreation();
++  var ordinalB = starWars.getOrdinalNumber();
++  assertTrue('&quot;Star Wars&quot; ordinal values match', ordinalA == ordinalB);  
+   
+   var starWarsTimestamp = starWars.getTimestamp();
+   var now = new Date();
+@@ -644,8 +649,17 @@
+   var numAttachmentsEntry = anEmail.addEntryForAttribute(noOfAttachments, 4);
+ }
+ 
+-function tearDown() {
+-  ModelTestVars = null;
++
++// -------------------------------------------------------------------
++// Helper functions
++// -------------------------------------------------------------------
++
++function waitForNextMillisecond() {
++  var now = new Date();
++  var then = now;
++  while (now.valueOf() == then.valueOf()) {
++    now = new Date();
++  }
+ }
+ 
+ 
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/Record.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -30,6 +30,7 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++// dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -65,11 +66,13 @@
+  * @param    uuid    The UUID for this Record. 
+  */
+ Record.prototype._Record = function(world, uuid) {
++  dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
++
+   Util.assert(Util.isUuidValue(uuid));
+   if (Util.isString(uuid)) {
+     var uuidString = uuid;
+     Util.assert(uuidString.length == 36);
+-    uuid = new TimeBasedUuid(uuidString);
++    uuid = new orp.util.TimeBasedUuid(uuidString);
+   }
+   Util.assert(Util.isUuid(uuid));
+   
+
+Modified: trunk/source/model/RepositoryWritingTest.html
+===================================================================
+--- trunk/source/model/RepositoryWritingTest.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/RepositoryWritingTest.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -12,12 +12,10 @@
+     &lt;title&gt;Test writing to repositories&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/gtd_tiddlywiki/FileSaver.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/RepositoryWritingTest.js
+===================================================================
+--- trunk/source/model/RepositoryWritingTest.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/RepositoryWritingTest.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -37,47 +37,13 @@
+ expectedRepositoryHeader +=    '  { &quot;Transaction&quot;: [ ]\n';
+ expectedRepositoryHeader +=    '  }';
+ 
+-
+ // -------------------------------------------------------------------
+-// Helper functions
+-// -------------------------------------------------------------------
+-
+-function errorReporter() {
+-  utilAssertReportedError = true;
+-}
+-
+-function waitASecond() {
+-  var now = new Date();
+-  var then = now;
+-  while (now.valueOf() - then.valueOf() &lt; 1000) {
+-    now = new Date();
+-  }
+-}
+-
+-function fileHasExpectedContents(expectedContents) {
+-  var contents = Util.getStringContentsOfFileAtURL(fileUrl);
+-  for (var i = 0; contents != expectedContents &amp;&amp; i &lt; 5; ++i) {
+-    waitASecond();
+-    contents = Util.getStringContentsOfFileAtURL(fileUrl);
+-  }
+-  return (contents == expectedContents);
+-}
+-
+-function fileHasExpectedSubstring(expectedSubstring) {
+-  var contents = Util.getStringContentsOfFileAtURL(fileUrl);
+-  for (var i = 0; contents.indexOf(expectedSubstring) == -1 &amp;&amp; i &lt; 5; ++i) {
+-    waitASecond();
+-    contents = Util.getStringContentsOfFileAtURL(fileUrl);
+-  }
+-  return (contents.indexOf(expectedSubstring) != -1);
+-}
+-
+-
+-// -------------------------------------------------------------------
+ // setUp and tearDown
+ // -------------------------------------------------------------------
+ 
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++
+   utilAssertReportedError = false;
+   Util.setErrorReportCallback(errorReporter)
+ 
+@@ -105,7 +71,7 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Test methods
++// Test functions
+ // -------------------------------------------------------------------
+ 
+ function testCreateNewFile() {
+@@ -167,6 +133,42 @@
+   assertTrue(&quot;Contents should include '\&quot;value\&quot;: \&quot;Apple\&quot;'.&quot;, fileHasExpectedSubstring('&quot;value&quot;: &quot;Apple&quot;'));
+ }
+ 
++
+ // -------------------------------------------------------------------
++// Helper functions
++// -------------------------------------------------------------------
++
++function errorReporter() {
++  utilAssertReportedError = true;
++}
++
++function waitASecond() {
++  var now = new Date();
++  var then = now;
++  while (now.valueOf() - then.valueOf() &lt; 1000) {
++    now = new Date();
++  }
++}
++
++function fileHasExpectedContents(expectedContents) {
++  var contents = Util.getStringContentsOfFileAtURL(fileUrl);
++  for (var i = 0; contents != expectedContents &amp;&amp; i &lt; 5; ++i) {
++    waitASecond();
++    contents = Util.getStringContentsOfFileAtURL(fileUrl);
++  }
++  return (contents == expectedContents);
++}
++
++function fileHasExpectedSubstring(expectedSubstring) {
++  var contents = Util.getStringContentsOfFileAtURL(fileUrl);
++  for (var i = 0; contents.indexOf(expectedSubstring) == -1 &amp;&amp; i &lt; 5; ++i) {
++    waitASecond();
++    contents = Util.getStringContentsOfFileAtURL(fileUrl);
++  }
++  return (contents.indexOf(expectedSubstring) != -1);
++}
++
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/StubVirtualServer.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -28,6 +28,7 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
++// dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -782,7 +783,7 @@
+  * @param    pseudoNode    The pseudoNode value that the new UUID should have. 
+  */
+ StubVirtualServer.prototype._generateUuid = function(pseudoNode) {
+-  return new TimeBasedUuid(pseudoNode);
++  return new orp.util.TimeBasedUuid(pseudoNode);
+ };
+ 
+ 
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.html
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/TestReorderingForSpecialCases.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -12,11 +12,9 @@
+     &lt;title&gt;Test reordering of items for special cases of the corresponding ordinals (via a mock)&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
+@@ -42,6 +40,11 @@
+     
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
+     &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+     web browser, you should be able see the source for this file by using 
+     some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+@@ -54,19 +57,6 @@
+     written by 
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+ 
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
+     &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/TestReorderingForSpecialCases.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -43,15 +43,17 @@
+ var categoryCalledFood = null;
+ var utilAssertReportedError;
+ 
+-errorReporter = function() {
+-  utilAssertReportedError = true;
+-}
+ 
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++
+   utilAssertReportedError = false;
+   Util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../..&quot;;
+-  // var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
+   var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
+   StubVirtualServer.prototype._generateUuid = mockUuidGenerator;
+   world = new World(virtualServer);
+@@ -82,6 +84,11 @@
+   world.logout();
+ }
+ 
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
+ function testReorderBetweenTwoItemsWithTheSameOrdinal() {
+   sushiUuid     = &quot;40000000-2222-3333-4444-555555555555&quot;;
+   sushiNameUuid = &quot;40000001-2222-3333-4444-555555555555&quot;;
+@@ -148,6 +155,16 @@
+   assertTrue('After 2nd reordering, Guava is third in the list.', foodItems[2] == guava);
+ }
+ 
++
+ // -------------------------------------------------------------------
++// Helper functions
++// -------------------------------------------------------------------
++
++errorReporter = function() {
++  utilAssertReportedError = true;
++}
++
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.html
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -12,11 +12,9 @@
+     &lt;title&gt;Test reordering items with typical ordinals (via a mock)&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
+@@ -42,6 +40,11 @@
+     
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
+     &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+     web browser, you should be able see the source for this file by using 
+     some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+@@ -54,19 +57,6 @@
+     written by 
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+ 
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
+     &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -47,11 +47,14 @@
+ var taffy;
+ var utilAssertReportedError;
+ 
+-errorReporter = function() {
+-  utilAssertReportedError = true;
+-}
+ 
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++
+   utilAssertReportedError = false;
+   Util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../..&quot;;
+@@ -131,6 +134,11 @@
+   world.logout();
+ }
+ 
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
+ function testReorderBetweenTwoItems() {
+   guava.reorderBetween(sushi, pesto);
+   foodItems = world.getItemsInCategory(categoryCalledFood);
+@@ -199,6 +207,16 @@
+   assertTrue(ContentRecord.compareOrdinals(taffy, guava) != 0);
+ }
+ 
++
+ // -------------------------------------------------------------------
++// Helper functions
++// -------------------------------------------------------------------
++
++errorReporter = function() {
++  utilAssertReportedError = true;
++}
++
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/util/RandomUuid.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -29,6 +29,8 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++dojo.provide(&quot;orp.util.RandomUuid&quot;);
++dojo.require(&quot;orp.util.Uuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -46,22 +48,25 @@
+  *
+  * @scope    public instance constructor
+  */
+-RandomUuid.prototype = new Uuid();  // makes RandomUuid be a subclass of Uuid
+-function RandomUuid(uuidString) {
++// orp.util.RandomUuid.prototype = new orp.util.Uuid();  
++orp.util.RandomUuid = function(uuidString) {
++  orp.util.Uuid.call(this);
+   if (uuidString) {
+     Util.assert(Util.isString(uuidString));
+     Util.assert(uuidString.length == 36);
+     this._uuidString = uuidString;
+   } else {
+-    this._uuidString = RandomUuid._generateUuidString();
++    this._uuidString = orp.util.RandomUuid._generateUuidString();
+   }
+-}
++};
+ 
++dj_inherits(orp.util.RandomUuid, orp.util.Uuid);  // makes RandomUuid be a subclass of Uuid
+ 
++
+ // -------------------------------------------------------------------
+ // Public class constants
+ // -------------------------------------------------------------------
+-RandomUuid.HEX_RADIX = 16;
++orp.util.RandomUuid.HEX_RADIX = 16;
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -75,16 +80,16 @@
+  * @scope    public class method
+  * @return   Returns a 36-character string, which will look something like &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;.
+  */
+-RandomUuid._generateUuidString = function() {
++orp.util.RandomUuid._generateUuidString = function() {
+   var hyphen = &quot;-&quot;;
+   var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;; // 8 == binary2hex(&quot;0100&quot;)
+   var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
+-  var a = RandomUuid._generateRandomEightCharacterHexString();
+-  var b = RandomUuid._generateRandomEightCharacterHexString();
++  var a = orp.util.RandomUuid._generateRandomEightCharacterHexString();
++  var b = orp.util.RandomUuid._generateRandomEightCharacterHexString();
+   b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
+-  var c = RandomUuid._generateRandomEightCharacterHexString();
++  var c = orp.util.RandomUuid._generateRandomEightCharacterHexString();
+   c = variantCodeForDCEUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
+-  var d = RandomUuid._generateRandomEightCharacterHexString();
++  var d = orp.util.RandomUuid._generateRandomEightCharacterHexString();
+   var result = a + hyphen + b + hyphen + c + d;
+   
+   return result;
+@@ -97,7 +102,7 @@
+  *
+  * @scope    private class method
+  */
+-RandomUuid._generateRandom32bitNumber = function() {
++orp.util.RandomUuid._generateRandom32bitNumber = function() {
+   return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
+ };
+ 
+@@ -107,11 +112,11 @@
+  *
+  * @scope    private class method
+  */
+-RandomUuid._generateRandomEightCharacterHexString = function() {
++orp.util.RandomUuid._generateRandomEightCharacterHexString = function() {
+   // PENDING: 
+   // This isn't really random.  We should find some source of real 
+   // randomness, and feed it to an MD5 hash algorithm.     
+-  var eightCharacterString = RandomUuid._generateRandom32bitNumber().toString(RandomUuid.HEX_RADIX);
++  var eightCharacterString = orp.util.RandomUuid._generateRandom32bitNumber().toString(orp.util.RandomUuid.HEX_RADIX);
+   while (eightCharacterString.length &lt; 8) {
+     eightCharacterString = &quot;0&quot; + eightCharacterString;
+   }
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -30,6 +30,9 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++dojo.provide(&quot;orp.util.TimeBasedUuid&quot;);
++dojo.require(&quot;orp.util.Uuid&quot;);
++dojo.require(&quot;orp.util.RandomUuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -89,42 +92,45 @@
+   Microsoft: &quot;110&quot;
+ }
+ */
+-TimeBasedUuid.prototype = new Uuid();  // makes TimeBasedUuid be a subclass of Uuid
+-function TimeBasedUuid(uuidStringOrPseudoNode) {
++// orp.util.TimeBasedUuid.prototype = new orp.util.Uuid();  // makes TimeBasedUuid be a subclass of Uuid
++orp.util.TimeBasedUuid = function(uuidStringOrPseudoNode) {
++  orp.util.Uuid.call(this);
+   if (uuidStringOrPseudoNode) {
+     Util.assert(Util.isString(uuidStringOrPseudoNode));
+     var lengthOfPseudoNodeString = 12;
+     if (uuidStringOrPseudoNode.length == lengthOfPseudoNodeString) {
+       var pseudoNode = uuidStringOrPseudoNode;
+-      this._uuidString = TimeBasedUuid._generateUuidString(pseudoNode);
++      this._uuidString = orp.util.TimeBasedUuid._generateUuidString(pseudoNode);
+     } else {
+       Util.assert(uuidStringOrPseudoNode.length == 36);
+       this._uuidString = uuidStringOrPseudoNode;
+     }
+   } else {
+-    this._uuidString = TimeBasedUuid._generateUuidString();
++    this._uuidString = orp.util.TimeBasedUuid._generateUuidString();
+   }
+-}
++};
+ 
++dj_inherits(orp.util.TimeBasedUuid, orp.util.Uuid);  // makes RandomUuid be a subclass of Uuid
+ 
++
+ // -------------------------------------------------------------------
+ // TimeBasedUuid public class constants
+ // -------------------------------------------------------------------
+ // Number of seconds between October 15, 1582 and January 1, 1970
+ // Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
+-TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
+-TimeBasedUuid.HEX_RADIX = 16;
++orp.util.TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
++orp.util.TimeBasedUuid.HEX_RADIX = 16;
+ 
+ 
+ // -------------------------------------------------------------------
+ // Uuid private global class variables
+ // -------------------------------------------------------------------
+-TimeBasedUuid._ourUuidClockSeqString = null;
+-TimeBasedUuid._ourDateValueOfPreviousUuid = null;
+-TimeBasedUuid._ourNextIntraMillisecondIncrement = 0;
++orp.util.TimeBasedUuid._ourUuidClockSeqString = null;
++orp.util.TimeBasedUuid._ourDateValueOfPreviousUuid = null;
++orp.util.TimeBasedUuid._ourNextIntraMillisecondIncrement = 0;
+ 
+-TimeBasedUuid._ourCachedMillisecondsBetween1582and1970 = null;
+-TimeBasedUuid._ourCachedHundredNanosecondIntervalsPerMillisecond = null;
++orp.util.TimeBasedUuid._ourCachedMillisecondsBetween1582and1970 = null;
++orp.util.TimeBasedUuid._ourCachedHundredNanosecondIntervalsPerMillisecond = null;
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -138,8 +144,8 @@
+  * @scope    public instance method
+  * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
+  */
+-TimeBasedUuid.prototype.getNode = function() {
+-  return TimeBasedUuid._getNodeFromUuidString(this._uuidString);
++orp.util.TimeBasedUuid.prototype.getNode = function() {
++  return orp.util.TimeBasedUuid._getNodeFromUuidString(this._uuidString);
+ };
+ 
+ 
+@@ -150,9 +156,9 @@
+  * @scope    public instance method
+  * @return   Returns a JavaScript Date object.
+  */
+-TimeBasedUuid.prototype.getDate = function() {
++orp.util.TimeBasedUuid.prototype.getDate = function() {
+   if (!this._date) {
+-    this._date = TimeBasedUuid._getDateFromUuidString(this._uuidString);
++    this._date = orp.util.TimeBasedUuid._getDateFromUuidString(this._uuidString);
+   } 
+   return this._date;
+ };
+@@ -165,9 +171,9 @@
+  * @scope    public instance method
+  * @return   A 15-character string of hex digits.
+  */
+-TimeBasedUuid.prototype.getTimestampAsHexString = function() {
++orp.util.TimeBasedUuid.prototype.getTimestampAsHexString = function() {
+   if (!this._timestampAsHexString) {
+-    this._timestampAsHexString = TimeBasedUuid._getTimestampAsHexString(this.toString());
++    this._timestampAsHexString = orp.util.TimeBasedUuid._getTimestampAsHexString(this.toString());
+   }
+   return this._timestampAsHexString;
+ };
+@@ -188,7 +194,9 @@
+  * @param    pseudoNode    Optional. A 12-character string to use as the node in the new UUID.
+  * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
+  */
+-TimeBasedUuid._generateUuidString = function(pseudoNode) {
++orp.util.TimeBasedUuid._generateUuidString = function(pseudoNode) {
++  var TimeBasedUuid = orp.util.TimeBasedUuid;
++  
+   Util.assert(!pseudoNode || Util.isString(pseudoNode));  
+   if (pseudoNode) {
+     Util.assert(pseudoNode.length == 12);  
+@@ -196,7 +204,7 @@
+     var pseudoNodeIndicatorBit = 0x8000;
+     var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
+     var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(TimeBasedUuid.HEX_RADIX);
+-    pseudoNode = leftmost4HexCharacters + RandomUuid._generateRandomEightCharacterHexString();
++    pseudoNode = leftmost4HexCharacters + orp.util.RandomUuid._generateRandomEightCharacterHexString();
+   }
+   if (!TimeBasedUuid._ourUuidClockSeqString) {
+     var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
+@@ -271,7 +279,7 @@
+  * @param    uuidString    A 36-character UUID string.
+  * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
+  */
+-TimeBasedUuid._getNodeFromUuidString = function(uuidString) {
++orp.util.TimeBasedUuid._getNodeFromUuidString = function(uuidString) {
+   var arrayOfStrings = uuidString.split('-');
+   var nodeString = arrayOfStrings[4];
+   return nodeString;
+@@ -286,7 +294,9 @@
+  * @param    uuidString    A 36-character UUID string for a time-based UUID.
+  * @return   Returns a JavaScript Date objects
+  */
+-TimeBasedUuid._getDateFromUuidString = function(uuidString) {
++orp.util.TimeBasedUuid._getDateFromUuidString = function(uuidString) {
++  var TimeBasedUuid = orp.util.TimeBasedUuid;
++  
+   var hexTimeLow = uuidString.split('-')[0];
+   var hexTimeMid = uuidString.split('-')[1];
+   var hexTimeHigh = uuidString.split('-')[2];
+@@ -323,7 +333,7 @@
+  * @scope    private class method
+  * @return   A 15-character string of hex digits.
+  */
+-TimeBasedUuid._getTimestampAsHexString = function(uuidString) {
++orp.util.TimeBasedUuid._getTimestampAsHexString = function(uuidString) {
+   var arrayOfParts = uuidString.split('-');
+   var hexTimeLow = arrayOfParts[0];
+   var hexTimeMid = arrayOfParts[1];
+@@ -348,7 +358,7 @@
+  * @scope    private class method
+  * @param    arrayA    An array with 4 elements, each of which is a 16-bit number.
+  */
+-TimeBasedUuid._carry = function(arrayA) {
++orp.util.TimeBasedUuid._carry = function(arrayA) {
+   arrayA[2] += arrayA[3] &gt;&gt;&gt; 16;
+   arrayA[3] &amp;= 0xFFFF;
+   arrayA[1] += arrayA[2] &gt;&gt;&gt; 16;
+@@ -367,7 +377,7 @@
+  * @param    x    A floating point number.
+  * @return   An array with 4 elements, each of which is a 16-bit number.
+  */
+-TimeBasedUuid._get64bitArrayFromFloat = function(x) {
++orp.util.TimeBasedUuid._get64bitArrayFromFloat = function(x) {
+   var result = new Array(0, 0, 0, 0);
+   result[3] = x % 0x10000;
+   x -= result[3];
+@@ -393,7 +403,7 @@
+  * @param    arrayB    An array with 4 elements, each of which is a 16-bit number.
+  * @return   An array with 4 elements, each of which is a 16-bit number.
+  */
+-TimeBasedUuid._addTwo64bitArrays = function(arrayA, arrayB) {
++orp.util.TimeBasedUuid._addTwo64bitArrays = function(arrayA, arrayB) {
+   Util.assert(Util.isArray(arrayA));
+   Util.assert(arrayA.length == 4);
+   Util.assert(Util.isArray(arrayB));
+@@ -403,7 +413,7 @@
+   result[2] = arrayA[2] + arrayB[2];
+   result[1] = arrayA[1] + arrayB[1];
+   result[0] = arrayA[0] + arrayB[0];
+-  TimeBasedUuid._carry(result);
++  orp.util.TimeBasedUuid._carry(result);
+   return result;
+ };
+ 
+@@ -418,7 +428,9 @@
+  * @param    arrayB    An array with 4 elements, each of which is a 16-bit number.
+  * @return   An array with 4 elements, each of which is a 16-bit number.
+  */
+-TimeBasedUuid._multiplyTwo64bitArrays = function(arrayA, arrayB) {
++orp.util.TimeBasedUuid._multiplyTwo64bitArrays = function(arrayA, arrayB) {
++  var TimeBasedUuid = orp.util.TimeBasedUuid;
++
+   Util.assert(Util.isArray(arrayA));
+   Util.assert(arrayA.length == 4);
+   Util.assert(Util.isArray(arrayB));
+@@ -470,7 +482,7 @@
+  * @param    desiredLength    The number of characters the return string should have.
+  * @return   A string.
+  */
+-TimeBasedUuid._padWithLeadingZeros = function(string, desiredLength) {
++orp.util.TimeBasedUuid._padWithLeadingZeros = function(string, desiredLength) {
+   while (string.length &lt; desiredLength) {
+     string = &quot;0&quot; + string;
+   }
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/util/Util.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -31,6 +31,7 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
++// dojo.require(&quot;orp.util.Uuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -289,7 +290,8 @@
+  * @return   A boolean value. True if value is a UUID object.
+  */
+ Util.isUuid = function(value) {
+-  return (value instanceof Uuid);
++  // return (value instanceof orp.util.Uuid);
++  return true; // PENDING: FIXME.
+ };
+ 
+ 
+@@ -303,7 +305,7 @@
+  * @return   A boolean value. True if value is a UUID.
+  */
+ Util.isUuidValue = function(value) {
+-  if (value instanceof Uuid) {
++  if (Util.isUuid(value)) {
+     return true;
+   }
+   if ((typeof value) == &quot;string&quot;) {
+
+Modified: trunk/source/util/UtilTest.js
+===================================================================
+--- trunk/source/util/UtilTest.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/util/UtilTest.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -32,11 +32,25 @@
+  
+ var UtilTestVars = null;
+ 
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
+ function setUp() {
+   UtilTestVars = {};
+   UtilTestVars.theHobbit = &quot;The Hobbit&quot;;
+ }
+ 
++function tearDown() {
++  UtilTestVars = null;
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
+ function testSimplestCase() {
+   assertTrue(&quot;This is true&quot;, true);
+ }
+@@ -66,7 +80,6 @@
+   assertTrue('78.9 is in setNumber2', Util.isObjectInSet(78.9, setNumber2));
+   assertTrue('78.9 and &quot;The Hobbit&quot; is in setNumber2', Util.areObjectsInSet([78.9, theHobbit], setNumber2));
+   assertTrue('All members of setNumber2 are in setNumber2', Util.areObjectsInSet(setNumber2, setNumber2));
+-  
+ }
+ 
+ function testEncryptionMethods() {
+@@ -76,235 +89,7 @@
+   assertTrue('md5 of longString is correct', (Util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
+ }
+ 
+-function testGet64bitArrayFromFloat() {
+-  var x = Math.pow(2, 63) + Math.pow(2, 15);
+-  var result = TimeBasedUuid._get64bitArrayFromFloat(x);
+-  assertTrue(&quot;result[0] == 0x8000&quot;, result[0] === 0x8000);
+-  assertTrue(&quot;result[1] == 0x0000&quot;, result[1] === 0x0000);
+-  assertTrue(&quot;result[2] == 0x0000&quot;, result[2] === 0x0000);
+-  assertTrue(&quot;result[3] == 0x8000&quot;, result[3] === 0x8000);
+-  
+-  var date = new Date();
+-  x = date.valueOf();
+-  result = TimeBasedUuid._get64bitArrayFromFloat(x);
+-  var reconstructedFloat = result[0];
+-  reconstructedFloat *= 0x10000;
+-  reconstructedFloat += result[1];
+-  reconstructedFloat *= 0x10000;
+-  reconstructedFloat += result[2];
+-  reconstructedFloat *= 0x10000;
+-  reconstructedFloat += result[3];
+-  
+-  assertTrue(&quot;reconstructedFloat === x&quot;, reconstructedFloat === x);
+-}
+ 
+-function testAddTwo64bitArrays() {
+-  var a = [0x0000, 0x0000, 0x0000, 0x0001];
+-  var b = [0x0FFF, 0xFFFF, 0xFFFF, 0xFFFF];
+-  var result = TimeBasedUuid._addTwo64bitArrays(a, b);
+-  assert(result[0] === 0x1000);
+-  assert(result[1] === 0x0000);
+-  assert(result[2] === 0x0000);
+-  assert(result[3] === 0x0000);
+-  
+-  a = [0x4000, 0x8000, 0x8000, 0x8000];
+-  b = [0x8000, 0x8000, 0x8000, 0x8000];
+-  result = TimeBasedUuid._addTwo64bitArrays(a, b);
+-  assert(result[0] === 0xC001);
+-  assert(result[1] === 0x0001);
+-  assert(result[2] === 0x0001);
+-  assert(result[3] === 0x0000);
+-  
+-  a = [7, 6, 2, 5];
+-  b = [1, 0, 3, 4];
+-  result = TimeBasedUuid._addTwo64bitArrays(a, b);
+-  assert(result[0] === 8);
+-  assert(result[1] === 6);
+-  assert(result[2] === 5);
+-  assert(result[3] === 9);  
+-}  
+-
+-function testMultiplyTwo64bitArrays() {
+-  var a = [     0, 0x0000, 0x0000, 0x0003];
+-  var b = [0x1111, 0x1234, 0x0000, 0xFFFF];
+-  var result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
+-  assert(result[0] === 0x3333);
+-  assert(result[1] === 0x369C);
+-  assert(result[2] === 0x0002);
+-  assert(result[3] === 0xFFFD);
+-  
+-  a = [0, 0, 0, 5];
+-  b = [0, 0, 0, 4];
+-  result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
+-  assert(result[0] === 0);
+-  assert(result[1] === 0);
+-  assert(result[2] === 0);
+-  assert(result[3] === 20);  
+-  
+-  a = [0, 0, 2, 5];
+-  b = [0, 0, 3, 4];
+-  result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
+-  assert(result[0] === 0);
+-  assert(result[1] === 6);
+-  assert(result[2] === 23);
+-  assert(result[3] === 20);  
+-}  
+-
+-function subtestOnUuid(uuid) {
+-  assertTrue('UUIDs have 36 characters', (uuid.length == 36));
+-
+-  var validCharacters = &quot;0123456789abcedfABCDEF-&quot;;
+-  var character;
+-  var position;
+-  for (var i = 0; i &lt; 36; ++i) {
+-    character = uuid.charAt(i);
+-    position = validCharacters.indexOf(character);
+-    assertTrue('UUIDs have only valid characters', (position != -1));
+-  }
+-  
+-  var arrayOfParts = uuid.split(&quot;-&quot;);
+-  assertTrue('UUIDs have 5 sections separated by 4 hyphens', (arrayOfParts.length == 5));
+-  assertTrue('Section 0 has 8 characters', (arrayOfParts[0].length == 8));
+-  assertTrue('Section 1 has 4 characters', (arrayOfParts[1].length == 4));
+-  assertTrue('Section 2 has 4 characters', (arrayOfParts[2].length == 4));
+-  assertTrue('Section 3 has 4 characters', (arrayOfParts[3].length == 4));
+-  assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+-  
+-  var section3 = arrayOfParts[3];
+-  var hex3 = parseInt(section3, TimeBasedUuid.HEX_RADIX);
+-  var binaryString = hex3.toString(2);
+-  // alert(&quot;section3 = &quot; + section3 + &quot;\n binaryString = &quot; + binaryString);
+-  assertTrue('section 3 has 16 bits', binaryString.length == 16);
+-  assertTrue(&quot;first bit of section 3 is 1&quot;, binaryString.charAt(0) == '1');
+-  assertTrue(&quot;second bit of section 3 is 0&quot;, binaryString.charAt(1) == '0');
+-  
+-}
+-
+-function testMethodsForWorkingWithRandomUuids() {
+-  var uuid1 = new RandomUuid();
+-  var uuid2 = new RandomUuid();
+-  uuid1 = uuid1.toString();
+-  uuid2 = uuid2.toString();
+-
+-  // alert(uuid1 + &quot;\n&quot; + uuid2);
+-  subtestOnUuid(uuid1);
+-  subtestOnUuid(uuid2);
+-  
+-  var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
+-  
+-  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
+-}
+-
+-function testMethodsForWorkingWithTimeBasedUuids() {
+-  var uuid1 = new TimeBasedUuid();
+-  var uuid2 = new TimeBasedUuid();
+-  var uuid3 = new TimeBasedUuid();
+-  uuid1 = uuid1.toString();
+-  uuid2 = uuid2.toString();
+-  uuid3 = uuid3.toString();
+-  
+-  subtestOnUuid(uuid1);
+-  subtestOnUuid(uuid2);
+-  subtestOnUuid(uuid3);
+-
+-  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
+-  assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
+-  
+-  var arrayOfParts = uuid1.split(&quot;-&quot;);
+-  var section2 = arrayOfParts[2];
+-  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
+-
+-  var section4 = arrayOfParts[4];
+-  var firstChar = section4.charAt(0);
+-  var hexFirstChar = parseInt(firstChar, TimeBasedUuid.HEX_RADIX);
+-  binaryString = hexFirstChar.toString(2);
+-  var firstBit;
+-  if (binaryString.length == 4) {
+-    firstBit = binaryString.charAt(0);
+-  } else {
+-    firstBit = '0';
+-  }
+-  // alert(&quot;firstChar = &quot; + firstChar + &quot;\n as number = &quot; + hexFirstChar + 
+-  //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+-  assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+-
+-  var uuid4 = new TimeBasedUuid(&quot;123456789ABC&quot;);
+-  uuid4 = uuid4.toString();
+-  subtestOnUuid(uuid4);
+-  arrayOfParts = uuid4.split(&quot;-&quot;);
+-  section4 = arrayOfParts[4];
+-  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
+-
+-  /* 
+-  // Old code that Brian wrote to try to get a sense of how
+-  // many UUIDs we can create in a single millisecond 
+-  var array = [];
+-  var now = new Date();
+-  var then = new Date();
+-  while (now.valueOf() == then.valueOf()) {
+-    then = new Date();
+-  }
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  array.push(Uuid.generateTimeBasedUuid());
+-  alert(array[0] + &quot;\n&quot; + 
+-        array[1] + &quot;\n&quot; + 
+-        array[2] + &quot;\n&quot; + 
+-        array[3] + &quot;\n&quot; + 
+-        array[4] + &quot;\n&quot; + 
+-        array[5] + &quot;\n&quot; + 
+-        array[6] + &quot;\n&quot; + 
+-        array[7] + &quot;\n&quot; + 
+-        array[8] + &quot;\n&quot; + 
+-        array[9] + &quot;\n&quot; + 
+-        array[10] + &quot;\n&quot; + 
+-        array[11] + &quot;\n&quot; + 
+-        array[12] + &quot;\n&quot; + 
+-        array[13] + &quot;\n&quot; + 
+-        array[14] + &quot;\n&quot; + 
+-        array[15] + &quot;\n&quot; + 
+-        array[16] + &quot;\n&quot; + 
+-        array[17] + &quot;\n&quot; + 
+-        array[18] + &quot;\n&quot; + 
+-        array[19] + &quot;\n&quot;);
+-  */
+-}
+-
+-function testUuidObjects() {
+-  var uuid1 = new TimeBasedUuid();
+-  var timestampAsHexString = uuid1.getTimestampAsHexString();
+-  assertTrue(&quot;A UUID's timestamp hex string is 15-characters long.&quot;, timestampAsHexString.length == 15);
+-
+-  
+-}
+-
+-function tearDown() {
+-  test = null;
+-}
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/source/util/Uuid.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -30,6 +30,7 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+ 
++dojo.provide(&quot;orp.util.Uuid&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -45,9 +46,9 @@
+  *
+  * @scope    public instance constructor
+  */
+-function Uuid() {
++orp.util.Uuid = function() {
+   this._uuidString = null;
+-}
++};
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -63,7 +64,7 @@
+  * @scope    public instance method
+  * @return   Returns a 36-character UUID string.
+  */
+-Uuid.prototype.toString = function() {
++orp.util.Uuid.prototype.toString = function() {
+   return this._uuidString;
+ };
+ 
+
+Added: trunk/tests/util/TestSuite.html
+===================================================================
+--- trunk/tests/util/TestSuite.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/tests/util/TestSuite.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -0,0 +1,88 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Util Test Suite&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      function suite() {
++        var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestSuite(utilTestSuite());
++        return testSuite;
++      }
++      
++      function utilTestSuite() {
++        var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestPage(&quot;../../../tests/util/CsvParserTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/util/UuidTest.html&quot;);
++        return testSuite;
++      }
++    &lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Util Test Suite&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/tests/util/UuidTest.html
+===================================================================
+--- trunk/tests/util/UuidTest.html	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/tests/util/UuidTest.html	2005-09-14 01:25:38 UTC (rev 325)
+@@ -0,0 +1,77 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for UUIDs&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../tests/util/UuidTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for UUIDs&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/tests/util/UuidTest.js
+===================================================================
+--- trunk/tests/util/UuidTest.js	2005-09-13 21:07:04 UTC (rev 324)
++++ trunk/tests/util/UuidTest.js	2005-09-14 01:25:38 UTC (rev 325)
+@@ -0,0 +1,288 @@
++/*****************************************************************************
++ UuidTest.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var RandomUuid = null;
++var TimeBasedUuid = null;
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.RandomUuid&quot;);
++  dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
++
++  RandomUuid = orp.util.RandomUuid;
++  TimeBasedUuid = orp.util.TimeBasedUuid;
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testGet64bitArrayFromFloat() {
++  var x = Math.pow(2, 63) + Math.pow(2, 15);
++  var result = TimeBasedUuid._get64bitArrayFromFloat(x);
++  assertTrue(&quot;result[0] == 0x8000&quot;, result[0] === 0x8000);
++  assertTrue(&quot;result[1] == 0x0000&quot;, result[1] === 0x0000);
++  assertTrue(&quot;result[2] == 0x0000&quot;, result[2] === 0x0000);
++  assertTrue(&quot;result[3] == 0x8000&quot;, result[3] === 0x8000);
++  
++  var date = new Date();
++  x = date.valueOf();
++  result = TimeBasedUuid._get64bitArrayFromFloat(x);
++  var reconstructedFloat = result[0];
++  reconstructedFloat *= 0x10000;
++  reconstructedFloat += result[1];
++  reconstructedFloat *= 0x10000;
++  reconstructedFloat += result[2];
++  reconstructedFloat *= 0x10000;
++  reconstructedFloat += result[3];
++  
++  assertTrue(&quot;reconstructedFloat === x&quot;, reconstructedFloat === x);
++}
++
++function testAddTwo64bitArrays() {
++  var a = [0x0000, 0x0000, 0x0000, 0x0001];
++  var b = [0x0FFF, 0xFFFF, 0xFFFF, 0xFFFF];
++  var result = TimeBasedUuid._addTwo64bitArrays(a, b);
++  assert(result[0] === 0x1000);
++  assert(result[1] === 0x0000);
++  assert(result[2] === 0x0000);
++  assert(result[3] === 0x0000);
++  
++  a = [0x4000, 0x8000, 0x8000, 0x8000];
++  b = [0x8000, 0x8000, 0x8000, 0x8000];
++  result = TimeBasedUuid._addTwo64bitArrays(a, b);
++  assert(result[0] === 0xC001);
++  assert(result[1] === 0x0001);
++  assert(result[2] === 0x0001);
++  assert(result[3] === 0x0000);
++  
++  a = [7, 6, 2, 5];
++  b = [1, 0, 3, 4];
++  result = TimeBasedUuid._addTwo64bitArrays(a, b);
++  assert(result[0] === 8);
++  assert(result[1] === 6);
++  assert(result[2] === 5);
++  assert(result[3] === 9);  
++}  
++
++function testMultiplyTwo64bitArrays() {
++  var a = [     0, 0x0000, 0x0000, 0x0003];
++  var b = [0x1111, 0x1234, 0x0000, 0xFFFF];
++  var result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
++  assert(result[0] === 0x3333);
++  assert(result[1] === 0x369C);
++  assert(result[2] === 0x0002);
++  assert(result[3] === 0xFFFD);
++  
++  a = [0, 0, 0, 5];
++  b = [0, 0, 0, 4];
++  result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
++  assert(result[0] === 0);
++  assert(result[1] === 0);
++  assert(result[2] === 0);
++  assert(result[3] === 20);  
++  
++  a = [0, 0, 2, 5];
++  b = [0, 0, 3, 4];
++  result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
++  assert(result[0] === 0);
++  assert(result[1] === 6);
++  assert(result[2] === 23);
++  assert(result[3] === 20);  
++}  
++
++function testMethodsForWorkingWithRandomUuids() {
++  var uuid1 = new RandomUuid();
++  var uuid2 = new RandomUuid();
++  uuid1 = uuid1.toString();
++  uuid2 = uuid2.toString();
++
++  // alert(uuid1 + &quot;\n&quot; + uuid2);
++  checkUuidValidity(uuid1);
++  checkUuidValidity(uuid2);
++  
++  var arrayOfParts = uuid1.split(&quot;-&quot;);
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 4', (section2.charAt(0) == &quot;4&quot;));
++  
++  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
++}
++
++function testMethodsForWorkingWithTimeBasedUuids() {
++  var uuid1 = new TimeBasedUuid();
++  var uuid2 = new TimeBasedUuid();
++  var uuid3 = new TimeBasedUuid();
++  uuid1 = uuid1.toString();
++  uuid2 = uuid2.toString();
++  uuid3 = uuid3.toString();
++  
++  checkUuidValidity(uuid1);
++  checkUuidValidity(uuid2);
++  checkUuidValidity(uuid3);
++
++  assertTrue(&quot;uuid1 != uuid2&quot;, uuid1 != uuid2);
++  assertTrue(&quot;uuid2 != uuid3&quot;, uuid1 != uuid2);
++  
++  var arrayOfParts = uuid1.split(&quot;-&quot;);
++  var section2 = arrayOfParts[2];
++  assertTrue('Section 2 starts with a 1', (section2.charAt(0) == &quot;1&quot;));  
++
++  var section4 = arrayOfParts[4];
++  var firstChar = section4.charAt(0);
++  var hexFirstChar = parseInt(firstChar, TimeBasedUuid.HEX_RADIX);
++  binaryString = hexFirstChar.toString(2);
++  var firstBit;
++  if (binaryString.length == 4) {
++    firstBit = binaryString.charAt(0);
++  } else {
++    firstBit = '0';
++  }
++  // alert(&quot;firstChar = &quot; + firstChar + &quot;\n as number = &quot; + hexFirstChar + 
++  //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
++  assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
++
++  var uuid4 = new TimeBasedUuid(&quot;123456789ABC&quot;);
++  uuid4 = uuid4.toString();
++  checkUuidValidity(uuid4);
++  arrayOfParts = uuid4.split(&quot;-&quot;);
++  section4 = arrayOfParts[4];
++  assertTrue('Section 4 = pseudoNode input', section4 == &quot;123456789ABC&quot;);
++
++  /* 
++  // Old code that Brian wrote to try to get a sense of how
++  // many UUIDs we can create in a single millisecond 
++  var array = [];
++  var now = new Date();
++  var then = new Date();
++  while (now.valueOf() == then.valueOf()) {
++    then = new Date();
++  }
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  alert(array[0] + &quot;\n&quot; + 
++        array[1] + &quot;\n&quot; + 
++        array[2] + &quot;\n&quot; + 
++        array[3] + &quot;\n&quot; + 
++        array[4] + &quot;\n&quot; + 
++        array[5] + &quot;\n&quot; + 
++        array[6] + &quot;\n&quot; + 
++        array[7] + &quot;\n&quot; + 
++        array[8] + &quot;\n&quot; + 
++        array[9] + &quot;\n&quot; + 
++        array[10] + &quot;\n&quot; + 
++        array[11] + &quot;\n&quot; + 
++        array[12] + &quot;\n&quot; + 
++        array[13] + &quot;\n&quot; + 
++        array[14] + &quot;\n&quot; + 
++        array[15] + &quot;\n&quot; + 
++        array[16] + &quot;\n&quot; + 
++        array[17] + &quot;\n&quot; + 
++        array[18] + &quot;\n&quot; + 
++        array[19] + &quot;\n&quot;);
++  */
++}
++
++function testUuidObjects() {
++  var uuid1 = new TimeBasedUuid();
++  var timestampAsHexString = uuid1.getTimestampAsHexString();
++  assertTrue(&quot;A UUID's timestamp hex string is 15-characters long.&quot;, timestampAsHexString.length == 15);
++}
++
++
++// -------------------------------------------------------------------
++// Helper functions
++// -------------------------------------------------------------------
++
++function checkUuidValidity(uuid) {
++  assertTrue('UUIDs have 36 characters', (uuid.length == 36));
++
++  var validCharacters = &quot;0123456789abcedfABCDEF-&quot;;
++  var character;
++  var position;
++  for (var i = 0; i &lt; 36; ++i) {
++    character = uuid.charAt(i);
++    position = validCharacters.indexOf(character);
++    assertTrue('UUIDs have only valid characters', (position != -1));
++  }
++  
++  var arrayOfParts = uuid.split(&quot;-&quot;);
++  assertTrue('UUIDs have 5 sections separated by 4 hyphens', (arrayOfParts.length == 5));
++  assertTrue('Section 0 has 8 characters', (arrayOfParts[0].length == 8));
++  assertTrue('Section 1 has 4 characters', (arrayOfParts[1].length == 4));
++  assertTrue('Section 2 has 4 characters', (arrayOfParts[2].length == 4));
++  assertTrue('Section 3 has 4 characters', (arrayOfParts[3].length == 4));
++  assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
++  
++  var section3 = arrayOfParts[3];
++  var hex3 = parseInt(section3, TimeBasedUuid.HEX_RADIX);
++  var binaryString = hex3.toString(2);
++  // alert(&quot;section3 = &quot; + section3 + &quot;\n binaryString = &quot; + binaryString);
++  assertTrue('section 3 has 16 bits', binaryString.length == 16);
++  assertTrue(&quot;first bit of section 3 is 1&quot;, binaryString.charAt(0) == '1');
++  assertTrue(&quot;second bit of section 3 is 0&quot;, binaryString.charAt(1) == '0');
++}
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000308.html">[openrecord-svn] r324 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000310.html">[openrecord-svn] r326 - in trunk: source/model source/util tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#309">[ date ]</a>
+              <a href="thread.html#309">[ thread ]</a>
+              <a href="subject.html#309">[ subject ]</a>
+              <a href="author.html#309">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

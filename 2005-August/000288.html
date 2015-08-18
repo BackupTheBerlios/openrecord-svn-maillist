@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r303 - trunk/source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r303%20-%20trunk/source/util&In-Reply-To=%3C200508190806.j7J86h7Z027517%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000287.html">
+   <LINK REL="Next"  HREF="000289.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r303 - trunk/source/util</H1>
+    <B>Mignon Belongie at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r303%20-%20trunk/source/util&In-Reply-To=%3C200508190806.j7J86h7Z027517%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r303 - trunk/source/util">mignon at berlios.de
+       </A><BR>
+    <I>Fri Aug 19 10:06:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000287.html">[openrecord-svn] r302 - trunk/repositories
+</A></li>
+        <LI>Next message: <A HREF="000289.html">[openrecord-svn] r304 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#288">[ date ]</a>
+              <a href="thread.html#288">[ thread ]</a>
+              <a href="subject.html#288">[ subject ]</a>
+              <a href="author.html#288">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-08-19 10:06:32 +0200 (Fri, 19 Aug 2005)
+New Revision: 303
+
+Added:
+   trunk/source/util/XmlConverter.js
+   trunk/source/util/XmlConverterTest.html
+   trunk/source/util/XmlConverterTest.js
+   trunk/source/util/food.xml
+Log:
+Wrote XmlConverter and tests for it.  Not yet integrated into TablePlugin.
+
+
+Added: trunk/source/util/XmlConverter.js
+===================================================================
+--- trunk/source/util/XmlConverter.js	2005-08-18 04:38:19 UTC (rev 302)
++++ trunk/source/util/XmlConverter.js	2005-08-19 08:06:32 UTC (rev 303)
+@@ -0,0 +1,193 @@
++/*****************************************************************************
++ XmlConverter.js
++ 
++******************************************************************************
++ Written in 2005 by Mignon Belongie
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++/**
++ * @param    tagPath    A sequence of nested XML tags (relative to an 'item-element'; see below).
++ * @param    attribute  Will be assigned a value for every text node whose path equals the tag path.
++ *
++ * @scope    public instance constructor
++ */
++function XmlToAttributeSpecifier(tagPath, attribute) {
++  Util.assert(tagPath instanceof Array);
++  Util.assert(attribute instanceof Item);
++  this.tagPath = tagPath;
++  this.attribute = attribute;
++  var attributeCalledExpectedType = attribute.getWorld().getAttributeCalledExpectedType();
++  var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
++  this.listOfTypes = [];
++  for (j in listOfExpectedTypeEntries) {
++    var entry = listOfExpectedTypeEntries[j];
++    this.listOfTypes.push(entry.getValue());
++  }
++  var attributeCalledInverseAttribute = attribute.getWorld().getAttributeCalledInverseAttribute();
++  var inverseAttributeEntry = attribute.getSingleEntryFromAttribute(attributeCalledInverseAttribute);
++  this.inverseAttribute = inverseAttributeEntry? inverseAttributeEntry.getValue(attribute) : null;
++}
++
++/**
++ * The XmlConverter class knows how to load an XML file and make items
++ * out of specified parts of the data.
++ *
++ * @scope    public instance constructor
++ */
++function XmlConverter() {
++}
++
++/**
++ * Given the URL of an XML file, a tag name used in the file, and optionally
++ * a list of tag paths, items are created from the elements with the given
++ * tag name ('item-elements') with attributes corresponding to the tag paths.  
++ * If no tag paths are specified, attributes will come from all direct children
++ * of item-elements with nodeType TEXT_NODE.  A category named nameSpace:itemTagName
++ * will be created and the new items assigned to it.
++ * 
++ * For example, if file.xml contains the following:
++ *
++ * &lt;Food_Glossary&gt;
++ * &lt;Record&gt;
++ * &lt;name&gt;carrot&lt;/name&gt;&lt;color&gt;orange&lt;/color&gt;&lt;flavor&gt;sweet&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;lots&lt;/A&gt;&lt;C&gt;lots&lt;/C&gt;&lt;/vitamins&gt;
++ * &lt;/Record&gt;
++ * &lt;Record&gt;
++ * &lt;name&gt;cheese puff&lt;/name&gt;&lt;color&gt;orange&lt;/color&gt;&lt;flavor&gt;salty&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;0.0&lt;/A&gt;&lt;C&gt;0.0&lt;/C&gt;&lt;/vitamins&gt;
++ * &lt;/Record&gt;
++ * &lt;Record&gt;
++ * &lt;name&gt;radish&lt;/name&gt;&lt;color&gt;red&lt;/color&gt;&lt;flavor&gt;hot&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;maybe&lt;/A&gt;&lt;C&gt;some&lt;/C&gt;&lt;/vitamins&gt;
++ * &lt;/Record&gt;
++ * &lt;/Food_Glossary&gt;
++ * 
++ * then makeItemsFromXmlFile(&quot;file:.../file.xml&quot;, &quot;food&quot;, &quot;Record&quot;) would result
++ * in three items each with attributes called 'food:name', 'food:color' and 'food:flavor',
++ * while makeItemsFromXmlFile(&quot;file:.../file.xml&quot;, &quot;food&quot;, &quot;Record&quot;, [[&quot;name&quot;], [&quot;vitamins&quot;, &quot;C&quot;]) 
++ *                            [new XmlToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()),
++ *                             new XmlToAttributeSpecifier([&quot;vitamins&quot;, &quot;C&quot;], world.newAttribute(&quot;Vitamin C&quot;))]);
++ * would result in three items each with attributes called 'name' and 'Vitamin C'.
++ * In both cases, the three items are assigned to the category food:Record.
++ *
++ * @scope    public instance method
++ * @param    world             
++ * @param    url                       (of an XML file)
++ * @param    nameSpace                 If null, the name of the file will be used.
++ * @param    itemTagName               Items will be made from elements with this tag name
++ * @param    xmlToAttributeSpecifiers  Array of type XmlToAttributeSpecifier
++ *
++ * @return   Returns an array of created items.
++ */
++XmlConverter.prototype.makeItemsFromXmlFile = function(world, url, nameSpace, itemTagName, xmlToAttributeSpecifiers) {
++  Util.assert(world instanceof World);
++  var urlSeparators = new RegExp(&quot;\\.|\\/&quot;);
++  var urlParts = url.split(urlSeparators);
++  var len = urlParts.length;
++  Util.assert(urlParts[len-1] == &quot;xml&quot;);
++  if (nameSpace == null)
++    nameSpace = urlParts[len-2];
++  Util.assert(Util.isString(itemTagName));
++
++  var xmlDoc = document.implementation.createDocument(&quot;&quot;, &quot;doc&quot;, null);
++  var objXMLHTTP = new XMLHttpRequest();
++  objXMLHTTP.open(&quot;GET&quot;, url, false);
++  objXMLHTTP.send(null);
++  xmlDoc = objXMLHTTP.responseXML;
++  var itemElements = xmlDoc.getElementsByTagName(itemTagName);
++  var newCategoryName = nameSpace + &quot;:&quot; + itemTagName;
++  var newCategory = world.newCategory(newCategoryName);
++
++  world.beginTransaction();
++  var listOfOutputItems = [];
++  if (xmlToAttributeSpecifiers == null) {
++    listOfOutputItems = this._doDefaultConversion(world, nameSpace, itemElements, newCategory);
++  }
++  else {
++    Util.assert(xmlToAttributeSpecifiers instanceof Array);
++    Util.assert(xmlToAttributeSpecifiers[0] instanceof XmlToAttributeSpecifier);
++    //alert(&quot;itemElements.length = &quot; + itemElements.length);
++    for (var i = 0; i &lt; itemElements.length; ++i) {
++      var newItem = world.newItem();
++      newItem.assignToCategory(newCategory);
++      for (var j in xmlToAttributeSpecifiers) {
++        var tagPath = xmlToAttributeSpecifiers[j].tagPath;
++        this._processElementTree(0, tagPath.length, itemElements[i], newItem, xmlToAttributeSpecifiers[j]);
++      }
++      listOfOutputItems.push(newItem);
++    }
++  }
++  world.endTransaction();
++  return listOfOutputItems;
++}
++
++XmlConverter.prototype._doDefaultConversion = function(world, nameSpace, itemElements, newCategory) {
++  var listOfOutputItems = [];
++  var hashTableOfAttributesKeyedByName = [];
++  for (var i = 0; i &lt; itemElements.length; ++i) {
++    var newItem = world.newItem();
++    newItem.assignToCategory(newCategory);
++    e = itemElements[i];
++    for (var j = 0; j &lt; e.childNodes.length; ++j) {
++      var node = e.childNodes[j];
++      if (node.nodeType == Node.ELEMENT_NODE &amp;&amp; node.firstChild &amp;&amp; node.firstChild.nodeType == Node.TEXT_NODE) {
++        var attrName = nameSpace + &quot;:&quot; + node.tagName;
++        var attr = hashTableOfAttributesKeyedByName[attrName];
++        if (!attr) {
++          attr = world.newAttribute(attrName);
++          hashTableOfAttributesKeyedByName[attrName] = attr;
++        }
++        newItem.addEntryForAttribute(attr, node.firstChild.nodeValue);
++      }
++    }
++    listOfOutputItems.push(newItem);
++  }
++  return listOfOutputItems;
++}
++
++XmlConverter.prototype._processElementTree = function(level, maxLevel, node, newItem, xmlToAttributeSpecifier) {
++  if (level == maxLevel) {
++    if (node.childNodes &amp;&amp; node.childNodes.length &gt; 0 &amp;&amp; node.childNodes[0].nodeType == Node.TEXT_NODE) {
++      value = EntryView._transformValueToExpectedType(world, node.childNodes[0].nodeValue, xmlToAttributeSpecifier.listOfTypes);
++      if (xmlToAttributeSpecifier.inverseAttribute) {
++        newItem.addConnectionEntry(xmlToAttributeSpecifier.attribute, value, xmlToAttributeSpecifier.inverseAttribute);
++      } else {
++        newItem.addEntryForAttribute(xmlToAttributeSpecifier.attribute, value);
++      }
++    }
++    return;
++  }
++  var tagName = xmlToAttributeSpecifier.tagPath[level];
++  var matchingElements = node.getElementsByTagName(tagName);
++  if (matchingElements == null)
++    return;
++  for (i in matchingElements) {
++    if (matchingElements[i].childNodes &amp;&amp; matchingElements[i].childNodes.length &gt; 0) {
++      this._processElementTree(level + 1, maxLevel, matchingElements[i], newItem, xmlToAttributeSpecifier)
++    }
++  }
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/util/XmlConverterTest.html
+===================================================================
+--- trunk/source/util/XmlConverterTest.html	2005-08-18 04:38:19 UTC (rev 302)
++++ trunk/source/util/XmlConverterTest.html	2005-08-19 08:06:32 UTC (rev 303)
+@@ -0,0 +1,105 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for XmlConverter.js&lt;/title&gt;
++&lt;!-- 
++--&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/gtd_tiddlywiki/FileSaver.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;DateValue.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Record.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Vote.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/ContentRecord.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Transaction.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/QueryRunner.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/World.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/HttpSaver.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../view/View.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../view/EntryView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverter.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverterTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for XmlConverter.js&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/util/XmlConverterTest.js
+===================================================================
+--- trunk/source/util/XmlConverterTest.js	2005-08-18 04:38:19 UTC (rev 302)
++++ trunk/source/util/XmlConverterTest.js	2005-08-19 08:06:32 UTC (rev 303)
+@@ -0,0 +1,207 @@
++/*****************************************************************************
++ XmlConverterTest.js
++ 
++******************************************************************************
++ Written in 2005 by Mignon Belongie.
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++var world;
++var xmlConverter;
++
++function setUp() {
++  var pathToTrunkDirectoryFromThisFile = &quot;../../../&quot;;
++  var virtualServer = new StubVirtualServer(pathToTrunkDirectoryFromThisFile);  
++  world = new World(virtualServer);
++  var annsPassword = &quot;Ann's password&quot;;
++  var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
++  world.login(userAnn, annsPassword);
++  xmlConverter = new XmlConverter();
++}
++
++function testDefaultConversionOfTagsToAttributes() {
++  var listOfItems = xmlConverter.makeItemsFromXmlFile(world,
++                                                      &quot;../../../source/util/food.xml&quot;,
++                                                      &quot;food&quot;,
++                                                      &quot;Record&quot;);
++  assertTrue('3 items should have been created', listOfItems.length == 3);
++  var expectedNewCategory = null;
++  var listOfCategories = world.getCategories();
++  for (var i in listOfCategories) {
++    if (listOfCategories[i].getDisplayName() == &quot;food:Record&quot;) {
++      expectedNewCategory = listOfCategories[i];
++      break;
++    }
++  }
++  assertFalse('A category named &quot;food:Record&quot; should have been created', expectedNewCategory == null);  
++  for (var i in listOfItems) {
++    var item = listOfItems[i];
++    assertTrue('Each item should be in the category &quot;food:Record&quot;.', item.isInCategory(expectedNewCategory));
++    var listOfAttributes = item.getAttributes();
++    assertTrue('Each item should have 4 attributes.', listOfAttributes.length == 4);
++    var names = [];
++    for (var j in listOfAttributes) {
++      names.push(listOfAttributes[j].getDisplayName());
++    }
++    hasAll = Util.areObjectsInSet([&quot;food:name&quot;, &quot;food:color&quot;, &quot;food:flavor&quot;], names);
++    assertTrue('Each item should have attributes called &quot;food:name&quot;, &quot;food:color&quot; and &quot;food:flavor&quot;.', hasAll);  
++  }
++}
++
++function testSimpleXmlToAttributeSpecifiers() {
++  var xmlToAttributeSpecifiers = new Array();
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;flavor&quot;], world.newAttribute(&quot;Flavor&quot;)));
++  var listOfItems = xmlConverter.makeItemsFromXmlFile(world,
++                                                      &quot;../../../source/util/food.xml&quot;,
++                                                      &quot;food&quot;,
++                                                      &quot;Record&quot;,
++                                                      xmlToAttributeSpecifiers);
++  assertTrue('3 items should have been created', listOfItems.length == 3);
++  var expectedNewCategory = null;
++  var listOfCategories = world.getCategories();
++  for (var i in listOfCategories) {
++    if (listOfCategories[i].getDisplayName() == &quot;food:Record&quot;) {
++      expectedNewCategory = listOfCategories[i];
++      break;
++    }
++  }
++  assertFalse('A category named &quot;food:Record&quot; should have been created', expectedNewCategory == null);
++  for (var i in listOfItems) {
++    var item = listOfItems[i];
++    assertTrue('Each item should be in the category &quot;food:Record&quot;.', item.isInCategory(expectedNewCategory));
++    var listOfAttributes = item.getAttributes();
++    assertTrue('Each item should have 3 attributes.', listOfAttributes.length == 3);
++    var names = [];
++    for (var j in listOfAttributes) {
++      names.push(listOfAttributes[j].getDisplayName());
++    }
++    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Flavor&quot;.', Util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Flavor&quot;], names));
++  }
++}
++
++function testMultipleValuesForAnAttribute() {
++  var xmlToAttributeSpecifiers = new Array();
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
++  var flavorAttribute = world.newAttribute(&quot;Flavor&quot;);
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;flavor&quot;], flavorAttribute));
++  var listOfItems = xmlConverter.makeItemsFromXmlFile(world,
++                                                      &quot;../../../source/util/food.xml&quot;,
++                                                      &quot;food&quot;,
++                                                      &quot;Record&quot;,
++                                                      xmlToAttributeSpecifiers);
++  assertTrue('3 items should have been created', listOfItems.length == 3);
++  for (var i in listOfItems) {
++    var item = listOfItems[i];
++    if (item.getDisplayName() == 'cheese puff') {
++      var cheesePuff = item;
++    } else if (item.getDisplayName() == 'carrot') {
++      var carrot = item;
++    }
++  }
++  var listOfFlavors = carrot.getEntriesForAttribute(flavorAttribute);
++  assertTrue(&quot;'carrot' should have exactly one flavor.&quot;, listOfFlavors.length == 1);
++  listOfFlavors = cheesePuff.getEntriesForAttribute(flavorAttribute);
++  assertTrue(&quot;'cheese puff' should have 2 flavors.&quot;, listOfFlavors.length == 2);
++  var flavorNames = [listOfFlavors[0].getValue(), listOfFlavors[1].getValue()];
++  assertTrue(&quot;'cheese puff' should have flavors called 'salty' and 'cheesy'.&quot;, Util.areObjectsInSet(['salty', 'cheesy'], flavorNames));
++}
++
++function testNestedXmlConversion() {
++  var xmlToAttributeSpecifiers = new Array();
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;vitamins&quot;, &quot;C&quot;], world.newAttribute(&quot;Vitamin C&quot;)));
++  var listOfItems = xmlConverter.makeItemsFromXmlFile(world,
++                                                      &quot;../../../source/util/food.xml&quot;,
++                                                      &quot;food&quot;,
++                                                      &quot;Record&quot;,
++                                                      xmlToAttributeSpecifiers);
++  assertTrue('3 items should have been created', listOfItems.length == 3);
++  for (var i in listOfItems) {
++    var item = listOfItems[i];
++    var listOfAttributes = item.getAttributes();
++    assertTrue('Each item should have 3 attributes.', listOfAttributes.length == 3);
++    var names = [];
++    for (var j in listOfAttributes) {
++      names.push(listOfAttributes[j].getDisplayName());
++    }
++    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Vitamin C&quot;.', Util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Vitamin C&quot;], names));
++  }
++}
++
++function testExpectedType() {
++  var xmlToAttributeSpecifiers = new Array();
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
++  var colorAttribute = world.newAttribute(&quot;Color&quot;);
++  var foodColorCategory = world.newCategory(&quot;Food color&quot;);
++  colorAttribute.addEntryForAttribute(world.getAttributeCalledExpectedType(), foodColorCategory);
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;color&quot;], colorAttribute));
++  var listOfItems = xmlConverter.makeItemsFromXmlFile(world,
++                                                      &quot;../../../source/util/food.xml&quot;,
++                                                      &quot;food&quot;,
++                                                      &quot;Record&quot;,
++                                                      xmlToAttributeSpecifiers);
++  assertTrue('3 items should have been created', listOfItems.length == 3);
++  for (var i in listOfItems) {
++    var item = listOfItems[i];
++    var entryForColorAttribute = item.getSingleEntryFromAttribute(colorAttribute);
++    var valueOfColorAttribute = entryForColorAttribute.getValue();
++    assertTrue(&quot;The values of the color attribute should be in the category 'Food color'.&quot;, valueOfColorAttribute.isInCategory(foodColorCategory));
++  }
++}
++
++function testInverseAttribute() {
++  var xmlToAttributeSpecifiers = new Array();
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
++  var colorAttribute = world.newAttribute(&quot;Color&quot;);
++  var foodColorCategory = world.newCategory(&quot;Food Color&quot;);
++  colorAttribute.addEntryForAttribute(world.getAttributeCalledExpectedType(), foodColorCategory);
++  var foodsOfThisColorCategory = world.newCategory(&quot;Foods of this color&quot;);
++  colorAttribute.addEntryForAttribute(world.getAttributeCalledInverseAttribute(), foodsOfThisColorCategory);
++  xmlToAttributeSpecifiers.push(new XmlToAttributeSpecifier([&quot;color&quot;], colorAttribute));
++  var listOfItems = xmlConverter.makeItemsFromXmlFile(world,
++                                                      &quot;../../../source/util/food.xml&quot;,
++                                                      &quot;food&quot;,
++                                                      &quot;Record&quot;,
++                                                      xmlToAttributeSpecifiers);
++  var colorCategories = world.getItemsInCategory(foodColorCategory);
++  assertTrue('2 color categories should have been created', colorCategories.length == 2);
++  var red = colorCategories[0].getDisplayName() == 'red'? colorCategories[0] : colorCategories[1].getDisplayName() == 'red'? colorCategories[1] : null;
++  assertFalse('A color category named &quot;red&quot; should have been created', red == null);
++  var orange = colorCategories[0].getDisplayName() == 'orange'? colorCategories[0] : colorCategories[1].getDisplayName() == 'orange'? colorCategories[1] : null;
++  assertFalse('A color category named &quot;orange&quot; should have been created', orange == null);
++  var redFoods = red.getEntriesForAttribute(foodsOfThisColorCategory);
++  assertTrue('There should be one red food.', redFoods.length == 1);
++  var orangeFoods = orange.getEntriesForAttribute(foodsOfThisColorCategory);
++  assertTrue('There should be two orange foods.', orangeFoods.length == 2);
++}
++
++function tearDown() {
++  world.logout();
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/util/food.xml
+===================================================================
+--- trunk/source/util/food.xml	2005-08-18 04:38:19 UTC (rev 302)
++++ trunk/source/util/food.xml	2005-08-19 08:06:32 UTC (rev 303)
+@@ -0,0 +1,13 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;US-ASCII&quot; ?&gt;
++&lt;Food_Glossary&gt;
++&lt;Record&gt;
++&lt;name&gt;carrot&lt;/name&gt;&lt;color&gt;orange&lt;/color&gt;&lt;flavor&gt;sweet&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;lots&lt;/A&gt;&lt;C&gt;lots&lt;/C&gt;&lt;/vitamins&gt;
++&lt;/Record&gt;
++&lt;Record&gt;
++&lt;name&gt;cheese puff&lt;/name&gt;&lt;color&gt;orange&lt;/color&gt;&lt;flavor&gt;salty&lt;/flavor&gt;&lt;flavor&gt;cheesy&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;0.0&lt;/A&gt;&lt;C&gt;0.0&lt;/C&gt;&lt;/vitamins&gt;
++&lt;/Record&gt;
++&lt;Record&gt;
++&lt;name&gt;radish&lt;/name&gt;&lt;color&gt;red&lt;/color&gt;&lt;flavor&gt;hot&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;maybe&lt;/A&gt;&lt;C&gt;some&lt;/C&gt;&lt;/vitamins&gt;
++&lt;/Record&gt;
++&lt;/Food_Glossary&gt;
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000287.html">[openrecord-svn] r302 - trunk/repositories
+</A></li>
+	<LI>Next message: <A HREF="000289.html">[openrecord-svn] r304 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#288">[ date ]</a>
+              <a href="thread.html#288">[ thread ]</a>
+              <a href="subject.html#288">[ subject ]</a>
+              <a href="author.html#288">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

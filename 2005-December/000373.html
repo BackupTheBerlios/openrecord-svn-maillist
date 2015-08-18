@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r391 - in trunk: documentation source/plugins/create_new_plugin
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r391%20-%20in%20trunk%3A%20documentation%20source/plugins/create_new_plugin&In-Reply-To=%3C200512122341.jBCNfpjk018576%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000372.html">
+   <LINK REL="Next"  HREF="000374.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r391 - in trunk: documentation source/plugins/create_new_plugin</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r391%20-%20in%20trunk%3A%20documentation%20source/plugins/create_new_plugin&In-Reply-To=%3C200512122341.jBCNfpjk018576%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r391 - in trunk: documentation source/plugins/create_new_plugin">mignon at berlios.de
+       </A><BR>
+    <I>Tue Dec 13 00:41:51 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000372.html">[openrecord-svn] r390 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000374.html">[openrecord-svn] r392 - trunk/web_pages/content
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#373">[ date ]</a>
+              <a href="thread.html#373">[ thread ]</a>
+              <a href="subject.html#373">[ subject ]</a>
+              <a href="author.html#373">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-12-13 00:41:43 +0100 (Tue, 13 Dec 2005)
+New Revision: 391
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/plugins/create_new_plugin/create_new_plugin.js
+Log:
+Added validation code to create_new_plugin.html to check the supplied ClassName.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2005-12-12 22:40:00 UTC (rev 390)
++++ trunk/documentation/to_do_list.txt	2005-12-12 23:41:43 UTC (rev 391)
+@@ -46,7 +46,7 @@
+ -------+----------+---------+----------------------------------------------
+        |          |         |  1. Document the Data model public API
+        |          |         |  2. Change the &quot;node&quot; used in the UUIDs for plugins
+-       |          |         |  3. Add validation code to create_new_plugin.html to check the supplied ClassName
++mignon |          |    0.05 |  3. Add validation code to create_new_plugin.html to check the supplied ClassName
+        |          |         |  4. Add instructions on the create_new_plugin.html page
+        |          |         |  5. Add list of suggested plugins to the create_new_plugin.html page
+        |          |         |  6. Make the 4 original plugins conform to the new plugin API (if possible)
+
+Modified: trunk/source/plugins/create_new_plugin/create_new_plugin.js
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin.js	2005-12-12 22:40:00 UTC (rev 390)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin.js	2005-12-12 23:41:43 UTC (rev 391)
+@@ -49,12 +49,20 @@
+   var authorField = document.getElementById(&quot;plugin_author&quot;);
+   var outputArea = document.getElementById(&quot;output_area&quot;);
+   
++  var generatedContents;
++
+   var className = classNameField.value;
+-  var name      = nameField.value;
+-  var author    = authorField.value;
++  if (className.match(/^[A-Z]\w*$/)) {
++    var name      = nameField.value;
++    var author    = authorField.value;
++    generatedContents = generateContents(className, name, author);
++  }
++  else {
++    generatedContents = &quot;Error: ClassName must contain only alphanumeric characters &quot; + 
++                        &quot;and underscores, and must start with an uppercase letter.  &quot; +
++                        &quot;Example: MySuperFooView&quot;;
++  }
+ 
+-  var generatedContents = generateContents(className, name, author);
+-
+   outputArea.value = generatedContents;
+   outputArea.style.visibility = &quot;visible&quot;;
+   // alert(generatedContents);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000372.html">[openrecord-svn] r390 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000374.html">[openrecord-svn] r392 - trunk/web_pages/content
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#373">[ date ]</a>
+              <a href="thread.html#373">[ thread ]</a>
+              <a href="subject.html#373">[ subject ]</a>
+              <a href="author.html#373">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

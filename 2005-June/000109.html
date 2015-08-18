@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r122 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r122%20-%20trunk/source&In-Reply-To=%3C200506050010.j550AxAZ032121%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000108.html">
+   <LINK REL="Next"  HREF="000110.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r122 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r122%20-%20trunk/source&In-Reply-To=%3C200506050010.j550AxAZ032121%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r122 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun  5 02:10:59 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000108.html">[openrecord-svn] r121 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000110.html">[openrecord-svn] r123 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-05 02:10:54 +0200 (Sun, 05 Jun 2005)
+New Revision: 122
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+Log:
+Oops, forgot to run unit tests
+Brian, the new script with line numbers to errors is great! :)
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-05 00:00:43 UTC (rev 121)
++++ trunk/source/TablePlugin.js	2005-06-05 00:10:54 UTC (rev 122)
+@@ -216,7 +216,7 @@
+   var optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
+   optionElt.text = &quot;Add new attribute:&quot;;
+   for (var i = 0; i &lt; listOfAttributes.length; ++i) {
+-    var optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
++    optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
+     var attributeUuid = listOfAttributes[i].getUniqueKeyString();
+     if (this._hashTableOfAttributes[attributeUuid]) {optionElt.text = '*';}
+     optionElt.text += listOfAttributes[i].getDisplayName();
+@@ -418,8 +418,7 @@
+ TablePlugin.prototype._attributeEditorChanged = function (inEventObject) {
+   var attributeUuid = inEventObject.target.value;
+   if (attributeUuid) {
+-    var toRemove = this._hashTableOfAttributes[attributeUuid] != null;
+-    if (toRemove) {
++    if (this._hashTableOfAttributes[attributeUuid]) {
+       delete this._hashTableOfAttributes[attributeUuid];
+       this._hashTableOfEntries[attributeUuid] = [];
+     }
+@@ -427,7 +426,7 @@
+       this._hashTableOfAttributes[attributeUuid] = this.getWorld().getItemFromUuid(attributeUuid);
+       this._hashTableOfEntries[attributeUuid] = []; //PENDING need to set this to right attribute
+     }
+-    this._buildTable(true)
++    this._buildTable(true);
+   }
+ };
+ 
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-05 00:00:43 UTC (rev 121)
++++ trunk/source/TextView.js	2005-06-05 00:10:54 UTC (rev 122)
+@@ -253,7 +253,7 @@
+         if (aType == typeCalledText) {expectsText = true;}
+       }
+       if ((expectedCategory) &amp;&amp; !expectsText) {
+-        var value = repository.newItem(value);
++        value = repository.newItem(value);
+         value.addEntryForAttribute(repository.getAttributeCalledCategory(),expectedCategory);
+       }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000108.html">[openrecord-svn] r121 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000110.html">[openrecord-svn] r123 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#109">[ date ]</a>
+              <a href="thread.html#109">[ thread ]</a>
+              <a href="subject.html#109">[ subject ]</a>
+              <a href="author.html#109">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r363 - trunk/tests
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r363%20-%20trunk/tests&In-Reply-To=%3C200510172130.j9HLUw7T001704%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000344.html">
+   <LINK REL="Next"  HREF="000346.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r363 - trunk/tests</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r363%20-%20trunk/tests&In-Reply-To=%3C200510172130.j9HLUw7T001704%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r363 - trunk/tests">skinner at berlios.de
+       </A><BR>
+    <I>Mon Oct 17 23:30:58 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000344.html">[openrecord-svn] r362 - in trunk: documentation source source/model source/util source/view tests/model
+</A></li>
+        <LI>Next message: <A HREF="000346.html">[openrecord-svn] r364 - in trunk: documentation source source/lang source/util source/view tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#345">[ date ]</a>
+              <a href="thread.html#345">[ thread ]</a>
+              <a href="subject.html#345">[ subject ]</a>
+              <a href="author.html#345">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-17 23:30:58 +0200 (Mon, 17 Oct 2005)
+New Revision: 363
+
+Modified:
+   trunk/tests/SimpleTest.js
+Log:
+added a simple error catching test
+
+Modified: trunk/tests/SimpleTest.js
+===================================================================
+--- trunk/tests/SimpleTest.js	2005-10-14 23:16:03 UTC (rev 362)
++++ trunk/tests/SimpleTest.js	2005-10-17 21:30:58 UTC (rev 363)
+@@ -49,6 +49,16 @@
+   assertTrue(&quot;Two and two is four&quot;, (2 + 2) == 4);
+ }
+ 
++function testErrorCatching() {
++  var caughtError = false;
++  try {
++    var foo = bar;  // syntax error: bar is undefined
++  } catch (e) {
++    caughtError = true;
++  }
++  assertTrue('There was an error in &quot;var foo = bar&quot;', caughtError);
++}
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000344.html">[openrecord-svn] r362 - in trunk: documentation source source/model source/util source/view tests/model
+</A></li>
+	<LI>Next message: <A HREF="000346.html">[openrecord-svn] r364 - in trunk: documentation source source/lang source/util source/view tests tests/archive tests/dojo tests/dom tests/lang tests/model tests/storage tests/tests_of_external_code tests/util tests/uuid tests/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#345">[ date ]</a>
+              <a href="thread.html#345">[ thread ]</a>
+              <a href="subject.html#345">[ subject ]</a>
+              <a href="author.html#345">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1738 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r230 - in trunk: source source/model source/view third_party/scriptaculous
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r230%20-%20in%20trunk%3A%20source%20source/model%20source/view%20third_party/scriptaculous&In-Reply-To=%3C200507121713.j6CHDMTt016990%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000215.html">
+   <LINK REL="Next"  HREF="000217.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r230 - in trunk: source source/model source/view third_party/scriptaculous</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r230%20-%20in%20trunk%3A%20source%20source/model%20source/view%20third_party/scriptaculous&In-Reply-To=%3C200507121713.j6CHDMTt016990%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r230 - in trunk: source source/model source/view third_party/scriptaculous">chaolam at berlios.de
+       </A><BR>
+    <I>Tue Jul 12 19:13:22 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000215.html">[openrecord-svn] r229 - in trunk: . source source/view third_party third_party/scriptaculous
+</A></li>
+        <LI>Next message: <A HREF="000217.html">[openrecord-svn] r231 - in trunk: repositories source source/view third_party/scriptaculous
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-07-12 19:13:16 +0200 (Tue, 12 Jul 2005)
+New Revision: 230
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/third_party/scriptaculous/controls.js
+   trunk/third_party/scriptaculous/dragdrop.js
+   trunk/third_party/scriptaculous/effects.js
+   trunk/third_party/scriptaculous/prototype.js
+Log:
+1) Added official scriptaculous libraries (they got rid of Object.prototype.extend() yay!)
+2) Made Entry know how to get AutoSuggest items by default, got rid of AutoSuggest items from TablePlugin
+3) Numerous bug fixes
+4) Skeletal attempt at handling the &quot;drop&quot; part of Drag and Drog for Entry lozenges
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/source/TablePlugin.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -141,13 +141,10 @@
+   var displayAttrs = [];
+   var anAttribute;
+   if (entriesTableColumns.length &gt; 0) {
+-    this._hashTableOfEntries = {};
+     for (var i=0;i&lt;entriesTableColumns.length;++i) {
+       anAttribute = entriesTableColumns[i].getValue();
+       Util.assert(anAttribute instanceof Item);
+       displayAttrs.push(anAttribute);
+-      this._hashTableOfEntries[anAttribute.getUniqueKeyString()] =
+-        this.getWorld().getSuggestedItemsForAttribute(anAttribute);
+     }
+   }
+   else {
+@@ -167,7 +164,6 @@
+ TablePlugin.prototype._buildAttributeHashFromScratch = function() {
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var hashTableOfAttributes = {};
+-  var hashTableOfEntries = {};
+   for (var iKey in this._listOfItems) {
+     var contentItem = this._listOfItems[iKey];
+     var listOfAttributesForItem = contentItem.getAttributes();
+@@ -176,12 +172,10 @@
+       if (attribute != attributeCalledCategory) {
+         var attributeKeyString = attribute.getUniqueKeyString();
+         hashTableOfAttributes[attributeKeyString] = attribute;
+-        hashTableOfEntries[attributeKeyString] = this.getWorld().getSuggestedItemsForAttribute(attribute);
+       }
+     }
+   }
+   
+-  this._hashTableOfEntries = hashTableOfEntries;
+   if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
+     var attributeCalledName = this.getWorld().getAttributeCalledName();
+     var key = attributeCalledName.getUniqueKeyString();
+@@ -424,7 +418,7 @@
+   aCell.or_entriesView = multiEntriesView;
+   multiEntriesView.refresh();
+   if (this.isInEditMode()) {
+-    multiEntriesView.setSuggestions(this._hashTableOfEntries[attribute.getUniqueKeyString()]);
++    //multiEntriesView.setSuggestions(this._hashTableOfEntries[attribute.getUniqueKeyString()]);
+     var listener = this;
+     multiEntriesView.setKeyPressFunction(function (evt, entryView) {return listener.keyPressOnEditField(evt, entryView);});
+     //multiEntriesView.setClickFunction(function (evt, entryView) {return listener._handleClick(evt, entryView);});
+@@ -533,11 +527,9 @@
+           break;
+         }
+       }
+-      delete this._hashTableOfEntries[attributeUuid];
+     }
+     else {
+       this._displayAttributes.push(changedAttribute);
+-      this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(changedAttribute);
+     }
+     if (noStoredColumns) {
+       for (i=0;i&lt;this._displayAttributes.length;++i) {
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/source/base_style.css	2005-07-12 17:13:16 UTC (rev 230)
+@@ -627,7 +627,7 @@
+ 
+ .SuggestionBox {
+   background: rgb(100%, 100%, 100%);
+-  font-size: small;
++  font-size: 0.8em;
+   border-style: solid;
+   border-width: thin;
+   border-color: #000000;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/source/model/StubVirtualServer.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -777,6 +777,16 @@
+   return item;
+ };
+ 
++/**
++ * Given a UUID, returns the existing entry identified by that UUID. 
++ * 
++ * @scope    private instance method
++ * @param    uuid    The UUID of the entry to be returned. 
++ * @return   The entry identified by the given UUID.
++ */
++StubVirtualServer.prototype.__getEntryFromUuid = function(uuid) {
++  return this._hashTableOfEntriesKeyedByUuid[uuid];
++};
+ 
+ /**
+  * Given a UUID, either (a) returns the existing entry identified by that UUID, 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/source/model/World.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -862,6 +862,16 @@
+   return (this._virtualServer.getItemFromUuid(uuid, observer));
+ };
+ 
++/**
++ * Given a UUID, returns the entry identified by that UUID.
++ *
++ * @scope    public instance method
++ * @param    uuid    The UUID of the item to be returned. 
++ * @return   The entry identified by the given UUID.
++ */
++World.prototype.getEntryFromUuid = function(uuid) {
++  return (this._virtualServer.__getEntryFromUuid(uuid));
++};
+ 
+ // -------------------------------------------------------------------
+ // Query methods
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/source/view/EntryView.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -112,13 +112,14 @@
+  *
+  */
+ EntryView.prototype._setupSuggestionBox = function() {
+-  if (this._suggestions) {
+-    var suggestionBox = new SuggestionBox(this._editField, this._suggestions);
++  var listOfSuggestions = this._suggestions || this.getWorld().getSuggestedItemsForAttribute(this._attribute);
++  if (listOfSuggestions &amp;&amp; listOfSuggestions.length &gt; 0) {
++    var suggestionBox = new SuggestionBox(this._editField, listOfSuggestions);
+     this._suggestionBox = suggestionBox;
+     if (this._editField &amp;&amp; this._autoWiden) {
+       var maxLength = 4;
+-      for (var i=0; i &lt; this._suggestions.length;++i) {
+-        var aSuggestion = this._suggestions[i];
++      for (var i=0; i &lt; listOfSuggestions.length;++i) {
++        var aSuggestion = listOfSuggestions[i];
+         if (aSuggestion.getDisplayString().length &gt; maxLength) {maxLength = aSuggestion.getDisplayString().length;}
+       }
+       this._editField.size = maxLength;
+@@ -244,7 +245,7 @@
+       }
+     }
+     else if (this.isInEditMode() &amp;&amp; (dataType == itemType || dataType == connectionType)) {
+-      this._textSpan.setAttribute(&quot;or_entry&quot;,this._entry);
++      this._textSpan.setAttribute(&quot;id&quot;,this._entry._getUuid()); //pending, why is _getUuid a private method?
+       new Draggable(this._textSpan, {revert:true});
+     }
+   }
+@@ -407,7 +408,7 @@
+             return value;
+           case typeCalledNumber:
+             var floatVal = parseFloat(value);
+-            if (floatVal != NaN) {return floatVal;}
++            if (!isNaN(floatVal)) {return floatVal;}
+             break;
+           case typeCalledDate:
+             var dateVal = Date.parse(value);
+@@ -417,11 +418,6 @@
+             if (aType.isInCategory(categoryCalledCategory)) {
+               value = repository.newItem(value);
+               value.assignToCategory(aType);
+-              if (this._suggestions) {
+-                // add new item to suggestion list if list is present
+-                // PENDING: should this be using an observer instead?
+-                Util.addObjectToSet(value, this._suggestions);
+-              }
+               return value;
+             }
+             break;
+@@ -459,7 +455,7 @@
+         this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
+       }
+       var superview = this.getSuperview();
+-      if (superview._provisionalItemJustBecomeReal) {
++      if (this._isProvisional &amp;&amp; superview._provisionalItemJustBecomeReal) {
+         superview._provisionalItemJustBecomeReal(this._item);
+       }
+       if (value instanceof Item) {
+@@ -532,7 +528,7 @@
+   }
+   if (this.isInEditMode()) {
+     this.selectView(eventObject);
+-    return true;
++    return false;
+   }
+ };
+ 
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/source/view/MultiEntriesView.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -103,6 +103,7 @@
+  * @param    item      The Item which just became real. 
+  */
+ MultiEntriesView.prototype._provisionalItemJustBecomeReal = function(item) {
++  Util.assert(item == this._item);
+   var superview = this.getSuperview();
+   if (superview._provisionalItemJustBecomeReal) {
+     superview._provisionalItemJustBecomeReal(item);
+@@ -174,6 +175,15 @@
+   this._clickFunction = onClickFunction;
+ };
+ 
++/**
++ *
++ */
++MultiEntriesView.prototype.hasEntry = function(anEntry) {
++  for (var i in this._entryViews) {
++    if (this._entryViews[i] == anEntry) {return true;}
++  }
++  return false;
++};
+ 
+ /**
+  *
+@@ -199,7 +209,16 @@
+  *
+  */
+ MultiEntriesView.prototype._handleDrop = function(element) {
+-  alert(element + ' was dropped on ' + this);
++  var uuid = element.getAttribute(&quot;id&quot;);
++  if (!uuid) {Util.assert(false);}
++  var droppedEntry = this.getWorld().getEntryFromUuid(uuid);
++  if (!droppedEntry) {Util.assert(false);}
++  if (!this.hasEntry(droppedEntry)) {
++/*    var entryItem = Util.isArray(droppedEntry._item) ? droppedEntry._item[0] : droppedEntry._item; //pending HACK
++    var newEntry = this.getWorld()._newEntry(this._item, null,
++      this._attribute, droppedEntry.getValue(entryItem), droppedEntry.getType());
++    this._addEntryView(newEntry);*/ //PENDING discussion with Brian on ConnectionEntries
++  }
+ };
+ 
+ 
+@@ -306,6 +325,7 @@
+     htmlElement.onclick = this._handleOwnClick.bindAsEventListener(this);
+     var listener = this;
+     Droppables.add(htmlElement, {accept: [EntryView.CSS_CLASS_CONNECTION_VALUE,EntryView.CSS_ITEM_VALUE],
++      hoverclass: &quot;test&quot;,
+       onDrop: function(element) {listener._handleDrop(element);}});
+   } 
+   this._myHasEverBeenDisplayedFlag = true;
+
+Modified: trunk/third_party/scriptaculous/controls.js
+===================================================================
+--- trunk/third_party/scriptaculous/controls.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/third_party/scriptaculous/controls.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -1,4 +1,5 @@
+ // Copyright (c) 2005 Thomas Fuchs (<A HREF="http://script.aculo.us,">http://script.aculo.us,</A> <A HREF="http://mir.aculo.us">http://mir.aculo.us</A>)
++//           (c) 2005 Ivan Krstic (<A HREF="http://blogs.law.harvard.edu/ivan">http://blogs.law.harvard.edu/ivan</A>)
+ // 
+ // Permission is hereby granted, free of charge, to any person obtaining
+ // a copy of this software and associated documentation files (the
+@@ -19,7 +20,6 @@
+ // OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+-
+ Element.collectTextNodesIgnoreClass = function(element, ignoreclass) {
+   var children = $(element).childNodes;
+   var text     = &quot;&quot;;
+@@ -37,42 +37,70 @@
+   return text;
+ }
+ 
+-Ajax.Autocompleter = Class.create();
+-Ajax.Autocompleter.prototype = Object.extend(new Ajax.Base(),{
+-  initialize: function(element, update, url, options) {
++// Autocompleter.Base handles all the autocompletion functionality 
++// that's independent of the data source for autocompletion. This
++// includes drawing the autocompletion menu, observing keyboard
++// and mouse events, and similar.
++//
++// Specific autocompleters need to provide, at the very least, 
++// a getUpdatedChoices function that will be invoked every time
++// the text inside the monitored textbox changes. This method 
++// should get the text for which to provide autocompletion by
++// invoking this.getEntry(), NOT by directly accessing
++// this.element.value. This is to allow incremental tokenized
++// autocompletion. Specific auto-completion logic (AJAX, etc)
++// belongs in getUpdatedChoices.
++//
++// Tokenized incremental autocompletion is enabled automatically
++// when an autocompleter is instantiated with the 'tokens' option
++// in the options parameter, e.g.:
++// new Ajax.Autocompleter('id','upd', '/url/', { tokens: ',' });
++// will incrementally autocomplete with a comma as the token.
++// Additionally, ',' in the above example can be replaced with
++// a token array, e.g. { tokens: new Array (',', '\n') } which
++// enables autocompletion on multiple tokens. This is most 
++// useful when one of the tokens is \n (a newline), as it 
++// allows smart autocompletion after linebreaks.
++
++var Autocompleter = {}
++Autocompleter.Base = function() {};
++Autocompleter.Base.prototype = {
++  base_initialize: function(element, update, options) {
+     this.element     = $(element); 
+     this.update      = $(update);  
+     this.has_focus   = false; 
+     this.changed     = false; 
+     this.active      = false; 
+     this.index       = 0;     
+-    this.entry_count = 0;    
+-    this.url         = url;
++    this.entry_count = 0;
+ 
+-    this.setOptions(options);
+-    this.options.asynchronous = true;
+-    this.options.onComplete   = this.onComplete.bind(this)
++    if (this.setOptions)
++      this.setOptions(options);
++    else
++      this.options = {}
++     
++    this.options.tokens       = this.options.tokens || new Array();
+     this.options.frequency    = this.options.frequency || 0.4;
+     this.options.min_chars    = this.options.min_chars || 1;
+-    this.options.method       = 'post';
+-    
+-    this.options.onShow = this.options.onShow || 
+-      function(element, update){ 
+-        if(!update.style.position || update.style.position=='absolute') {
+-          update.style.position = 'absolute';
++    this.options.onShow       = this.options.onShow || 
++    function(element, update){ 
++      if(!update.style.position || update.style.position=='absolute') {
++        update.style.position = 'absolute';
+           var offsets = Position.cumulativeOffset(element);
+           update.style.left = offsets[0] + 'px';
+           update.style.top  = (offsets[1] + element.offsetHeight) + 'px';
+           update.style.width = element.offsetWidth + 'px';
+-        }
+-        new Effect.Appear(update,{duration:0.3});
+-      };
++      }
++      new Effect.Appear(update,{duration:0.15});
++    };
+     this.options.onHide = this.options.onHide || 
+-      function(element, update){ new Effect.Fade(update,{duration:0.3}) };
++    function(element, update){ new Effect.Fade(update,{duration:0.15}) };
+     
+-    
+     if(this.options.indicator)
+       this.indicator = $(this.options.indicator);
++
++    if (typeof(this.options.tokens) == 'string') 
++      this.options.tokens = new Array(this.options.tokens);
+        
+     this.observer = null;
+     
+@@ -81,14 +109,14 @@
+     Event.observe(this.element, &quot;blur&quot;, this.onBlur.bindAsEventListener(this));
+     Event.observe(this.element, &quot;keypress&quot;, this.onKeyPress.bindAsEventListener(this));
+   },
+-  
++
+   show: function() {
+     if(this.update.style.display=='none') this.options.onShow(this.element, this.update);
+     if(!this.iefix &amp;&amp; (navigator.appVersion.indexOf('MSIE')&gt;0) &amp;&amp; this.update.style.position=='absolute') {
+       new Insertion.After(this.update, 
+        '&lt;iframe id=&quot;' + this.update.id + '_iefix&quot; '+
+-       'style=&quot;display:none;filter:progid:DXImageTransform.Microsoft.Alpha(apacity=0);&quot; ' +
+-       'src=&quot;javascript:;&quot; frameborder=&quot;0&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;');
++       'style=&quot;display:none;filter:progid:DXImageTransform.Microsoft.Alpha(opacity=0);&quot; ' +
++       'src=&quot;javascript:false;&quot; frameborder=&quot;0&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;');
+       this.iefix = $(this.update.id+'_iefix');
+     }
+     if(this.iefix) {
+@@ -111,51 +139,7 @@
+   stopIndicator: function() {
+     if(this.indicator) Element.hide(this.indicator);
+   },
+-  
+-  onObserverEvent: function() {
+-    this.changed = false;   
+-    if(this.element.value.length&gt;=this.options.min_chars) {
+-      this.startIndicator();
+-      this.options.parameters = this.options.callback ?
+-        this.options.callback(this.element, Form.Element.getValue(this.element)) :
+-          Form.Element.serialize(this.element);
+-      new Ajax.Request(this.url, this.options);
+-    } else {
+-      this.active = false;
+-      this.hide();
+-    }
+-  },
+-  
+-  addObservers: function(element) {
+-    Event.observe(element, &quot;mouseover&quot;, this.onHover.bindAsEventListener(this));
+-    Event.observe(element, &quot;click&quot;, this.onClick.bindAsEventListener(this));
+-  },
+-  
+-  onComplete: function(request) {
+-    if(!this.changed &amp;&amp; this.has_focus) {
+-      this.update.innerHTML = request.responseText;
+-      Element.cleanWhitespace(this.update);
+-      Element.cleanWhitespace(this.update.firstChild);
+ 
+-      if(this.update.firstChild &amp;&amp; this.update.firstChild.childNodes) {
+-        this.entry_count = 
+-          this.update.firstChild.childNodes.length;
+-        for (var i = 0; i &lt; this.entry_count; i++) {
+-          var entry = this.get_entry(i);
+-          entry.autocompleteIndex = i;
+-          this.addObservers(entry);
+-        }
+-      } else { 
+-        this.entry_count = 0;
+-      }
+-      
+-      this.stopIndicator();
+-      
+-      this.index = 0;
+-      this.render();
+-    }
+-  },
+-  
+   onKeyPress: function(event) {
+     if(this.active)
+       switch(event.keyCode) {
+@@ -255,7 +239,208 @@
+   select_entry: function() {
+     this.active = false;
+     value = Element.collectTextNodesIgnoreClass(this.get_current_entry(), 'informal').unescapeHTML();
+-    this.element.value = value;
++    this.updateElement(value);
+     this.element.focus();
++  },
++
++  updateElement: function(value) {
++    var last_token_pos = this.findLastToken();
++    if (last_token_pos != -1) {
++      var new_value = this.element.value.substr(0, last_token_pos + 1);
++      var whitespace = this.element.value.substr(last_token_pos + 1).match(/^\s+/);
++      if (whitespace)
++        new_value += whitespace[0];
++      this.element.value = new_value + value;
++    } else {
++      this.element.value = value;
++    } 
++  },
++  
++  updateChoices: function(choices) {
++    if(!this.changed &amp;&amp; this.has_focus) {
++      this.update.innerHTML = choices;
++      Element.cleanWhitespace(this.update);
++      Element.cleanWhitespace(this.update.firstChild);
++
++      if(this.update.firstChild &amp;&amp; this.update.firstChild.childNodes) {
++        this.entry_count = 
++          this.update.firstChild.childNodes.length;
++        for (var i = 0; i &lt; this.entry_count; i++) {
++          entry = this.get_entry(i);
++          entry.autocompleteIndex = i;
++          this.addObservers(entry);
++        }
++      } else { 
++        this.entry_count = 0;
++      }
++      
++      this.stopIndicator();
++      
++      this.index = 0;
++      this.render();
++    }
++  },
++
++  addObservers: function(element) {
++    Event.observe(element, &quot;mouseover&quot;, this.onHover.bindAsEventListener(this));
++    Event.observe(element, &quot;click&quot;, this.onClick.bindAsEventListener(this));
++  },
++
++  onObserverEvent: function() {
++    this.changed = false;   
++    if(this.getEntry().length&gt;=this.options.min_chars) {
++      this.startIndicator();
++      this.getUpdatedChoices();
++    } else {
++      this.active = false;
++      this.hide();
++    }
++  },
++
++  getEntry: function() {
++    var token_pos = this.findLastToken();
++    if (token_pos != -1)
++      var ret = this.element.value.substr(token_pos + 1).replace(/^\s+/,'').replace(/\s+$/,'');
++    else
++      var ret = this.element.value;
++    
++    return /\n/.test(ret) ? '' : ret;
++  },
++
++  findLastToken: function() {
++    var last_token_pos = -1;
++
++    for (var i=0; i&lt;this.options.tokens.length; i++) {
++      var this_token_pos = this.element.value.lastIndexOf(this.options.tokens[i]);
++      if (this_token_pos &gt; last_token_pos)
++        last_token_pos = this_token_pos;
++    }
++    return last_token_pos;
+   }
+-});
+\ No newline at end of file
++}
++
++Ajax.Autocompleter = Class.create();
++Ajax.Autocompleter.prototype = Object.extend(new Autocompleter.Base(), 
++Object.extend(new Ajax.Base(), {
++  initialize: function(element, update, url, options) {
++	  this.base_initialize(element, update, options);
++    this.options.asynchronous  = true;
++    this.options.onComplete    = this.onComplete.bind(this)
++    this.options.method        = 'post';
++    this.options.defaultParams = this.options.parameters || null;
++    this.url                   = url;
++  },
++  
++  getUpdatedChoices: function() {
++    entry = encodeURIComponent(this.element.name) + '=' + 
++      encodeURIComponent(this.getEntry());
++      
++    this.options.parameters = this.options.callback ?
++      this.options.callback(this.element, entry) : entry;
++        
++    if(this.options.defaultParams) 
++      this.options.parameters += '&amp;' + this.options.defaultParams;
++    
++    new Ajax.Request(this.url, this.options);
++  },
++  
++  onComplete: function(request) {
++    this.updateChoices(request.responseText);
++  }
++
++}));
++
++// The local array autocompleter. Used when you'd prefer to
++// inject an array of autocompletion options into the page, rather
++// than sending out Ajax queries, which can be quite slow sometimes.
++//
++// The constructor takes four parameters. The first two are, as usual,
++// the id of the monitored textbox, and id of the autocompletion menu.
++// The third is the array you want to autocomplete from, and the fourth
++// is the options block.
++//
++// Extra local autocompletion options:
++// - choices - How many autocompletion choices to offer
++//
++// - partial_search - If false, the autocompleter will match entered
++//                    text only at the beginning of strings in the 
++//                    autocomplete array. Defaults to true, which will
++//                    match text at the beginning of any *word* in the
++//                    strings in the autocomplete array. If you want to
++//                    search anywhere in the string, additionally set
++//                    the option full_search to true (default: off).
++//
++// - full_search - Search anywhere in autocomplete array strings.
++//
++// - partial_chars - How many characters to enter before triggering
++//                   a partial match (unlike min_chars, which defines
++//                   how many characters are required to do any match
++//                   at all). Defaults to 2.
++//
++// - ignore_case - Whether to ignore case when autocompleting.
++//                 Defaults to true.
++//
++// It's possible to pass in a custom function as the 'selector' 
++// option, if you prefer to write your own autocompletion logic.
++// In that case, the other options above will not apply unless
++// you support them.
++
++Autocompleter.Local = Class.create();
++Autocompleter.Local.prototype = Object.extend(new Autocompleter.Base(), {
++  initialize: function(element, update, array, options) {
++    this.base_initialize(element, update, options);
++    this.options.array = array;
++  },
++
++  getUpdatedChoices: function() {
++    this.updateChoices(this.options.selector(this));
++  },
++
++  setOptions: function(options) {
++    this.options = Object.extend({
++      choices: 10,
++      partial_search: true,
++      partial_chars: 2,
++      ignore_case: true,
++      full_search: false,
++      selector: function(instance) {
++        var ret       = new Array(); // Beginning matches
++        var partial   = new Array(); // Inside matches
++        var entry     = instance.getEntry();
++        var count     = 0;
++        
++        for (var i = 0; i &lt; instance.options.array.length &amp;&amp;  
++            ret.length &lt; instance.options.choices ; i++) { 
++          var elem = instance.options.array[i];
++          var found_pos = instance.options.ignore_case ? 
++            elem.toLowerCase().indexOf(entry.toLowerCase()) : 
++            elem.indexOf(entry);
++
++          while (found_pos != -1) {
++            if (found_pos == 0 &amp;&amp; elem.length != entry.length) { 
++              ret.push(&quot;&lt;li&gt;&lt;strong&gt;&quot; + elem.substr(0, entry.length) + &quot;&lt;/strong&gt;&quot; + 
++                elem.substr(entry.length) + &quot;&lt;/li&gt;&quot;);
++              break;
++            } else if (entry.length &gt;= instance.options.partial_chars &amp;&amp; 
++              instance.options.partial_search &amp;&amp; found_pos != -1) {
++              if (instance.options.full_search || /\s/.test(elem.substr(found_pos-1,1))) {
++                partial.push(&quot;&lt;li&gt;&quot; + elem.substr(0, found_pos) + &quot;&lt;strong&gt;&quot; +
++                  elem.substr(found_pos, entry.length) + &quot;&lt;/strong&gt;&quot; + elem.substr(
++                  found_pos + entry.length) + &quot;&lt;/li&gt;&quot;);
++                break;
++              }
++            }
++
++            found_pos = instance.options.ignore_case ? 
++              elem.toLowerCase().indexOf(entry.toLowerCase(), found_pos + 1) : 
++              elem.indexOf(entry, found_pos + 1);
++
++          }
++        }
++        if (partial.length)
++          ret = ret.concat(partial.slice(0, instance.options.choices - ret.length))
++        return &quot;&lt;ul&gt;&quot; + ret.join('') + &quot;&lt;/ul&gt;&quot;;
++      }
++    }, options || {});
++  }
++});
+
+Modified: trunk/third_party/scriptaculous/dragdrop.js
+===================================================================
+--- trunk/third_party/scriptaculous/dragdrop.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/third_party/scriptaculous/dragdrop.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -112,12 +112,18 @@
+ var Droppables = {
+   drops: false,
+   
++  remove: function(element) {
++    for(var i = 0; i &lt; this.drops.length; i++)
++      if(this.drops[i].element == element)
++        this.drops.splice(i,1);
++  },
++  
+   add: function(element) {
+     var element = $(element);
+     var options = Object.extend({
+       greedy:     true,
+       hoverclass: null  
+-    },arguments[1] || {});
++    }, arguments[1] || {});
+     
+     // cache containers
+     if(options.containment) {
+@@ -134,43 +140,42 @@
+         options._containers.length-1;
+     }
+     
+-    if(element.style.position=='') //fix IE
+-      element.style.position = 'relative'; 
++    Element.makePositioned(element); // fix IE
+     
+-    // activate the droppable
+-    element.droppable = options;
++    options.element = element;
+     
++    // activate the droppable    
+     if(!this.drops) this.drops = [];
+-    this.drops.push(element);
++    this.drops.push(options);
+   },
+   
+   is_contained: function(element, drop) {
+-    var containers = drop.droppable._containers;
++    var containers = drop._containers;
+     var parentNode = element.parentNode;
+-    var i = drop.droppable._containers_length;
++    var i = drop._containers_length;
+     do { if(parentNode==containers[i]) return true; } while (i--);
+     return false;
+   },
+   
+   is_affected: function(pX, pY, element, drop) {
+     return (
+-      (drop!=element) &amp;&amp;
+-      ((!drop.droppable._containers) ||
++      (drop.element!=element) &amp;&amp;
++      ((!drop._containers) ||
+         this.is_contained(element, drop)) &amp;&amp;
+-      ((!drop.droppable.accept) ||
+-        (Element.Class.has_any(element, drop.droppable.accept))) &amp;&amp;
+-      Position.within(drop, pX, pY) );
++      ((!drop.accept) ||
++        (Element.Class.has_any(element, drop.accept))) &amp;&amp;
++      Position.within(drop.element, pX, pY) );
+   },
+   
+   deactivate: function(drop) {
+-    Element.Class.remove(drop, drop.droppable.hoverclass);
++    Element.Class.remove(drop.element, drop.hoverclass);
+     this.last_active = null;
+   },
+   
+   activate: function(drop) {
+     if(this.last_active) this.deactivate(this.last_active);
+-    if(drop.droppable.hoverclass) {
+-      Element.Class.add(drop, drop.droppable.hoverclass);
++    if(drop.hoverclass) {
++      Element.Class.add(drop.element, drop.hoverclass);
+       this.last_active = drop;
+     }
+   },
+@@ -184,10 +189,9 @@
+     var i = this.drops.length-1; do {
+       var drop = this.drops[i];
+       if(this.is_affected(pX, pY, element, drop)) {
+-        if(drop.droppable.onHover)
+-           drop.droppable.onHover(
+-            element, drop, Position.overlap(drop.droppable.overlap, drop));
+-        if(drop.droppable.greedy) { 
++        if(drop.onHover)
++           drop.onHover(element, drop.element, Position.overlap(drop.overlap, drop.element));
++        if(drop.greedy) { 
+           this.activate(drop);
+           return;
+         }
+@@ -196,17 +200,13 @@
+   },
+   
+   fire: function(event, element) {
+-    if(!this.drops) return;
+-    var pX = Event.pointerX(event);
+-    var pY = Event.pointerY(event);
++    if(!this.last_active) return;
+     Position.prepare();
+     
+-    var i = this.drops.length-1; do {
+-      var drop = this.drops[i];
+-      if(this.is_affected(pX, pY, element, drop))
+-        if(drop.droppable.onDrop)
+-           drop.droppable.onDrop(element);
+-    } while (i--);
++    if (this.is_affected(Event.pointerX(event), Event.pointerY(event), element, this.last_active))
++      if (this.last_active.onDrop) 
++        this.last_active.onDrop(element, this.last_active);
++    
+   },
+   
+   reset: function() {
+@@ -220,6 +220,11 @@
+   addObserver: function(observer) {
+     this.observers.push(observer);    
+   },
++  removeObserver: function(element) {  // element instead of obsever fixes mem leaks
++    for(var i = 0; i &lt; this.observers.length; i++)
++      if(this.observers[i].element &amp;&amp; (this.observers[i].element == element))
++        this.observers.splice(i,1);
++  },
+   notify: function(eventName, draggable) {  // 'onStart', 'onEnd'
+     for(var i = 0; i &lt; this.observers.length; i++)
+       this.observers[i][eventName](draggable);
+@@ -244,15 +249,12 @@
+       },
+       zindex: 1000,
+       revert: false
+-    },arguments[1] || {});
++    }, arguments[1] || {});
+     
+     this.element      = $(element);
+-    this.element.drag = this;
+     this.handle       = options.handle ? $(options.handle) : this.element;
+     
+-    // fix IE
+-    if(!this.element.style.position)
+-      this.element.style.position = 'relative';
++    Element.makePositioned(this.element); // fix IE
+     
+     this.offsetX      = 0;
+     this.offsetY      = 0;
+@@ -267,10 +269,22 @@
+     this.active       = false;
+     this.dragging     = false;   
+     
+-    Event.observe(this.handle, &quot;mousedown&quot;, this.startDrag.bindAsEventListener(this));
+-    Event.observe(document, &quot;mouseup&quot;, this.endDrag.bindAsEventListener(this));
+-    Event.observe(document, &quot;mousemove&quot;, this.update.bindAsEventListener(this));
++    this.eventMouseDown = this.startDrag.bindAsEventListener(this);
++    this.eventMouseUp   = this.endDrag.bindAsEventListener(this);
++    this.eventMouseMove = this.update.bindAsEventListener(this);
++    this.eventKeypress  = this.keyPress.bindAsEventListener(this);
++    
++    Event.observe(this.handle, &quot;mousedown&quot;, this.eventMouseDown);
++    Event.observe(document, &quot;mouseup&quot;, this.eventMouseUp);
++    Event.observe(document, &quot;mousemove&quot;, this.eventMouseMove);
++    Event.observe(document, &quot;keypress&quot;, this.eventKeypress);
+   },
++  destroy: function() {
++    Event.stopObserving(this.handle, &quot;mousedown&quot;, this.eventMouseDown);
++    Event.stopObserving(document, &quot;mouseup&quot;, this.eventMouseUp);
++    Event.stopObserving(document, &quot;mousemove&quot;, this.eventMouseMove);
++    Event.stopObserving(document, &quot;keypress&quot;, this.eventKeypress);
++  },
+   currentLeft: function() {
+     return parseInt(this.element.style.left || '0');
+   },
+@@ -290,31 +304,43 @@
+       Event.stop(event);
+     }
+   },
+-  endDrag: function(event) {
+-    if(this.active &amp;&amp; this.dragging) {
+-      this.active = false;
+-      this.dragging = false;
++  finishDrag: function(event, success) {
++    this.active = false;
++    this.dragging = false;
++    
++    if(success) Droppables.fire(event, this.element);
++    Draggables.notify('onEnd', this);
++    
++    var revert = this.options.revert;
++    if(revert &amp;&amp; typeof revert == 'function') revert = revert(this.element);
+       
+-      Droppables.fire(event, this.element);
+-      Draggables.notify('onEnd', this);
++    if(revert &amp;&amp; this.options.reverteffect) {
++      this.options.reverteffect(this.element, 
++      this.currentTop()-this.originalTop,
++      this.currentLeft()-this.originalLeft);
++    } else {
++      this.originalLeft = this.currentLeft();
++      this.originalTop  = this.currentTop();
++    }
++    
++    this.element.style.zIndex = this.originalZ;
+       
+-      var revert = this.options.revert;
+-      if(revert &amp;&amp; typeof revert == 'function') revert = revert(this.element);
++    if(this.options.endeffect) 
++      this.options.endeffect(this.element);
+       
+-      if(revert &amp;&amp; this.options.reverteffect) {
+-        this.options.reverteffect(this.element, 
+-          this.currentTop()-this.originalTop,
+-          this.currentLeft()-this.originalLeft);
+-      } else {
+-        this.originalLeft = this.currentLeft();
+-        this.originalTop  = this.currentTop();
++    Droppables.reset();
++  },
++  keyPress: function(event) {
++    if(this.active) {
++      if(event.keyCode==Event.KEY_ESC) {
++        this.finishDrag(event, false);
++        Event.stop(event);
+       }
+-      this.element.style.zIndex = this.originalZ;
+-     
+-      if(this.options.endeffect) 
+-        this.options.endeffect(this.element);
+-      
+-      Droppables.reset();
++    }
++  },
++  endDrag: function(event) {
++    if(this.active &amp;&amp; this.dragging) {
++      this.finishDrag(event, true);
+       Event.stop(event);
+     }
+     this.active = false;
+@@ -372,9 +398,32 @@
+ }
+ 
+ Sortable = {
++  sortables: new Array(),
++  options: function(element){
++    var element = $(element);
++    for(var i=0;i&lt;this.sortables.length;i++)
++      if(this.sortables[i].element == element)
++        return this.sortables[i];
++    return null;        
++  },
++  destroy: function(element){
++    var element = $(element);
++    for(var i=0;i&lt;this.sortables.length;i++) {
++      if(this.sortables[i].element == element) {
++        var s = this.sortables[i];
++        Draggables.removeObserver(s.element);
++        for(var j=0;j&lt;s.droppables.length;j++)
++          Droppables.remove(s.droppables[j]);
++        for(var j=0;j&lt;s.draggables.length;j++)
++          s.draggables[j].destroy();
++        this.sortables.splice(i,1);
++      }
++    }
++  },
+   create: function(element) {
+     var element = $(element);
+     var options = Object.extend({ 
++      element:     element,
+       tag:         'li',       // assumes li children, override with tag: 'tagname'
+       overlap:     'vertical', // one of 'vertical', 'horizontal'
+       constraint:  'vertical', // one of 'vertical', 'horizontal', false
+@@ -384,9 +433,11 @@
+       hoverclass:  null,
+       onChange:    function() {},
+       onUpdate:    function() {}
+-    },arguments[1] || {});
+-    element.sortable = options;
++    }, arguments[1] || {});
+     
++    // clear any old sortable with same element
++    this.destroy(element);
++    
+     // build options for the draggables
+     var options_for_draggable = {
+       revert:      true,
+@@ -435,8 +486,8 @@
+     // fix for gecko engine
+     Element.cleanWhitespace(element); 
+     
+-    // for onupdate
+-    Draggables.addObserver(new SortableObserver(element, options.onUpdate));
++    options.draggables = [];
++    options.droppables = [];
+     
+     // make it so 
+     var elements = element.childNodes;
+@@ -448,18 +499,28 @@
+         var handle = options.handle ? 
+           Element.Class.childrenWith(elements[i], options.handle)[0] : elements[i];
+         
+-        new Draggable(elements[i], Object.extend(options_for_draggable,{ handle: handle }));
++        options.draggables.push(new Draggable(elements[i], Object.extend(options_for_draggable, { handle: handle })));
++        
+         Droppables.add(elements[i], options_for_droppable);
++        options.droppables.push(elements[i]);
++        
+       }
+       
++    // keep reference
++    this.sortables.push(options);
++    
++    // for onupdate
++    Draggables.addObserver(new SortableObserver(element, options.onUpdate));
++
+   },
+   serialize: function(element) {
+     var element = $(element);
++    var sortableOptions = this.options(element);
+     var options = Object.extend({
+-      tag:  element.sortable.tag,
+-      only: element.sortable.only,
++      tag:  sortableOptions.tag,
++      only: sortableOptions.only,
+       name: element.id
+-    },arguments[1] || {});
++    }, arguments[1] || {});
+     
+     var items = $(element).childNodes;
+     var queryComponents = new Array();
+
+Modified: trunk/third_party/scriptaculous/effects.js
+===================================================================
+--- trunk/third_party/scriptaculous/effects.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/third_party/scriptaculous/effects.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -46,17 +46,35 @@
+   return (-Math.cos(pos*Math.PI*(9*pos))/2) + 0.5;
+ }
+ Effect.Transitions.pulse = function(pos) {
+-   return (Math.floor(pos*10) % 2 == 0 ? 
++  return (Math.floor(pos*10) % 2 == 0 ? 
+     (pos*10-Math.floor(pos*10)) : 1-(pos*10-Math.floor(pos*10)));
+ }
+-
+ Effect.Transitions.none = function(pos) {
+-    return 0;
++  return 0;
+ }
+ Effect.Transitions.full = function(pos) {
+-    return 1;
++  return 1;
+ }
+ 
++/* ------------- element ext -------------- */
++
++Element.makePositioned = function(element) {
++  element = $(element);
++  if(element.style.position == &quot;&quot;)
++    element.style.position = &quot;relative&quot;;
++}
++
++Element.makeClipping = function(element) {
++  element = $(element);
++  element._overflow = element.style.overflow || 'visible';
++  if(element._overflow!='hidden') element.style.overflow = 'hidden';
++}
++
++Element.undoClipping = function(element) {
++  element = $(element);
++  if(element._overflow!='hidden') element.style.overflow = element._overflow;
++}
++
+ /* ------------- core effects ------------- */
+ 
+ Effect.Base = function() {};
+@@ -69,26 +87,26 @@
+       sync:       false, // true for combining
+       from:       0.0,
+       to:         1.0
+-    },options || {});
++    }, options || {});
+   },
+   start: function(options) {
+     this.setOptions(options || {});
+-    this.currentFrame    = 0;
+-    this.startOn  = new Date().getTime();
+-    this.finishOn = this.startOn + (this.options.duration*1000);
++    this.currentFrame = 0;
++    this.startOn      = new Date().getTime();
++    this.finishOn     = this.startOn + (this.options.duration*1000);
+     if(this.options.beforeStart) this.options.beforeStart(this);
+     if(!this.options.sync) this.loop();  
+   },
+   loop: function() {
+-    timePos = new Date().getTime();
++    var timePos = new Date().getTime();
+     if(timePos &gt;= this.finishOn) {
+       this.render(this.options.to);
+       if(this.finish) this.finish(); 
+       if(this.options.afterFinish) this.options.afterFinish(this);
+       return;  
+     }
+-    pos   = (timePos - this.startOn) / (this.finishOn - this.startOn);
+-    frame = Math.round(pos * this.options.fps * this.options.duration);
++    var pos   = (timePos - this.startOn) / (this.finishOn - this.startOn);
++    var frame = Math.round(pos * this.options.fps * this.options.duration);
+     if(frame &gt; this.currentFrame) {
+       this.render(pos);
+       this.currentFrame = frame;
+@@ -97,7 +115,7 @@
+   },
+   render: function(pos) {
+     if(this.options.transition) pos = this.options.transition(pos);
+-    pos  = pos * (this.options.to-this.options.from);
++    pos *= (this.options.to-this.options.from);
+     pos += this.options.from; 
+     if(this.options.beforeUpdate) this.options.beforeUpdate(this);
+     if(this.update) this.update(pos);
+@@ -109,32 +127,32 @@
+ }
+ 
+ Effect.Parallel = Class.create();
+-  Effect.Parallel.prototype = Object.extend(new Effect.Base(),{
+-    initialize: function(effects) {
+-      this.effects = effects || [];
+-       this.start(arguments[1]);
+-    },
+-    update: function(position) {
+-       for (var i = 0; i &lt; this.effects.length; i++)
+-        this.effects[i].render(position);  
+-    },
+-    finish: function(position) {
+-       for (var i = 0; i &lt; this.effects.length; i++)
+-          if(this.effects[i].finish) this.effects[i].finish(position);
+-    }
+-  });
++Object.extend(Object.extend(Effect.Parallel.prototype, Effect.Base.prototype), {
++  initialize: function(effects) {
++    this.effects = effects || [];
++    this.start(arguments[1]);
++  },
++  update: function(position) {
++    for (var i = 0; i &lt; this.effects.length; i++)
++      this.effects[i].render(position);  
++  },
++  finish: function(position) {
++    for (var i = 0; i &lt; this.effects.length; i++)
++      if(this.effects[i].finish) this.effects[i].finish(position);
++  }
++});
+ 
+ // Internet Explorer caveat: works only on elements the have
+ // a 'layout', meaning having a given width or height. 
+ // There is no way to safely set this automatically.
+ Effect.Opacity = Class.create();
+-Effect.Opacity.prototype = Object.extend(new Effect.Base(),{
++Object.extend(Object.extend(Effect.Opacity.prototype, Effect.Base.prototype), {
+   initialize: function(element) {
+     this.element = $(element);
+     options = Object.extend({
+       from: 0.0,
+       to:   1.0
+-    },arguments[1] || {});
++    }, arguments[1] || {});
+     this.start(options);
+   },
+   update: function(position) {
+@@ -148,30 +166,29 @@
+ });
+ 
+ Effect.MoveBy = Class.create();
+- Effect.MoveBy.prototype = Object.extend(new Effect.Base(),{
+-   initialize: function(element, toTop, toLeft) {
+-     this.element      = $(element);
+-     this.originalTop  = parseFloat(this.element.style.top || '0');
+-     this.originalLeft = parseFloat(this.element.style.left || '0');
+-     this.toTop        = toTop;
+-     this.toLeft       = toLeft;
+-     if(this.element.style.position == &quot;&quot;)
+-       this.element.style.position = &quot;relative&quot;;
+-     this.start(arguments[3]);
+-   },
+-   update: function(position) {
+-     topd  = this.toTop  * position + this.originalTop;
+-     leftd = this.toLeft * position + this.originalLeft;
+-     this.setPosition(topd, leftd);
+-   },
+-   setPosition: function(topd, leftd) {
+-     this.element.style.top  = topd  + &quot;px&quot;;
+-     this.element.style.left = leftd + &quot;px&quot;;
+-   }
++Object.extend(Object.extend(Effect.MoveBy.prototype, Effect.Base.prototype), {
++  initialize: function(element, toTop, toLeft) {
++    this.element      = $(element);
++    this.originalTop  = parseFloat(this.element.style.top || '0');
++    this.originalLeft = parseFloat(this.element.style.left || '0');
++    this.toTop        = toTop;
++    this.toLeft       = toLeft;
++    Element.makePositioned(this.element);
++    this.start(arguments[3]);
++  },
++  update: function(position) {
++    topd  = this.toTop  * position + this.originalTop;
++    leftd = this.toLeft * position + this.originalLeft;
++    this.setPosition(topd, leftd);
++  },
++  setPosition: function(topd, leftd) {
++    this.element.style.top  = topd  + &quot;px&quot;;
++    this.element.style.left = leftd + &quot;px&quot;;
++  }
+ });
+ 
+ Effect.Scale = Class.create();
+-Effect.Scale.prototype = Object.extend(new Effect.Base(),{
++Object.extend(Object.extend(Effect.Scale.prototype, Effect.Base.prototype), {
+   initialize: function(element, percent) {
+     this.element = $(element)
+     options = Object.extend({
+@@ -181,12 +198,12 @@
+       scaleFromCenter: false,
+       scaleMode: 'box',        // 'box' or 'contents' or {} with provided values
+       scaleFrom: 100.0
+-    },arguments[2] || {});
++    }, arguments[2] || {});
+     this.originalTop    = this.element.offsetTop;
+     this.originalLeft   = this.element.offsetLeft;
+-    if (this.element.style.fontSize==&quot;&quot;) this.sizeEm = 1.0;
+-    if (this.element.style.fontSize &amp;&amp; this.element.style.fontSize.indexOf(&quot;em&quot;)&gt;0)
+-       this.sizeEm      = parseFloat(this.element.style.fontSize);
++    if(this.element.style.fontSize==&quot;&quot;) this.sizeEm = 1.0;
++    if(this.element.style.fontSize &amp;&amp; this.element.style.fontSize.indexOf(&quot;em&quot;)&gt;0)
++      this.sizeEm      = parseFloat(this.element.style.fontSize);
+     this.factor = (percent/100.0) - (options.scaleFrom/100.0);
+     if(options.scaleMode=='box') {
+       this.originalHeight = this.element.clientHeight;
+@@ -207,8 +224,8 @@
+     if(this.options.scaleContent &amp;&amp; this.sizeEm) 
+       this.element.style.fontSize = this.sizeEm*currentScale + &quot;em&quot;;
+     this.setDimensions(
+-     this.originalWidth * currentScale, 
+-     this.originalHeight * currentScale);
++      this.originalWidth * currentScale, 
++      this.originalHeight * currentScale);
+   },
+ 
+   setDimensions: function(width, height) {
+@@ -229,7 +246,7 @@
+ });
+ 
+ Effect.Highlight = Class.create();
+-Effect.Highlight.prototype = Object.extend(new Effect.Base(),{
++Object.extend(Object.extend(Effect.Highlight.prototype, Effect.Base.prototype), {
+   initialize: function(element) {
+     this.element = $(element);
+     
+@@ -243,9 +260,10 @@
+       var i=0; do { endcolor += parseInt(cols[i]).toColorPart() } while (++i&lt;3); }
+       
+     var options = Object.extend({
+-      startcolor: &quot;#ffff99&quot;,
+-      endcolor:   endcolor
+-    },arguments[1] || {});
++      startcolor:   &quot;#ffff99&quot;,
++      endcolor:     endcolor,
++      restorecolor: current 
++    }, arguments[1] || {});
+     
+     // init color calculations
+     this.colors_base = [
+@@ -266,24 +284,48 @@
+       Math.round(this.colors_base[2]+(this.colors_delta[2]*position)) ];
+     this.element.style.backgroundColor = &quot;#&quot; +
+       colors[0].toColorPart() + colors[1].toColorPart() + colors[2].toColorPart();
++  },
++  finish: function() {
++    this.element.style.backgroundColor = this.options.restorecolor;
+   }
+ });
+ 
++Effect.ScrollTo = Class.create();
++Object.extend(Object.extend(Effect.ScrollTo.prototype, Effect.Base.prototype), {
++  initialize: function(element) {
++    this.element = $(element);
++    Position.prepare();
++    var offsets = Position.cumulativeOffset(this.element);
++    var max = window.innerHeight ? 
++      window.height - window.innerHeight :
++      document.body.scrollHeight - 
++        (document.documentElement.clientHeight ? 
++          document.documentElement.clientHeight : document.body.clientHeight);
++    this.scrollStart = Position.deltaY;
++    this.delta  = (offsets[1] &gt; max ? max : offsets[1]) - this.scrollStart;
++    this.start(arguments[1] || {});
++  },
++  update: function(position) {
++    Position.prepare();
++    window.scrollTo(Position.deltaX, 
++      this.scrollStart + (position*this.delta));
++  }
++});
+ 
+ /* ------------- prepackaged effects ------------- */
+ 
+-Effect.Fade =  function(element) {
++Effect.Fade = function(element) {
+   options = Object.extend({
+   from: 1.0,
+   to:   0.0,
+   afterFinish: function(effect) 
+     { Element.hide(effect.element);
+       effect.setOpacity(1); } 
+-  },arguments[1] || {});
++  }, arguments[1] || {});
+   new Effect.Opacity(element,options);
+ }
+ 
+-Effect.Appear =  function(element) {
++Effect.Appear = function(element) {
+   options = Object.extend({
+   from: 0.0,
+   to:   1.0,
+@@ -292,7 +334,7 @@
+       Element.show(effect.element); },
+   afterUpdate: function(effect)  
+     { Element.show(effect.element); }
+-  },arguments[1] || {});
++  }, arguments[1] || {});
+   new Effect.Opacity(element,options);
+ }
+ 
+@@ -310,24 +352,22 @@
+ }
+ 
+ Effect.BlindUp = function(element) {
+-  $(element)._overflow = $(element).style.overflow || 'visible';
+-  $(element).style.overflow = 'hidden';
++  Element.makeClipping(element);
+   new Effect.Scale(element, 0, 
+     Object.extend({ scaleContent: false, 
+       scaleX: false, 
+       afterFinish: function(effect) 
+         { 
+           Element.hide(effect.element);
+-          effect.element.style.overflow = effect.element._overflow;
++          Element.undoClipping(effect.element);
+         } 
+-    },arguments[1] || {})
++    }, arguments[1] || {})
+   );
+ }
+ 
+ Effect.BlindDown = function(element) {
+   $(element).style.height   = '0px';
+-  $(element)._overflow = $(element).style.overflow || 'visible';
+-  $(element).style.overflow = 'hidden';
++  Element.makeClipping(element);
+   Element.show(element);
+   new Effect.Scale(element, 100, 
+     Object.extend({ scaleContent: false, 
+@@ -335,9 +375,9 @@
+       scaleMode: 'contents',
+       scaleFrom: 0,
+       afterFinish: function(effect) {
+-        effect.element.style.overflow = effect.element._overflow;
++        Element.undoClipping(effect.element);
+       }
+-    },arguments[1] || {})
++    }, arguments[1] || {})
+   );
+ }
+ 
+@@ -346,7 +386,7 @@
+     { duration: 0.4,
+      transition: Effect.Transitions.flicker,
+      afterFinish: function(effect)
+-      {  effect.element.style.overflow = 'hidden';
++      { effect.element.style.overflow = 'hidden';
+         new Effect.Scale(effect.element, 1, 
+          { duration: 0.3, scaleFromCenter: true,
+           scaleX: false, scaleContent: false,
+@@ -356,7 +396,7 @@
+           afterFinish: function(effect) { Element.hide(effect.element); }
+          } )
+       }
+-    } )
++    } );
+ }
+ 
+ Effect.DropOut = function(element) {
+@@ -386,10 +426,11 @@
+ }
+ 
+ Effect.SlideDown = function(element) {
+-  $(element)._overflow = $(element).style.overflow || 'visible';
+-  $(element).style.height   = '0px';
+-  $(element).style.overflow = 'hidden';
+-  $(element).firstChild.style.position = 'relative';
++  element = $(element);
++  element.style.height   = '0px';
++  Element.makeClipping(element);
++  Element.cleanWhitespace(element);
++  Element.makePositioned(element.firstChild);
+   Element.show(element);
+   new Effect.Scale(element, 100, 
+    Object.extend({ scaleContent: false, 
+@@ -400,15 +441,16 @@
+       { effect.element.firstChild.style.bottom = 
+           (effect.originalHeight - effect.element.clientHeight) + 'px'; },
+     afterFinish: function(effect) 
+-      {  effect.element.style.overflow = effect.element._overflow; }
+-    },arguments[1] || {})
++      {  Element.undoClipping(effect.element); }
++    }, arguments[1] || {})
+   );
+ }
+   
+ Effect.SlideUp = function(element) {
+-  $(element)._overflow = $(element).style.overflow || 'visible';
+-  $(element).style.overflow = 'hidden';
+-  $(element).firstChild.style.position = 'relative';
++  element = $(element);
++  Element.makeClipping(element);
++  Element.cleanWhitespace(element);
++  Element.makePositioned(element.firstChild);
+   Element.show(element);
+   new Effect.Scale(element, 0, 
+    Object.extend({ scaleContent: false, 
+@@ -419,9 +461,9 @@
+     afterFinish: function(effect)
+       { 
+         Element.hide(effect.element);
+-        effect.element.style.overflow = effect.element._overflow; 
++        Element.undoClipping(effect.element);
+       }
+-   },arguments[1] || {})
++   }, arguments[1] || {})
+   );
+ }
+ 
+@@ -542,7 +584,7 @@
+   new Effect.Opacity(element, 
+     Object.extend(Object.extend({  duration: 3.0,
+        afterFinish: function(effect) { Element.show(effect.element); }
+-    },options),{transition: reverser}));
++    }, options), {transition: reverser}));
+ }
+ 
+ Effect.Fold = function(element) {
+@@ -557,7 +599,7 @@
+      scaleTo: 0,
+      scaleY: false,
+      afterFinish: function(effect) { Element.hide(effect.element) } });
+- }},arguments[1] || {}));
++ }}, arguments[1] || {}));
+ }
+ 
+ // old: new Effect.ContentZoom(element, percent)
+
+Modified: trunk/third_party/scriptaculous/prototype.js
+===================================================================
+--- trunk/third_party/scriptaculous/prototype.js	2005-07-11 23:00:00 UTC (rev 229)
++++ trunk/third_party/scriptaculous/prototype.js	2005-07-12 17:13:16 UTC (rev 230)
+@@ -30,13 +30,12 @@
+     destination[property] = source[property];
+   }
+   return destination;
+-  // test;
+ }
+-
+-/*Object.prototype.extend = function(object) {
++/*
++Object.prototype.extend = function(object) {
+   return Object.extend.apply(this, [this, object]);
+-}*/
+-
++}
++*/
+ Function.prototype.bind = function(object) {
+   var __method = this;
+   return function() {
+@@ -148,7 +147,7 @@
+   }
+ }
+ 
+-Object.extend(String.prototype,{
++Object.extend(String.prototype, {
+   stripTags: function() {
+     return this.replace(/&lt;\/?[^&gt;]+&gt;/gi, '');
+   },
+@@ -184,7 +183,7 @@
+       method:       'post',
+       asynchronous: true,
+       parameters:   ''
+-    },(options || {}));
++    }, options || {});
+   },
+ 
+   responseIsSuccess: function() {
+@@ -202,7 +201,7 @@
+ Ajax.Request.Events = 
+   ['Uninitialized', 'Loading', 'Loaded', 'Interactive', 'Complete'];
+ 
+-Ajax.Request.prototype = Object.extend(new Ajax.Base(),{
++Ajax.Request.prototype = Object.extend(new Ajax.Base(), {
+   initialize: function(url, options) {
+     this.transport = Ajax.getTransport();
+     this.setOptions(options);
+@@ -267,19 +266,23 @@
+   respondToReadyState: function(readyState) {
+     var event = Ajax.Request.Events[readyState];
+ 
+-    if (event == 'Complete' &amp;&amp; this.responseIsFailure())
++    if (event == 'Complete')
+       (this.options['on' + this.transport.status]
+-       || this.options.onFailure
+-       || Prototype.emptyFunction)(this.transport);
++       || this.options['on' + this.responseIsSuccess ? 'Success' : 'Failure']
++       || Prototype.emptyFunction)(this.transport);       
+ 
+-    (this.options['on' + event] || Prototype.emptyFunction)(this.transport);    
++    (this.options['on' + event] || Prototype.emptyFunction)(this.transport);
++
++    /* Avoid memory leak in MSIE: clean up the oncomplete event handler */
++    if (event == 'Complete')
++      this.transport.onreadystatechange = Prototype.emptyFunction;
+   }
+ });
+ 
+ Ajax.Updater = Class.create();
+ Ajax.Updater.ScriptFragment = '(?:&lt;script.*?&gt;)((\n|.)*?)(?:&lt;\/script&gt;)';
+ 
+-Object.extend(Object.extend(Ajax.Updater.prototype,Ajax.Request.prototype),{
++Object.extend(Object.extend(Ajax.Updater.prototype, Ajax.Request.prototype), {
+   initialize: function(container, url, options) {
+     this.containers = {
+       success: container.success ? $(container.success) : $(container),
+@@ -293,7 +296,7 @@
+     var onComplete = this.options.onComplete || Prototype.emptyFunction;
+     this.options.onComplete = (function() {
+       this.updateContent();
+-      onComplete(this.transport);
++      onComplete(this.transport);      
+     }).bind(this);
+ 
+     this.request(url);
+@@ -332,7 +335,7 @@
+ });
+ 
+ Ajax.PeriodicalUpdater = Class.create();
+-Ajax.PeriodicalUpdater.prototype = Object.extend(new Ajax.Base(),{
++Ajax.PeriodicalUpdater.prototype = Object.extend(new Ajax.Base(), {
+   initialize: function(container, url, options) {
+     this.setOptions(options);
+     this.onComplete = this.options.onComplete;
+@@ -504,7 +507,7 @@
+ var Insertion = new Object();
+ 
+ Insertion.Before = Class.create();
+-Insertion.Before.prototype = Object.extend(new Abstract.Insertion('beforeBegin'),{
++Insertion.Before.prototype = Object.extend(new Abstract.Insertion('beforeBegin'), {
+   initializeRange: function() {
+     this.range.setStartBefore(this.element);
+   },
+@@ -515,7 +518,7 @@
+ });
+ 
+ Insertion.Top = Class.create();
+-Insertion.Top.prototype = Object.extend(new Abstract.Insertion('afterBegin'),{
++Insertion.Top.prototype = Object.extend(new Abstract.Insertion('afterBegin'), {
+   initializeRange: function() {
+     this.range.selectNodeContents(this.element);
+     this.range.collapse(true);
+@@ -527,7 +530,7 @@
+ });
+ 
+ Insertion.Bottom = Class.create();
+-Insertion.Bottom.prototype = Object.extend(new Abstract.Insertion('beforeEnd'),{
++Insertion.Bottom.prototype = Object.extend(new Abstract.Insertion('beforeEnd'), {
+   initializeRange: function() {
+     this.range.selectNodeContents(this.element);
+     this.range.collapse(this.element);
+@@ -539,7 +542,7 @@
+ });
+ 
+ Insertion.After = Class.create();
+-Insertion.After.prototype = Object.extend(new Abstract.Insertion('afterEnd'),{
++Insertion.After.prototype = Object.extend(new Abstract.Insertion('afterEnd'), {
+   initializeRange: function() {
+     this.range.setStartAfter(this.element);
+   },
+@@ -751,14 +754,14 @@
+ }
+ 
+ Form.Element.Observer = Class.create();
+-Form.Element.Observer.prototype = Object.extend(new Abstract.TimedObserver(),{
++Form.Element.Observer.prototype = Object.extend(new Abstract.TimedObserver(), {
+   getValue: function() {
+     return Form.Element.getValue(this.element);
+   }
+ });
+ 
+ Form.Observer = Class.create();
+-Form.Observer.prototype = Object.extend(new Abstract.TimedObserver(),{
++Form.Observer.prototype = Object.extend(new Abstract.TimedObserver(), {
+   getValue: function() {
+     return Form.serialize(this.element);
+   }
+@@ -823,14 +826,14 @@
+ }
+ 
+ Form.Element.EventObserver = Class.create();
+-Form.Element.EventObserver.prototype = Object.extend(new Abstract.EventObserver(),{
++Form.Element.EventObserver.prototype = Object.extend(new Abstract.EventObserver(), {
+   getValue: function() {
+     return Form.Element.getValue(this.element);
+   }
+ });
+ 
+ Form.EventObserver = Class.create();
+-Form.EventObserver.prototype = Object.extend(new Abstract.EventObserver(),{
++Form.EventObserver.prototype = Object.extend(new Abstract.EventObserver(), {
+   getValue: function() {
+     return Form.serialize(this.element);
+   }
+@@ -889,54 +892,59 @@
+       element = element.parentNode;
+     return element;
+   },
++  
++  observers: false,
++  
++  _observeAndCache: function(element, name, observer, useCapture) {
++    if(!this.observers) this.observers = [];
++    if(element.addEventListener) {
++      this.observers.push([element,name,observer,useCapture]);
++      element.addEventListener(name, observer, useCapture);
++    } else if (element.attachEvent) {
++      this.observers.push([element,name,observer,useCapture]);
++      element.attachEvent('on'+name, observer);
++    }
++  },
++  
++  unloadCache: function() {
++    if(!Event.observers) return;
++    for(var i=0; i&lt;Event.observers.length; i++) {
++      Event.stopObserving(Event.observers[i][0],Event.observers[i][1],Event.observers[i][2],Event.observers[i][3]);
++      Event.observers[i][0] = null;
++    }
++    Event.observers = false;
++  },
+ 
+   observe: function(element, name, observer, useCapture) {
+     var element = $(element);
+     useCapture = useCapture || false;
+     
+-    if (name == 'keypress') {
+-      if (navigator.appVersion.indexOf('AppleWebKit') &gt; 0) {
+-        element.addEventListener('keydown', observer, useCapture);
+-        return;
+-      }
+-      if (element.addEventListener) {
+-        element.addEventListener('keypress', observer, useCapture);
+-      } else if (element.attachEvent) {
+-        element.attachEvent('onkeydown', observer);
+-      }
+-    } else {
+-      if (element.addEventListener) {
+-        element.addEventListener(name, observer, useCapture);
+-      } else if (element.attachEvent) {
+-        element.attachEvent('on' + name, observer);
+-      }
+-    }
++    if(name == 'keypress' &amp;&amp;
++      ((navigator.appVersion.indexOf('AppleWebKit') &gt; 0) || element.attachEvent))
++        name = 'keydown';
++    
++    this._observeAndCache(element, name, observer, useCapture);
+   },
+ 
+   stopObserving: function(element, name, observer, useCapture) {
+     var element = $(element);
+     useCapture = useCapture || false;
+     
+-    if (name == 'keypress') {
+-      if (navigator.appVersion.indexOf('AppleWebKit') &gt; 0) {
+-        element.removeEventListener('keydown', observer, useCapture);
+-        return;
+-      }
+-      if (element.removeEventListener) {
+-        element.removeEventListener('keypress', observer, useCapture);
+-      } else if (element.detachEvent) {
+-        element.detachEvent('onkeydown', observer);
+-      }
+-    } else {
+-      if (element.removeEventListener) {
+-        element.removeEventListener(name, observer, useCapture);
+-      } else if (element.detachEvent) {
+-        element.detachEvent('on' + name, observer);
+-      }
++    if(name == 'keypress' &amp;&amp;
++      ((navigator.appVersion.indexOf('AppleWebKit') &gt; 0) || element.detachEvent))
++        name = 'keydown';
++    
++    if (element.removeEventListener) {
++      element.removeEventListener(name, observer, useCapture);
++    } else if (element.detachEvent) {
++      element.detachEvent('on' + name, observer);
+     }
+   }
+ });
+ 
++// prevent memory leaks
++Event.observe(window,'unload', Event.unloadCache, false);
++
+ var Position = {
+ 
+   // set to true if needed, warning: firefox performance problems
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000215.html">[openrecord-svn] r229 - in trunk: . source source/view third_party third_party/scriptaculous
+</A></li>
+	<LI>Next message: <A HREF="000217.html">[openrecord-svn] r231 - in trunk: repositories source source/view third_party/scriptaculous
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#216">[ date ]</a>
+              <a href="thread.html#216">[ thread ]</a>
+              <a href="subject.html#216">[ subject ]</a>
+              <a href="author.html#216">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r330 - in trunk/source: . model util view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r330%20-%20in%20trunk/source%3A%20.%20model%20util%20view&In-Reply-To=%3C200509200156.j8K1uYIV006132%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000313.html">
+   <LINK REL="Next"  HREF="000315.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r330 - in trunk/source: . model util view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r330%20-%20in%20trunk/source%3A%20.%20model%20util%20view&In-Reply-To=%3C200509200156.j8K1uYIV006132%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r330 - in trunk/source: . model util view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 20 03:56:34 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000313.html">[openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view
+</A></li>
+        <LI>Next message: <A HREF="000315.html">[openrecord-svn] r331 - in trunk: source/util tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#314">[ date ]</a>
+              <a href="thread.html#314">[ thread ]</a>
+              <a href="subject.html#314">[ subject ]</a>
+              <a href="author.html#314">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-20 03:56:25 +0200 (Tue, 20 Sep 2005)
+New Revision: 330
+
+Modified:
+   trunk/source/CodingConventions.js
+   trunk/source/TablePlugin.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Util.js
+   trunk/source/util/UtilTest.js
+   trunk/source/util/Uuid.js
+   trunk/source/util/XmlConverter.js
+   trunk/source/util/XmlConverterTest.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/RootView.js
+   trunk/source/view/SectionView.js
+Log:
+Changed item.addEntry methods to use namedParameter arguments.
+
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/CodingConventions.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -1,74 +1,100 @@
+-// -------------------------------------------------------------------
+ // OpenRecord 2005 JavaScript Coding Conventions
+-//
+-// + jslint approved
+-//    + jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
+-//    + do not use &quot;with&quot;
+-//    + do not use &quot;new Function&quot;
+-//    + use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+-// 
+-// + naming conventions
+-//    + capitalization
+-//       + classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
+-//       + all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
+-//       + acronyms appear in initial caps: &quot;htmlString&quot;, not &quot;HTMLString&quot;
+-//         (see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html</A>
+-//         (see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html</A>)
+-//       + constants are all caps, with underscores: FILL_PATTERN_SOLID
+-//    + file names
+-//       + each file has just one public class
+-//       + file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
+-//       + directories are all lower case, with underscores: &quot;basic_shapes&quot;
+-//    + unit tests
+-//       + a JavaScript code file typically has two associated unit test files
+-//       + the unit test files have the suffix &quot;Test&quot;
+-//       + example: Book.js has unit test files BookTest.html and BookTest.js
+-//    + variable scoping prefixes
+-//       + class variables are prefixed with &quot;our&quot;
+-//       + [DEPRECATED: instance variables are prefixed with &quot;my&quot;]
+-//       + global variables are prefixed with &quot;window.global&quot;
+-//       + locally scoped variables are not prefixed
+-//       + non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
+-//       + [DEPRECATED: function input parameters are prefixed with &quot;in&quot;]
+-//       + [DEPRECATED: private variables and methods are prefixed with &quot;__&quot;]
+-//       + [DEPRECATED: protected variables and methods are prefixed with &quot;_&quot;]
+-//    + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
+-//    + array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
+-//       + var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
+-//       + var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
+-//       + var arrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number arrayOfFruit[23] = &quot;Apple&quot;
+-//    + accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
+-//       + any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
+-//       + any method that does change an object's state should be a &quot;set&quot; method
+-//    + problems are marked with &quot;PENDING&quot;
+-//
+-// + compatiblity with other browsers and other JavaScript libraries 
+-//    + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
+-//    + [DEPRECATED: add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...]
+-//    + do *not* extend Object.prototype
+-//      (see <A HREF="http://erik.eae.net/archives/2005/06/06/22.13.54/">http://erik.eae.net/archives/2005/06/06/22.13.54/</A>)
+-//      (see <A HREF="http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297">http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297</A>)
+-//
+-// + indenting, tabs, and line ending characters
+-//    + 2-space indenting
+-//    + only spaces, no tabs
+-//    + Unix style line endings: just \n -- not \r or \r\n
+-//
+-// + file header and footer conventions
+-//    + file name is given
+-//    + copyright and license statements are included
+-//    + file dependencies are listed
+-//    + sections for: class constants, class properties, constructor, instance methods
+-//    + &quot;End of file&quot; ending
+-//
+-// + scoping
+-//    + locally scoped variables are declared before being used: &quot;var foo&quot;, not &quot;foo&quot;
+-//    + global variables are not used, except for class names
+-//    + instance methods are defined on the prototype -- see getArea()
+-//    + accessor methods never have side-effects
+-//
+-// + PENDING
+-//    + private instance properties?
+-//    + private instance methods?
+-//    + class methods?
+-// -------------------------------------------------------------------
++/*
++-----------------------------------------------------------------------------
++Dojo Conventions
++
++  The OpenRecord coding conventions are almost identical to the Dojo 
++  JavaScript conventions, listed here:
++     <A HREF="http://www.dojotoolkit.org/js_style_guide.html">http://www.dojotoolkit.org/js_style_guide.html</A>
++
++Differences
++
++  Here's a list of the OpenRecord conventions that differ from the Dojo conventions:
++  
++  + constants
++     + Dojo uses either UpperLower or UPPER_UPPER capitalization
++     + OpenRecord always uses UPPER_UPPER capitalization
++     + for an example, in DateValue.js see orp.util.DateValue.Month
++  
++  + private class variables (instance variables)
++     + Dojo says private class variables (instance variables) MAY have a leading underscore
++     + OpenRecord 
++
++
++   
++   
++
++-----------------------------------------------------------------------------
++OpenRecord Conventions
++
+++ jslint approved
++   + jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
++   + do not use &quot;with&quot;
++   + do not use &quot;new Function&quot;
++   + use ++i and --i instead of i++ and i-- (prefix instead of postfix)
++
+++ naming conventions
++   + capitalization
++      + classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
++      + all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
++      + acronyms appear in initial caps: &quot;htmlString&quot;, not &quot;HTMLString&quot;
++        (see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000534.html</A>
++        (see <A HREF="http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html">http://www.dojotoolkit.org/pipermail/dojo-interest/2005-July/000535.html</A>)
++      + constants are all caps, with underscores: FILL_PATTERN_SOLID
++   + file names
++      + each file has just one public class
++      + file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
++      + directories are all lower case, with underscores: &quot;basic_shapes&quot;
++   + unit tests
++      + a JavaScript code file typically has two associated unit test files
++      + the unit test files have the suffix &quot;Test&quot;
++      + example: Book.js has unit test files BookTest.html and BookTest.js
++   + variable scoping prefixes
++      + class variables are prefixed with &quot;our&quot;
++      + [DEPRECATED: instance variables are prefixed with &quot;my&quot;]
++      + global variables are prefixed with &quot;window.global&quot;
++      + locally scoped variables are not prefixed
++      + non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
++      + [DEPRECATED: function input parameters are prefixed with &quot;in&quot;]
++      + [DEPRECATED: private variables and methods are prefixed with &quot;__&quot;]
++      + [DEPRECATED: protected variables and methods are prefixed with &quot;_&quot;]
++   + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
++   + array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
++      + var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
++      + var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
++      + var arrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number arrayOfFruit[23] = &quot;Apple&quot;
++   + accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
++      + any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
++      + any method that does change an object's state should be a &quot;set&quot; method
++   + problems are marked with &quot;PENDING&quot;
++
+++ compatiblity with other browsers and other JavaScript libraries 
++   + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
++   + [DEPRECATED: add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...]
++   + do *not* extend Object.prototype
++     (see <A HREF="http://erik.eae.net/archives/2005/06/06/22.13.54/">http://erik.eae.net/archives/2005/06/06/22.13.54/</A>)
++     (see <A HREF="http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297">http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297</A>)
++
+++ indenting, tabs, and line ending characters
++   + 2-space indenting
++   + only spaces, no tabs
++   + Unix style line endings: just \n -- not \r or \r\n
++
+++ file header and footer conventions
++   + file name is given
++   + copyright and license statements are included
++   + file dependencies are listed
++   + sections for: class constants, class properties, constructor, instance methods
++   + &quot;End of file&quot; ending
++
+++ scoping
++   + locally scoped variables are declared before being used: &quot;var foo&quot;, not &quot;foo&quot;
++   + global variables are not used, except for class names
++   + instance methods are defined on the prototype -- see getArea()
++   + accessor methods never have side-effects
++
+++ PENDING
++   + private instance properties?
++   + private instance methods?
++   + class methods?
++*/
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/TablePlugin.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -388,7 +388,8 @@
+     // alertString = &quot;&quot;;
+     for (var i in this._displayAttributes) {
+       var attribute = this._displayAttributes[i];
+-      this._layout.addEntryForAttribute(attributeTableColumns, attribute);
++      // this._layout.addEntryForAttribute(attributeTableColumns, attribute);
++      this._layout.addEntry({attribute:attributeTableColumns, value:attribute});
+       // alertString += attribute.getDisplayString() + '\n';
+     }
+     // alert(alertString);
+@@ -651,7 +652,8 @@
+           var inverseAttribute = inverseAttributeEntry.getValue(attribute);
+           newItem.addConnectionEntry(attribute, value, inverseAttribute);
+         } else {
+-          newItem.addEntryForAttribute(attribute, value);
++          // newItem.addEntryForAttribute(attribute, value);
++          newItem.addEntry({attribute:attribute, value:value});
+         }
+       }
+     }
+@@ -705,11 +707,13 @@
+     if (noStoredColumns) {
+       for (i in this._displayAttributes) {
+         var anAttribute = this._displayAttributes[i];
+-        this._layout.addEntryForAttribute(attributeTableColumns,anAttribute,typeCalledItem);
++        // this._layout.addEntryForAttribute(attributeTableColumns,anAttribute,typeCalledItem);
++        this._layout.addEntry({attribute:attributeTableColumns, value:anAttribute, type:typeCalledItem});
+       }
+     } else {
+       if (!removeAttribute) {
+-        this._layout.addEntryForAttribute(attributeTableColumns,changedAttribute,typeCalledItem);
++        // this._layout.addEntryForAttribute(attributeTableColumns,changedAttribute,typeCalledItem);
++        this._layout.addEntry({attribute:attributeTableColumns, value:changedAttribute, type:typeCalledItem});
+       }
+     }
+     this._buildTable(true);
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/model/Item.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -37,7 +37,17 @@
+ /*global World, Entry */
+ // -------------------------------------------------------------------
+ 
++// -------------------------------------------------------------------
++// Provides and Requires
++// -------------------------------------------------------------------
++// dojo.provide(&quot;orp.util.Item&quot;);
++// dojo.require(&quot;dojo.lang.*&quot;);
+ 
++
++// -------------------------------------------------------------------
++// Constructor
++// -------------------------------------------------------------------
++
+ /**
+  * Instances of the Item class know how to store and retrieve their
+  * attribute entries.
+@@ -63,6 +73,19 @@
+ }
+ 
+ 
++// -------------------------------------------------------------------
++// Public class constants
++// -------------------------------------------------------------------
++Item.NamedParameters = {
++  attribute:      &quot;attribute&quot;,
++  value:          &quot;value&quot;,
++  type:           &quot;type&quot;,
++  previousEntry:  &quot;previousEntry&quot;,
++  myAttribute:    &quot;myAttribute&quot;,
++  otherItem:      &quot;otherItem&quot;,
++  otherAttribute: &quot;otherAttribute&quot;};
++
++
+ /**
+  * Initializes a new item that has just been created by a user action.
+  *
+@@ -93,50 +116,10 @@
+ 
+ /* PENDING: refactor these methods as per Sept 12 plan:
+ // OLD
+-item.addEntry(value)
+-item.addEntry(value, type)
+-item.addEntryForAttribute(attribute, value)
+-item.addEntryForAttribute(attribute, value, type)
+-
+-item.replaceEntry(previousEntry, value)
+-item.replaceEntry(previousEntry, value, type)
+-item.replaceEntryWithEntryForAttribute(previousEntry, attribute, value)
+-item.replaceEntryWithEntryForAttribute(previousEntry, attribute, value, type)
+-
+ item.addConnectionEntry(myAttribute, otherItem, otherAttribute)
+ Item.replaceEntryWithConnection(previousEntry, myAttribute, otherItem, otherAttribute)
+ 
+ // NEW
+- **
+- * Creates a new entry object ...
+- *
+- * @scope    public instance method
+- * @namedParam    value    ... 
+- * @namedParam    type    ... 
+- * @namedParam    attribute    Optional. ...
+- * @return   The new entry object.
+- * @throws   Throws an Error if no user is logged in.
+- *
+-Item.prototype.addEntry = function(namedParameters) {
+-// function initializer
+-// input/parameter/argument hash table
+-// input/parameter/argument hash
+-// anonymous object
+-// input/parameter/argument dictionary
+-// input/parameter/argument initializer
+-// named parameters
+-// keyword parameters
+-};
+-
+-item.addEntry({value:
+-               type:
+-               attribute: })
+-
+-item.replaceEntry({value:
+-               type:
+-               attribute:
+-               previousEntry: })
+-
+ item.addConnectionEntry({myAttribute:
+                         otherItem:
+                         otherAttribute: })
+@@ -151,24 +134,113 @@
+  * Creates a new entry object and adds the new entry to the item's 
+  * list of entries.
+  *
++ * For example, to make Kermit green, you could use any of these:
++ * &lt;pre&gt;
++ *    kermit.addEntry({value: &quot;green&quot;});
++ *    kermit.addEntry({attribute: color, value: &quot;green&quot;});
++ *    kermit.addEntry({attribute: color, value: &quot;green&quot;, type: string});
++ * &lt;/pre&gt;
++ *
++ * Attributes can always have more than one assigned entry, so
++ * you can make Kermit be both blue and green by doing:
++ * &lt;pre&gt;
++ *    kermit.addEntry({attribute: color, value: &quot;green&quot;});
++ *    kermit.addEntry({attribute: color, value: &quot;blue&quot;});
++ * &lt;/pre&gt;
++ * 
+  * @scope    public instance method
++ * @namedParam    value    The value to initialize the entry to. 
++ * @namedParam    type    Optional. An item representing a data type.
++ * @namedParam    attribute    Optional.  The attribute to assign the entry to. 
++ * @return   An entry object.
++ * @throws   Throws an Error if no user is logged in.
++ */
++Item.prototype.addEntry = function(namedParameters) {
++  Util.assert(dojo.lang.isObject(namedParameters));
++  var arg = Item.NamedParameters;
++  var value = namedParameters[arg.value];
++  var attribute = namedParameters[arg.attribute];
++  var type = namedParameters[arg.type];
++  
++  // Check for typos in parameter names
++  Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [arg.value, arg.attribute, arg.type]));
++  
++  if (!attribute) {
++    attribute = this.getWorld().getAttributeCalledUnfiled();
++  }
++  return this._createNewEntry(null, attribute, value, type);
++};
++ 
++
++/**
++ * Replaces an existing entry with a new entry.
++ *
++ * Examples:
++ * &lt;pre&gt;
++ *    var entry = item.addEntry({value: &quot;green&quot;});
++ *    entry = item.replaceEntry({previousEntry: entry, value: &quot;green&quot;});
++ *    entry = item.replaceEntry({previousEntry: entry, attribute: color, value: &quot;green&quot;});
++ *    entry = item.replaceEntry({previousEntry: entry, attribute: color, value: &quot;green&quot;, type: string});
++ * &lt;/pre&gt;
++ * 
++ * @scope    public instance method
++ * @namedParam    previousEntry    The old entry to be replaced.
++ * @namedParam    value    The value to initialize the entry to. 
++ * @namedParam    type    Optional. An item representing a data type.
++ * @namedParam    attribute    Optional.  The attribute to assign the entry to. 
++ * @return   An entry object.
++ * @throws   Throws an Error if no user is logged in.
++ */
++Item.prototype.replaceEntry = function(namedParameters) {
++  Util.assert(dojo.lang.isObject(namedParameters));
++  var arg = Item.NamedParameters;
++  var value = namedParameters[arg.value];
++  var attribute = namedParameters[arg.attribute];
++  var type = namedParameters[arg.type];
++  var previousEntry = namedParameters[arg.previousEntry];
++
++  // Check for typos in parameter names
++  Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [arg.value, arg.attribute, arg.type, arg.previousEntry]));
++  
++  Util.assert(dojo.lang.isObject(previousEntry));
++  if (!attribute) {
++    attribute = previousEntry.getAttributeForItem(this);
++  }
++  return this._createNewEntry(previousEntry, attribute, value, type);
++};
++
++
++// -------------------------------------------------------------------
++// DEPRECATED methods
++// -------------------------------------------------------------------
++
++/**
++ * DEPRECATED: use addEntry instead.
++ * 
++ * Creates a new entry object and adds the new entry to the item's 
++ * list of entries.
++ *
++ * @scope    public instance method
+  * @param    value    The value to initialize the entry to.
+  * @param    type    Optional. An item representing a data type.
+  * @return   An entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
++ /*
+ Item.prototype.addEntry = function(value, type) {
+   var attributeCalledUnfiled = this.getWorld().getAttributeCalledUnfiled();
+   return this._createNewEntry(null, attributeCalledUnfiled, value, type);
+ };
++*/
+ 
+-
+ /**
++ * DEPRECATED: use addEntry instead.
++ * 
+  * Assigns an entry to an attribute in this item.
+  *
+  * Given an attribute and value, creates an entry object with the 
+  * value, and sets the item's attribute to the new entry.
+- * For example, to make a Kermit green:
++ * For example, to make Kermit green:
+  * &lt;pre&gt;
+  *    kermit.addEntryForAttribute(color, &quot;green&quot;);
+  * &lt;/pre&gt;
+@@ -186,12 +258,16 @@
+  * @return   An entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
++ /*
+ Item.prototype.addEntryForAttribute = function(attribute, value, type) {
+   return this._createNewEntry(null, attribute, value, type);
+ };
++*/
+ 
+ 
+ /**
++ * DEPRECATED: use replaceEntry instead.
++ *
+  * Replaces an existing entry with a new entry.
+  *
+  * @scope    public instance method
+@@ -201,13 +277,17 @@
+  * @return   The new replacement entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
++ /*
+ Item.prototype.replaceEntry = function(previousEntry, value, type) {
+   var attribute = previousEntry.getAttributeForItem(this);
+   return this._createNewEntry(previousEntry, attribute, value, type);
+ };
++*/
+ 
+ 
+ /**
++ * DEPRECATED: use replaceEntry instead.
++ *
+  * Replaces an existing entry with a new entry, and assigns the new entry
+  * to an attribute.
+  *
+@@ -219,9 +299,11 @@
+  * @return   The new replacement entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
++ /*
+ Item.prototype.replaceEntryWithEntryForAttribute = function(previousEntry, attribute, value, type) {
+   return this._createNewEntry(previousEntry, attribute, value, type);
+ };
++*/
+ 
+ 
+ /**
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/model/ModelTest.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -243,9 +243,9 @@
+   var starWars = world.newItem(&quot;Star Wars&quot;);
+   assertTrue('getDisplayName() works for &quot;Star Wars&quot;', (starWars.getDisplayName() == &quot;Star Wars&quot;));
+ 
+-  var luck = starWars.addEntryForAttribute(characterAttribute, &quot;Luck Skywalker&quot;);
+-  var c3po = starWars.addEntryForAttribute(characterAttribute, &quot;C3PO&quot;);
+-  var r2d2 = starWars.addEntry(&quot;R2D2&quot;);
++  var luck = starWars.addEntry({attribute:characterAttribute, value:&quot;Luck Skywalker&quot;});
++  var c3po = starWars.addEntry({attribute:characterAttribute, value:&quot;C3PO&quot;});
++  var r2d2 = starWars.addEntry({value:&quot;R2D2&quot;});
+   assertTrue('&quot;Star Wars&quot; has not been deleted', !starWars.hasBeenDeleted());
+   assertTrue('&quot;R2D2&quot; has not been deleted', !r2d2.hasBeenDeleted());
+   assertTrue('&quot;R2D2&quot; has not been replaced', !r2d2.hasBeenReplaced());
+@@ -279,7 +279,7 @@
+   worldRetrievalFilter = world.getRetrievalFilter();
+   assertTrue('Default retrieval filter is &quot;last edit wins&quot;', worldRetrievalFilter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS);
+   
+-  var luke = starWars.replaceEntry(luck, &quot;Luke Skywalker&quot;);
++  var luke = starWars.replaceEntry({previousEntry:luck, value:&quot;Luke Skywalker&quot;});
+   var previousEntry = luke.getPreviousEntry();
+   assertTrue('&quot;Luke&quot; has the previous version &quot;Luck&quot;', previousEntry !== null);
+   assertTrue('&quot;Luck&quot; has been replaced', luck.hasBeenReplaced());
+@@ -301,10 +301,11 @@
+   var userChris = world.newUser(&quot;Chris Kringle&quot;, passwordForChris);
+   world.login(userChris, passwordForChris);
+ 
+-  r2d2 = starWars.replaceEntryWithEntryForAttribute(r2d2, characterAttribute, &quot;R2D2&quot;);
++  // r2d2 = starWars.replaceEntryWithEntryForAttribute(r2d2, characterAttribute, &quot;R2D2&quot;);
++  r2d2 = starWars.replaceEntry({previousEntry:r2d2, attribute:characterAttribute, value:&quot;R2D2&quot;});
+   assertTrue('&quot;R2D2&quot; is now character', r2d2.getAttribute() == characterAttribute);
+ 
+-  var failure = starWars.replaceEntry(r2d2, &quot;R2D2&quot;);
++  var failure = starWars.replaceEntry({previousEntry:r2d2, value:&quot;R2D2&quot;});
+   assertTrue(&quot;Can't replace a value with an identical value&quot;, failure === null);
+ 
+   listOfCharacters = starWars.getEntriesForAttribute(characterAttribute);
+@@ -316,7 +317,7 @@
+   
+   var attributeCalledName = world.getAttributeCalledName();
+   var theHobbit = world.newItem(&quot;The Hobbit&quot;);
+-  theHobbit.addEntryForAttribute(attributeCalledName, &quot;There and Back Again&quot;);
++  theHobbit.addEntry({attribute:attributeCalledName, value:&quot;There and Back Again&quot;});
+   listOfEntries = theHobbit.getEntriesForAttribute(attributeCalledName);
+   assertTrue('&quot;The Hobbit&quot; has two names', listOfEntries.length == 2);
+   assertTrue('getDisplayName() returns the first name', (starWars.getDisplayName() == &quot;Star Wars&quot;));
+@@ -465,7 +466,7 @@
+   changesObservedByFunction = null;
+   world.beginTransaction();
+   tokyo.voteToRetain();
+-  tokyo.addEntry(&quot;Japan&quot;);
++  tokyo.addEntry({value:&quot;Japan&quot;});
+   assertTrue('tokyoObserverObject does not yet see changes', (changesObservedByObject === null));
+   assertTrue('tokyoObserverFunction does not yet see changes', (changesObservedByFunction === null));
+   world.endTransaction();
+@@ -518,19 +519,19 @@
+   };
+   var alsoFoodItems = world.getItemsInCategory(categoryCalledFood, foodObserverFunction);
+   
+-  apple.addEntry(&quot;Red&quot;);
++  apple.addEntry({value:&quot;Red&quot;});
+   assertTrue('foodObserverObject sees a change to apple', (changesObservedByObject !== null));
+   assertTrue('foodObserverFunction sees a change to apple', (changesObservedByFunction !== null));
+ 
+   changesObservedByObject = null;
+   changesObservedByFunction = null;
+-  tokyo.addEntry(&quot;Japan&quot;);
++  tokyo.addEntry({value:&quot;Japan&quot;});
+   assertTrue('foodObserverObject does not see a change to tokyo', (changesObservedByObject === null));
+   assertTrue('foodObserverFunction does not see a change to tokyo', (changesObservedByFunction === null));
+ 
+   world.removeListObserver(foodItems, foodObserverObject);
+   world.removeListObserver(alsoFoodItems, foodObserverFunction);
+-  brownie.addEntry(&quot;Brown&quot;);
++  brownie.addEntry({value:&quot;Brown&quot;});
+   assertTrue('foodObserverObject no longer sees changes to food items', (changesObservedByObject === null));
+   assertTrue('foodObserverFunction no longer sees changes to food items', (changesObservedByFunction === null));
+   
+@@ -577,10 +578,10 @@
+ 
+   // test for queries using non-category attribute e.g. continent
+   var attributeCalledContinent = world.newItem(&quot;Continent&quot;);
+-  tokyo.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
++  tokyo.addEntry({attribute:attributeCalledContinent, value:&quot;Asia&quot;});
+   var beijing = world.newItem(&quot;Beijing&quot;);
+-  beijing.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
+-  var seattleEntry = seattle.addEntryForAttribute(attributeCalledContinent, &quot;North America&quot;);
++  beijing.addEntry({attribute:attributeCalledContinent, value:&quot;Asia&quot;});
++  var seattleEntry = seattle.addEntry({attribute:attributeCalledContinent, value:&quot;North America&quot;});
+   var queryRunnerForAsia = world.newQueryRunner({attribute: attributeCalledContinent, values:[&quot;Asia&quot;]});
+   var listOfCountries = queryRunnerForAsia.getResultItems();
+   
+@@ -594,7 +595,7 @@
+   assertTrue('North America query returned only Seattle',
+   listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
+     
+-  seattle.addEntryForAttribute(attributeCalledContinent, &quot;Asia&quot;);
++  seattle.addEntry({attribute:attributeCalledContinent, value:&quot;Asia&quot;});
+   listOfCountries = queryRunnerForAsia.getResultItems();
+   assertTrue('Asia query returns 3 countries', listOfCountries.length == 3);
+   hasAll = Util.areObjectsInSet([tokyo,beijing,seattle], listOfCountries);
+@@ -645,10 +646,10 @@
+   var noOfAttachments = world.newAttribute(&quot;Number of attachments&quot;);
+   var subjectAttribute = world.newAttribute(&quot;Subject&quot;);
+   var aPerson = world.newItem(&quot;John Doe&quot;);
+-  var subjectEntry = anEmail.addEntryForAttribute(subjectAttribute, &quot;Money saved for you at Nigerian Bank&quot;);
+-  var fromEntry = anEmail.addEntryForAttribute(fromAttribute, aPerson);
+-  var receivedEntry = anEmail.addEntryForAttribute(dateReceivedAttribute, new orp.util.DateValue(&quot;6/8/05&quot;));
+-  var numAttachmentsEntry = anEmail.addEntryForAttribute(noOfAttachments, 4);
++  var subjectEntry = anEmail.addEntry({attribute:subjectAttribute, value:&quot;Money saved for you at Nigerian Bank&quot;});
++  var fromEntry = anEmail.addEntry({attribute:fromAttribute, value:aPerson});
++  var receivedEntry = anEmail.addEntry({attribute:dateReceivedAttribute, value:(new orp.util.DateValue(&quot;6/8/05&quot;))});
++  var numAttachmentsEntry = anEmail.addEntry({attribute:noOfAttachments, value:4});
+ }
+ 
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/model/StubVirtualServer.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -306,7 +306,8 @@
+   var item = this._createNewItem(observer, false);
+   if (name) { 
+     var attributeCalledName = this._world.getAttributeCalledName();
+-    item.addEntryForAttribute(attributeCalledName, name);
++    // item.addEntryForAttribute(attributeCalledName, name);
++    item.addEntry({attribute:attributeCalledName, value:name});
+   }
+   return item;
+ };
+@@ -484,7 +485,8 @@
+   newUser.assignToCategory(categoryCalledPerson); 
+   if (name) { 
+     var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-    var entry = newUser.addEntryForAttribute(attributeCalledName, name);
++    // var entry = newUser.addEntryForAttribute(attributeCalledName, name);
++    var entry = newUser.addEntry({attribute:attributeCalledName, value:name});
+   }
+   this._currentUser = null;
+   
+@@ -710,7 +712,8 @@
+       if ((matchingAttribute == attributeCalledCategory) &amp;&amp; (match instanceof Item) &amp;&amp; (match.isInCategory(categoryCalledCategory))) {
+         item.assignToCategory(match);
+       } else {
+-        item.addEntryForAttribute(matchingAttribute, match);
++        // item.addEntryForAttribute(matchingAttribute, match);
++        item.addEntry({attribute:matchingAttribute, value:match});
+       }
+     }
+   }
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/model/World.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -714,17 +714,20 @@
+   var attributeCalledQueryMatchingAttribute = this.getAttributeCalledQueryMatchingAttribute();
+   var attributeCalledQueryMatchingValue = this.getAttributeCalledQueryMatchingValue();
+   var matchingEntry;
+-  item.addEntryForAttribute(attributeCalledQueryMatchingAttribute, matchingAttribute);
++  // item.addEntryForAttribute(attributeCalledQueryMatchingAttribute, matchingAttribute);
++  item.addEntry({attribute:attributeCalledQueryMatchingAttribute, value:matchingAttribute});
+   if (matchingEntryOrListOfEntries) {
+     if (Util.isArray(matchingEntryOrListOfEntries)) {
+       for (var key in matchingEntryOrListOfEntries) {
+         matchingEntry = matchingEntryOrListOfEntries[key];
+-        item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
++        // item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
++        item.addEntry({attribute:attributeCalledQueryMatchingValue, value:matchingEntry});
+       }
+     }
+     else {
+       matchingEntry = matchingEntryOrListOfEntries;
+-      item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
++      // item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
++      item.addEntry({attribute:attributeCalledQueryMatchingValue, value:matchingEntry});
+     }
+   }
+ 
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/RandomUuid.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -75,6 +75,7 @@
+     } else {
+       if (dojo.lang.isObject(namedParameters)) {
+         uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
++        Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [orp.util.Uuid.NamedParameters.uuidString]));
+       } else {
+         Util.assert(false);
+       }
+@@ -118,19 +119,6 @@
+ };
+ 
+ 
+-/**
+- * Returns a randomly generated floating point number 
+- * between 0 and (4,294,967,296 - 1), inclusive.
+- *
+- * @scope    private class method
+- */
+-/*
+-orp.util.RandomUuid._generateRandom32bitNumber = function() {
+-  return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
+-};
+-*/
+-
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -94,6 +94,7 @@
+         var hardwareNode = namedParameters[&quot;hardwareNode&quot;];
+         var atLeastOneParameter = (uuidString || node || pseudoNode || hardwareNode) ? true : false;
+         Util.assert(atLeastOneParameter);
++        Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;, &quot;node&quot;, &quot;pseudoNode&quot;, &quot;hardwareNode&quot;]));
+         if (uuidString) {
+           Util.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
+           Util.assert(uuidString.length == 36);
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/Util.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -345,6 +345,38 @@
+ };
+ 
+ 
++Util.isEmpty = function(object) {
++  for (var key in object) {
++    return false;
++  }
++  return true;
++};
++
++
++Util.hasProperty = function(object, property) {
++  return (object[property] !== undefined);
++};
++
++Util.hasProperties = function(object, properties) {
++  for (var i in properties) {
++    if (object[properties[i]] === undefined) { return false; }
++  }
++  return true;
++};
++
++Util.hasNoUnexpectedProperties = function(object, expectedProperties) {
++  for (var key in object) {
++    if (!Util.isObjectInSet(key, expectedProperties)) { return false; }
++  }
++  return true;
++};
++  
++Util.hasExactlyTheseProperties = function(object, properties) {
++  if (!Util.hasProperties(object, properties)) { return false; }
++  if (!Util.hasNoUnexpectedProperties(object, properties)) { return false; }
++  return true;
++};
++
+ // -------------------------------------------------------------------
+ // Methods that operate on Arrays
+ // -------------------------------------------------------------------
+@@ -383,11 +415,6 @@
+ Util.isObjectInSet = function(object, set) {
+   Util.assert(Util.isArray(set));
+   
+-//  for (var i=0; i&lt;set.length; i+=1) {
+-//    if (set[i] == object) {
+-//      return true;
+-//    }
+-//  }
+   for (var key in set) {
+     if (set[key] == object) {
+       return true;
+
+Modified: trunk/source/util/UtilTest.js
+===================================================================
+--- trunk/source/util/UtilTest.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/UtilTest.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -89,7 +89,41 @@
+   assertTrue('md5 of longString is correct', (Util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
+ }
+ 
++function testIsEmpty() {
++  var canada = {name:&quot;Canada&quot;, provinces:8};
++  var atlantis = {};
++  
++  assertTrue('Canada has properties', !Util.isEmpty(canada));
++  assertTrue('Atlantis does not have properties', Util.isEmpty(atlantis));
++  
++  delete canada.name;
++  delete canada.provinces;
++  assertTrue('Canada does not have properties', Util.isEmpty(canada));
++}
+ 
++function testHasProperty() {
++  var canada = {name:&quot;Canada&quot;, provinces:8};
++  var atlantis = {};
++
++  assertTrue('Canada has a name', Util.hasProperty(canada, &quot;name&quot;));
++  assertTrue('Canada does not have a foo', !Util.hasProperty(canada, &quot;foo&quot;));
++  
++  assertTrue('Atlantis does not have a name', !Util.hasProperty(atlantis, &quot;name&quot;));
++
++  assertTrue('Atlantis has []', Util.hasProperties(atlantis, []));
++  assertTrue('Canada has [&quot;name&quot;, &quot;provinces&quot;]', Util.hasProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
++  assertTrue('Canada has [&quot;name&quot;]', Util.hasProperties(canada, [&quot;name&quot;]));
++  assertTrue('Canada has []', Util.hasProperties(canada, []));
++  assertTrue('Canada does not have [&quot;foo&quot;, &quot;bar&quot;]', !Util.hasProperties(canada, [&quot;foo&quot;, &quot;bar&quot;]));
++
++  assertTrue('Canada has only [&quot;name&quot;, &quot;provinces&quot;]', Util.hasNoUnexpectedProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
++  assertTrue('Canada does not have just [&quot;name&quot;]', !Util.hasNoUnexpectedProperties(canada, [&quot;name&quot;]));
++  
++  assertTrue('Canada does not have just [&quot;name&quot;]', !Util.hasExactlyTheseProperties(canada, [&quot;name&quot;]));
++  assertTrue('Canada has [&quot;name&quot;, &quot;provinces&quot;]', Util.hasExactlyTheseProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
++  assertTrue('Canada does not have [&quot;name&quot;, &quot;provinces&quot;, &quot;foo&quot;]', !Util.hasExactlyTheseProperties(canada, [&quot;name&quot;, &quot;provinces&quot;, &quot;foo&quot;]));
++}
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/Uuid.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -65,6 +65,9 @@
+       if (dojo.lang.isObject(uuidString)) {
+         var namedParameters = uuidString;
+         this._uuidString = namedParameters[&quot;uuidString&quot;];
++        
++        // Check for typos in parameter names
++        Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;]));
+       } else {
+         Util.assert(false);
+       }
+@@ -115,6 +118,9 @@
+     Util.assert(dojo.lang.isObject(namedParameters));
+     uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
+     Util.assert(dojo.lang.isString(uuidString));
++    
++    // Check for typos in parameter names
++    Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [orp.util.Uuid.NamedParameters.uuidString]));
+   }
+ 
+   var uuid = new orp.util.Uuid(uuidString);
+
+Modified: trunk/source/util/XmlConverter.js
+===================================================================
+--- trunk/source/util/XmlConverter.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/XmlConverter.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -178,7 +178,8 @@
+           var xmlAttributeName = xmlAttributeToAttributeSpecifiers[j]._xmlAttributeName;
+           var xmlAttributeValue = this._itemElements[i].getAttribute(xmlAttributeName);
+           if (xmlAttributeValue !== &quot;&quot;) {
+-            newItem.addEntryForAttribute(xmlAttributeToAttributeSpecifiers[j]._attribute, xmlAttributeValue);
++            // newItem.addEntryForAttribute(xmlAttributeToAttributeSpecifiers[j]._attribute, xmlAttributeValue);
++            newItem.addEntry({attribute:xmlAttributeToAttributeSpecifiers[j]._attribute, value:xmlAttributeValue});
+           }
+         }
+       }
+@@ -232,7 +233,8 @@
+     } else {
+       item = world.newItem();
+       item.assignToCategory(this._itemCategory);
+-      item.addEntryForAttribute(equalitySpecifier._attribute, matchString);
++      // item.addEntryForAttribute(equalitySpecifier._attribute, matchString);
++      item.addEntry({attribute:equalitySpecifier._attribute, value:matchString});
+     }
+     for (j in xmlToAttributeSpecifiers) {
+       var tagPath = xmlToAttributeSpecifiers[j]._tagPath;
+@@ -243,7 +245,8 @@
+         var xmlAttributeName = xmlAttributeToAttributeSpecifiers[j]._xmlAttributeName;
+         var xmlAttributeValue = this._itemElements[i].getAttribute(xmlAttributeName);
+         if (xmlAttributeValue !== &quot;&quot;) {
+-          item.addEntryForAttribute(xmlAttributeToAttributeSpecifiers[j]._attribute, xmlAttributeValue);
++          // item.addEntryForAttribute(xmlAttributeToAttributeSpecifiers[j]._attribute, xmlAttributeValue);
++          item.addEntry({attribute:xmlAttributeToAttributeSpecifiers[j]._attribute, value:xmlAttributeValue});
+         }
+       }
+     }
+@@ -269,7 +272,8 @@
+           attr = world.newAttribute(attrName);
+           hashTableOfAttributesKeyedByName[attrName] = attr;
+         }
+-        newItem.addEntryForAttribute(attr, node.firstChild.nodeValue);
++        // newItem.addEntryForAttribute(attr, node.firstChild.nodeValue);
++        newItem.addEntry({attribute:attr, value:node.firstChild.nodeValue});
+       }
+     }
+     listOfOutputItems.push(newItem);
+@@ -284,7 +288,8 @@
+       if (xmlToAttributeSpecifier._inverseAttribute) {
+         newItem.addConnectionEntry(xmlToAttributeSpecifier._attribute, value, xmlToAttributeSpecifier._inverseAttribute);
+       } else {
+-        newItem.addEntryForAttribute(xmlToAttributeSpecifier._attribute, value);
++        // newItem.addEntryForAttribute(xmlToAttributeSpecifier._attribute, value);
++        newItem.addEntry({attribute:xmlToAttributeSpecifier._attribute, value:value});
+       }
+     }
+     return;
+
+Modified: trunk/source/util/XmlConverterTest.js
+===================================================================
+--- trunk/source/util/XmlConverterTest.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/util/XmlConverterTest.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -167,7 +167,8 @@
+   xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+   var colorAttribute = world.newAttribute(&quot;Color&quot;);
+   var foodColorCategory = world.newCategory(&quot;Food color&quot;);
+-  colorAttribute.addEntryForAttribute(world.getAttributeCalledExpectedType(), foodColorCategory);
++  // colorAttribute.addEntryForAttribute(world.getAttributeCalledExpectedType(), foodColorCategory);
++  colorAttribute.addEntry({attribute:world.getAttributeCalledExpectedType(), value:foodColorCategory});
+   xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;color&quot;], colorAttribute));
+   var listOfItems = xmlConverter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+   assertTrue('3 items should have been created', listOfItems.length == 3);
+@@ -184,9 +185,11 @@
+   xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+   var colorAttribute = world.newAttribute(&quot;Color&quot;);
+   var foodColorCategory = world.newCategory(&quot;Food Color&quot;);
+-  colorAttribute.addEntryForAttribute(world.getAttributeCalledExpectedType(), foodColorCategory);
++  // colorAttribute.addEntryForAttribute(world.getAttributeCalledExpectedType(), foodColorCategory);
++  colorAttribute.addEntry({attribute:world.getAttributeCalledExpectedType(), value:foodColorCategory});
+   var foodsOfThisColorCategory = world.newCategory(&quot;Foods of this color&quot;);
+-  colorAttribute.addEntryForAttribute(world.getAttributeCalledInverseAttribute(), foodsOfThisColorCategory);
++  // colorAttribute.addEntryForAttribute(world.getAttributeCalledInverseAttribute(), foodsOfThisColorCategory);
++  colorAttribute.addEntry({attribute:world.getAttributeCalledInverseAttribute(), value:foodsOfThisColorCategory});
+   xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;color&quot;], colorAttribute));
+   var listOfItems = xmlConverter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+   var colorCategories = world.getItemsInCategory(foodColorCategory);
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/view/EntryView.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -514,7 +514,8 @@
+         var inverseAttr = inverseAttributeEntry.getValue(this._attribute);
+         this._entry = this._item.replaceEntryWithConnection(this._entry, this._attribute, value, inverseAttr);
+       } else {
+-        this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
++        // this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
++        this._entry = this._item.replaceEntry({previousEntry:this._entry, attribute:this._attribute, value:value});
+       }
+       var superview = this.getSuperview();
+       if (this._isProvisional &amp;&amp; superview._provisionalItemJustBecomeReal) {
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/view/PageView.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -69,7 +69,8 @@
+   var newSection = repository.newItem(&quot;New Section&quot;);
+   newSection.assignToCategory(categoryCalledSection);
+   inPage.addConnectionEntry(attributeCalledSectionsInPage, newSection, attributeCalledPageThisSectionAppearsOn);
+-  newSection.addEntryForAttribute(attributeCalledPluginView, tablePluginView);
++  // newSection.addEntryForAttribute(attributeCalledPluginView, tablePluginView);
++  newSection.addEntry({attribute:attributeCalledPluginView, value:tablePluginView});
+ 
+   var newQuery = repository.newItem(&quot;New Query&quot;);
+   newQuery.assignToCategory(categoryCalledQuery);
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/view/RootView.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -415,7 +415,8 @@
+   var attributeCalledSummary = repository.getAttributeCalledSummary();
+   var categoryCalledPage = repository.getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   newPage.assignToCategory(categoryCalledPage);
+-  newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
++  //newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
++  newPage.addEntry({attribute:attributeCalledSummary, value:&quot;This is a new page.&quot;});
+ 
+   if (hasAtLeastOnePage) {
+     PageView.newSection(repository, newPage);
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/source/view/SectionView.js	2005-09-20 01:56:25 UTC (rev 330)
+@@ -283,7 +283,8 @@
+   repository.beginTransaction();
+   layoutItem = repository.newItem(&quot;Layout data for &quot; + pluginTypeItem.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
+   layoutItem.assignToCategory(categoryCalledLayoutData);
+-  layoutItem.addEntryForAttribute(attributeAppliesToPlugin, pluginTypeItem);
++  // layoutItem.addEntryForAttribute(attributeAppliesToPlugin, pluginTypeItem);
++  layoutItem.addEntry({attribute:attributeAppliesToPlugin, value:pluginTypeItem});
+   // this._section.addEntryForAttribute(attributeLayoutData, layoutItem, repository.getTypeCalledItem());
+   this._section.addConnectionEntry(attributeLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
+   repository.endTransaction();
+@@ -408,19 +409,11 @@
+ 
+     var oldEntry = this._section.getSingleEntryFromAttribute(attributeCalledPluginView);
+     if (oldEntry) {
+-      this._section.replaceEntry(oldEntry, newPluginViewItem);
++      this._section.replaceEntry({previousEntry:oldEntry, value:newPluginViewItem});
+     } else {
+-      this._section.addEntryForAttribute(attributeCalledPluginView, newPluginViewItem);
++      // this._section.addEntryForAttribute(attributeCalledPluginView, newPluginViewItem);
++      this._section.addEntry({attribute:attributeCalledPluginView, value:newPluginViewItem});
+     }
+-    /*
+-    var pluginNameEntries = this._section.getEntriesForAttribute(attributeCalledPluginName);
+-    if (pluginNameEntries &amp;&amp; pluginNameEntries[0]) {
+-      var oldEntry = pluginNameEntries[0];
+-      this._section.replaceEntry(oldEntry, newChoiceName);
+-    } else {
+-      this._section.addEntryForAttribute(attributeCalledPluginName, newChoiceName);
+-    }
+-    */
+     this.refresh();
+   }
+ };
+@@ -458,9 +451,11 @@
+   }
+   if (matchingAttribute.getDisplayString() != newChoiceName) {
+     if (listOfMatchingAttrs.length === 0) {
+-      myQuery.addEntryForAttribute(attributeCalledQueryMatchingAttribute, newQueryMatchingAttribute);
++      // myQuery.addEntryForAttribute(attributeCalledQueryMatchingAttribute, newQueryMatchingAttribute);
++      myQuery.addEntry({attribute:attributeCalledQueryMatchingAttribute, value:newQueryMatchingAttribute});
+     } else {
+-      myQuery.replaceEntry(listOfMatchingAttrs[0], newQueryMatchingAttribute);
++      // myQuery.replaceEntry(listOfMatchingAttrs[0], newQueryMatchingAttribute);
++      myQuery.replaceEntry({previousEntry:listOfMatchingAttrs[0], value:newQueryMatchingAttribute});
+     }
+ 
+     /* PENDING, PROBLEM to check Can't delete entries already created by previous matching attribute */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000313.html">[openrecord-svn] r329 - in trunk: source source/model source/util source/view tests tests/dojo tests/model tests/util tests/view
+</A></li>
+	<LI>Next message: <A HREF="000315.html">[openrecord-svn] r331 - in trunk: source/util tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#314">[ date ]</a>
+              <a href="thread.html#314">[ thread ]</a>
+              <a href="subject.html#314">[ subject ]</a>
+              <a href="author.html#314">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

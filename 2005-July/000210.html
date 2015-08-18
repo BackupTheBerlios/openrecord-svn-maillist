@@ -1,0 +1,522 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r224 - in trunk/source: . view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r224%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507062050.j66KouwB016287%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000209.html">
+   <LINK REL="Next"  HREF="000211.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r224 - in trunk/source: . view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r224%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507062050.j66KouwB016287%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r224 - in trunk/source: . view">skinner at berlios.de
+       </A><BR>
+    <I>Wed Jul  6 22:50:56 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000209.html">[openrecord-svn] r223 - trunk/source/view
+</A></li>
+        <LI>Next message: <A HREF="000211.html">[openrecord-svn] r225 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#210">[ date ]</a>
+              <a href="thread.html#210">[ thread ]</a>
+              <a href="subject.html#210">[ subject ]</a>
+              <a href="author.html#210">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-06 22:50:55 +0200 (Wed, 06 Jul 2005)
+New Revision: 224
+
+Modified:
+   trunk/source/OutlinePlugin.js
+   trunk/source/TablePlugin.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/NavbarView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/RootView.js
+   trunk/source/view/SectionView.js
+   trunk/source/view/SuggestionBox.js
+   trunk/source/view/View.js
+Log:
+Replaced the old View.createAndAppendElement() with a new improved View.appendNewElement() method.  Also added a new View.newElement() method.
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/OutlinePlugin.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -103,19 +103,20 @@
+   var listOfContentItems = this.fetchItems();
+   var outlineDiv = this.getHtmlElement();
+   View.removeChildrenOfElement(outlineDiv);
+-  var ulElement = View.createAndAppendElement(outlineDiv, &quot;ul&quot;);
++  var ulElement = View.appendNewElement(outlineDiv, &quot;ul&quot;);
+   for (var contentItemKey in listOfContentItems) {
+     var contentItem = listOfContentItems[contentItemKey];
+-    var liElement = View.createAndAppendElement(ulElement, &quot;li&quot;);
+-    View.createAndAppendTextNode(liElement, contentItem.getDisplayName(&quot;{no name}&quot;) + &quot; &quot;);
+-    var anchorElement = View.createAndAppendElement(liElement, &quot;a&quot;, SectionView.CSS_CLASS_MORE_LINK);
++    var liText = contentItem.getDisplayName(&quot;{no name}&quot;) + &quot; &quot;;
++    var liElement = View.appendNewElement(ulElement, &quot;li&quot;, null, null, liText);
++    // View.appendNewTextNode(liElement, contentItem.getDisplayName(&quot;{no name}&quot;) + &quot; &quot;);
++    var anchorElement = View.appendNewElement(liElement, &quot;a&quot;, SectionView.CSS_CLASS_MORE_LINK);
+ 
+     // PENDING: 
+     //  We shouldn't call the private method _getUuid()
+     //  We need a better way to get the URL for a content item
+     anchorElement.setAttribute(&quot;href&quot;, RootView.URL_HASH_ITEM_PREFIX + contentItem._getUuid());
+ 
+-    // View.createAndAppendTextNode(anchorElement, &quot;(more &#8658;)&quot;);
++    // View.appendNewTextNode(anchorElement, &quot;(more &#8658;)&quot;);
+     anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
+     Util.addEventListener(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink);
+   }
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/TablePlugin.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -198,14 +198,14 @@
+  */
+ TablePlugin.prototype._buildAttributeEditor = function() {
+   var htmlElement = this.getHtmlElement();
+-  View.createAndAppendElement(htmlElement, &quot;br&quot;);
+-  var selectElt = View.createAndAppendElement(htmlElement, &quot;select&quot;, RootView.CSS_CLASS_EDIT_TOOL);
++  View.appendNewElement(htmlElement, &quot;br&quot;);
++  var selectElt = View.appendNewElement(htmlElement, &quot;select&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   var listOfAttributes = this.getWorld().getAttributes();
+-  var optionElt = View.createAndAppendElement(selectElt, &quot;option&quot;);
++  var optionElt = View.appendNewElement(selectElt, &quot;option&quot;);
+   optionElt.text = &quot;Add new attribute:&quot;;
+   for (var key in listOfAttributes) {
+     var attribute = listOfAttributes[key];
+-    optionElt = View.createAndAppendElement(selectElt, &quot;option&quot;);
++    optionElt = View.appendNewElement(selectElt, &quot;option&quot;);
+     if (Util.isObjectInSet(attribute, this._displayAttributes)) {
+       optionElt.text = '* ';
+     }
+@@ -214,8 +214,8 @@
+     optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
+   }
+   this._selectElement = selectElt;
+-  /*View.createAndAppendTextNode(htmlElement, &quot; Import Data:&quot;);
+-  var importButton = View.createAndAppendElement(htmlElement,&quot;input&quot;);
++  /*View.appendNewTextNode(htmlElement, &quot; Import Data:&quot;);
++  var importButton = View.appendNewElement(htmlElement,&quot;input&quot;);
+   importButton.type = &quot;file&quot;;
+   importButton.onchange = this._importData.bindAsEventListener(this, importButton);*/
+ };
+@@ -356,7 +356,7 @@
+   //create new table, remove old table if already exists
+   var viewDivElement = this.getHtmlElement();
+   View.removeChildrenOfElement(viewDivElement);
+-  this._table = View.createAndAppendElement(viewDivElement, &quot;table&quot;, this._cssClassForTable);
++  this._table = View.appendNewElement(viewDivElement, &quot;table&quot;, this._cssClassForTable);
+   
+   this._buildHeader();
+ 
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/EntryView.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -204,13 +204,16 @@
+   View.removeChildrenOfElement(htmlElement);
+   
+   var textString = this._getText();
+-  
+-  this._textSpan = View.createAndAppendElement(htmlElement, &quot;span&quot;);
+-  this._textNode = View.createAndAppendTextNode(this._textSpan, textString);
+-  if (this._isProvisional) {
+-    this._textSpan.className = EntryView.CSS_CLASS_PROVISIONAL;
+-  }
+-  else if (!this._alwaysUseEditField) {
++  var className = (this._isProvisional ? EntryView.CSS_CLASS_PROVISIONAL : '');
++  this._textSpan = View.appendNewElement(htmlElement, &quot;span&quot;, className, null);
++  this._textNode = View.appendNewTextNode(this._textSpan, textString);
++  // if (this._isProvisional) {
++  //   this._textSpan.className = EntryView.CSS_CLASS_PROVISIONAL;
++  // }
++  // else if (!this._alwaysUseEditField) {
++  //   this._setClassName();
++  // }
++  if (!this._isProvisional &amp;&amp; !this._alwaysUseEditField) {
+     this._setClassName();
+   }
+   
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/NavbarView.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -96,27 +96,28 @@
+   View.removeChildrenOfElement(this._htmlElementForAnchors);
+   for (key in listOfPages) {
+     page = listOfPages[key];
+-    var anchor = View.createAndAppendElement(this._htmlElementForAnchors, &quot;a&quot;);
+-    anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + page._getUuid());
++    var anchorName = RootView.URL_PAGE_PREFIX + page._getUuid();
++    View.appendNewElement(this._htmlElementForAnchors, &quot;a&quot;, null, {name: anchorName});
++    // anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + page._getUuid());
+   }
+   
+   var divElement = this.getHtmlElement();
+   View.removeChildrenOfElement(divElement); 
+-  var ulElement = View.createAndAppendElement(divElement, &quot;ul&quot;, NavbarView.CSS_CLASS_MENU);
++  var ulElement = View.appendNewElement(divElement, &quot;ul&quot;, NavbarView.CSS_CLASS_MENU);
+   var rootView = this.getRootView();
+   for (key in listOfPages) {
+     page = listOfPages[key];
+     page.addObserver(this);
+-    var liElement = View.createAndAppendElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM);
+-    var anchorElement = View.createAndAppendElement(liElement, &quot;a&quot;);
++    var liElement = View.appendNewElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM);
+     var menuUrl = rootView.getUrlForItem(page);
+-    anchorElement.setAttribute(&quot;href&quot;, menuUrl);
+     var menuText = page.getDisplayString();
+-    View.createAndAppendTextNode(anchorElement, menuText);
++    var anchorElement = View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
++    // anchorElement.setAttribute(&quot;href&quot;, menuUrl);
++    // View.appendNewTextNode(anchorElement, menuText);
+     anchorElement.onclick = RootView.clickOnLocalLink.bindAsEventListener();
+   }
+   
+-  var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_TOOL);
++  var newPageButton = View.appendNewElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   newPageButton.type = &quot;button&quot;;
+   newPageButton.value = &quot;New Page&quot;;
+   newPageButton.onclick = this._clickOnNewPageButton.bindAsEventListener(this);
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/PageView.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -151,11 +151,11 @@
+ 
+   var pageDivElement = this.getHtmlElement();
+   
+-  var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
++  var headerElement = View.appendNewElement(pageDivElement, &quot;h1&quot;);
+   this._headerText = new EntryView(this, headerElement, this._pageItem, attributeCalledName,
+     this._pageItem.getSingleEntryFromAttribute(attributeCalledName), false);
+ 
+-  var summaryViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
++  var summaryViewDiv = View.appendNewElement(pageDivElement, &quot;div&quot;);
+   this._pageSummaryView = new EntryView(this, summaryViewDiv, this._pageItem, attributeCalledSummary,
+     this._pageItem.getSingleEntryFromAttribute(attributeCalledSummary), true);
+ 
+@@ -220,9 +220,9 @@
+   if (!this._editModeDiv) {
+     var pageDivElement = this.getHtmlElement();
+     var cssClass = SectionView.CSS_CLASS_SECTION + &quot; &quot; + RootView.CSS_CLASS_EDIT_TOOL;
+-    this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, cssClass);
+-    View.createAndAppendElement(this._editModeDiv, &quot;br&quot;);
+-    var editButton = View.createAndAppendElement(this._editModeDiv, &quot;input&quot;);
++    this._editModeDiv = View.appendNewElement(pageDivElement, &quot;div&quot;, cssClass);
++    View.appendNewElement(this._editModeDiv, &quot;br&quot;);
++    var editButton = View.appendNewElement(this._editModeDiv, &quot;input&quot;);
+     editButton.type = &quot;Button&quot;;
+     editButton.value = &quot;New Section&quot;;
+     editButton.onclick = this._addNewSection.bindAsEventListener(this);
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/RootView.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -100,27 +100,27 @@
+   document.onkeypress = this._onKeyPress.bindAsEventListener(this);
+   
+   window.document.body.innerHTML = &quot;&quot;;
+-  var rootDiv = View.createAndAppendElement(window.document.body, &quot;div&quot;);
+-  var anchorSpan = View.createAndAppendElement(rootDiv, &quot;span&quot;);
++  var rootDiv = View.appendNewElement(window.document.body, &quot;div&quot;);
++  var anchorSpan = View.appendNewElement(rootDiv, &quot;span&quot;);
+  
+-  var headerP = View.createAndAppendElement(rootDiv, &quot;p&quot;, &quot;header&quot;);
+-  var logoSpan = View.createAndAppendElement(headerP, &quot;span&quot;, &quot;logo&quot;);
++  var headerP = View.appendNewElement(rootDiv, &quot;p&quot;, &quot;header&quot;);
++  var logoSpan = View.appendNewElement(headerP, &quot;span&quot;, &quot;logo&quot;);
+   logoSpan.innerHTML = '&lt;a href=&quot;<A HREF="http://openrecord.org">http://openrecord.org</A>&quot;&gt;&lt;span class=&quot;logostart&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;logomiddle&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;logoend&quot;&gt;.org&lt;/span&gt;&lt;/a&gt;';
+-  this._loginViewSpanElement = View.createAndAppendElement(headerP, &quot;span&quot;);
+-  View.createAndAppendElement(headerP, &quot;br&quot;);
+-  this._navbarDivElement = View.createAndAppendElement(rootDiv, &quot;div&quot;);
+-  var contentAreaDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;content_area&quot;);
+-  this._contentViewDivElement = View.createAndAppendElement(contentAreaDiv, &quot;div&quot;);
+-  this._debugDivElement = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;debug&quot;);
++  this._loginViewSpanElement = View.appendNewElement(headerP, &quot;span&quot;);
++  View.appendNewElement(headerP, &quot;br&quot;);
++  this._navbarDivElement = View.appendNewElement(rootDiv, &quot;div&quot;);
++  var contentAreaDiv = View.appendNewElement(rootDiv, &quot;div&quot;, &quot;content_area&quot;);
++  this._contentViewDivElement = View.appendNewElement(contentAreaDiv, &quot;div&quot;);
++  this._debugDivElement = View.appendNewElement(rootDiv, &quot;div&quot;, &quot;debug&quot;);
+ 
+-  var footerP = View.createAndAppendElement(rootDiv, &quot;p&quot;, &quot;footer&quot;);
+-  var copyrightSpan = View.createAndAppendElement(footerP, &quot;span&quot;, &quot;copyright&quot;);
++  var footerP = View.appendNewElement(rootDiv, &quot;p&quot;, &quot;footer&quot;);
++  var copyrightSpan = View.appendNewElement(footerP, &quot;span&quot;, &quot;copyright&quot;);
+   copyrightSpan.innerHTML = 'You can copy freely from this site &mdash; ' +
+     'copyright rights relinquished under the Creative Commons ' +
+     '&lt;a rel=&quot;license external&quot; href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain Dedication&lt;/a&gt;.';
+ 
+-  this._statusBlurbSpanElement = View.createAndAppendElement(footerP, &quot;span&quot;, &quot;fileformat&quot;);
+-  View.createAndAppendElement(footerP, &quot;br&quot;);
++  this._statusBlurbSpanElement = View.appendNewElement(footerP, &quot;span&quot;, &quot;fileformat&quot;);
++  View.appendNewElement(footerP, &quot;br&quot;);
+   
+   this._anchorSpan = anchorSpan;
+   this._rootDiv = rootDiv;
+@@ -300,7 +300,7 @@
+         if (!contentViewToSwitchTo) {
+           itemFromUuid = this._world.getItemFromUuid(uuidText);
+           if (itemFromUuid) {
+-            divElement = View.createAndAppendElement(this._contentViewDivElement, &quot;div&quot;);
++            divElement = View.appendNewElement(this._contentViewDivElement, &quot;div&quot;);
+             contentViewToSwitchTo = new ItemView(this, divElement, itemFromUuid);
+             this._hashTableOfItemViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
+           }
+@@ -312,7 +312,7 @@
+           if (!contentViewToSwitchTo) {
+             pageFromUuid = this.getWorld().getItemFromUuid(uuidText);
+             if (pageFromUuid) {
+-              divElement = View.createAndAppendElement(this._contentViewDivElement, &quot;div&quot;);
++              divElement = View.appendNewElement(this._contentViewDivElement, &quot;div&quot;);
+               contentViewToSwitchTo = new PageView(this, divElement, pageFromUuid);
+               this._hashTableOfPageViewsKeyedByUuid[uuidText] = contentViewToSwitchTo;
+             }
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/SectionView.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -217,30 +217,30 @@
+   }
+   
+   var sectionDiv = this.getHtmlElement();
+-  var headerH2 = View.createAndAppendElement(sectionDiv, &quot;h2&quot;);
++  var headerH2 = View.appendNewElement(sectionDiv, &quot;h2&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+   this._headerView = new EntryView(this, headerH2, this._section, attributeCalledName,
+     this._section.getSingleEntryFromAttribute(attributeCalledName));
+-  var summaryDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;);
++  var summaryDiv = View.appendNewElement(sectionDiv, &quot;div&quot;);
+   this._sectionSummaryView = new EntryView(this, summaryDiv, this._section, attributeCalledSummary,
+     this._section.getSingleEntryFromAttribute(attributeCalledSummary), true);
+-  View.createAndAppendElement(sectionDiv, &quot;p&quot;);
++  View.appendNewElement(sectionDiv, &quot;p&quot;);
+ 
+   // create the editing controls, if we're in edit mode
+-  var controlArea = View.createAndAppendElement(sectionDiv, &quot;p&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+-  var textShowMeA = document.createTextNode(&quot;Show me a &quot;);
+-  controlArea.appendChild(textShowMeA);
++  var controlArea = View.appendNewElement(sectionDiv, &quot;p&quot;, RootView.CSS_CLASS_EDIT_TOOL, null, &quot;Show me a &quot;);
++  // var textShowMeA = document.createTextNode(&quot;Show me a &quot;);
++  // controlArea.appendChild(textShowMeA);
+ 
+   // PENDING: We shouldn't call the private method _getUuid()
+-  var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this._section._getUuid();
+-  var selectElement = View.createAndAppendElement(controlArea, &quot;select&quot;, null, selectMenuId);
++  // var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this._section._getUuid();
++  var selectElement = View.appendNewElement(controlArea, &quot;select&quot;);
+   var optionElement;
+   var listener;
+-  selectElement.setAttribute(&quot;name&quot;, selectMenuId);
++  // selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+   for (var key in SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid) {
+     var pluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[key];
+-    optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
++    optionElement = View.appendNewElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (selectedPluginClass == pluginClass);
+     optionElement.value = pluginClass.getPluginItemUuid();
+     var pluginItem = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+@@ -249,15 +249,15 @@
+     Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
+   }
+   
+-  View.createAndAppendTextNode(controlArea,&quot; of items whose &quot;);
++  View.appendNewTextNode(controlArea,&quot; of items whose &quot;);
+ 
+-  this._queryEditSpan = View.createAndAppendElement(controlArea, &quot;span&quot;);
++  this._queryEditSpan = View.appendNewElement(controlArea, &quot;span&quot;);
+   // this._refreshQueryEditSpan();
+ 
+-  View.createAndAppendTextNode(controlArea,&quot;.&quot;);
++  View.appendNewTextNode(controlArea,&quot;.&quot;);
+ 
+   // create a div element for the plugin class to use
+-  this._pluginDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;);
++  this._pluginDiv = View.appendNewElement(sectionDiv, &quot;div&quot;);
+   this._pluginView = this.getPluginInstanceFromPluginItem(selectedPluginItem, this._pluginDiv);
+   this._myHasEverBeenDisplayedFlag = true;
+   this.refresh();
+@@ -327,20 +327,20 @@
+   var matchingEntry = hasMatchingEntries ? listOfMatchingEntries[0] : null;
+   
+   var listOfAttributes = this.getWorld().getAttributes();
+-  var selectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
++  var selectElement = View.appendNewElement(this._queryEditSpan, &quot;select&quot;);
+   for (var key in listOfAttributes) {
+     var anAttribute = listOfAttributes[key];
+-    var optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
++    var optionElement = View.appendNewElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (matchingAttribute.getDisplayString() == anAttribute.getDisplayString());
+     optionElement.value = anAttribute._getUuid();
+     optionElement.onclick = this.clickOnAttributeMenu.bindAsEventListener(this);
+     optionElement.text = anAttribute.getDisplayString();
+   }
+   
+-  View.createAndAppendTextNode(this._queryEditSpan, &quot; is &quot;);
++  View.appendNewTextNode(this._queryEditSpan, &quot; is &quot;);
+   
+   var listOfPossibleEntries = this.getWorld().getSuggestedItemsForAttribute(matchingAttribute);
+-  var entrySpan = View.createAndAppendElement(this._queryEditSpan, &quot;span&quot;);
++  var entrySpan = View.appendNewElement(this._queryEditSpan, &quot;span&quot;);
+   
+   var entryView =  new EntryView(this, entrySpan, myQuery, attributeCalledQueryMatchingValue, matchingEntry);
+   entryView.setSuggestions(listOfPossibleEntries);
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/SuggestionBox.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -53,11 +53,9 @@
+   this._selectedItem = null;
+   this._shouldHide = htmlInputField.value.length === 0;
+   
+-  this._suggestionBoxDivElement = View.createAndAppendElement(document.body, &quot;div&quot;, &quot;SuggestionBox&quot;);
+-  // this._suggestionBoxDivElement = document.createElement('div');
++  this._suggestionBoxDivElement = View.appendNewElement(document.body, &quot;div&quot;, &quot;SuggestionBox&quot;);
+   this._suggestionBoxDivElement.style.zIndex = 11;
+   this._suggestionBoxDivElement.style.display = &quot;none&quot;;
+-  // document.body.appendChild(this._suggestionBoxDivElement);
+ 
+  /* this._inputField.onkeyup = this._keyPressOnInputField.bindAsEventListener(this);
+   this._inputField.onfocus = this._focusOnInputField.bindAsEventListener(this);
+
+Modified: trunk/source/view/View.js
+===================================================================
+--- trunk/source/view/View.js	2005-07-06 18:17:08 UTC (rev 223)
++++ trunk/source/view/View.js	2005-07-06 20:50:55 UTC (rev 224)
+@@ -191,30 +191,67 @@
+ 
+ 
+ /**
+- * Given an HTML element, we first call document.createElement() to 
+- * create a new element, and then call appendChild() to add the new 
+- * element to the given element.
++ * This method calls document.createElement() to create a new element, and 
++ * then initialized the new element with the values provided by the caller.
+  *
+  * @scope    public class method
+- * @param    parentElement    The existing element that we should append the new element to. 
+  * @param    tagName    The HTML tag for the element (&quot;div&quot;, &quot;p&quot;, &quot;span&quot;, etc.). 
+  * @param    cssClassName    Optional. The HTML/CSS class to assign to the new element. 
+- * @param    elementId    Optional. The HTML id to assign to the new element. 
++ * @param    attributesInJson    Optional. A JSON object with additional attributes to set on the new element. 
++ * @param    text    Optional. A text string to put in a text node within the new element. 
+  * @return   The newly created HTML element.
+  */
+-View.createAndAppendElement = function(parentElement, tagName, cssClassName, elementId) {
+-  Util.assert(parentElement instanceof HTMLElement);
++View.newElement = function(tagName, cssClassName, attributesInJson, text) {
+   Util.assert(Util.isString(tagName));
+   Util.assert(!cssClassName || Util.isString(cssClassName));
+-  Util.assert(!elementId || Util.isString(elementId));
++  Util.assert(!attributesInJson || Util.isObject(attributesInJson));
++  Util.assert(!text|| Util.isString(text));
+ 
+   var newElement = window.document.createElement(tagName);
+   if (cssClassName) {
+     newElement.className = cssClassName;
+   }
+-  if (elementId) {
+-    newElement.id = elementId;
++  if (attributesInJson) {
++    for (var key in attributesInJson) {
++      if (key == 'id') {
++        newElement.id = attributesInJson[key];
++      } else {
++        newElement.setAttribute(key, attributesInJson[key]);
++      }
++    }
+   }
++  if (text) {
++    newElement.appendChild(window.document.createTextNode(text));
++  }
++  return newElement;
++};
++
++
++/**
++ * Given an HTML element, we first call document.createElement() to 
++ * create a new element, and then call appendChild() to add the new 
++ * element to the given element.
++ *
++ * Example:
++ * &lt;pre&gt;
++ * var menuUrl = &quot;<A HREF="http://en.wikipedia.org/">http://en.wikipedia.org/</A>&quot;;
++ * var menuText = &quot;Wikipedia&quot;;
++ * var menuItem = View.appendNewElement(mainMenu, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM);
++ * var link = View.appendNewElement(menuItem, &quot;a&quot;, null, {href: menuUrl}, menuText);
++ * &lt;/pre&gt;
++ *
++ * @scope    public class method
++ * @param    parentElement    The existing element that we should append the new element to. 
++ * @param    tagName    The HTML tag for the element (&quot;div&quot;, &quot;p&quot;, &quot;span&quot;, etc.). 
++ * @param    cssClassName    Optional. The HTML/CSS class to assign to the new element. 
++ * @param    attributesInJson    Optional. A JSON object with additional attributes to set on the new element. 
++ * @param    text    Optional. A text string to put in a text node within the new element. 
++ * @return   The newly created HTML element.
++ */
++View.appendNewElement = function(parentElement, tagName, cssClassName, attributesInJson, text) {
++  Util.assert(parentElement instanceof HTMLElement);
++  
++  var newElement = View.newElement(tagName, cssClassName, attributesInJson, text);
+   parentElement.appendChild(newElement);
+   return newElement;
+ };
+@@ -230,7 +267,7 @@
+  * @param    textString    The text string to put in the text node.
+  * @return   The newly created text node.
+  */
+-View.createAndAppendTextNode = function(parentElement, textString) {
++View.appendNewTextNode = function(parentElement, textString) {
+   Util.assert(parentElement instanceof HTMLElement);
+   Util.assert(Util.isString(textString));
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000209.html">[openrecord-svn] r223 - trunk/source/view
+</A></li>
+	<LI>Next message: <A HREF="000211.html">[openrecord-svn] r225 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#210">[ date ]</a>
+              <a href="thread.html#210">[ thread ]</a>
+              <a href="subject.html#210">[ subject ]</a>
+              <a href="author.html#210">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

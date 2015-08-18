@@ -1,0 +1,2461 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r263 - in trunk: documentation repositories source source/model source/util source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r263%20-%20in%20trunk%3A%20documentation%20repositories%20source%20source/model%20source/util%20source/view&In-Reply-To=%3C200507261926.j6QJQCHL027869%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000247.html">
+   <LINK REL="Next"  HREF="000249.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r263 - in trunk: documentation repositories source source/model source/util source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r263%20-%20in%20trunk%3A%20documentation%20repositories%20source%20source/model%20source/util%20source/view&In-Reply-To=%3C200507261926.j6QJQCHL027869%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r263 - in trunk: documentation repositories source source/model source/util source/view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Jul 26 21:26:12 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000247.html">[openrecord-svn] r262 - in trunk/source: model util
+</A></li>
+        <LI>Next message: <A HREF="000249.html">[openrecord-svn] r264 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#248">[ date ]</a>
+              <a href="thread.html#248">[ thread ]</a>
+              <a href="subject.html#248">[ subject ]</a>
+              <a href="author.html#248">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-26 21:26:09 +0200 (Tue, 26 Jul 2005)
+New Revision: 263
+
+Added:
+   trunk/source/util/CsvParser.js
+   trunk/source/util/CsvParserTest.html
+   trunk/source/util/CsvParserTest.js
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/repositories/sandbox.json
+   trunk/source/OpenRecordLoader.js
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/model/Item.js
+   trunk/source/util/Uuid.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/SectionView.js
+   trunk/source/view/SuggestionBox.js
+Log:
+TablePlugin can now import data from CSV data files.  Caveats: This only works for simple CSV files, not for tricky corner cases.  We don't do much error checking, so if the CSV file doesn't match the table then you're in trouble.  This only works when you load the page from a <A HREF="file:///">file:///</A> URL.  
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/documentation/release_planning.txt	2005-07-26 19:26:09 UTC (rev 263)
+@@ -258,7 +258,7 @@
+ chao   |          | done?   | 12. be able to delete a selected lozenge 
+        |          |         | 13. be able to delete a selected table row 
+ chao   | 0.5  IED |         | 14. improve keyboard navigation: tab, arrow, and return keys
+-mignon |          |       &gt;&gt;| 15. Get data model to pass the ordinal unit tests again
++mignon |          | done?   | 15. Get data model to pass the ordinal unit tests again
+        |          |copy/move? 16. drag-and-drop lozenges
+        |          |       &gt;&gt;| 17. drag-and-drop to re-order navbar menu items
+        |          |         | 18. drag-and-drop to re-order table rows
+@@ -271,6 +271,7 @@
+ brian  |          | 0.25    | 25. BUG: need to encode reserved characters(&lt;&amp;&gt;\n&quot;') back at client-server layer
+ brian  |          | 0.25    |     Be able to make html files with just one &lt;script&gt; element, not dozens 
+ brian  |          | 0.25    |     Be able to easily create new documents that are empty
++brian  |          | 0.5     |     Import CSV data files when running from a <A HREF="file:///">file:///</A> page
+        |          |       &gt;&gt;|     Create a dozen demo documents (quotes, dictionary, movies, books, oil-change, etc.)
+        |          |       &gt;&gt;|     Have different documents use different style-sheets
+ brian  | 1    IED | 0.75    |     Add a DateValue class that supports dates like &quot;2005&quot;
+
+Modified: trunk/repositories/sandbox.json
+===================================================================
+--- trunk/repositories/sandbox.json	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/repositories/sandbox.json	2005-07-26 19:26:09 UTC (rev 263)
+@@ -37,4 +37,1526 @@
+              &quot;item&quot;: &quot;82c7f970-fd68-11d9-be6a-000c414ce854&quot;,
+             &quot;value&quot;: &quot;Welcome to the Sandbox repository. Feel free to use this as a place to play around with OpenRecord. You can experiment with creating pages, setting up tables, and editing items.&quot;  }
+     }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: New Page)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Name) = &quot;New Page&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68551-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Page&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Category) = (Category: Page)
++    // (Category: Page).(Items in Category) = (Page: New Page)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68552-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Summary) = &quot;This is a new page.&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68553-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is a new page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Name) = &quot;New Section&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68555-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Category) = (Category: Section)
++    // (Category: Section).(Items in Category) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68556-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Sections In Page) = (Section: New Section)
++    // (Section: New Section).(Page this section appears on) = (Page: New Page)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68557-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot;, &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e68558-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d5e68559-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e6855a-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5e68559-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Category) = (Category: Query Spec)
++    // (Category: Query Spec).(Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e8f650-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68559-fd6c-11d9-9654-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Query Spec) = (Query Spec: New Query)
++    // (Query Spec: New Query).(Section this query spec belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5e8f651-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;, &quot;d5e68559-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Name) = &quot;Layout data for Table of New Section&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5f26c31-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Category) = (Category: Layout Data)
++    // (Category: Layout Data).(Items in Category) = (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5f26c32-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5f26c33-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Layout Data) = (Layout Data: Layout data for Table of New Section)
++    // (Layout Data: Layout data for Table of New Section).(Section this layout data belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d5f26c34-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;, &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Name) = &quot;New Section&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525531-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Category) = (Category: Section)
++    // (Category: Section).(Items in Category) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525532-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Sections In Page) = (Section: New Section)
++    // (Section: New Section).(Page this section appears on) = (Page: New Page)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525533-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot;, &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525534-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d8525535-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525536-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8525535-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Category) = (Category: Query Spec)
++    // (Category: Query Spec).(Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525537-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d8525535-fd6c-11d9-9654-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Query Spec) = (Query Spec: New Query)
++    // (Query Spec: New Query).(Section this query spec belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8525538-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;, &quot;d8525535-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;d8598120-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Name) = &quot;Layout data for Table of New Section&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8598121-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8598120-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Category) = (Category: Layout Data)
++    // (Category: Layout Data).(Items in Category) = (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8598122-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d8598120-fd6c-11d9-9654-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8598123-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8598120-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Layout Data) = (Layout Data: Layout data for Table of New Section)
++    // (Layout Data: Layout data for Table of New Section).(Section this layout data belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;d8598124-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;, &quot;d8598120-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;db036b70-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Category: Book).(Name) = &quot;Book&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;db036b71-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;db036b70-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Book&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Category: Book).(Category) = (Category: Category)
++    // (Category: Category).(Items in Category) = (Category: Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;db036b72-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;db036b70-fd6c-11d9-9654-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Matching Value) = (Category: Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;db036b73-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d5e68559-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;db036b70-fd6c-11d9-9654-000c414ce854&quot;  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Category: Movie).(Name) = &quot;Movie&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dce9deb1-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Movie&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Category: Movie).(Category) = (Category: Category)
++    // (Category: Category).(Items in Category) = (Category: Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dce9deb2-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Matching Value) = (Category: Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dce9deb3-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8525535-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Book: Foo Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;db0f5250-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Book: Foo Book).(Name) = &quot;Foo Book&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dfee4510-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;db0f5250-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Foo Book&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Book: Foo Book).(Category) = (Category: Book)
++    // (Category: Book).(Items in Category) = (Book: Foo Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;dfee4511-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;db0f5250-fd6c-11d9-9654-000c414ce854&quot;, &quot;db036b70-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Book: Bar Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;dff0b610-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Book: Bar Book).(Name) = &quot;Bar Book&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e18d2800-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;dff0b610-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Bar Book&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Book: Bar Book).(Category) = (Category: Book)
++    // (Category: Book).(Items in Category) = (Book: Bar Book)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e18d2801-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;dff0b610-fd6c-11d9-9654-000c414ce854&quot;, &quot;db036b70-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Movie: Iggy Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: Iggy Movie).(Name) = &quot;Iggy Movie&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e40023d0-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Iggy Movie&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Iggy Movie).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: Iggy Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e40023d1-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Movie: Pop Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: Pop Movie).(Name) = &quot;Pop Movie&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e5be0070-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Pop Movie&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Pop Movie).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: Pop Movie)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e5be0071-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;e77bdd10-fd6c-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section).(Name) = &quot;Layout data for Outline of New Section&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e77bdd11-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;e77bdd10-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Outline of New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section).(Category) = (Category: Layout Data)
++    // (Category: Layout Data).(Items in Category) = (Layout Data: Layout data for Outline of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e77bdd12-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;e77bdd10-fd6c-11d9-9654-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section).(Applies To Plugin) = (Plugin View: Outline)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e77bdd13-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;e77bdd10-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Layout Data) = (Layout Data: Layout data for Outline of New Section)
++    // (Layout Data: Layout data for Outline of New Section).(Section this layout data belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;e77bdd14-fd6c-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;, &quot;e77bdd10-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Section: New Section).(Plugin View) = (Plugin View: Outline)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;e7809800-fd6c-11d9-9654-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;d5e68558-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Section: New Section).(Plugin View) = (Plugin View: Table)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;06e0f910-fd6d-11d9-9654-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;e7809800-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;150b3960-fd6d-11d9-9654-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section).(Name) = &quot;Layout data for Outline of New Section&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;150b3961-fd6d-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;150b3960-fd6d-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Outline of New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section).(Category) = (Category: Layout Data)
++    // (Category: Layout Data).(Items in Category) = (Layout Data: Layout data for Outline of New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;150b3962-fd6d-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;150b3960-fd6d-11d9-9654-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Outline of New Section).(Applies To Plugin) = (Plugin View: Outline)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;150b3963-fd6d-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;150b3960-fd6d-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Layout Data) = (Layout Data: Layout data for Outline of New Section)
++    // (Layout Data: Layout data for Outline of New Section).(Section this layout data belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;150b3964-fd6d-11d9-9654-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;, &quot;150b3960-fd6d-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Section: New Section).(Plugin View) = (Plugin View: Outline)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;15101b60-fd6d-11d9-9654-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;d8525534-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Query Spec: New Query).(Matching Value) = (Category: Movie)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;07562b40-fd7c-11d9-b837-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;db036b73-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5e68559-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Query Spec: New Query).(Matching Value) = (Category: Attribute)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;0aff0f00-fd7c-11d9-b837-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;dce9deb3-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d8525535-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Section: New Section).(Plugin View) = (Plugin View: Table)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;0e0d1250-fd7c-11d9-b837-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;15101b60-fd6d-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Year)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Attribute: Year).(Name) = &quot;Year&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;14d4c240-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Year&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Attribute: Year).(Category) = (Category: Attribute)
++    // (Category: Attribute).(Items in Category) = (Attribute: Year)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;14d4c241-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Attribute: Year).(Expected Type) = (Type: Date)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;16c71c60-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Producer)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Attribute: Producer).(Name) = &quot;Producer&quot;
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;1a42d5a0-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Producer&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Attribute: Producer).(Category) = (Category: Attribute)
++    // (Category: Attribute).(Items in Category) = (Attribute: Producer)
++    //           by (Brian) on (Jul 25, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;1a42d5a1-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Attribute: Producer).(Expected Type) = (Type: Text)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;1c921cd0-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Layout Data: Layout data for Table of New Section).(Table Columns) = (Attribute: Name)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2a5f7010-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Layout Data: Layout data for Table of New Section).(Table Columns) = (Attribute: Year)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2a61ba00-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Layout Data: Layout data for Table of New Section).(Table Columns) = (Attribute: Producer)
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2c96e980-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5f26c30-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Iggy Movie).(Year) = &quot;1904&quot;
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;319e4bd0-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;item&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;1904&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Iggy Movie).(Producer) = &quot;Iggy&quot;
++  //           by (Brian) on (Jul 25, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;32e9b790-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;item&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Iggy&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Page: Movies).(Name) = &quot;Movies&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;0c493970-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;d5e68551-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5e68550-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Movies&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Page: New Page)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0fb69ad0-fe04-11d9-8800-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Name) = &quot;New Page&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb69ad1-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fb69ad0-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Page&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Category) = (Category: Page)
++    // (Category: Page).(Items in Category) = (Page: New Page)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb69ad2-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fb69ad0-fe04-11d9-8800-000c414ce854&quot;, &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Summary) = &quot;This is a new page.&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb69ad3-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fb69ad0-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;This is a new page.&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Name) = &quot;New Section&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb69ad5-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Category) = (Category: Section)
++    // (Category: Section).(Items in Category) = (Section: New Section)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb69ad6-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot;, &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Page: New Page).(Sections In Page) = (Section: New Section)
++    // (Section: New Section).(Page this section appears on) = (Page: New Page)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb90bd0-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fb69ad0-fe04-11d9-8800-000c414ce854&quot;, &quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Plugin View) = (Plugin View: Table)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb90bd1-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0fb90bd2-fe04-11d9-8800-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Name) = &quot;New Query&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb90bd3-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fb90bd2-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;New Query&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Category) = (Category: Query Spec)
++    // (Category: Query Spec).(Items in Category) = (Query Spec: New Query)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb90bd4-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fb90bd2-fe04-11d9-8800-000c414ce854&quot;, &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Query Spec) = (Query Spec: New Query)
++    // (Query Spec: New Query).(Section this query spec belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fb90bd5-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot;, &quot;0fb90bd2-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;0fc73ca0-fe04-11d9-8800-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Name) = &quot;Layout data for Table of New Section&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fc73ca1-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fc73ca0-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Layout data for Table of New Section&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Category) = (Category: Layout Data)
++    // (Category: Layout Data).(Items in Category) = (Layout Data: Layout data for Table of New Section)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fc73ca2-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fc73ca0-fe04-11d9-8800-000c414ce854&quot;, &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Layout Data: Layout data for Table of New Section).(Applies To Plugin) = (Plugin View: Table)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fc73ca3-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;0fc73ca0-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Section: New Section).(Layout Data) = (Layout Data: Layout data for Table of New Section)
++    // (Layout Data: Layout data for Table of New Section).(Section this layout data belongs to) = (Section: New Section)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;0fc73ca4-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0fb69ad4-fe04-11d9-8800-000c414ce854&quot;, &quot;0fc73ca0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Page: Attributes).(Name) = &quot;Attributes&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;15f8c710-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;0fb69ad1-fe04-11d9-8800-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;0fb69ad0-fe04-11d9-8800-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Attributes&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Query Spec: New Query).(Matching Value) = (Category: Attribute)
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;18435350-fe04-11d9-8800-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;0fb90bd2-fe04-11d9-8800-000c414ce854&quot;,
++          &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Category: Producer)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;258185f0-fe04-11d9-8800-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Category: Producer).(Name) = &quot;Producer&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;258185f1-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Producer&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Category: Producer).(Category) = (Category: Category)
++    // (Category: Category).(Items in Category) = (Category: Producer)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;258185f2-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;258185f0-fe04-11d9-8800-000c414ce854&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Query Spec: New Query).(Matching Value) = (Category: Producer)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;258185f3-fe04-11d9-8800-000c414ce854&quot;,
++    &quot;previousEntry&quot;: &quot;0aff0f00-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;d8525535-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Section: Producers).(Name) = &quot;Producers&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;2dbac740-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;d8525531-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d8525530-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Producers&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Section: Movies).(Name) = &quot;Movies&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;3366ce00-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;d5e68555-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;d5e68554-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Movies&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // vote to DELETE Text
++  { &quot;Vote&quot;: {
++           &quot;uuid&quot;: &quot;3cf2a700-fe04-11d9-8800-000c414ce854&quot;,
++         &quot;record&quot;: &quot;1c921cd0-fd7c-11d9-b837-000c414ce854&quot;,
++     &quot;retainFlag&quot;: &quot;false&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Attribute: Producer).(Expected Type) = (Category: Producer)
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;3f9a2050-fe04-11d9-8800-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;,
++          &quot;value&quot;: &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Dead Poets Society, The).(Name) = &quot;Dead Poets Society, The&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;5a381750-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;e40023d0-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Dead Poets Society, The&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Dead Poets Society, The).(Year) = &quot;1989&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;64980930-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;319e4bd0-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;item&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;1989&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Producer: Peter Weir)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;6741f380-fe04-11d9-8800-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Producer: Peter Weir).(Name) = &quot;Peter Weir&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;6741f381-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;6741f380-fe04-11d9-8800-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Peter Weir&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Peter Weir).(Category) = (Category: Producer)
++    // (Category: Producer).(Items in Category) = (Producer: Peter Weir)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;6741f382-fe04-11d9-8800-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;6741f380-fe04-11d9-8800-000c414ce854&quot;, &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Dead Poets Society, The).(Producer) = (Producer: Peter Weir)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;6741f383-fe04-11d9-8800-000c414ce854&quot;,
++    &quot;previousEntry&quot;: &quot;32e9b790-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;item&quot;: &quot;dcf5c590-fd6c-11d9-9654-000c414ce854&quot;,
++            &quot;value&quot;: &quot;6741f380-fe04-11d9-8800-000c414ce854&quot;  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Fahrenheit 911).(Name) = &quot;Fahrenheit 911&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;8a5e4b20-fe04-11d9-8800-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;e5be0070-fd6c-11d9-9654-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;Fahrenheit 911&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Attribute: Produced)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Attribute: Produced).(Name) = &quot;Produced&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;cfc4e080-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Produced&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Attribute: Produced).(Category) = (Category: Attribute)
++    // (Category: Attribute).(Items in Category) = (Attribute: Produced)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;cfc4e081-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Attribute: Produced).(Expected Type) = (Category: Movie)
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;d163c370-fe08-11d9-9734-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;,
++          &quot;value&quot;: &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;  }
++  },
++  // -----------------------------------------------------------------------
++  // (Attribute: Producer).(Inverse Attribute) = (Attribute: Produced)
++  // (Attribute: Produced).(Inverse Attribute) = (Attribute: Producer)
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;d8302e50-fe08-11d9-9734-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++           &quot;item&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;],
++      &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Movie: 2001: A Space Odyssey)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbaca60-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: 2001: A Space Odyssey).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: 2001: A Space Odyssey)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca61-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbaca60-fe08-11d9-9734-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 2001: A Space Odyssey).(Name) = &quot;2001: A Space Odyssey&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca62-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbaca60-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;2001: A Space Odyssey&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 2001: A Space Odyssey).(Year) = &quot;1968&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca63-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;item&quot;: &quot;ddbaca60-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;1968&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Stanley Kubrick)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbaca64-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Producer: Stanley Kubrick).(Name) = &quot;Stanley Kubrick&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca65-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbaca64-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Stanley Kubrick&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Stanley Kubrick).(Category) = (Category: Producer)
++    // (Category: Producer).(Items in Category) = (Producer: Stanley Kubrick)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca66-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbaca64-fe08-11d9-9734-000c414ce854&quot;, &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 2001: A Space Odyssey).(Producer) = (Producer: Stanley Kubrick)
++    // (Producer: Stanley Kubrick).(Produced) = (Movie: 2001: A Space Odyssey)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca67-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbaca60-fe08-11d9-9734-000c414ce854&quot;, &quot;ddbaca64-fe08-11d9-9734-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 12 Angry Men)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbaca68-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: 12 Angry Men).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: 12 Angry Men)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca69-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbaca68-fe08-11d9-9734-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 12 Angry Men).(Name) = &quot;12 Angry Men&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca6a-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbaca68-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;12 Angry Men&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 12 Angry Men).(Year) = &quot;1957&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca6b-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;item&quot;: &quot;ddbaca68-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;1957&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Sidney Lumet)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbaca6c-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Producer: Sidney Lumet).(Name) = &quot;Sidney Lumet&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca6d-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbaca6c-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Sidney Lumet&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Sidney Lumet).(Category) = (Category: Producer)
++    // (Category: Producer).(Items in Category) = (Producer: Sidney Lumet)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca6e-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbaca6c-fe08-11d9-9734-000c414ce854&quot;, &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: 12 Angry Men).(Producer) = (Producer: Sidney Lumet)
++    // (Producer: Sidney Lumet).(Produced) = (Movie: 12 Angry Men)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbaca6f-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbaca68-fe08-11d9-9734-000c414ce854&quot;, &quot;ddbaca6c-fe08-11d9-9734-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Alien)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbd3b60-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: Alien).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: Alien)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b61-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b60-fe08-11d9-9734-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Alien).(Name) = &quot;Alien&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b62-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbd3b60-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Alien&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Alien).(Year) = &quot;1979&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b63-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;item&quot;: &quot;ddbd3b60-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;1979&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Ridley Scott)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbd3b64-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Producer: Ridley Scott).(Name) = &quot;Ridley Scott&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b65-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbd3b64-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Ridley Scott&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Ridley Scott).(Category) = (Category: Producer)
++    // (Category: Producer).(Items in Category) = (Producer: Ridley Scott)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b66-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b64-fe08-11d9-9734-000c414ce854&quot;, &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Alien).(Producer) = (Producer: Ridley Scott)
++    // (Producer: Ridley Scott).(Produced) = (Movie: Alien)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b67-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b60-fe08-11d9-9734-000c414ce854&quot;, &quot;ddbd3b64-fe08-11d9-9734-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Blade Runner)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbd3b68-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: Blade Runner).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: Blade Runner)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b69-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b68-fe08-11d9-9734-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Blade Runner).(Name) = &quot;Blade Runner&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b6a-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbd3b68-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Blade Runner&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Blade Runner).(Year) = &quot;1982&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b6b-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;item&quot;: &quot;ddbd3b68-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;1982&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Blade Runner).(Producer) = (Producer: Ridley Scott)
++    // (Producer: Ridley Scott).(Produced) = (Movie: Blade Runner)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b6c-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b68-fe08-11d9-9734-000c414ce854&quot;, &quot;ddbd3b64-fe08-11d9-9734-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Caine Mutiny, The)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbd3b6d-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Movie: Caine Mutiny, The).(Category) = (Category: Movie)
++    // (Category: Movie).(Items in Category) = (Movie: Caine Mutiny, The)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbd3b6e-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b6d-fe08-11d9-9734-000c414ce854&quot;, &quot;dce9deb0-fd6c-11d9-9654-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Caine Mutiny, The).(Name) = &quot;Caine Mutiny, The&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbf8550-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbd3b6d-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Caine Mutiny, The&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Caine Mutiny, The).(Year) = &quot;1954&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbf8551-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++             &quot;item&quot;: &quot;ddbd3b6d-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;1954&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Edward Dymtryk)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;ddbf8552-fe08-11d9-9734-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Producer: Edward Dymtryk).(Name) = &quot;Edward Dymtryk&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbf8553-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;ddbf8552-fe08-11d9-9734-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Edward Dymtryk&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Edward Dymtryk).(Category) = (Category: Producer)
++    // (Category: Producer).(Items in Category) = (Producer: Edward Dymtryk)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbf8554-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbf8552-fe08-11d9-9734-000c414ce854&quot;, &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Caine Mutiny, The).(Producer) = (Producer: Edward Dymtryk)
++    // (Producer: Edward Dymtryk).(Produced) = (Movie: Caine Mutiny, The)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;ddbf8555-fe08-11d9-9734-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;ddbd3b6d-fe08-11d9-9734-000c414ce854&quot;, &quot;ddbf8552-fe08-11d9-9734-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Fahrenheit 911).(Year) = &quot;2004?&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;297064a0-fe0a-11d9-bcef-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;item&quot;: &quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;2004?&quot;  }
++  },
++  // =======================================================================
++  { &quot;Transaction&quot;: [
++    // -----------------------------------------------------------------------
++    // (Producer: Michael Moore)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Item&quot;: { &quot;uuid&quot;: &quot;2d1e0350-fe0a-11d9-bcef-000c414ce854&quot; } },
++    // -----------------------------------------------------------------------
++    // (Producer: Michael Moore).(Name) = &quot;Michael Moore&quot;
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;2d1e0351-fe0a-11d9-bcef-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: &quot;2d1e0350-fe0a-11d9-bcef-000c414ce854&quot;,
++            &quot;value&quot;: &quot;Michael Moore&quot;  }
++    },
++    // -----------------------------------------------------------------------
++    // (Producer: Michael Moore).(Category) = (Category: Producer)
++    // (Category: Producer).(Items in Category) = (Producer: Michael Moore)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;2d1e0352-fe0a-11d9-bcef-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;2d1e0350-fe0a-11d9-bcef-000c414ce854&quot;, &quot;258185f0-fe04-11d9-8800-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    // (Movie: Fahrenheit 911).(Producer) = (Producer: Michael Moore)
++    // (Producer: Michael Moore).(Produced) = (Movie: Fahrenheit 911)
++    //           by (Brian) on (Jul 26, 2005)
++    { &quot;Entry&quot;: {
++             &quot;uuid&quot;: &quot;2d1e0353-fe0a-11d9-bcef-000c414ce854&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot;, &quot;2d1e0350-fe0a-11d9-bcef-000c414ce854&quot;],
++        &quot;attribute&quot;: [&quot;14d73340-fd7c-11d9-b837-000c414ce854&quot;, &quot;c9c589a0-fe08-11d9-9734-000c414ce854&quot;]  }
++    }  ]
++  },
++  // -----------------------------------------------------------------------
++  // (Movie: Fahrenheit 911).(Year) = &quot;2004&quot;
++  //           by (Brian) on (Jul 26, 2005)
++  { &quot;Entry&quot;: {
++           &quot;uuid&quot;: &quot;32c09430-fe0a-11d9-bcef-000c414ce854&quot;,
++  &quot;previousEntry&quot;: &quot;297064a0-fe0a-11d9-bcef-000c414ce854&quot;,
++           &quot;type&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++      &quot;attribute&quot;: &quot;0e6ee160-fd7c-11d9-b837-000c414ce854&quot;,
++           &quot;item&quot;: &quot;e40294d0-fd6c-11d9-9654-000c414ce854&quot;,
++          &quot;value&quot;: &quot;2004&quot;  }
+   }
+\ No newline at end of file
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/OpenRecordLoader.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -91,15 +91,19 @@
+   path = path || &quot;&quot;;
+   OpenRecordLoader.loadStylesheet(path + &quot;source/base_style.css&quot;); 
+   var listOfSourceCodeFiles = [
++    // third_party
+     &quot;third_party/md5/md5.js&quot;,
+     &quot;third_party/scriptaculous/prototype.js&quot;,
+     &quot;third_party/scriptaculous/effects.js&quot;,
+     &quot;third_party/scriptaculous/dragdrop.js&quot;,
+     &quot;third_party/gtd_tiddlywiki/FileSaver.js&quot;,
++    // util
+     &quot;source/util/Uuid.js&quot;,
+     &quot;source/util/Util.js&quot;,
+     &quot;source/util/Cookie.js&quot;,
+     &quot;source/util/DateValue.js&quot;,
++    &quot;source/util/CsvParser.js&quot;,
++    // view
+     &quot;source/view/View.js&quot;,
+     &quot;source/view/RootView.js&quot;,
+     &quot;source/view/ItemView.js&quot;,
+@@ -111,10 +115,12 @@
+     &quot;source/view/SuggestionBox.js&quot;,
+     &quot;source/view/EntryView.js&quot;,
+     &quot;source/view/PluginView.js&quot;, 
++    // plugin
+     &quot;source/TablePlugin.js&quot;,
+     &quot;source/OutlinePlugin.js&quot;,
+     &quot;source/DetailPlugin.js&quot;,
+     &quot;source/BarChartPlugin.js&quot;,
++    // model
+     &quot;source/model/Record.js&quot;,
+     &quot;source/model/Ordinal.js&quot;,
+     &quot;source/model/Vote.js&quot;,
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/TablePlugin.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -192,7 +192,6 @@
+  */
+ TablePlugin.prototype._buildAttributeEditor = function() {
+   var htmlElement = this.getHtmlElement();
+-  View.appendNewElement(htmlElement, &quot;br&quot;);
+   var selectElt = View.appendNewElement(htmlElement, &quot;select&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   var listOfAttributes = this.getWorld().getAttributes();
+   var optionElt = View.appendNewElement(selectElt, &quot;option&quot;);
+@@ -208,10 +207,14 @@
+     optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
+   }
+   this._selectElement = selectElt;
+-  /*View.appendNewTextNode(htmlElement, &quot; Import Data:&quot;);
+-  var importButton = View.appendNewElement(htmlElement,&quot;input&quot;);
+-  importButton.type = &quot;file&quot;;
+-  importButton.onchange = this._importData.bindAsEventListener(this, importButton);*/
++  
++  if (window.location.protocol == &quot;file:&quot;) {
++    var importDiv = View.appendNewElement(htmlElement, &quot;div&quot;, RootView.CSS_CLASS_EDIT_TOOL);
++    View.appendNewTextNode(importDiv, &quot; Import Data:&quot;);
++    var importButton = View.appendNewElement(importDiv, &quot;input&quot;);
++    importButton.type = &quot;file&quot;;
++    importButton.onchange = this._importData.bindAsEventListener(this, importButton);
++  }
+ };
+ 
+ 
+@@ -356,10 +359,11 @@
+     this.fetchItems();
+     this._buildAttributes();
+   }
+-  
++ 
+   //create new table, remove old table if already exists
+   var viewDivElement = this.getHtmlElement();
+   View.removeChildrenOfElement(viewDivElement);
++  this._buildAttributeEditor();
+   this._table = View.appendNewElement(viewDivElement, &quot;table&quot;, this._cssClassForTable);
+   
+   this._buildHeader();
+@@ -370,10 +374,6 @@
+   this._listOfItems.sort(function(a,b) {return staticThis.compareItemByAttribute(a,b);}); // need to sort after header row added because default sort attribute is set there
+ 
+   this._buildTableBody();
+-  
+-  
+-  // if (this.isInEditMode()) {this._buildAttributeEditor();}
+-  this._buildAttributeEditor();
+ };
+ 
+ 
+@@ -409,7 +409,7 @@
+  * attribute. Each table cell is displayed with a EntryView object.  The HTML 
+  * table cell links to the EntryView object with the attribute &quot;or_entryView&quot;
+  *
+- * @scope    public instance method
++ * @scope    private instance method
+  * @return   An HTML image element
+  */
+ TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
+@@ -429,7 +429,7 @@
+ /**
+  * Called when the user clicks on table header. Resorts table accordingly.
+  * 
+- * @scope    public class method
++ * @scope    public instance method
+  */
+ TablePlugin.prototype.clickOnHeader = function(event, clickAttribute) {
+   if (clickAttribute == this._sortAttribute) {
+@@ -445,7 +445,7 @@
+ /**
+  * Called when the user clicks on table header. Resorts table accordingly.
+  * 
+- * @scope    public class method
++ * @scope    public instance method
+  */
+ TablePlugin.prototype.selectRow = function(rowElement) {
+   Util.assert(rowElement instanceof HTMLTableRowElement);
+@@ -464,44 +464,61 @@
+  
+ 
+ /**
++ * Reads from a CSV format data file and creates items and entries that
++ * correspond to the rows and fields in the CSV file.
+  * 
++ * @scope    private instance method
+  */
+ TablePlugin.prototype._importData = function(eventObject, fileButton) {
+-  // Returns null if it can't do it, false if there's an error, or a string of the content if successful
+-/*  function mozillaLoadFile(filePath)
+-  {
+-      if(window.Components)
+-          try 
+-              {
+-              netscape.security.PrivilegeManager.enablePrivilege(&quot;UniversalXPConnect&quot;);
+-              var file = Components.classes[&quot;@mozilla.org/file/local;1&quot;].createInstance(Components.interfaces.nsILocalFile);
+-              file.initWithPath(filePath);
+-              if (!file.exists())
+-                  return(null);
+-              var inputStream = Components.classes[&quot;@mozilla.org/network/file-input-stream;1&quot;].createInstance(Components.interfaces.nsIFileInputStream);
+-              inputStream.init(file, 0x01, 00004, null);
+-              var sInputStream = Components.classes[&quot;@mozilla.org/scriptableinputstream;1&quot;].createInstance(Components.interfaces.nsIScriptableInputStream);
+-              sInputStream.init(inputStream);
+-              return(sInputStream.read(sInputStream.available()));
+-              }
+-          catch(e)
+-              {
+-              alert(&quot;Exception while attempting to load\n\n&quot; + e);
+-              return(false);
+-              }
+-      return(null);
++  var fileContents = Util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + fileButton.value);
++
++  var csvParser = new CsvParser();
++  var listOfRecords = csvParser.getStringValuesFromCsvData(fileContents);
++  
++  var listOfAttributes = this._displayAttributes;
++  var world = this.getWorld();
++  var attributeCalledExpectedType = world.getAttributeCalledExpectedType();
++  var attributeCalledInverseAttribute = world.getAttributeCalledInverseAttribute();
++
++  var hashTableOfTypesKeyedByAttribute = {};
++  for (var i in listOfAttributes) {
++    var attribute = listOfAttributes[i];
++    var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
++    var listOfTypes = [];
++    for (var j in listOfExpectedTypeEntries) {
++      var entry = listOfExpectedTypeEntries[j];
++      listOfTypes.push(entry.getValue());
++    }
++    var attributeKeyString = attribute.getUniqueKeyString();
++    hashTableOfTypesKeyedByAttribute[attributeKeyString] = listOfTypes;
+   }
+-  
+-  function readFile (fileName) {
+-      netscape.security.PrivilegeManager.enablePrivilege('UniversalFileRead');
+-      var bfr = new java.io.BufferedReader(new java.io.FileReader(fileName));
+-      var line;
+-      var content = '';
+-      while ((line = bfr.readLine()) != null)
+-        content += line + java.lang.System.getProperty('line.separator');
+-      return content;
+-    }*/
+-  window.open('<A HREF="file://">file://</A>'+fileButton.value,'preview');   
++  world.beginTransaction();
++  for (i in listOfRecords) {
++    var listOfFields = listOfRecords[i];
++    if (listOfFields.length == listOfAttributes.length) {
++      var newItem = world.newItem();
++      world.setItemToBeIncludedInQueryResultList(newItem, this.getQuerySpec());
++      for (j in listOfAttributes) {
++        attribute = listOfAttributes[j];
++        var value = listOfFields[j];
++        listOfTypes = hashTableOfTypesKeyedByAttribute[attribute.getUniqueKeyString()];
++        value = EntryView._transformValueToExpectedType(world, value, listOfTypes);
++        var inverseAttributeEntry = attribute.getSingleEntryFromAttribute(attributeCalledInverseAttribute);
++        if (inverseAttributeEntry) {
++          var inverseAttribute = inverseAttributeEntry.getValue(attribute);
++          newItem.addConnectionEntry(attribute, value, inverseAttribute);
++        } else {
++          newItem.addEntryForAttribute(attribute, value);
++        }
++      }
++    } else {
++      alert(&quot;CSV record does not have the right number of fields: &quot; + listOfFields[0]);
++    }
++  }
++  world.endTransaction();
++  this.refresh();
++  // fileContents = listOfStrings.join('');
++  // alert(fileContents);
+ };
+ 
+ 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/base_style.css	2005-07-26 19:26:09 UTC (rev 263)
+@@ -190,7 +190,7 @@
+ }
+ 
+ div.editmode .header {
+-  background-color: rgb(100%, 100%, 40%);
++  background-color: rgb(100%, 100%, 100%);
+ }
+ 
+ div.viewmode .header {
+@@ -348,12 +348,18 @@
+   border-color: rgb(100%, 100%, 100%);
+ }
+ 
+-div.EntryView span:hover {
++div.EntryView {
+   border-width: thin;
+   border-style: solid;
+-  border-color: rgb(70%, 70%, 70%);
++  border-color: rgb(100%, 100%, 100%);
+ }
+ 
++div.EntryView:hover {
++  border-width: thin;
++  border-style: solid;
++  border-color: rgb(100%, 100%, 100%);
++}
++
+ h1.EntryView input {
+   color: rgb(0%, 0%, 0%);
+   background: #CCCCCC;
+@@ -703,7 +709,7 @@
+ }
+ 
+ .DateValue {
+-  font-color: #808080;
++  color: #808080;
+ }
+ 
+ .NumberValue {
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/model/Item.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -556,6 +556,7 @@
+   return false;
+ };
+ 
++
+ /**
+  * Given a category, returns &quot;true&quot; if the item has been assigned to 
+  * that category.
+@@ -571,6 +572,24 @@
+ };
+  
+ 
++/**
++ * Given a string, returns &quot;true&quot; if the string is the same as the name
++ * or the short name of the item.  The comparison is case insensitive.
++ *
++ * @scope    public instance method
++ * @return   A boolean.  True if the string matches the item's name.
++ */
++Item.prototype.doesStringMatchName = function(string) {
++  if (string.toLowerCase() == this.getDisplayName().toLowerCase()) {
++    return true;
++  }
++  if (string.toLowerCase() == this.getDisplayString().toLowerCase()) {
++    return true;
++  }
++  return false;
++};
++
++
+ // -------------------------------------------------------------------
+ // Observer/Observable Methods
+ // -------------------------------------------------------------------
+
+Added: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/util/CsvParser.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -0,0 +1,113 @@
++/*****************************************************************************
++ CsvParser.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++/*global Util  */
++// -------------------------------------------------------------------
++
++
++/**
++ * The CsvParser class knows how to read CSV input and parse it into
++ * its component lines and fields.  &quot;CSV&quot; stands for Comma Separated 
++ * Value.  For a quick overview of the CSV file format, see:
++ *   <A HREF="http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm">http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm</A>
++ *
++ * @scope    public instance constructor
++ */
++function CsvParser() {
++}
++
++
++/**
++ * Given a string containing CSV records, this method parses
++ * the string and returns a data structure containing the parsed
++ * content.  The data structure we return is an array of length
++ * R, where R is the number of rows (lines) in the CSV data.  The 
++ * return array contains one sub-array for each CSV line, and each 
++ * sub-array contains C string values, where C is the number of 
++ * columns in the CSV data.
++ * 
++ * For example, given this CSV string as input:
++ * &lt;pre&gt;
++ *   &quot;Alien, 1979, Ridley Scott \n Blade Runner, 1982, Ridley Scott&quot;
++ * &lt;/pre&gt;
++ * We will return this data structure:
++ * &lt;pre&gt;
++ *   [[&quot;Alien&quot;, &quot;1979&quot;, &quot;Ridley Scott&quot;],  [&quot;Blade Runner&quot;, &quot;1982&quot;, &quot;Ridley Scott&quot;]]
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    csvData    A string containing CSV records. 
++ * @return   Returns an array containing sub-arrays containing strings.
++ */
++CsvParser.prototype.getStringValuesFromCsvData = function(csvData) {
++  Util.assert(Util.isString(csvData));
++  
++  var lineEndingCharacters = new RegExp(&quot;\r\n|\n|\r&quot;);
++  var leadingWhiteSpaceCharacters = new RegExp(&quot;^\\s+&quot;,'g');
++  var trailingWhiteSpaceCharacters = new RegExp(&quot;\\s+$&quot;,'g');
++  var listOfOutputRecords = [];
++  
++  var listOfInputLines = csvData.split(lineEndingCharacters);
++  for (var i in listOfInputLines) {
++    var singleLine = listOfInputLines[i];
++    if (singleLine.length &gt; 0) {
++      var listOfFields = singleLine.split(',');
++      var j = 0;
++      while (j &lt; listOfFields.length) {
++        var space_field_space = listOfFields[j];
++        var field_space = space_field_space.replace(leadingWhiteSpaceCharacters, ''); // trim leading whitespace
++        var field = field_space.replace(trailingWhiteSpaceCharacters, ''); // trim trailing whitespace
++        var firstCharacter = field.charAt(0);
++        var lastCharacter = field.charAt(field.length - 1);
++        if ((firstCharacter == '&quot;') &amp;&amp; (lastCharacter != '&quot;')) {
++          var nextField = listOfFields[j+1];
++          listOfFields[j] = field_space + ',' + nextField;
++          listOfFields.splice(j+1, 1); // delete element [j+1] from the list
++        } else {
++          if ((firstCharacter == '&quot;') &amp;&amp; (lastCharacter == '&quot;')) {
++            field = field.slice(1, (field.length - 1)); // trim the &quot; characters off
++          }
++          listOfFields[j] = field;
++          j += 1;
++        }
++      }
++      listOfOutputRecords.push(listOfFields);
++    }
++  }
++  return listOfOutputRecords;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/util/CsvParserTest.html
+===================================================================
+--- trunk/source/util/CsvParserTest.html	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/util/CsvParserTest.html	2005-07-26 19:26:09 UTC (rev 263)
+@@ -0,0 +1,85 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for CsvParser.js&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;CsvParser.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;CsvParserTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for CsvParser.js&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/util/CsvParserTest.js
+===================================================================
+--- trunk/source/util/CsvParserTest.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/util/CsvParserTest.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -0,0 +1,71 @@
++/*****************************************************************************
++ CsvParserTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var CsvData = null;
++
++function setUp() {
++  var CsvRecords = ['2001: A Space Odyssey, 1968, Stanley Kubrick',
++                    '12 Angry Men, 1957, Sidney Lumet',
++                    'Alien, 1979, Ridley Scott  ',
++                    'Blade Runner, 1982, Ridley Scott',
++                    '&quot;Caine Mutiny, The&quot;, 1954, Edward Dymtryk',
++                    '',
++                    ''];
++  CsvData = CsvRecords.join('\n');
++}
++
++function testCsvParser() {
++  var csvParser = new CsvParser();
++  var listOfRecords = csvParser.getStringValuesFromCsvData(CsvData);
++  var whiteSpaceCharacters = &quot; \t\n\r&quot;;
++  
++  assertTrue('CsvData has 5 lines', listOfRecords.length == 5);
++  for (var i in listOfRecords) {
++    var row = listOfRecords[i];
++    assertTrue('Each row has 3 fields', row.length == 3);
++    for (var j in row) {
++      var field = row[j];
++      assertTrue('Each field is a string', Util.isString(field));
++      var firstChar = field.charAt(0);
++      var lastChar = field.charAt(field.length - 1);
++      assertTrue('The first character is not white space', whiteSpaceCharacters.indexOf(firstChar) == -1);
++      assertTrue('The last character is not white space', whiteSpaceCharacters.indexOf(lastChar) == -1);
++    };
++  }
++}
++
++
++function tearDown() {
++  CsvData = null;
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/util/Uuid.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -114,9 +114,9 @@
+ mockUuidGenerator.queueOfUuids = new Array();
+ 
+ function mockUuidGenerator() {
+-  if (mockUuidGenerator.queueOfUuids.length == 0) {
+-// This should probably throw an exception instead.    
+-      return &quot;00000000-0000-0000-0000-000000000000&quot;;
++  if (mockUuidGenerator.queueOfUuids.length === 0) {
++    // This should probably throw an exception instead.    
++    return &quot;00000000-0000-0000-0000-000000000000&quot;;
+   }
+   return mockUuidGenerator.queueOfUuids.shift();
+ }
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/view/EntryView.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -410,43 +410,69 @@
+  */
+ EntryView.prototype._transformToExpectedType = function(value) {
+   if (value &amp;&amp; Util.isString(value)) {
+-    var repository = this.getWorld();
++    var world = this.getWorld();
+     var listOfExpectedTypeEntries;
+     if (this._expectedTypeEntries) {
+       listOfExpectedTypeEntries = this._expectedTypeEntries;
+     }
+     else {
+-      var attributeCalledExpectedType = repository.getAttributeCalledExpectedType();
++      var attributeCalledExpectedType = world.getAttributeCalledExpectedType();
+       listOfExpectedTypeEntries = this._attribute.getEntriesForAttribute(attributeCalledExpectedType);
+     }
+-    var categoryCalledCategory = repository.getCategoryCalledCategory();
+-    var typeCalledText = repository.getTypeCalledText();
+-    var typeCalledDate = repository.getTypeCalledDate();
+-    var typeCalledNumber = repository.getTypeCalledNumber();
+-    if (listOfExpectedTypeEntries) {
+-      for (var i=0; i&lt;listOfExpectedTypeEntries.length; ++i) {
+-        var aType = listOfExpectedTypeEntries[i].getValue();
+-        switch (aType) {
+-          case typeCalledText:
+-            return value;
+-          case typeCalledNumber:
+-            var floatVal = parseFloat(value);
+-            if (!isNaN(floatVal)) {return floatVal;}
+-            break;
+-          case typeCalledDate:
+-            // var dateVal = Date.parse(value);
+-            // if (!isNaN(dateVal)) {return new Date(value);}
+-            var dateValue = new DateValue(value);
+-            if (dateValue.isValid()) {return dateValue;}
+-            break;
+-          default:
+-            if (aType.isInCategory(categoryCalledCategory)) {
+-              value = repository.newItem(value);
+-              value.assignToCategory(aType);
+-              return value;
++    var listOfTypes = [];
++    for (var i in listOfExpectedTypeEntries) {
++      var entry = listOfExpectedTypeEntries[i];
++      listOfTypes.push(entry.getValue());
++    }
++    return EntryView._transformValueToExpectedType(world, value, listOfTypes);
++  }
++  return value;
++};
++
++
++/**
++ * Given a string value and a list of types, this method tries to
++ * transform the value to one of the types. 
++ *
++ * @scope    private instance method
++ * @param    world    The new value to be saved. 
++ * @param    value    The new value to be saved. 
++ * @param    listOfTypes    The new value to be saved. 
++ */
++EntryView._transformValueToExpectedType = function(world, value, listOfTypes) {
++  if (value &amp;&amp; Util.isString(value) &amp;&amp; listOfTypes &amp;&amp; Util.isArray(listOfTypes)) {
++    var categoryCalledCategory = world.getCategoryCalledCategory();
++    var typeCalledText = world.getTypeCalledText();
++    var typeCalledDate = world.getTypeCalledDate();
++    var typeCalledNumber = world.getTypeCalledNumber();
++    for (var i in listOfTypes) {
++      var aType = listOfTypes[i];
++      switch (aType) {
++        case typeCalledText:
++          return value;
++        case typeCalledNumber:
++          var floatVal = parseFloat(value);
++          if (!isNaN(floatVal)) {return floatVal;}
++          break;
++        case typeCalledDate:
++          var dateValue = new DateValue(value);
++          if (dateValue.isValid()) {return dateValue;}
++          break;
++        default:
++          if (aType.isInCategory(categoryCalledCategory)) {
++            var listOfItems = world.getItemsInCategory(aType);
++            var item;
++            for (var j in listOfItems) {
++              item = listOfItems[j];
++              if (item.doesStringMatchName(value)) {
++                return item;
++              }
+             }
+-            break;
+-        }
++            item = world.newItem(value);
++            item.assignToCategory(aType);
++            return item;
++          }
++          break;
+       }
+     }
+   }
+@@ -469,14 +495,11 @@
+     if (this._entry) {oldValue = this._entry.getValue(this._item);}
+     if (oldValue != value) {
+       var attributeCalledInverseAttribute = this.getWorld().getAttributeCalledInverseAttribute();
+-      var listOfInverseAttributeEntries = this._attribute.getEntriesForAttribute(attributeCalledInverseAttribute);
+-      if (listOfInverseAttributeEntries.length &gt; 0) {
+-        // alert(this._attribute.getDisplayString());
+-        // alert(listOfInverseAttributeEntries[0].getDisplayString());
+-        var inverseAttr = listOfInverseAttributeEntries[0].getValue(this._attribute);
++      var inverseAttributeEntry = this._attribute.getSingleEntryFromAttribute(attributeCalledInverseAttribute);
++      if (inverseAttributeEntry) {
++        var inverseAttr = inverseAttributeEntry.getValue(this._attribute);
+         this._entry = this._item.replaceEntryWithConnection(this._entry, this._attribute, value, inverseAttr);
+-      }
+-      else {
++      } else {
+         this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
+       }
+       var superview = this.getSuperview();
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/view/SectionView.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -99,7 +99,7 @@
+ 
+   this._pluginView = null;
+   this._pluginDiv = null;
+-  this._sectionSummaryView = null;
++  // this._sectionSummaryView = null;
+   this._headerView = null;
+   this._queryEditSpan = null;
+   
+@@ -189,7 +189,7 @@
+   } else {
+     // refresh the &lt;h2&gt; element with the value: this._section.getDisplayName();  
+     this._refreshQueryEditSpan();
+-    this._sectionSummaryView.refresh();
++    // this._sectionSummaryView.refresh();
+     this._pluginView.refresh();
+     this._headerView.refresh();
+   }
+@@ -220,28 +220,21 @@
+   var sectionDiv = this.getHtmlElement();
+   var headerH2 = View.appendNewElement(sectionDiv, &quot;h2&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+-  var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
++  // var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+   this._headerView = new EntryView(this, headerH2, this._section, attributeCalledName,
+     this._section.getSingleEntryFromAttribute(attributeCalledName));
+-  var summaryDiv = View.appendNewElement(sectionDiv, &quot;div&quot;);
+-  this._sectionSummaryView = new EntryView(this, summaryDiv, this._section, attributeCalledSummary,
+-    this._section.getSingleEntryFromAttribute(attributeCalledSummary), true);
+-  View.appendNewElement(sectionDiv, &quot;p&quot;);
++  // var summaryDiv = View.appendNewElement(sectionDiv, &quot;div&quot;);
++  // this._sectionSummaryView = new EntryView(this, summaryDiv, this._section, attributeCalledSummary,
++  //   this._section.getSingleEntryFromAttribute(attributeCalledSummary), true);
++  // View.appendNewElement(sectionDiv, &quot;p&quot;);
+ 
+   // create the editing controls, if we're in edit mode
+   var controlArea = View.appendNewElement(sectionDiv, &quot;p&quot;, RootView.CSS_CLASS_EDIT_TOOL, null, &quot;Show me a &quot;);
+-  // var textShowMeA = document.createTextNode(&quot;Show me a &quot;);
+-  // controlArea.appendChild(textShowMeA);
+-
+-  // PENDING: We shouldn't call the private method _getUuid()
+-  // var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this._section._getUuid();
+   var selectElement = View.appendNewElement(controlArea, &quot;select&quot;);
+-  var optionElement;
+   var listener;
+-  // selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+   for (var key in SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid) {
+     var pluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[key];
+-    optionElement = View.appendNewElement(selectElement, &quot;option&quot;);
++    var optionElement = View.appendNewElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (selectedPluginClass == pluginClass);
+     optionElement.value = pluginClass.getPluginItemUuid();
+     var pluginItem = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+@@ -249,12 +242,8 @@
+     listener = this; 
+     Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
+   }
+-  
+   View.appendNewTextNode(controlArea,&quot; of items whose &quot;);
+-
+   this._queryEditSpan = View.appendNewElement(controlArea, &quot;span&quot;);
+-  // this._refreshQueryEditSpan();
+-
+   View.appendNewTextNode(controlArea,&quot;.&quot;);
+ 
+   // create a div element for the plugin class to use
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-07-26 07:25:51 UTC (rev 262)
++++ trunk/source/view/SuggestionBox.js	2005-07-26 19:26:09 UTC (rev 263)
+@@ -71,16 +71,11 @@
+   if (!this._selectedItem) {
+     // check if typed item is identical to suggested item
+     var editValue = this._inputField.value;
+-    // for (var i = 0; i &lt; this._listOfSuggestedItems.length; ++i) {
+-    //   var item = this._listOfSuggestedItems[i];
+-    for (var key in this._listOfSuggestedItems) {
+-      var item = this._listOfSuggestedItems[key];
+-      if (editValue.toLowerCase() == item.getDisplayName().toLowerCase()) {
++    for (var i in this._listOfSuggestedItems) {
++      var item = this._listOfSuggestedItems[i];
++      if (item.doesStringMatchName(editValue)) {
+         return item;
+       }
+-      if (editValue.toLowerCase() == item.getDisplayString().toLowerCase()) {
+-        return item;
+-      }
+     }
+   }
+   return this._selectedItem;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000247.html">[openrecord-svn] r262 - in trunk/source: model util
+</A></li>
+	<LI>Next message: <A HREF="000249.html">[openrecord-svn] r264 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#248">[ date ]</a>
+              <a href="thread.html#248">[ thread ]</a>
+              <a href="subject.html#248">[ subject ]</a>
+              <a href="author.html#248">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

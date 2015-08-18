@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r297 - in trunk/source: . model view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r297%20-%20in%20trunk/source%3A%20.%20model%20view&In-Reply-To=%3C200508172039.j7HKd5ab022704%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000281.html">
+   <LINK REL="Next"  HREF="000283.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r297 - in trunk/source: . model view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r297%20-%20in%20trunk/source%3A%20.%20model%20view&In-Reply-To=%3C200508172039.j7HKd5ab022704%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r297 - in trunk/source: . model view">skinner at berlios.de
+       </A><BR>
+    <I>Wed Aug 17 22:39:05 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000281.html">[openrecord-svn] r296 - trunk/source/view
+</A></li>
+        <LI>Next message: <A HREF="000283.html">[openrecord-svn] r298 - in trunk: . web_pages web_pages/chrome web_pages/content web_pages/page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#282">[ date ]</a>
+              <a href="thread.html#282">[ thread ]</a>
+              <a href="subject.html#282">[ subject ]</a>
+              <a href="author.html#282">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-17 22:39:04 +0200 (Wed, 17 Aug 2005)
+New Revision: 297
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/model/Item.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+Log:
+Drag-and-drop for lozenges now does a move instead of a copy.  Also, changed TablePlugin so that lozenges are draggable even if you're not in &quot;Show Tools&quot; mode, provided that there aren't too many lozenges on the page.
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-08-17 19:23:17 UTC (rev 296)
++++ trunk/source/TablePlugin.js	2005-08-17 20:39:04 UTC (rev 297)
+@@ -518,6 +518,15 @@
+  * @return   An HTML image element
+  */
+ TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
++  if (EntryView._PENDING_temporaryHackToDecreaseLayoutTime) {
++    if (this._listOfItems.length &gt; 20) {
++      EntryView._PENDING_enableDragging = false;
++    } else {
++      var listOfEntries = item.getEntriesForAttribute(attribute);
++      EntryView._PENDING_enableDragging = (listOfEntries.length &lt; 10);
++    }
++  } 
++  
+   var aCell = row.insertCell(col);
+   var multiEntriesView = new MultiEntriesView(this, aCell, item, attribute);
+   aCell.or_entriesView = multiEntriesView;
+@@ -526,6 +535,10 @@
+     var listener = this;
+     multiEntriesView.setKeyPressFunction(function (evt, entryView) {return listener.keyPressOnEditField(evt, entryView);});
+   }
++  
++  if (EntryView._PENDING_temporaryHackToDecreaseLayoutTime) {
++    EntryView._PENDING_enableDragging = true;
++  }
+ };
+ 
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-08-17 19:23:17 UTC (rev 296)
++++ trunk/source/model/Item.js	2005-08-17 20:39:04 UTC (rev 297)
+@@ -237,7 +237,7 @@
+   // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
+   // then don't even bother creating a new entry. 
+   if (previousEntry) {
+-    var oldValue = previousEntry.getValue(this);
++    // var oldValue = previousEntry.getValue(this);
+     var oldPairOfAttributes = previousEntry.getAttribute();
+     var oldPairOfItems = previousEntry.getItem();
+     if (Util.isArray(oldPairOfAttributes)) {
+@@ -270,6 +270,16 @@
+   this.getWorld().endTransaction();
+   this._noteChanges(null);
+   otherItem._noteChanges(null);
++  if (previousEntry) {
++    var oldItemOrPairOfItems = previousEntry.getItem();
++    if (oldItemOrPairOfItems instanceof Item) {
++      oldItemOrPairOfItems._noteChanges(null);
++    }
++    if (Util.isArray(oldItemOrPairOfItems)) {
++      oldItemOrPairOfItems[0]._noteChanges(null);
++      oldItemOrPairOfItems[1]._noteChanges(null);
++    }
++  }
+   return entry;  
+ };
+ 
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-08-17 19:23:17 UTC (rev 296)
++++ trunk/source/view/EntryView.js	2005-08-17 20:39:04 UTC (rev 297)
+@@ -64,7 +64,10 @@
+ // -------------------------------------------------------------------
+ EntryView._ourHashTableOfTypesKeyedByClassName = null;
+ 
++EntryView._PENDING_temporaryHackToDecreaseLayoutTime = true;
++EntryView._PENDING_enableDragging = true;
+ 
++
+ /**
+  * An instance of EntryView can be placed in any parent container View
+  * to display and (if in edit mode) edit multi-lines of text
+@@ -255,9 +258,9 @@
+       if (this._isLozenge()) {
+         this.getHtmlElement().ondblclick = this.onDoubleClick.bindAsEventListener(this);
+         if (this.isInEditMode() &amp;&amp; !this._draggable) {
+-          var PENDING_temporaryHackToDecreaseLayoutTime = true;
+-          if (PENDING_temporaryHackToDecreaseLayoutTime) {
+-            if (this.getRootView().isInShowToolsMode()) {
++          if (EntryView._PENDING_temporaryHackToDecreaseLayoutTime) {
++            // if (this.getRootView().isInShowToolsMode()) {
++            if (EntryView._PENDING_enableDragging) {
+               this._textSpan.or_entryView = this; 
+               this._draggable = new Draggable(this._textSpan, {revert:true});
+             }
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-08-17 19:23:17 UTC (rev 296)
++++ trunk/source/view/MultiEntriesView.js	2005-08-17 20:39:04 UTC (rev 297)
+@@ -218,12 +218,23 @@
+     if (droppedEntry.getType() == this.getWorld().getTypeCalledConnection()) {
+       var otherItem = droppedEntry.getConnectedItem(draggedEntryView._item);
+       var otherAttribute = droppedEntry.getAttributeForItem(otherItem);
+-      newEntry = this._item.addConnectionEntry(this._attribute,otherItem,otherAttribute);
++      // newEntry = this._item.addConnectionEntry(this._attribute,otherItem,otherAttribute);
++      newEntry = this._item.replaceEntryWithConnection(droppedEntry, this._attribute, otherItem, otherAttribute);
++    } else {
++      // newEntry = this._item.addNewEntryForAttribute(this._attribute,droppedEntry.getValue(),droppedEntry.getType());
++      newEntry = this._item.replaceEntry(droppedEntry, droppedEntry.getValue(), droppedEntry.getType());
+     }
+-    else {
+-      newEntry = this._item.addNewEntryForAttribute(this._attribute,droppedEntry.getValue(),droppedEntry.getType());
+-    }
+     this._addEntryView(newEntry);
++
++    // This is a little hack that accesses instance variables of the &quot;Draggable&quot;
++    // object in the script.aculo.us dragdrop.js library.
++    // We set &quot;revert&quot; to false to prevent the UI animation where the dragged 
++    // column header goes &quot;flying&quot; home again
++    var draggable = draggedEntryView._draggable;
++    draggable.options.revert = false;
++    // element.style.display = &quot;none&quot;;
++    
++    this.getSuperview().refresh();
+   }
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000281.html">[openrecord-svn] r296 - trunk/source/view
+</A></li>
+	<LI>Next message: <A HREF="000283.html">[openrecord-svn] r298 - in trunk: . web_pages web_pages/chrome web_pages/content web_pages/page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#282">[ date ]</a>
+              <a href="thread.html#282">[ thread ]</a>
+              <a href="subject.html#282">[ subject ]</a>
+              <a href="author.html#282">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r396 - in trunk: documentation source/plugins/create_new_plugin
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r396%20-%20in%20trunk%3A%20documentation%20source/plugins/create_new_plugin&In-Reply-To=%3C200512130217.jBD2HFee016499%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000377.html">
+   <LINK REL="Next"  HREF="000379.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r396 - in trunk: documentation source/plugins/create_new_plugin</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r396%20-%20in%20trunk%3A%20documentation%20source/plugins/create_new_plugin&In-Reply-To=%3C200512130217.jBD2HFee016499%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r396 - in trunk: documentation source/plugins/create_new_plugin">mignon at berlios.de
+       </A><BR>
+    <I>Tue Dec 13 03:17:15 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000377.html">[openrecord-svn] r395 - in trunk: documentation source/plugins
+</A></li>
+        <LI>Next message: <A HREF="000379.html">[openrecord-svn] r397 - in trunk: documentation source source/transcribers source/util tests tests/transcribers tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#378">[ date ]</a>
+              <a href="thread.html#378">[ thread ]</a>
+              <a href="subject.html#378">[ subject ]</a>
+              <a href="author.html#378">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2005-12-13 03:16:59 +0100 (Tue, 13 Dec 2005)
+New Revision: 396
+
+Added:
+   trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/plugins/create_new_plugin/create_new_plugin.html
+   trunk/source/plugins/create_new_plugin/create_new_plugin.js
+Log:
+Added instructions and suggestions for creating new plugins.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2005-12-13 00:52:37 UTC (rev 395)
++++ trunk/documentation/to_do_list.txt	2005-12-13 02:16:59 UTC (rev 396)
+@@ -47,8 +47,8 @@
+        |          |         |  1. Document the Data model public API
+ brian  |          | 0.1  IED|  2. Change the &quot;node&quot; used in the UUIDs for plugins
+ mignon |          | 0.05 IED|  3. Add validation code to create_new_plugin.html to check the supplied ClassName
+-       |          |         |  4. Add instructions on the create_new_plugin.html page
+-       |          |         |  5. Add list of suggested plugins to the create_new_plugin.html page
++mignon |          |0.125 IED|  4. Add instructions on the create_new_plugin.html page
++mignon |          |0.125 IED|  5. Add list of suggested plugins to the create_new_plugin.html page
+        |          |         |  6. Make the 4 original plugins conform to the new plugin API (if possible)
+        |          |         |  7. See if it's possible to simplify the plugin API
+        |          |         |  8. Change &quot;TablePlugin&quot; to &quot;TableView&quot;, etc.
+
+Modified: trunk/source/plugins/create_new_plugin/create_new_plugin.html
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin.html	2005-12-13 00:52:37 UTC (rev 395)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin.html	2005-12-13 02:16:59 UTC (rev 396)
+@@ -21,13 +21,16 @@
+   &lt;body&gt;
+     &lt;div&gt;
+       &lt;h1&gt;OpenRecord Plugin Generator&lt;/h1&gt;
+-      &lt;p&gt;To create a new plugin, fill out this form and hit the button.&lt;/p&gt;
++      &lt;p&gt;To create a new plugin, fill out this form and hit the button.  
++      (Here are some &lt;a href=&quot;plugin_suggestions.html&quot;&gt;ideas for plugins&lt;/a&gt;
++      if you're looking for inspiration.)&lt;/p&gt;
+       &lt;form&gt;
+         ClassName: &lt;input id=&quot;plugin_class_name&quot; maxLength=250 value=&quot;MySuperFooView&quot; size=50 /&gt;&lt;br/&gt;
+         Display Name: &lt;input id=&quot;plugin_name&quot; maxLength=250 value=&quot;Super Foo&quot; size=50 /&gt;&lt;br/&gt;
+         Author: &lt;input id=&quot;plugin_author&quot; maxLength=250 value=&quot;Carol Coder&quot; size=50 /&gt;&lt;br/&gt;
+         &lt;input id=&quot;button&quot; type=&quot;button&quot; value=&quot;Create Plugin&quot; /&gt;
+       &lt;/form&gt;
++      &lt;span id=&quot;placeholder&quot;&gt;&lt;/span&gt;
+       &lt;textarea id=&quot;output_area&quot; rows=&quot;20&quot; cols=&quot;80&quot;&gt;&lt;/textarea&gt;
+     &lt;/div&gt;
+     
+
+Modified: trunk/source/plugins/create_new_plugin/create_new_plugin.js
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin.js	2005-12-13 00:52:37 UTC (rev 395)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin.js	2005-12-13 02:16:59 UTC (rev 396)
+@@ -49,6 +49,10 @@
+   var nameField = document.getElementById(&quot;plugin_name&quot;);
+   var authorField = document.getElementById(&quot;plugin_author&quot;);
+   var outputArea = document.getElementById(&quot;output_area&quot;);
++  var placeholder = document.getElementById(&quot;placeholder&quot;);
++  if (placeholder.hasChildNodes()) {
++    placeholder.removeChild(placeholder.firstChild);
++  }
+   
+   var generatedContents;
+ 
+@@ -57,6 +61,13 @@
+     var name      = nameField.value;
+     var author    = authorField.value;
+     generatedContents = generateContents(className, name, author);
++
++    var newElem = document.createElement(&quot;p&quot;);
++    var instructions = &quot;Copy the text below into a file called &quot; + className +
++                       &quot;.js and put it in .../source/plugins.&quot;;
++    var newText = document.createTextNode(instructions);
++    newElem.appendChild(newText);
++    placeholder.appendChild(newElem);
+   } else {
+     generatedContents = 'Error: ClassName must contain only alphanumeric characters ' + 
+                         'and underscores, and must start with an uppercase letter.  \n\n' +
+
+Added: trunk/source/plugins/create_new_plugin/plugin_suggestions.html
+===================================================================
+--- trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2005-12-13 00:52:37 UTC (rev 395)
++++ trunk/source/plugins/create_new_plugin/plugin_suggestions.html	2005-12-13 02:16:59 UTC (rev 396)
+@@ -0,0 +1,61 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by
++   Mignon Belongie
++   Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Suggestions for OpenRecord Plugins&lt;/title&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;div&gt;
++      &lt;h3&gt;Suggestions for OpenRecord Plugins&lt;/h3&gt;
++      &lt;ul&gt;
++      &lt;li&gt; pivot table (&lt;a href=&quot;mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&quot;&gt;Brian Skinner&lt;/a&gt;
++           has starter code available for the asking.)
++      &lt;li&gt; periodic table element
++      &lt;li&gt; scatter plot
++      &lt;li&gt; calendar
++      &lt;li&gt; item history
++      &lt;li&gt; animated history &lt;a href=&quot;<A HREF="http://weblog.infoworld.com/udell/gems/umlaut.html">http://weblog.infoworld.com/udell/gems/umlaut.html</A>&quot;&gt;
++           (example by Jon Udell)&lt;/a&gt;
++      &lt;li&gt; Gantt chart
++      &lt;li&gt; timeline &lt;a href=&quot;<A HREF="http://meta.wikimedia.org/wiki/EasyTimeline">http://meta.wikimedia.org/wiki/EasyTimeline</A>&quot;&gt;
++           (Wikimedia examples)&lt;/a&gt;
++      &lt;/ul&gt;
++    &lt;/div&gt;
++    
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000377.html">[openrecord-svn] r395 - in trunk: documentation source/plugins
+</A></li>
+	<LI>Next message: <A HREF="000379.html">[openrecord-svn] r397 - in trunk: documentation source source/transcribers source/util tests tests/transcribers tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#378">[ date ]</a>
+              <a href="thread.html#378">[ thread ]</a>
+              <a href="subject.html#378">[ subject ]</a>
+              <a href="author.html#378">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

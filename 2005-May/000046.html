@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r54 - in trunk: documentation source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r54%20-%20in%20trunk%3A%20documentation%20source/model&In-Reply-To=%3C200505040550.j445oFEK029271%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000045.html">
+   <LINK REL="Next"  HREF="000047.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r54 - in trunk: documentation source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r54%20-%20in%20trunk%3A%20documentation%20source/model&In-Reply-To=%3C200505040550.j445oFEK029271%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r54 - in trunk: documentation source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed May  4 07:50:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000045.html">[openrecord-svn] r53 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000047.html">[openrecord-svn] r55 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-04 07:50:15 +0200 (Wed, 04 May 2005)
+New Revision: 54
+
+Modified:
+   trunk/documentation/architecture.txt
+   trunk/documentation/release_planning.txt
+   trunk/source/model/READ_ME.txt
+Log:
+Updated some of the documentation files.
+
+Modified: trunk/documentation/architecture.txt
+===================================================================
+--- trunk/documentation/architecture.txt	2005-05-04 05:41:35 UTC (rev 53)
++++ trunk/documentation/architecture.txt	2005-05-04 05:50:15 UTC (rev 54)
+@@ -1,4 +1,13 @@
++================================================================
++Architecture Overview Diagram for OpenRecord 
++================================================================
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++----------------------------------------------------------------
+ 
++
++
+ +-----------------------------------------------------------------------+
+ | CLIENT-SIDE: entirely JavaScript, CSS, and XHTML                      |
+ |                                                                       |
+@@ -10,15 +19,23 @@
+ | presentation |  SectionView                                        |  |
+ | layer        |  PageView                                           |  |
+ |              |  ItemView                                           |  |
+-|              |  CompleteView                                       |  |
++|              |  RootView                                           |  |
+ |              +-----------------------------------------------------+  |
+-|                  |           |                                        |
+-|                  | Query API |                                        |
+-|                  VVVVVVVVVVVVV                                        |
++|                  | Data  |                                            |
++|                  | Model |                                            |
++|                  |  API  |                                            |
++|                  VVVVVVVVV                                            |
+ |              +-----------------------------------------------------+  |
+-| model layer  |  Stevedore                                          |  |
++| model layer  |  World                                              |  |
+ |              |  Item                                               |  |
+-|              |  Query                                              |  |
++|              |  Entry                                              |  |
++|              |  Vote                                               |  |
++|              |  Ordinal                                            |  |
++|              |  IdentifiedRecord                                   |  |
++|              +-----------------------------------------------------+  |
++|              |  VirtualServer                                      |  |
++|              |  StubVirtualServer                                  |  |
++|              |  BigLumpVirtualServer                               |  |
+ |              +-------+   +-----------------------------------------+  |
+ |                      |   |                                            |
+ +----------------------|   |--------------------------------------------+
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-04 05:41:35 UTC (rev 53)
++++ trunk/documentation/release_planning.txt	2005-05-04 05:50:15 UTC (rev 54)
+@@ -97,26 +97,11 @@
+ ---------------------------------------------------
+  + Figure out how to write unit tests for GUI code
+ ---------------------------------------------------
+- + Have BigLumpVirtualServer.js be able to load April-2005-format chronological files
+----------------------------------------------------
+- + Create a new VirtualServer.js class that saves changes incrementally
+----------------------------------------------------
+- + Integrate the new data model code into the rest of the app
+----------------------------------------------------
+- + Refactor the code in Item.js so that values are stored per-attribute
+----------------------------------------------------
+  + Refactor the data model code so that categories cache their lists of items
+ ---------------------------------------------------
+- + Consider changing the class names in the data model, thusly:
+-      Item.js --&gt; Item.js
+-      Entry.js --&gt; IdentifiedRecord.js
+-      Value.js --&gt; Entry.js
+-      Value.getContentData() --&gt; Entry.getValue()
+-    We might also want to add a class called Record.js, as an abstract
++ + We might also want to add a class called Record.js, as an abstract
+     superclass for Vote, Ordinal, and IdentifiedRecord.
+ ---------------------------------------------------
+- + Figure out how to use the Venkman profiler, and see what's slow
+----------------------------------------------------
+  + Replace the current fake UUIDs with real UUIDs.
+ ---------------------------------------------------
+  + BUG: Back button is broken
+@@ -172,9 +157,6 @@
+     intuitive way.  Maybe by clicking on a &quot;Add page&quot;
+     button at the bottom of the NavBar, or something like that.
+ ---------------------------------------------------
+- + Be able to add a new section to a page
+-    The user should be able to add a new section to a page.
+----------------------------------------------------
+  + Be able to edit the query of a section
+     The user should be able to see the query that's being
+     used to populate a section. In edit mode, the user
+@@ -213,10 +195,6 @@
+    Add 'Table' plugin controls for row sorting, column
+    re-arranging, column hiding, etc.
+ ---------------------------------------------------
+- + add a login UI
+-    Have a UI for logging in. Make sure the user is logged
+-    in before allowing changes.
+----------------------------------------------------
+  + Draft a Contributor Agreement
+      We need to draft some sort of Contributor Agreement, like the Apache Contributor Agreement or the Python Contributor Agreement.
+      See:
+
+Modified: trunk/source/model/READ_ME.txt
+===================================================================
+--- trunk/source/model/READ_ME.txt	2005-05-04 05:41:35 UTC (rev 53)
++++ trunk/source/model/READ_ME.txt	2005-05-04 05:50:15 UTC (rev 54)
+@@ -1,6 +1,10 @@
+-=================================
++================================================================
+ Experimental Data Model Framework
+-=================================
++================================================================
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++----------------------------------------------------------------
+ 
+ This directory, named &quot;model&quot;, contains 8 or 10 JavaScript classes.  Together these JavaScript classes form an experimental data model framework.  
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000045.html">[openrecord-svn] r53 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000047.html">[openrecord-svn] r55 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#46">[ date ]</a>
+              <a href="thread.html#46">[ thread ]</a>
+              <a href="subject.html#46">[ subject ]</a>
+              <a href="author.html#46">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

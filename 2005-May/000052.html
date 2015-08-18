@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r60 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r60%20-%20trunk/source&In-Reply-To=%3C200505161910.j4GJA4Km022183%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000051.html">
+   <LINK REL="Next"  HREF="000053.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r60 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r60%20-%20trunk/source&In-Reply-To=%3C200505161910.j4GJA4Km022183%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r60 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Mon May 16 21:10:04 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000051.html">[openrecord-svn] r59 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000053.html">[openrecord-svn] r61 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-05-16 21:10:04 +0200 (Mon, 16 May 2005)
+New Revision: 60
+
+Modified:
+   trunk/source/TablePlugin.js
+Log:
+1) Fixed bug calculating number of columns in table
+2) Added more comments for new private functions
+
+
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-16 01:06:23 UTC (rev 59)
++++ trunk/source/TablePlugin.js	2005-05-16 19:10:04 UTC (rev 60)
+@@ -103,9 +103,9 @@
+ }
+ 
+ TablePlugin.prototype._buildAttributeHash = function() {
++// create a hashtable consisting of all the attributes of the content items in this table
+   // find the union of the attribute lists of all the content items
+   var hashTableOfAttributesKeyedByUuid = {};
+-  var numCols = 0;
+   for (var iKey in this._listOfItems) {
+     contentItem = this._listOfItems[iKey];
+     var listOfAttributesForItem = contentItem.getListOfAttributeUuids();
+@@ -115,13 +115,12 @@
+         hashTableOfAttributesKeyedByUuid[attributeUuid] = this.getStevedore().getItemFromUuid(attributeUuid);
+       }
+     }
+-    numCols++;
+   }
+   this._attributesKeyedByUuid = hashTableOfAttributesKeyedByUuid;
+-  this._numberOfColumns = numCols;
+ }
+ 
+-TablePlugin.prototype._buildTableCells = function() {  
++TablePlugin.prototype._buildTableBody = function() {  
++// constructs the table body
+   // add all the table body rows
+   var numRows = 1; // start from 1 to account for header row
+   for (var kKey in this._listOfItems) {
+@@ -136,9 +135,11 @@
+   }  
+ }
+ 
++// construct the table header
+ TablePlugin.prototype._buildHeader = function() {
+   // add header row
+   var headerRow = this.myTable.insertRow(0);
++  var numCols = 0;
+   for (var jKey in this._attributesKeyedByUuid) {
+     var attribute = this._attributesKeyedByUuid[jKey];
+     if (!this._sortAttribute) this._sortAttribute = attribute;
+@@ -150,7 +151,9 @@
+     aCell.onclick = this.clickOnHeader.bindAsEventListener(this, attribute);
+     
+     headerRow.appendChild(aCell);
++    numCols++;
+   }
++  this._numberOfColumns = numCols;
+ }
+ 
+ TablePlugin.prototype.doInitialDisplay = function() {
+@@ -171,7 +174,7 @@
+   var staticThis = this;
+   this._listOfItems.sort(function(a,b) {return staticThis.compareItemByAttribute(a,b);}); // need to sort after header row added because default sort attribute is set there
+ 
+-  this._buildTableCells();
++  this._buildTableBody();
+   
+   this._myHTMLElement.appendChild(this.myTable);
+ }
+@@ -201,7 +204,10 @@
+   return image;
+ }
+ 
+-TablePlugin.prototype._insertCell = function(row, col, item, attribute, keyFunc) {
++// Insert a table cell into table's row &amp; col, with data from a given item and attribute
++// Each table cell is displayed with a TextView object
++// The HTML table cell links to the TextView object with the attribute &quot;or_textView&quot;
++TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
+   var aCell = row.insertCell(col);
+   aCell.className = this.myCellClass;
+   var aTextView = new TextView(this, aCell, item, attribute, this.myCellClass);
+@@ -280,6 +286,8 @@
+   }
+   
+   if (move) {
++    Util.isNumber(this._numberOfColumns);
++    Util.isArray(this._listOfItems);
+     var cellElement = aTextView.getHTMLElement();
+     var userHitReturnInLastRow = false;
+     var shiftBy;
+@@ -290,20 +298,14 @@
+     
+     if (move == MOVE_LEFT || move == MOVE_RIGHT) {
+       shiftBy = (move == MOVE_LEFT) ? -1 : 1;
+-      var nextColumnNumber = cellElement.cellIndex + shiftBy;
+-      // PENDING: We should be able to do this in one line, using a modulo operator
+-      if (nextColumnNumber &lt; 0) {
+-        nextColumnNumber = (numCols - 1);
+-      }
+-      if (nextColumnNumber &gt;= numCols) {
+-        nextColumnNumber = 0;
+-      }
++      var nextColumnNumber = (cellElement.cellIndex + shiftBy) % numCols
+       nextCell = htmlRow.cells[nextColumnNumber];
+     }
+     
+     if (move == MOVE_UP || move == MOVE_DOWN) {
+       shiftBy = (move == MOVE_UP) ? -1 : 1;
+       var nextRowNumber = htmlRow.rowIndex + shiftBy;
++      // can't use modulo because of table header row
+       if (nextRowNumber &lt; 1) {
+         nextRowNumber = numRows;
+       }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000051.html">[openrecord-svn] r59 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000053.html">[openrecord-svn] r61 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#52">[ date ]</a>
+              <a href="thread.html#52">[ thread ]</a>
+              <a href="subject.html#52">[ subject ]</a>
+              <a href="author.html#52">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

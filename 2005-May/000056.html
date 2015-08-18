@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r66 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r66%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505192151.j4JLpBDN009872%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000055.html">
+   <LINK REL="Next"  HREF="000057.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r66 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r66%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200505192151.j4JLpBDN009872%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r66 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu May 19 23:51:11 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000055.html">[openrecord-svn] r65 - in trunk/source: . model repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000057.html">[openrecord-svn] r67 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-19 23:51:09 +0200 (Thu, 19 May 2005)
+New Revision: 66
+
+Modified:
+   trunk/source/TestSuite.html
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Added the method world.newProvisionalItem(), which creates a &quot;provisional&quot; item that will not be persisted until one of its attributes is assigned an value.
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-05-19 17:57:36 UTC (rev 65)
++++ trunk/source/TestSuite.html	2005-05-19 21:51:09 UTC (rev 66)
+@@ -25,6 +25,7 @@
+         var testSuite = new window.top.jsUnitTestSuite();
+         testSuite.addTestPage(&quot;../../current/trunk/source/UtilTest.html&quot;);
+         testSuite.addTestPage(&quot;../../current/trunk/source/LintTest.html&quot;);
++        testSuite.addTestPage(&quot;../../current/trunk/source/model/TestSuite.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-19 17:57:36 UTC (rev 65)
++++ trunk/source/model/Item.js	2005-05-19 21:51:09 UTC (rev 66)
+@@ -56,9 +56,8 @@
+ function Item(inWorld, inUuid) {
+   this._IdentifiedRecord(inWorld, inUuid);
+   
+-  // DELETE_ME
+-  // this.__myListOfEntries = null;
+   this.__myHashTableOfEntryListsKeyedByAttributeUuid = {};
++  this.__myProvisionalFlag = false;
+ }
+ 
+ 
+@@ -74,12 +73,14 @@
+  *
+  * @scope    protected instance method
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    inProvisionalFlag    True if the item is provisional; false if the item is normal. 
+  */
+-Item.prototype._initialize = function (inObserver) {
++Item.prototype._initialize = function (inObserver, inProvisionalFlag) {
+   this._initializeIdentifiedRecord();
+ 
+-  // DELETE_ME
+-  // this.__myListOfEntries = [];
++  if (inProvisionalFlag) {
++    this.__myProvisionalFlag = true;
++  }
+   if (inObserver) {
+     this.addObserver(inObserver);
+   }
+@@ -100,10 +101,8 @@
+  * @param    inUserstamp    The user who created this item. 
+  */
+ Item.prototype._rehydrate = function (inTimestamp, inUserstamp) {
++  this.__myProvisionalFlag = false;
+   this._rehydrateIdentifiedRecord(inTimestamp, inUserstamp);
+-  
+-  // DELETE_ME
+-  // this.__myListOfEntries = [];
+ };
+ 
+ 
+@@ -176,10 +175,13 @@
+  * @return   The new replacement entry object.
+  */
+ Item.prototype.replaceEntryWithEntryForAttribute = function (inEntry, inAttribute, inValue) {
++  if (this.__myProvisionalFlag) {
++    this.__myProvisionalFlag = false;
++    this.getWorld()._provisionalItemJustBecameReal(this);
++  }
++  
+   var itemOrEntry = inEntry || this;
+   var entry = this.getWorld()._newEntry(itemOrEntry, inAttribute, inValue);
+-  // DELETE_ME
+-  // this.__myListOfEntries.push(entry);
+   this.__addEntryToListOfEntriesForAttribute(entry);
+   return entry;
+   
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-05-19 17:57:36 UTC (rev 65)
++++ trunk/source/model/ModelTest.js	2005-05-19 21:51:09 UTC (rev 66)
+@@ -500,6 +500,15 @@
+   //  fileContentString.substring(beginMismatch, (beginMismatch + 500)) + &quot;\n&quot; +
+   //  reconstructedString.substring(beginMismatch, (beginMismatch + 500)));
+   assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
++  
++  // var newItem = world.newProvisionalItem();
++  // reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
++  // assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
++  // var attributeCalledName = world.getAttributeCalledName();
++  // newItem.addEntryForAttribute(attributeCalledName, &quot;Jimmy Carter&quot;);
++  // reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
++  // assert(&quot;reconstructed string no longer equals original string&quot;, fileContentString != reconstructedString);
++  
+ }
+ 
+ function testBigLumpVirtualServer() {
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-19 17:57:36 UTC (rev 65)
++++ trunk/source/model/StubVirtualServer.js	2005-05-19 21:51:09 UTC (rev 66)
+@@ -99,11 +99,7 @@
+  * @return   A newly created item.
+  */
+ StubVirtualServer.prototype.newItem = function (inName, inObserver) {
+-  var uuid = this.__getNewUuid();
+-  var item = new Item(this.__myWorld, uuid);
+-  item._initialize(inObserver);
+-  this.__myHashTableOfItemsKeyedByUuid[uuid] = item;
+-  this.__myChronologicalListOfNewlyCreatedRecords.push(item);
++  var item = this._createNewItem(inObserver, false);
+   if (inName) { 
+     var attributeCalledName = this.__myWorld.getAttributeCalledName();
+     item.addEntryForAttribute(attributeCalledName, inName);
+@@ -113,6 +109,54 @@
+ 
+ 
+ /**
++ * Returns a newly created &quot;provisional&quot; item.  At the time this item is 
++ * created, it will only exist in local memory.  Unlike normal items, 
++ * provisional items are not saved to the repository at the time they 
++ * are created.  The provisional item is saved to the repository when 
++ * an entry is set for one of the item's attributes.
++ *
++ * @scope    public instance method
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created provisional item.
++ */
++StubVirtualServer.prototype.newProvisionalItem = function (inObserver) {
++  var item = this._createNewItem(inObserver, true);
++  return item;
++};
++
++
++/**
++ * Returns a newly created item: either a provisional item or a normal item.
++ *
++ * @scope    private instance method
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    inProvisionalFlag    True if the item is provisional; false if the item is normal. 
++ * @return   A newly created item.
++ */
++StubVirtualServer.prototype._createNewItem = function (inObserver, inProvisionalFlag) {
++  var uuid = this.__getNewUuid();
++  var item = new Item(this.__myWorld, uuid);
++  item._initialize(inObserver, inProvisionalFlag);
++  this.__myHashTableOfItemsKeyedByUuid[uuid] = item;
++  if (!inProvisionalFlag) {
++    this.__myChronologicalListOfNewlyCreatedRecords.push(item);
++  }
++  return item;
++};
++
++
++/**
++ * Records the fact that a provisional item just became real.
++ *
++ * @scope    package instance method
++ * @param    inItem    The item that was provisional and just became real. 
++ */
++StubVirtualServer.prototype._provisionalItemJustBecameReal = function (inItem) {
++  this.__myChronologicalListOfNewlyCreatedRecords.push(inItem);
++};
++
++
++/**
+  * Returns a newly created entry.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-05-19 17:57:36 UTC (rev 65)
++++ trunk/source/model/World.js	2005-05-19 21:51:09 UTC (rev 66)
+@@ -476,6 +476,33 @@
+ 
+ 
+ /**
++ * Returns a newly created &quot;provisional&quot; item.  At the time this item is 
++ * created, it will only exist in local memory.  Unlike normal items, 
++ * provisional items are not saved to the repository at the time they 
++ * are created.  The provisional item is saved to the repository when 
++ * an entry is set for one of the item's attributes.
++ *
++ * @scope    public instance method
++ * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @return   A newly created provisional item.
++ */
++World.prototype.newProvisionalItem = function (inObserver) {
++  return this.__myVirtualServer.newProvisionalItem(inObserver);
++};
++
++
++/**
++ * Records the fact that a provisional item just became real.
++ *
++ * @scope    package instance method
++ * @param    inItem    The item that was provisional and just became real. 
++ */
++World.prototype._provisionalItemJustBecameReal = function (inItem) {
++  this.__myVirtualServer._provisionalItemJustBecameReal(inItem);
++};
++
++
++/**
+  * Returns a newly created item representing an attribute.
+  *
+  * @scope    public instance method
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000055.html">[openrecord-svn] r65 - in trunk/source: . model repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000057.html">[openrecord-svn] r67 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#56">[ date ]</a>
+              <a href="thread.html#56">[ thread ]</a>
+              <a href="subject.html#56">[ subject ]</a>
+              <a href="author.html#56">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

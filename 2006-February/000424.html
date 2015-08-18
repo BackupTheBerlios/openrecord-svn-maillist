@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r443 - in trunk/source: . plugins
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r443%20-%20in%20trunk/source%3A%20.%20plugins&In-Reply-To=%3C200602092203.k19M3aW6030828%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000423.html">
+   <LINK REL="Next"  HREF="000425.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r443 - in trunk/source: . plugins</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r443%20-%20in%20trunk/source%3A%20.%20plugins&In-Reply-To=%3C200602092203.k19M3aW6030828%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r443 - in trunk/source: . plugins">skinner at berlios.de
+       </A><BR>
+    <I>Thu Feb  9 23:03:36 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000423.html">[openrecord-svn] r442 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000425.html">[openrecord-svn] r444 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#424">[ date ]</a>
+              <a href="thread.html#424">[ thread ]</a>
+              <a href="subject.html#424">[ subject ]</a>
+              <a href="author.html#424">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-02-09 23:03:36 +0100 (Thu, 09 Feb 2006)
+New Revision: 443
+
+Modified:
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/plugins/ButtonView.js
+Log:
+Fixed a couple dojo.deprecated warnings.
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-02-07 06:26:39 UTC (rev 442)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-02-09 22:03:36 UTC (rev 443)
+@@ -41,8 +41,6 @@
+ // do that because dojo.require() statements don't work
+ // within plugins (see bug #113 in the to_do_list.txt file).
+ dojo.require(&quot;dojo.widget.*&quot;);
+-dojo.require(&quot;dojo.widget.Button&quot;);
+-dojo.require(&quot;dojo.widget.html.Button&quot;);
+ dojo.require(&quot;dojo.widget.Button2&quot;);
+ dojo.require(&quot;dojo.widget.html.Button2&quot;);
+ dojo.require(&quot;dojo.widget.Menu2&quot;);
+
+Modified: trunk/source/plugins/ButtonView.js
+===================================================================
+--- trunk/source/plugins/ButtonView.js	2006-02-07 06:26:39 UTC (rev 442)
++++ trunk/source/plugins/ButtonView.js	2006-02-09 22:03:36 UTC (rev 443)
+@@ -14,8 +14,6 @@
+ dojo.require(&quot;orp.view.PluginView&quot;);
+ 
+ dojo.require(&quot;dojo.widget.*&quot;);
+-dojo.require(&quot;dojo.widget.Button&quot;);
+-dojo.require(&quot;dojo.widget.html.Button&quot;);
+ dojo.require(&quot;dojo.widget.Button2&quot;);
+ dojo.require(&quot;dojo.widget.html.Button2&quot;);
+ dojo.require(&quot;dojo.widget.Menu2&quot;);
+@@ -114,35 +112,28 @@
+   var divElement = orp.view.View.appendNewElement(outlineDiv, &quot;div&quot;);
+   
+   // This doesn't work yet:
+-  // var popupMenu = dojo.widget.fromScript(&quot;PopupMenu2&quot;, {toggle: &quot;wipe&quot;}, divElement, &quot;last&quot;);
+-  // var menuItemA = dojo.widget.fromScript(&quot;MenuItem2&quot;, {caption: &quot;Save&quot;, accelKey: &quot;Ctrl+S&quot;}, divElement, &quot;last&quot;);
+-  // var menuItemB = dojo.widget.fromScript(&quot;MenuItem2&quot;, {caption: &quot;Save As&quot;, accelKey: &quot;Ctrl+A&quot;}, divElement, &quot;last&quot;);
++  // var popupMenu = dojo.widget.createWidget(&quot;PopupMenu2&quot;, {toggle: &quot;wipe&quot;}, divElement, &quot;last&quot;);
++  // var menuItemA = dojo.widget.createWidget(&quot;MenuItem2&quot;, {caption: &quot;Save&quot;, accelKey: &quot;Ctrl+S&quot;}, divElement, &quot;last&quot;);
++  // var menuItemB = dojo.widget.createWidget(&quot;MenuItem2&quot;, {caption: &quot;Save As&quot;, accelKey: &quot;Ctrl+A&quot;}, divElement, &quot;last&quot;);
+   
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var button = dojo.widget.fromScript(&quot;Button&quot;, {label: itemName}, divElement, &quot;last&quot;);
+-    dojo.event.connect(button, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+-  }
+-  orp.view.View.appendNewElement(divElement, &quot;p&quot;);
+-  for (var i in listOfContentItems) {
+-    var contentItem = listOfContentItems[i];
+-    var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var button2 = dojo.widget.fromScript(&quot;Button2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    var button2 = dojo.widget.createWidget(&quot;Button2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
+     dojo.event.connect(button2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+   }
+   orp.view.View.appendNewElement(divElement, &quot;p&quot;);
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var dropdown2 = dojo.widget.fromScript(&quot;DropDownButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    var dropdown2 = dojo.widget.createWidget(&quot;DropDownButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
+     dojo.event.connect(dropdown2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+   }
+   orp.view.View.appendNewElement(divElement, &quot;p&quot;);
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var combo2 = dojo.widget.fromScript(&quot;ComboButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    var combo2 = dojo.widget.createWidget(&quot;ComboButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
+     dojo.event.connect(combo2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+   }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000423.html">[openrecord-svn] r442 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000425.html">[openrecord-svn] r444 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#424">[ date ]</a>
+              <a href="thread.html#424">[ thread ]</a>
+              <a href="subject.html#424">[ subject ]</a>
+              <a href="author.html#424">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

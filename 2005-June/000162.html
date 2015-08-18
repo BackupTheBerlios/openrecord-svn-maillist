@@ -1,0 +1,1134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r176 - in trunk/source: . model repositories
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r176%20-%20in%20trunk/source%3A%20.%20model%20repositories&In-Reply-To=%3C200506240158.j5O1wA8n023867%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000161.html">
+   <LINK REL="Next"  HREF="000163.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r176 - in trunk/source: . model repositories</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r176%20-%20in%20trunk/source%3A%20.%20model%20repositories&In-Reply-To=%3C200506240158.j5O1wA8n023867%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r176 - in trunk/source: . model repositories">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 24 03:58:10 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000161.html">[openrecord-svn] r175 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000163.html">[openrecord-svn] r177 - trunk/source/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#162">[ date ]</a>
+              <a href="thread.html#162">[ thread ]</a>
+              <a href="subject.html#162">[ subject ]</a>
+              <a href="author.html#162">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-24 03:58:07 +0200 (Fri, 24 Jun 2005)
+New Revision: 176
+
+Removed:
+   trunk/source/repositories/demo_page/
+Modified:
+   trunk/source/LintTest.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/repositories/demo_page.json
+Log:
+More clean-up work on the repository format, including some clean-up of how datatypes are referenced.
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-06-23 22:20:16 UTC (rev 175)
++++ trunk/source/LintTest.js	2005-06-24 01:58:07 UTC (rev 176)
+@@ -70,7 +70,6 @@
+     &quot;OutlinePlugin.js&quot;,
+     &quot;DetailPlugin.js&quot;,
+     &quot;BarChartPlugin.js&quot;,
+-    &quot;demo_page.js&quot;,
+     &quot;UtilTest.js&quot;];
+   var prefix = &quot;../../../source/&quot;;
+   var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-23 22:20:16 UTC (rev 175)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-24 01:58:07 UTC (rev 176)
+@@ -103,7 +103,7 @@
+              &quot;uuid&quot;: &quot;0001000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Amy ex machina
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Amy ex machina&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -111,7 +111,7 @@
+              &quot;uuid&quot;: &quot;0001001a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Name&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -119,7 +119,7 @@
+              &quot;uuid&quot;: &quot;0001001b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -127,7 +127,7 @@
+              &quot;uuid&quot;: &quot;0001001c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -135,7 +135,7 @@
+              &quot;uuid&quot;: &quot;0001002a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Short Name&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -143,7 +143,7 @@
+              &quot;uuid&quot;: &quot;0001002b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -151,7 +151,7 @@
+              &quot;uuid&quot;: &quot;0001002c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -159,7 +159,7 @@
+              &quot;uuid&quot;: &quot;0001003a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Summary&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -167,7 +167,7 @@
+              &quot;uuid&quot;: &quot;0001003b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -175,7 +175,7 @@
+              &quot;uuid&quot;: &quot;0001003c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -183,7 +183,7 @@
+              &quot;uuid&quot;: &quot;0001004a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Body
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Body&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -191,7 +191,7 @@
+              &quot;uuid&quot;: &quot;0001004b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Body
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -199,7 +199,7 @@
+              &quot;uuid&quot;: &quot;0001004c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Body
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -207,7 +207,7 @@
+              &quot;uuid&quot;: &quot;0001005a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Category&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -215,7 +215,7 @@
+              &quot;uuid&quot;: &quot;0001005b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -223,7 +223,7 @@
+              &quot;uuid&quot;: &quot;0001005c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -231,7 +231,7 @@
+              &quot;uuid&quot;: &quot;0001006a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Query&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -239,7 +239,7 @@
+              &quot;uuid&quot;: &quot;0001006b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -247,7 +247,7 @@
+              &quot;uuid&quot;: &quot;0001006c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -255,7 +255,7 @@
+              &quot;uuid&quot;: &quot;0001007a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Value
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Matching Value&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -263,7 +263,7 @@
+              &quot;uuid&quot;: &quot;0001007b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Value
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -271,7 +271,7 @@
+              &quot;uuid&quot;: &quot;0001008a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Attribute
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Matching Attribute&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -279,7 +279,7 @@
+              &quot;uuid&quot;: &quot;0001008b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Attribute
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -287,7 +287,7 @@
+              &quot;uuid&quot;: &quot;0001008c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Matching Attribute
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -295,7 +295,7 @@
+              &quot;uuid&quot;: &quot;0001009a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Unfiled Entry
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Unfiled Entry&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -303,7 +303,7 @@
+              &quot;uuid&quot;: &quot;0001009b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Unfiled Entry
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -311,7 +311,7 @@
+              &quot;uuid&quot;: &quot;0001009c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Unfiled Entry
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -319,7 +319,7 @@
+              &quot;uuid&quot;: &quot;000100aa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Expected Type&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -327,7 +327,7 @@
+              &quot;uuid&quot;: &quot;000100ab-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -335,7 +335,7 @@
+              &quot;uuid&quot;: &quot;000100ac-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -343,7 +343,7 @@
+              &quot;uuid&quot;: &quot;000100ad-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -351,7 +351,7 @@
+              &quot;uuid&quot;: &quot;000100ba-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Inverse Attribute&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -359,7 +359,7 @@
+              &quot;uuid&quot;: &quot;000100bb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -367,7 +367,7 @@
+              &quot;uuid&quot;: &quot;000100bc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Inverse Attribute
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -375,7 +375,7 @@
+              &quot;uuid&quot;: &quot;0001010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Attribute&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -383,7 +383,7 @@
+              &quot;uuid&quot;: &quot;0001010b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -391,7 +391,7 @@
+              &quot;uuid&quot;: &quot;0001011a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Category&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -399,7 +399,7 @@
+              &quot;uuid&quot;: &quot;0001011b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -407,7 +407,7 @@
+              &quot;uuid&quot;: &quot;0001012a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Query&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -415,7 +415,7 @@
+              &quot;uuid&quot;: &quot;0001012b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001012-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Query
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -423,7 +423,7 @@
+              &quot;uuid&quot;: &quot;0001013a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Type&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -431,7 +431,7 @@
+              &quot;uuid&quot;: &quot;0001013b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Type
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -439,7 +439,7 @@
+              &quot;uuid&quot;: &quot;0001020a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Text
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Text&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -447,7 +447,7 @@
+              &quot;uuid&quot;: &quot;0001020b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Text
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -455,7 +455,7 @@
+              &quot;uuid&quot;: &quot;0001021a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Number
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Number&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -463,7 +463,7 @@
+              &quot;uuid&quot;: &quot;0001021b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Number
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -471,7 +471,7 @@
+              &quot;uuid&quot;: &quot;0001022a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Date
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Date&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -479,7 +479,7 @@
+              &quot;uuid&quot;: &quot;0001022b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Date
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -487,7 +487,7 @@
+              &quot;uuid&quot;: &quot;0001023a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Check Mark
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Check Mark&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -495,7 +495,7 @@
+              &quot;uuid&quot;: &quot;0001023b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001023-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Check Mark
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -503,7 +503,7 @@
+              &quot;uuid&quot;: &quot;0001024a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // URL
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;URL&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -511,7 +511,7 @@
+              &quot;uuid&quot;: &quot;0001024b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001024-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // URL
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -519,7 +519,7 @@
+              &quot;uuid&quot;: &quot;0001030a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Item
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Item&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -527,7 +527,7 @@
+              &quot;uuid&quot;: &quot;0001030b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Item
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -535,7 +535,7 @@
+              &quot;uuid&quot;: &quot;0001040a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Anything
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Anything&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -543,7 +543,7 @@
+              &quot;uuid&quot;: &quot;0001040b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Anything
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -551,7 +551,7 @@
+              &quot;uuid&quot;: &quot;0001050a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Connection
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Connection&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -559,7 +559,7 @@
+              &quot;uuid&quot;: &quot;0001050b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Connection
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001013-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     } ]
+   },
+@@ -626,7 +626,7 @@
+              &quot;uuid&quot;: &quot;0020000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Page
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Page&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -634,7 +634,7 @@
+              &quot;uuid&quot;: &quot;0020000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Page
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -642,7 +642,7 @@
+              &quot;uuid&quot;: &quot;0020100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Section&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -650,7 +650,7 @@
+              &quot;uuid&quot;: &quot;0020100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -658,7 +658,7 @@
+              &quot;uuid&quot;: &quot;0030000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Section&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -666,7 +666,7 @@
+              &quot;uuid&quot;: &quot;0030000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Section
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -674,7 +674,7 @@
+              &quot;uuid&quot;: &quot;0040000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin Name (Attribute)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Plugin Name&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -682,7 +682,7 @@
+              &quot;uuid&quot;: &quot;0040000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin Name (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -690,7 +690,7 @@
+              &quot;uuid&quot;: &quot;0040101a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Attribute)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Plugin View&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -698,7 +698,7 @@
+              &quot;uuid&quot;: &quot;0040101b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -706,7 +706,7 @@
+              &quot;uuid&quot;: &quot;0040101c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -714,7 +714,7 @@
+              &quot;uuid&quot;: &quot;0040102a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Attribute)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Layout Data&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -722,7 +722,7 @@
+              &quot;uuid&quot;: &quot;0040102b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -730,7 +730,7 @@
+              &quot;uuid&quot;: &quot;0040102c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -738,7 +738,7 @@
+              &quot;uuid&quot;: &quot;0040103a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Applies To Plugin (Attribute)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Applies To Plugin&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -746,7 +746,7 @@
+              &quot;uuid&quot;: &quot;0040103b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Applies To Plugin (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -754,7 +754,7 @@
+              &quot;uuid&quot;: &quot;0040103c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Applies To Plugin (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -762,7 +762,7 @@
+              &quot;uuid&quot;: &quot;0040104a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table Columns (Attribute)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Table Columns&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -770,7 +770,7 @@
+              &quot;uuid&quot;: &quot;0040104b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table Columns (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -778,7 +778,7 @@
+              &quot;uuid&quot;: &quot;0040104c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+              &quot;item&quot;: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table Columns (Attribute)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001010-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -786,7 +786,7 @@
+              &quot;uuid&quot;: &quot;0040201a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Category)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Plugin View&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -794,7 +794,7 @@
+              &quot;uuid&quot;: &quot;0040201b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Plugin View (Category)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -802,7 +802,7 @@
+              &quot;uuid&quot;: &quot;0040202a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Category)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Layout Data&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -810,7 +810,7 @@
+              &quot;uuid&quot;: &quot;0040202b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Layout Data (Category)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001011-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -818,7 +818,7 @@
+              &quot;uuid&quot;: &quot;0040301a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Table View&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -826,7 +826,7 @@
+              &quot;uuid&quot;: &quot;0040301b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table View (Plugin View)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -834,7 +834,7 @@
+              &quot;uuid&quot;: &quot;0040301c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+              &quot;item&quot;: &quot;00040301-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Table View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Table&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -842,7 +842,7 @@
+              &quot;uuid&quot;: &quot;0040302a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Outline View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Outline View&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -850,7 +850,7 @@
+              &quot;uuid&quot;: &quot;0040302b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Outline View (Plugin View)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -858,7 +858,7 @@
+              &quot;uuid&quot;: &quot;0040302c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+              &quot;item&quot;: &quot;00040302-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Outline View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Outline&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -866,7 +866,7 @@
+              &quot;uuid&quot;: &quot;0040303a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040303-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Detail View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Detail View&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -874,7 +874,7 @@
+              &quot;uuid&quot;: &quot;0040303b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040303-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Detail View (Plugin View)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -882,7 +882,7 @@
+              &quot;uuid&quot;: &quot;0040303c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+              &quot;item&quot;: &quot;00040303-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Detail View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Detail&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -890,7 +890,7 @@
+              &quot;uuid&quot;: &quot;0040304a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00040304-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Bar Chart View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Bar Chart View&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -898,7 +898,7 @@
+              &quot;uuid&quot;: &quot;0040304b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00040304-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Bar Chart View (Plugin View)
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -906,7 +906,7 @@
+              &quot;uuid&quot;: &quot;0040304c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+              &quot;item&quot;: &quot;00040304-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Bar Chart View (Plugin View)
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Bar Chart&quot; }
+     } ]
+   },
+@@ -926,7 +926,7 @@
+              &quot;uuid&quot;: &quot;2c4fa781-dde4-11d9-9c71-8022ab6bc8ae&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot;,  // Brian Douglas Skinner
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Brian Douglas Skinner&quot; }
+     }  ]
+   },
+@@ -946,7 +946,7 @@
+              &quot;uuid&quot;: &quot;90e02171-dde4-11d9-9c71-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot;,  // Chih-Chao Lam
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Chih-Chao Lam&quot; }
+     }  ]
+   },
+@@ -966,7 +966,7 @@
+              &quot;uuid&quot;: &quot;97d040f1-dde4-11d9-9c71-c103016080e1&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot;,  // Mignon Belongie
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Mignon Belongie&quot; }
+     }  ]
+   },
+@@ -986,7 +986,7 @@
+              &quot;uuid&quot;: &quot;9c3596e1-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot;,  // Mimi Yin
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Mimi Yin&quot; }
+     }  ]
+   },
+@@ -1006,7 +1006,7 @@
+              &quot;uuid&quot;: &quot;a00bf341-dde4-11d9-9c71-dae11c269bc7&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot;,  // Marty Betz
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Marty Betz&quot; }
+     }  ]
+   }
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-23 22:20:16 UTC (rev 175)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-24 01:58:07 UTC (rev 176)
+@@ -261,8 +261,12 @@
+       }
+       var entryType = entry.getType();
+       var typeToken = this._getTypeTokenFromType(entryType);
+-      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeToken + '&quot;,\n');
+-      if (typeToken == StubVirtualServer.JSON_TYPE_CONNECTION) {
++      // listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeToken + '&quot;,\n');
++      // if (typeToken == StubVirtualServer.JSON_TYPE_CONNECTION) {
++      var typeUuid = entryType._getUuid();
++      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid + '&quot;,');
++      listOfStrings.push('  // ' + typeToken + '\n');
++      if (typeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+         var pairOfItems = entry.getItem();
+         var firstItem = pairOfItems[0];
+         var secondItem = pairOfItems[1];
+@@ -285,6 +289,7 @@
+         var contentData = entry.getValue();
+         
+         var valueString = null;
++/*
+         switch (typeToken) {
+           case StubVirtualServer.JSON_TYPE_NUMBER_VALUE: 
+             valueString = contentData;
+@@ -301,6 +306,23 @@
+           default:
+             Util.assert(false, &quot;no such type: &quot; + typeToken);
+         }
++*/
++        switch (typeUuid) {
++          case World.UUID_FOR_TYPE_NUMBER: 
++            valueString = contentData;
++            break;
++          case World.UUID_FOR_TYPE_TEXT: 
++            valueString = '&quot;' + contentData + '&quot;';
++            break;
++          case World.UUID_FOR_TYPE_DATE: 
++            valueString = '&quot;' + contentData.toString() + '&quot;';
++            break;
++          case World.UUID_FOR_TYPE_ITEM: 
++            valueString = '&quot;' + contentData._getUuid() + '&quot;';
++            break;
++          default:
++            Util.assert(false, &quot;no such type: &quot; + typeToken);
++        }
+         listOfStrings.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + '');
+       }
+       listOfStrings.push('  }\n');
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-23 22:20:16 UTC (rev 175)
++++ trunk/source/model/StubVirtualServer.js	2005-06-24 01:58:07 UTC (rev 176)
+@@ -943,9 +943,20 @@
+           previousEntry = this.__getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
+         }
+  
+-        var dataTypeToken = dehydratedEntry[StubVirtualServer.JSON_MEMBER_TYPE];
+-        var dataType = this._getTypeFromTypeToken(dataTypeToken);
+-        if (dataTypeToken == StubVirtualServer.JSON_TYPE_CONNECTION) {
++        var dataType;
++        var dataTypeUuid = dehydratedEntry[StubVirtualServer.JSON_MEMBER_TYPE];
++        var PENDING_debug = false;
++        if (Util.isUuid(dataTypeUuid)) {
++          PENDING_debug = true;
++          dataType = this.__getItemFromUuidOrBootstrapItem(dataTypeUuid);
++        } else {
++          // code to deal with the old pre-July-2005 file format
++          var dataTypeToken = dataTypeUuid;
++          dataType = this._getTypeFromTypeToken(dataTypeToken);
++          dataTypeUuid = dataType._getUuid();
++        }
++        
++        if (dataTypeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+           var listOfItemUuids = dehydratedEntry[StubVirtualServer.JSON_MEMBER_ITEM];
+           var firstItemUuid = listOfItemUuids[0];
+           var secondItemUuid = listOfItemUuids[1];
+@@ -973,17 +984,20 @@
+           }
+           var rawData = dehydratedEntry[StubVirtualServer.JSON_MEMBER_VALUE];
+           var finalData = null;
+-          switch (dataTypeToken) {
+-            case StubVirtualServer.JSON_TYPE_RELATED_UUID:
++          switch (dataTypeUuid) {
++            case World.UUID_FOR_TYPE_ITEM:
+               finalData = this.__getItemFromUuidOrBootstrapItem(rawData);
+               break;
+-            case StubVirtualServer.JSON_TYPE_TEXT_VALUE:
++            case World.UUID_FOR_TYPE_TEXT:
++              // if (PENDING_debug) {
++              //   alert(rawData + &quot;\n&quot; + dataType);
++              // }
+               finalData = rawData;
+               break;
+-            case StubVirtualServer.JSON_TYPE_NUMBER_VALUE:
++            case World.UUID_FOR_TYPE_NUMBER:
+               finalData = rawData;
+               break;
+-            case StubVirtualServer.JSON_TYPE_DATE_VALUE:
++            case World.UUID_FOR_TYPE_DATE:
+               finalData = new Date(rawData);
+               break;
+             default:
+
+Modified: trunk/source/repositories/demo_page.json
+===================================================================
+--- trunk/source/repositories/demo_page.json	2005-06-23 22:20:16 UTC (rev 175)
++++ trunk/source/repositories/demo_page.json	2005-06-24 01:58:07 UTC (rev 176)
+@@ -12,7 +12,7 @@
+              &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;RelatedUuid&quot;,
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -20,7 +20,7 @@
+              &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;1. Welcome!&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -28,7 +28,7 @@
+              &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Welcome to the OpenRecord demo!&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -36,7 +36,7 @@
+              &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+              &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Welcome to the OpenRecord d...
+-             &quot;type&quot;: &quot;TextValue&quot;,
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This web site is a demo of the OpenRecord prototype. OpenRecord is a collaborative content management system. OpenRecord is a lot like a wiki, but with twist. Most wikis are designed to let you view and edit pages of text, like a web-based word processor. OpenRecord is designed to let you view and edit items in a database, rather than pages of text. So if a wiki is a web-based collaborative word-processor, then OpenRecord is a web-based collaborative database, like Lotus Agenda.&quot; }
+     } ]
+   }
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000161.html">[openrecord-svn] r175 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000163.html">[openrecord-svn] r177 - trunk/source/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#162">[ date ]</a>
+              <a href="thread.html#162">[ thread ]</a>
+              <a href="subject.html#162">[ subject ]</a>
+              <a href="author.html#162">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

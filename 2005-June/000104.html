@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r117 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r117%20-%20trunk/source&In-Reply-To=%3C200506030526.j535Q74M009354%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000103.html">
+   <LINK REL="Next"  HREF="000105.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r117 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r117%20-%20trunk/source&In-Reply-To=%3C200506030526.j535Q74M009354%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r117 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun  3 07:26:07 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000103.html">[openrecord-svn] r116 - in trunk: documentation source
+</A></li>
+        <LI>Next message: <A HREF="000105.html">[openrecord-svn] r118 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-06-03 07:25:58 +0200 (Fri, 03 Jun 2005)
+New Revision: 117
+
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/ItemView.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/demo_page.html
+Log:
+1) Added base ORPlugin class (Plugin is a reserved word in Javascript, so I couldn't use &quot;Plugin&quot; as class name)
+2) Refactored plugins, so that they don't depend on their superclasses to get queries or items for display
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/BarChartPlugin.js	2005-06-03 05:25:58 UTC (rev 117)
+@@ -53,10 +53,9 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  * @syntax   var barChart = new BarChartPlugin()
+  */
+-BarChartPlugin.prototype = new View();  // makes BarChartPlugin be a subclass of View
+-function BarChartPlugin(inSectionView, inHTMLElement) {
+-  this.setSuperview(inSectionView);
+-  this.setHTMLElement(inHTMLElement);
++BarChartPlugin.prototype = new ORPlugin();  // makes BarChartPlugin be a subclass of View
++function BarChartPlugin(inSuperview, inHTMLElement,inQuery) {
++  ORPlugin.call(this,inSuperview,inHTMLElement,inQuery);
+ }
+ 
+ 
+@@ -89,8 +88,7 @@
+   var hashTableOfAttributesKeyedByAttributeKey = {};
+   
+   // for each attribute, count the number of items where that attribute has a numeric value
+-  // PENDING: how do we know our superview responds to getListOfContentItems()? 
+-  var listOfContentItems = this.getSuperview().getListOfContentItems();
++  var listOfContentItems = this.fetchItems();
+   for (var iKey in listOfContentItems) {
+     contentItem = listOfContentItems[iKey];
+     var listOfAttributesForItem = contentItem.getAttributes();
+@@ -186,16 +184,6 @@
+ };
+ 
+ 
+-/**
+- * Does final clean-up.
+- *
+- * @scope    public instance method
+- */
+-BarChartPlugin.prototype.endOfLife = function () {
+-  this.getHTMLElement().innerHTML = &quot;&quot;;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/DetailPlugin.js	2005-06-03 05:25:58 UTC (rev 117)
+@@ -52,10 +52,9 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  * @syntax   var detailPlugin = new DetailPlugin()
+  */
+-DetailPlugin.prototype = new View();  // makes DetailPlugin be a subclass of View
+-function DetailPlugin(inSuperView, inHTMLElement) {
+-  this.setSuperview(inSuperView);
+-  this.setHTMLElement(inHTMLElement);  
++DetailPlugin.prototype = new ORPlugin();  // makes DetailPlugin be a subclass of View
++function DetailPlugin(inSuperView, inHTMLElement,inQuery) {
++  ORPlugin.call(this,inSuperView,inHTMLElement,inQuery);
+ }
+ 
+ 
+@@ -80,8 +79,7 @@
+   var listOfStrings = [];
+ 
+   // for each content item, add its HTML representation to the output
+-  // PENDING: how do we know our superview responds to getListOfContentItems()? 
+-  var listOfContentItems = this.getSuperview().getListOfContentItems();
++  var listOfContentItems = this.fetchItems();
+   for (var contentItemKey in listOfContentItems) {
+     var contentItem = listOfContentItems[contentItemKey];
+     listOfStrings.push(this.getXhtmlTableForItem(contentItem));
+@@ -95,16 +93,6 @@
+ 
+ 
+ /**
+- * Does final clean-up.
+- *
+- * @scope    public instance method
+- */
+-DetailPlugin.prototype.endOfLife = function () {
+-  this.getHTMLElement().innerHTML = &quot;&quot;;
+-};
+-
+-
+-/**
+  * Given an item to be display, returns a string with XHTML to display
+  * the item.
+  *
+
+Modified: trunk/source/ItemView.js
+===================================================================
+--- trunk/source/ItemView.js	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/ItemView.js	2005-06-03 05:25:58 UTC (rev 117)
+@@ -69,21 +69,7 @@
+   this.myPlugin = null;
+ }
+ 
+-
+ /**
+- * Returns a list with a single content item in it.
+- *
+- * @scope    public instance method
+- * @return   A list with one item in it.
+- */
+-ItemView.prototype.getListOfContentItems = function () {
+-  var listOfContentItems = [];
+-  listOfContentItems.push(this.myItem);
+-  return listOfContentItems;
+-};
+-
+-
+-/**
+  * Returns a string that gives the name of the page.
+  *
+  * @scope    public instance method
+@@ -120,7 +106,7 @@
+ 
+   // let the detailPlugin add its own content
+   var detailPluginElement = document.getElementById(detailDivId);
+-  this.myPlugin = new DetailPlugin(this, detailPluginElement);
++  this.myPlugin = new DetailPlugin(this, detailPluginElement,[this.myItem]);
+   this.myPlugin.refresh();
+ };
+ 
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/OutlinePlugin.js	2005-06-03 05:25:58 UTC (rev 117)
+@@ -51,10 +51,9 @@
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  * @syntax   var outline = new OutlinePlugin()
+  */
+-OutlinePlugin.prototype = new View();  // makes OutlinePlugin be a subclass of View
+-function OutlinePlugin(inSectionView, inHTMLElement) {
+-  this.setSuperview(inSectionView);
+-  this.setHTMLElement(inHTMLElement);
++OutlinePlugin.prototype = new ORPlugin();  // makes OutlinePlugin be a subclass of View
++function OutlinePlugin(inSectionView, inHTMLElement,inQuery) {
++  ORPlugin.call(this,inSectionView,inHTMLElement,inQuery);
+ }
+ 
+ 
+@@ -76,7 +75,7 @@
+  * @scope    public instance method
+  */
+ OutlinePlugin.prototype.refresh = function () {
+-  var listOfContentItems = this.getSuperview().getListOfContentItems();
++  var listOfContentItems = this.fetchItems();
+   var outlineDiv = this.getHTMLElement();
+   outlineDiv.innerHTML = &quot;&quot;;
+   var ulElement = View.createAndAppendElement(outlineDiv, &quot;ul&quot;);
+@@ -98,16 +97,6 @@
+ };
+ 
+ 
+-/**
+- * Does final clean-up.
+- *
+- * @scope    public instance method
+- */
+-OutlinePlugin.prototype.endOfLife = function () {
+-  this.getHTMLElement().innerHTML = &quot;&quot;;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/SectionView.js	2005-06-03 05:25:58 UTC (rev 117)
+@@ -100,7 +100,6 @@
+   this.setHTMLElement(inHTMLElement);
+   this.mySection = inSection;
+   this.mySectionNumber = inSectionNumber;
+-  this.myListOfContentItems = this.getListOfContentItems();
+ 
+   this._myPlugin = null;
+   this._myPluginDiv = null;
+@@ -159,28 +158,7 @@
+   return newPlugin;
+ };
+ 
+-
+ /**
+- * Returns a list of content items to be displayed in this SectionView.
+- *
+- * @deprecated WILL BE REMOVED ONCE ALL PLUGINS ARE CONVERTED TO RECEIVE A QUERY
+- * @scope    public instance method
+- * @return   A list of content items.
+- */
+-SectionView.prototype.getListOfContentItems = function () {
+-  var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
+-  var listOfEntries = this.mySection.getEntriesForAttribute(attributeCalledQuery);
+-  if (listOfEntries &amp;&amp; listOfEntries[0]) {
+-    var query = listOfEntries[0].getValue();
+-    this.myListOfContentItems = this.getWorld().getResultItemsForQuery(query); 
+-  } else {
+-    this.myListOfContentItems = [];
+-  }
+-  return this.myListOfContentItems;
+-};
+-
+-
+-/**
+  * Returns query associated to this section.
+  *
+  * @scope    public instance method
+@@ -225,11 +203,6 @@
+   var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+   var selectedPluginName = this.mySection.getSingleStringValueFromAttribute(attributeCalledPluginName);
+ 
+-  this.myListOfContentItems = this.getListOfContentItems();
+-  if (!this.myListOfContentItems) {
+-    return;
+-  }
+-
+   var sectionDiv = this.getHTMLElement();
+   var outerDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;, SectionView.ELEMENT_CLASS_SECTION);
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/TablePlugin.js	2005-06-03 05:25:58 UTC (rev 117)
+@@ -62,16 +62,14 @@
+  * @param    inSectionView    The SectionView that this TablePlugin will appears in. 
+  * @param    inHTMLElement    The HTMLElement to display this view in. 
+  */
+-TablePlugin.prototype = new View();  // makes TablePlugin be a subclass of View
+-function TablePlugin(inSectionView, inHTMLElement, inQuery, inCellPrefix, inClassType, inCellClass) {
+-  this.setSuperview(inSectionView);
+-  this.setHTMLElement(inHTMLElement);  
++TablePlugin.prototype = new ORPlugin();  // makes TablePlugin be a subclass of View
++function TablePlugin(inSectionView, inHTMLElement, inQuery) {
++  ORPlugin.call(this,inSectionView,inHTMLElement,inQuery);
+ 
+   // PENDING should probably make this independent of sectionview
+-  this.myClass = inClassType || SectionView.ELEMENT_CLASS_SIMPLE_TABLE;
+-  this.myCellClass = inCellClass || SectionView.ELEMENT_CLASS_PLAIN;
++  this.myClass = SectionView.ELEMENT_CLASS_SIMPLE_TABLE;
++  this.myCellClass = SectionView.ELEMENT_CLASS_PLAIN;
+   this.myTable = null;
+-  this._query = inQuery;
+   this._sortAttribute = null;
+   this._ascendingOrder = true;
+ }
+@@ -106,18 +104,7 @@
+   return -ascendingInt;
+ };
+ 
+-
+ /**
+- * Gets the list of content items to display.
+- *
+- * @scope    PENDING
+- */
+-TablePlugin.prototype.fetchItems = function() {
+-  this._listOfItems = this._query ? this.getWorld().getResultItemsForQuery(this._query) : [];
+-};
+-
+-
+-/**
+  * Creates a hashtable containing all the attributes of the content items 
+  * in this table.  Finds the union of the attribute lists of all the content items.
+  *
+@@ -383,16 +370,6 @@
+ 
+ 
+ /**
+- * Does final clean-up.
+- *
+- * @scope    public instance method
+- */
+-TablePlugin.prototype.endOfLife = function () {
+-  this.getHTMLElement().innerHTML = &quot;&quot;;
+-};
+-
+-
+-/**
+  * Called when the user clicks on table header. Resorts table accordingly.
+  * 
+  * @scope    public class method
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-06-03 04:32:21 UTC (rev 116)
++++ trunk/source/demo_page.html	2005-06-03 05:25:58 UTC (rev 117)
+@@ -26,6 +26,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MultiEntriesView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;NavbarView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;ORPlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DetailPlugin.js&quot;&gt;&lt;/script&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000103.html">[openrecord-svn] r116 - in trunk: documentation source
+</A></li>
+	<LI>Next message: <A HREF="000105.html">[openrecord-svn] r118 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#104">[ date ]</a>
+              <a href="thread.html#104">[ thread ]</a>
+              <a href="subject.html#104">[ subject ]</a>
+              <a href="author.html#104">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

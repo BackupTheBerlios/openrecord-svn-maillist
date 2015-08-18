@@ -1,0 +1,274 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r310 - trunk/documentation
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r310%20-%20trunk/documentation&In-Reply-To=%3C200508312009.j7VK9O7X001051%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000294.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r310 - trunk/documentation</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r310%20-%20trunk/documentation&In-Reply-To=%3C200508312009.j7VK9O7X001051%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r310 - trunk/documentation">skinner at berlios.de
+       </A><BR>
+    <I>Wed Aug 31 22:09:24 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000294.html">[openrecord-svn] r309 - in trunk: documentation repositories source source/model source/util source/view
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#295">[ date ]</a>
+              <a href="thread.html#295">[ thread ]</a>
+              <a href="subject.html#295">[ subject ]</a>
+              <a href="author.html#295">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-31 22:09:23 +0200 (Wed, 31 Aug 2005)
+New Revision: 310
+
+Modified:
+   trunk/documentation/release_planning.txt
+Log:
+worked on release_planning.txt -- recorded new tasks and re-prioritized
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-08-31 19:22:20 UTC (rev 309)
++++ trunk/documentation/release_planning.txt	2005-08-31 20:09:23 UTC (rev 310)
+@@ -293,90 +293,138 @@
+ ################################################################################
+ ################################################################################
+ 
++
+ ---------------------------------------------------------------------------
+    Tasks we originally identified for Iteration #4, in August 2005
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  0. Do lazy creation of layout data items
+ brian  |          | 3    IED|  1. Create demo documents (quotes, dictionary, movies, books, oil-change, etc.)
+ brian  |          | 2.5  IED|  2. Make demo hand-outs with notes about architecture, data model, use cases
+ brian  | 1    IED | 0.75 IED|  3. Configure demo machine (install Subversion, Firefox, Apache, PHP, jEdit, etc.)
+-       |          |         |  4. Attempt to embed an OpenRecord view in a MediaWiki page
+ chao   | 0.25 IED | done    |  5. Show start time for DateValues if time was entered
+ chao   | 0.25 IED | done    |  6. Suppport for relative date entry e.g. &quot;today&quot;, &quot;end of day/week&quot;, &quot;tomorrow&quot;
+ chao   | 0.25 IED | done    |  7. Display relative dates for entries e.g. &quot;today&quot;
+ chao   | 0.25 IED | 0.25 IED|  8. Support for Year/Month entry for DateValue, e.g. 2005/07, July 2005
+ chao   | 0.25 IED | 0.1  IED|  9. Support anchor links to each section on a PageView
+-chao   | 0.25 IED |         | 10. Make currently sorted column have a special CSS class so that it can look different
+-chao   | 0.25 IED |         | 11. Resolve: How should table cells deal with &lt;enter&gt;, move down a cell or to the right?
+ brian  |          | 0    IED| 12. drag-and-drop lozenges: move instead of copy
++-------+----------+---------+----------------------------------------------
++
++
++---------------------------------------------------------------------------
++   New tasks that we decided to take on for Iteration #4, in August 2005
++-------+----------+---------+----------------------------------------------
++Who    | Estimate | Actual  | Task
++-------+----------+---------+----------------------------------------------
+ brian  |          | 0.25 IED|     display numbers with commas and allow commas during entry 
+ brian  |          | 0.5  IED|     profiling and performance improvements
+ brian  |          | 1    IED|     moved from string-UUIDs to object-UUIDs; refactored and cleaned-up
+-       |          |         |     BUG: as you drag-and-drop, other text gets selected 
++brian  |          | 0    IED|     BUG: as you drag-and-drop, other text gets selected 
++chao   | 		      | 0.1  IED|     Show current active page on sidebar
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 13. Assign system attributes &amp; categories to a &quot;System&quot; category
+-       |          |         | 14. Hide &quot;System&quot; items most of the time
+-       |          |         | 15. create a FakeStorage class, + rename FileSaver + HttpSaver to FileSystemStorage + HttpStorage
+-       |          |         | 16. rename Dehydrate and Rehydrate to Serialize and Deserialize
+-brian  | 1    IED |         | 17. Rationalize our CSS style sheet approach
+-       |          |         | 18. Have different documents use different style-sheets
+-       |          |         | 19. Improve and document the Data model public api
+-       |          |         | 20. Refactor our observer notification API (and implementation)
+-chao   | 0.5  IED |         | 21. Wire up observers &amp; keep views in sync
+-       |          |         | 22. be able to select a table row 
+-       |          |         | 23. be able to select a non-lozenge literal entry
+-       |          |         | 24. be able to select the text within an entry
++
++
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++     Summary of Iteration #4
++           August 2005
++  August 1 to September 5, 2005
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++   9    = number of PLANNED tasks that were finished 
++   5    = number of ADDITIONAL tasks that were finished 
++ ~10    = total estimated IEDs for PLANNED and ADDITIONAL tasks that were finished
++   5    = number of weeks in August iteration
++ ~ 2    = Velocity (in estimated IEDs per week)
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++       
++       
++################################################################################
++################################################################################
++##                                                                            ##
++##                                Iteration #5                                ##
++##                               September 2005                               ##
++##                                                                            ##
++################################################################################
++################################################################################
++
++---------------------------------------------------------------------------
++   Tasks we originally identified for Iteration #5, in September 2005
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 25. be able to delete a selected table row 
+-       |          |         | 26. drag-and-drop to re-order table rows
+-       |          |         | 27. improve UI for &quot;add new attribute&quot; in Table View 
+-       |          |         | 28. Reach consensus on (colors, padding, and borders) and then implement
+-       |          |         | 29. Make sure view code uses transactions
+-       |          |         | 30. Deal with \n in page name or summary fields
+-       |          |         | 31. Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
+-       |          |         | 32. improve UI for initial &quot;out of the box&quot; experience
+-       |          |         | 33. UI and data model design to support collaboration
+-       |          |         | 34. config option so that only logged-in users have read-access
+-       |          |         | 35. have an &quot;icon&quot; attribute, and use icons in suggestion box and in EntryView
++Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 36. run in IE as well as Firefox
+-       |          |         | 37. Write one unit test that tests GUI code
+-       |          |         | 38. Write one performance test that measures the time some code takes
+-       |          |         | 39. Pick one file, and do a group code review on it
+-       |          |         | 40. Provide GUI feedback about what's editable
+-       |          |         | 41. Implement a good URL-to-content mapping, so that URLs won't go bad in future releases
+-       |          |         | 42. Convert UI code from DOM level 0 to DOM level 2
+-       |          |         | 43. Rationalize the View api and document public api
+-       |          |         | 44. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+-       |          |         | 45. improve UI for setting the expected data type of an attribute
+-       |          |         | 46. improve UI for creating a new category
+-       |          |         | 47. improve UI for entering references to categories or to other items
++       |          |         |  1. look into using the Dojo Package System
++       |          |         |  2. create a FakeStorage class, + rename FileSaver + HttpSaver
++       |          |         |  3. rename Dehydrate and Rehydrate to Serialize and Deserialize
++       |          |         |  4. merge StubVirtualServer + DeltaVirtualServer, and re-name
++       |          |         |  5. consider a different JSON representation for DateValues
++       |          |         |  6. make ordinal value strings not grow long so quickly
++       |          |         |  7. Do lazy creation of layout data items
++       |          |         |  8. Improve and document the Data model public api
++       |          |         |  9. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
++       |          |         | 10. Pick one file, and do a group code review on it
++       |          |         | 11. Implement a good URL-to-content mapping, so that URLs won't go bad in future releases
++       |          |         | 12. Rationalize the View api and document public api
++       |          |         | 13. Create a &quot;plugin&quot; or &quot;plugin_view&quot; directory 
++       |          |         | 14. Make RootView subclass from View, or add comments explaining why it doesn't
++       |          |         | 15. Make DateValue subclass from Date, or wrap an internal Date object
+ -------+----------+---------+----------------------------------------------
+-       |          |         | 48. improve UI for creating a new page
+-       |          |         | 49. improve UI for adding a new section to a page
+-       |          |         | 50. improve UI for creating a new user
+-       |          |         | 51. Check for incorrect dependencies (e.g. a Util dependency on model code)
+-       |          |         | 52. Create a &quot;plugin&quot; directory 
+-       |          |         | 53. Add support for repository merging
+-       |          |         | 54. BUG: back button is broken
+-       |          |         | 55. BUG: &quot;Waiting for localhost...&quot;
+-       |          |         | 56. BUG: &quot;Node was not found&quot; exception in EntryView/LoginView?
+-       |          |         | 57. Do some testing to find other existing bugs
+-       |          |         | 58. Have explicit save instead of (or in addition to) autosave
+-       |          |         | 59. Be able to cancel out of creating a new account
+-       |          |         | 60. Save view layout choice and user preferences
+-       |          |         | 61. Do code reviews
+-       |          |         | 62. Write concurrency tests 
+-       |          |         | 63. Write scalability tests 
+-       |          |         | 64. Ensure that PHP scripts and file I/O works for concurrent multi-user access
+-       |          |         | 65. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
+-       |          |         |     Make RootView subclass from View, or add comments explaining why it doesn't
+-       |          |         |     Make DateValue subclass from Date, or wrap an internal Date object
++       |          |         | 16. Assign system attributes &amp; categories to a &quot;System&quot; category
++       |          |         | 17. Hide &quot;System&quot; items most of the time
++       |          |         | 18. improve UI for creating a new category
++       |          |         | 19. Deal with \n in page name or summary fields
++       |          |         | 20. be able to select a table row 
++       |          |         | 21. be able to delete a selected table row 
++       |          |         | 22. drag-and-drop to re-order table rows
++       |          |         | 23. improve UI for &quot;add new attribute&quot; in Table View 
++       |          |         | 24. improve UI for setting the expected data type of an attribute
++       |          |         | 25. have Detail View use textarea instead of text input, for long strings
++       |          |         | 26. make it possible to add a new attribute in Detail View 
++       |          |         | 27. improve UI for initial &quot;out of the box&quot; experience
++       |          |         | 28. improve UI for creating a new page
++       |          |         | 29. improve UI for adding a new section to a page
++       |          |         | 30. UI to move/delete sections?
+ -------+----------+---------+----------------------------------------------
+-chao   | 		      | 0.1 IED |     Show current active page on sidebar
+-       |          |         |     Better time parsing e.g. 3pm
++       |          |         | 31. Better time parsing e.g. 3pm
++       |          |         | 32. Refactor our observer notification API (and implementation)
++chao   | 0.5  IED |         | 33. Wire up observers &amp; keep views in sync
++       |          |         | 34. Attempt to embed an OpenRecord view in a MediaWiki page
++brian  | 1    IED |         | 35. Rationalize our CSS style sheet approach
++       |          |         | 36. Data model: boolean, URL, entries that apply to timespan (e.g. annual population)
++chao   | 0.25 IED |         | 37. Make currently sorted column have a special CSS class so that it can look different
++chao   | 0.25 IED |         | 38. Resolve: How should table cells deal with &lt;enter&gt;, move down a cell or to the right?
++       |          |         | 39. be able to select a non-lozenge literal entry
++       |          |         | 40. be able to select the text within an entry
++-------+----------+---------+----------------------------------------------
++       |          |         | 41. Reach consensus on (colors, padding, and borders) and then implement
++       |          |         | 42. Make sure view code uses transactions
++       |          |         | 43. UI and data model design to support collaboration
++       |          |         | 44. config option so that only logged-in users have read-access
++       |          |         | 45. have an &quot;icon&quot; attribute, and use icons in suggestion box and in EntryView
++       |          |         | 46. run in IE as well as Firefox
++       |          |         | 47. Write one unit test that tests GUI code
++       |          |         | 48. Write one performance test that measures the time some code takes
++       |          |         | 49. Provide GUI feedback about what's editable
++       |          |         | 50. Convert UI code from DOM level 0 to DOM level 2
++-------+----------+---------+----------------------------------------------
++       |          |         | 51. improve UI for entering references to categories or to other items
++       |          |         | 52. improve UI for creating a new user
++       |          |         | 53. Check for incorrect dependencies (e.g. a Util dependency on model code)
++       |          |         | 54. Add support for repository merging
++       |          |         | 55. BUG: back button is broken
++       |          |         | 56. BUG: &quot;Waiting for localhost...&quot;
++       |          |         | 57. BUG: &quot;Node was not found&quot; exception in EntryView/LoginView?
++       |          |         | 58. Do some testing to find other existing bugs
++       |          |         | 59. Have explicit save instead of (or in addition to) autosave
++-------+----------+---------+----------------------------------------------
++       |          |         | 60. Be able to cancel out of creating a new account
++       |          |         | 61. Save view layout choice and user preferences
++       |          |         | 62. Do code reviews
++       |          |         | 63. Write concurrency tests 
++       |          |         | 64. Write scalability tests 
++       |          |         | 65. Ensure that PHP scripts and file I/O works for concurrent multi-user access
++       |          |         | 66. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
++       |          |         | 67. Have different documents use different style-sheets
++-------+----------+---------+----------------------------------------------
+                               
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000294.html">[openrecord-svn] r309 - in trunk: documentation repositories source source/model source/util source/view
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#295">[ date ]</a>
+              <a href="thread.html#295">[ thread ]</a>
+              <a href="subject.html#295">[ subject ]</a>
+              <a href="author.html#295">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

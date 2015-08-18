@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r288 - in trunk: documentation source source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r288%20-%20in%20trunk%3A%20documentation%20source%20source/view&In-Reply-To=%3C200508160028.j7G0S0rB019050%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000272.html">
+   <LINK REL="Next"  HREF="000274.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r288 - in trunk: documentation source source/view</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r288%20-%20in%20trunk%3A%20documentation%20source%20source/view&In-Reply-To=%3C200508160028.j7G0S0rB019050%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r288 - in trunk: documentation source source/view">chaolam at berlios.de
+       </A><BR>
+    <I>Tue Aug 16 02:28:00 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000272.html">[openrecord-svn] r287 - trunk/repositories
+</A></li>
+        <LI>Next message: <A HREF="000274.html">[openrecord-svn] r289 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#273">[ date ]</a>
+              <a href="thread.html#273">[ thread ]</a>
+              <a href="subject.html#273">[ subject ]</a>
+              <a href="author.html#273">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-08-16 02:27:55 +0200 (Tue, 16 Aug 2005)
+New Revision: 288
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/base_style.css
+   trunk/source/view/NavbarView.js
+   trunk/source/view/RootView.js
+Log:
+Made selected page appear differently on the sidebar/navbar
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-08-15 18:52:10 UTC (rev 287)
++++ trunk/documentation/release_planning.txt	2005-08-16 00:27:55 UTC (rev 288)
+@@ -372,7 +372,9 @@
+        |          |         |     Make RootView subclass from View, or add comments explaining why it doesn't
+        |          |         |     Make DateValue subclass from Date, or wrap an internal Date object
+ -------+----------+---------+----------------------------------------------
+-       
++chao   | 		  | 0.1 IED | Show current active page on sidebar
++                              Better time parsing e.g. 3pm
++                              
+ 
+ 
+ =======================================================
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-08-15 18:52:10 UTC (rev 287)
++++ trunk/source/base_style.css	2005-08-16 00:27:55 UTC (rev 288)
+@@ -278,6 +278,10 @@
+   color: rgb(0%, 0%, 0%); 
+ }
+ 
++.menu_item.selected a{
++  background-color: #DEE7F8;
++}
++
+ .class_fake_menu {    // PENDING: delete me
+   padding-left: 0;
+   padding-top: 0pt;
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-08-15 18:52:10 UTC (rev 287)
++++ trunk/source/view/NavbarView.js	2005-08-16 00:27:55 UTC (rev 288)
+@@ -45,7 +45,7 @@
+ // -------------------------------------------------------------------
+ NavbarView.CSS_CLASS_MENU      = &quot;menu&quot;;
+ NavbarView.CSS_CLASS_MENU_ITEM = &quot;menu_item&quot;;
+-
++NavbarView.CSS_CLASS_SELECTED = &quot;selected&quot;;
+ // Caution: 
+ // In order for us to use the &quot;Sortable&quot; feature in the script.aculo.us 
+ // dragdrop.js library, this Id must *not* have an underscore in it.
+@@ -195,6 +195,7 @@
+     // the id for the individual menu item to the right of the underscore.
+     var menuItemId = NavbarView.ELEMENT_ID_MENU + '_' + page._getUuid();
+     var liElement = View.appendNewElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM, {id: menuItemId});
++    if (page == this.getRootView().getCurrentPage()) {Util.css_addClass(liElement,NavbarView.CSS_CLASS_SELECTED);}
+     var anchorElement = View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
+     Event.observe(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink.bindAsEventListener());
+     Event.observe(liElement, &quot;mousedown&quot;, this._mouseDownOnMenuItem.bindAsEventListener(this, liElement));
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-08-15 18:52:10 UTC (rev 287)
++++ trunk/source/view/RootView.js	2005-08-16 00:27:55 UTC (rev 288)
+@@ -96,6 +96,7 @@
+   this._hashTableOfPageViewsKeyedByUuid = {};
+   this._currentContentView = null;
+   this._homePage = null;
++  this._currentPage = null;
+   this._selections = [];
+   
+   this._currentlyInDisplayMethod = false;
+@@ -265,6 +266,26 @@
+ 
+ 
+ /**
++ * Returns the current page that Rootview is displaying. Null, if it's an item view
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.getCurrentPage = function() {
++  return this._currentPage;
++};
++
++/**
++ * Set the Root View's currentPage instance variable and
++ * notify other views that the current page that Rootview is displaying has changed. 
++ *
++ * @scope    public instance method
++ */
++RootView.prototype.setCurrentPage = function(newPage) {
++  this._currentPage = newPage;
++  if (this._navbarView) {this._navbarView._rebuildView();}
++};
++
++/**
+  * Given an item, returns a relative URL that can be used to redirect the 
+  * browser to a page that displays that time.
+  *
+@@ -305,6 +326,7 @@
+       var isUrlForPage = (originalHash.indexOf(RootView.URL_HASH_PAGE_PREFIX) != -1);
+       var isUrlForItem = (originalHash.indexOf(RootView.URL_HASH_ITEM_PREFIX) != -1);
+       if (isUrlForItem) {
++        this.setCurrentPage(null);
+         uuidText = originalHash.replace(RootView.URL_HASH_ITEM_PREFIX, &quot;&quot;);
+         contentViewToSwitchTo = this._hashTableOfItemViewsKeyedByUuid[uuidText];
+         if (!contentViewToSwitchTo) {
+@@ -318,9 +340,10 @@
+       } else {
+         if (isUrlForPage) {
+           uuidText = originalHash.replace(RootView.URL_HASH_PAGE_PREFIX, &quot;&quot;);
++          pageFromUuid = this.getWorld().getItemFromUuid(uuidText);
++          this.setCurrentPage(pageFromUuid); // if pageFromUuid is null, then just set currentPage to null
+           contentViewToSwitchTo = this._hashTableOfPageViewsKeyedByUuid[uuidText];
+           if (!contentViewToSwitchTo) {
+-            pageFromUuid = this.getWorld().getItemFromUuid(uuidText);
+             if (pageFromUuid) {
+               divElement = View.appendNewElement(this._contentViewDivElement, &quot;div&quot;);
+               contentViewToSwitchTo = new PageView(this, divElement, pageFromUuid);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000272.html">[openrecord-svn] r287 - trunk/repositories
+</A></li>
+	<LI>Next message: <A HREF="000274.html">[openrecord-svn] r289 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#273">[ date ]</a>
+              <a href="thread.html#273">[ thread ]</a>
+              <a href="subject.html#273">[ subject ]</a>
+              <a href="author.html#273">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

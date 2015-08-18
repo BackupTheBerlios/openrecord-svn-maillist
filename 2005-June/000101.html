@@ -1,0 +1,2694 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r114 - in trunk/source: . model repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r114%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506021904.j52J4eeb013354%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000100.html">
+   <LINK REL="Next"  HREF="000102.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r114 - in trunk/source: . model repositories/demo_page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r114%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506021904.j52J4eeb013354%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r114 - in trunk/source: . model repositories/demo_page">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  2 21:04:40 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000100.html">[openrecord-svn] r113 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000102.html">[openrecord-svn] r115 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#101">[ date ]</a>
+              <a href="thread.html#101">[ thread ]</a>
+              <a href="subject.html#101">[ subject ]</a>
+              <a href="author.html#101">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-02 21:04:37 +0200 (Thu, 02 Jun 2005)
+New Revision: 114
+
+Modified:
+   trunk/source/MultiEntriesView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/base_style.css
+   trunk/source/model/Item.js
+   trunk/source/repositories/demo_page/2005_may_chronological_list.json
+Log:
+New changes mostly for having expected data types for attributes, and having the table plugin look at the expected data types and decide when to offer suggestion boxes and when not to.
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/MultiEntriesView.js	2005-06-02 19:04:37 UTC (rev 114)
+@@ -45,6 +45,7 @@
+ MultiEntriesView.SEPARATOR = &quot; &#8226; &quot;;
+ MultiEntriesView.SEPARATOR_COLOR = '#999999';
+ 
++
+ /**
+  * An instance of MultiEntriesView can be placed in any parent container View
+  * to display and (if in edit mode) edit multi-lines of text
+@@ -89,6 +90,9 @@
+ };
+ 
+ 
++/**
++ *
++ */
+ MultiEntriesView.prototype.noLongerProvisional = function() {
+   Util.assert(this._entryViews.length == 1); // provisional item should only have one entry
+   for (var i=0; i &lt; this._entryViews.length; ++i) {
+@@ -96,22 +100,35 @@
+   }
+ };
+ 
++
++/**
++ *
++ */
+ MultiEntriesView.prototype.select = function(inSelectFirst) {
+   var index = inSelectFirst ? 0 : this._entryViews.length - 1;
+   this._entryViews[index].startEditing();
+ };
+ 
++
++/**
++ *
++ */
+ MultiEntriesView.prototype.setSuggestions = function(suggestionList) {
+   for (var i=0; i &lt; this._entryViews.length; ++i) {
+     this._entryViews[i].setSuggestions(suggestionList);
+   }
+ };
+ 
++
++/**
++ *
++ */
+ MultiEntriesView.prototype.setKeyPressFunction = function(keyPressFunction) {
+   Util.assert(keyPressFunction instanceof Function);
+   this._keyPressFunction = keyPressFunction;
+ };
+ 
++
+ /**
+  * Sets a function to be used when onclick is called to the TextView
+  *
+@@ -123,6 +140,10 @@
+   this._clickFunction = inClickFunction;
+ };
+ 
++
++/**
++ *
++ */
+ MultiEntriesView.prototype._handleClick = function(inEvent, inTextView) {
+   if (this._clickFunction &amp;&amp; this._clickFunction(inEvent, inTextView)) {
+     return true;
+@@ -130,6 +151,10 @@
+   return false;
+ };
+ 
++
++/**
++ *
++ */
+ MultiEntriesView.prototype._handleOwnClick = function(inEvent) {
+   var lastEntry = this._entryViews[this._entryViews.length-1];
+   if (this._handleClick(inEvent, lastEntry)) {return true;}
+@@ -137,6 +162,9 @@
+ };
+ 
+ 
++/**
++ *
++ */
+ MultiEntriesView.prototype._keyPressOnEditField = function(inEvent, inTextView) {
+   Util.assert(inTextView instanceof TextView);
+   var asciiValueOfKey = inEvent.keyCode;
+@@ -170,6 +198,9 @@
+ };
+ 
+ 
++/**
++ *
++ */
+ MultiEntriesView.prototype._addEntryView = function(inEntry) {
+   var spanElt = document.createElement(&quot;span&quot;);
+   var aTextView = new TextView(this, spanElt, this._item, this._attribute, inEntry, this._className);
+@@ -184,6 +215,10 @@
+   return aTextView;
+ };
+ 
++
++/**
++ *
++ */
+ MultiEntriesView.prototype._addSeparator = function() {
+   var spanElt = document.createElement(&quot;span&quot;);
+   spanElt.appendChild(document.createTextNode(MultiEntriesView.SEPARATOR));
+@@ -192,6 +227,7 @@
+   return spanElt;
+ };
+ 
++
+ /**
+  * Re-creates all the HTML for the MultiEntriesView, and hands the HTML to the 
+  * browser to be re-drawn.
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/SectionView.js	2005-06-02 19:04:37 UTC (rev 114)
+@@ -106,6 +106,7 @@
+   this._myPluginDiv = null;
+   this._mySectionSummaryView = null;
+   this._myHeaderView = null;
++  this._queryEditSpan = null;
+ }
+ 
+ 
+@@ -178,6 +179,7 @@
+   return this.myListOfContentItems;
+ };
+ 
++
+ /**
+  * Returns query associated to this section.
+  *
+@@ -190,6 +192,7 @@
+   return (listOfEntries &amp;&amp; listOfEntries[0]) ? listOfEntries[0].getValue() : null;
+ };
+ 
++
+ /**
+  * Updates the HTML elements in this view to reflect any changes in 
+  * the data, and tells the sub-views to refresh themselves too.
+@@ -201,6 +204,7 @@
+     this.doInitialDisplay();
+   } else {
+     // refresh the &lt;h2&gt; element with the value: this.mySection.getDisplayName();  
++    this._refreshQueryEditSpan();
+     this._mySectionSummaryView.refresh();
+     this._myPlugin.refresh();
+     this._myHeaderView.refresh();
+@@ -220,17 +224,7 @@
+   }
+   var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+   var selectedPluginName = this.mySection.getSingleStringValueFromAttribute(attributeCalledPluginName);
+-  var attributeCalledQueryMatchingCategory = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var listOfMatchingCategories = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingCategory);
+-  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
+-  var selectedCategoryName = isCategoryMatchingQuery? listOfMatchingCategories[0].getValue().getDisplayName() : &quot;no category selected&quot;;
+-  var isEmptyQuery = false;
+-  if (!isCategoryMatchingQuery) {
+-    var attributeCalledQueryMatchingItem = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+-    var listOfMatchingItems = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingItem);
+-    var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
+-    isEmptyQuery = !isItemMatchingQuery;
+-  }
++
+   this.myListOfContentItems = this.getListOfContentItems();
+   if (!this.myListOfContentItems) {
+     return;
+@@ -274,34 +268,64 @@
+   var textOf = document.createTextNode(&quot; of &quot;);
+   controlArea.appendChild(textOf);
+ 
++  this._queryEditSpan = View.createAndAppendElement(controlArea, &quot;span&quot;);
++  // this._refreshQueryEditSpan();
++
++  var textItems = document.createTextNode(&quot; items.&quot;);
++  controlArea.appendChild(textItems);
++
++  // create a div element for the plugin class to use
++  this._myPluginDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
++  this._myPlugin = this.getPluginFromPluginName(selectedPluginName, this._myPluginDiv);
++  this._myHasEverBeenDisplayedFlag = true;
++  this.refresh();
++};
++
++
++/**
++ * Re-creates all the HTML for the SectionView, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ */
++SectionView.prototype._refreshQueryEditSpan = function () {
++  this._queryEditSpan.innerHTML = '';
++  
++  var attributeCalledQueryMatchingCategory = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var listOfMatchingCategories = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingCategory);
++  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
++  var selectedCategoryName = isCategoryMatchingQuery ? listOfMatchingCategories[0].getValue().getDisplayName() : &quot;no category selected&quot;;
++
++  var isEmptyQuery = false;
++  if (!isCategoryMatchingQuery) {
++    var attributeCalledQueryMatchingItem = this.getWorld().getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++    var listOfMatchingItems = this.getQuery().getEntriesForAttribute(attributeCalledQueryMatchingItem);
++    var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
++    isEmptyQuery = !isItemMatchingQuery;
++  }
++  
+   if (isCategoryMatchingQuery || isEmptyQuery) {
+-    var querySelectElement = View.createAndAppendElement(controlArea, &quot;select&quot;);
++    var listener = this; 
++    var querySelectElement = View.createAndAppendElement(this._queryEditSpan, &quot;select&quot;);
+     var listOfCategories = this.getWorld().getCategories();
++    var optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
++    optionElement.setAttribute(&quot;value&quot;, null);
++    Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
++    optionElement.innerHTML = &quot;(none)&quot;;
+     for (var key in listOfCategories) {
+       var category = listOfCategories[key];
+       optionElement = View.createAndAppendElement(querySelectElement, &quot;option&quot;);
+       optionElement.selected = (selectedCategoryName == category.getDisplayName());
+       optionElement.setAttribute(&quot;value&quot;, category._getUuid());
+-      listener = this; 
+       Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnQueryCategorySelectionMenu(event);});
+       optionElement.innerHTML = category.getDisplayName();
+     }
+   } else {
+     var textTheGiven = document.createTextNode(&quot; the given&quot;);
+-    controlArea.appendChild(textTheGiven);
++    this._queryEditSpan.appendChild(textTheGiven);
+   }
++};
+ 
+-  var textItems = document.createTextNode(&quot; items.&quot;);
+-  controlArea.appendChild(textItems);
+ 
+-  // create a div element for the plugin class to use
+-  this._myPluginDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+-  this._myPlugin = this.getPluginFromPluginName(selectedPluginName, this._myPluginDiv);
+-  this._myHasEverBeenDisplayedFlag = true;
+-  this.refresh();
+-};
+-  
+-
+ // -------------------------------------------------------------------
+ // Event handler methods
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/TablePlugin.js	2005-06-02 19:04:37 UTC (rev 114)
+@@ -124,6 +124,7 @@
+  * @scope    private instance method
+  */
+ TablePlugin.prototype._buildAttributeHash = function() {
++  var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var hashTableOfAttributes = {};
+   var hashTableOfEntries = {};
+@@ -138,20 +139,27 @@
+         
+         // build entries representing this attribute in this table 
+         // PENDING we may only want to do this for certain attributes
+-        if (!hashTableOfEntries[attributeKeyString]) {
+-          hashTableOfEntries[attributeKeyString] = {};
+-        }
+         var itemEntries = contentItem.getEntriesForAttribute(attribute);
+-        for (var entryKey in itemEntries) {
+-          var entry = itemEntries[entryKey];
+-          hashTableOfEntries[attributeKeyString][entry.getUniqueKeyString()] = entry;
++        if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++          hashTableOfEntries[attributeKeyString] = this._getSuggestedItemsForAttribute(attribute);
++        } else {
++          if (!hashTableOfEntries[attributeKeyString]) {
++            hashTableOfEntries[attributeKeyString] = {};
++          }
++          for (var entryKey in itemEntries) {
++            var entry = itemEntries[entryKey];
++            hashTableOfEntries[attributeKeyString][entry.getUniqueKeyString()] = entry;
++          }
+         }
+       }
+     }
+   }
+   
+-  for (attributeKey in hashTableOfEntries) {
+-    hashTableOfEntries[attributeKey] = Util.hashTableValues(hashTableOfEntries[attributeKey]);
++  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++  } else {
++    for (attributeKey in hashTableOfEntries) {
++      hashTableOfEntries[attributeKey] = Util.hashTableValues(hashTableOfEntries[attributeKey]);
++    }
+   }
+   this._hashTableOfEntries = hashTableOfEntries;
+   this._hashTableOfAttributes = hashTableOfAttributes;
+@@ -164,6 +172,50 @@
+ 
+ 
+ /**
++ *
++ */
++TablePlugin.prototype._getSuggestedItemsForAttribute = function(attribute) {
++  var listOfSuggestedItems = [];
++  var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
++  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++    var key;
++    var categoryCalledCategory = this.getWorld().getCategoryCalledCategory();
++    var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++    var attributeCalledExpectedType = this.getWorld().getAttributeCalledExpectedType();
++    var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
++    var listOfCategories = [];
++    for (key in listOfExpectedTypeEntries) {
++      var expectedTypeEntry = listOfExpectedTypeEntries[key];
++      var expectedType = expectedTypeEntry.getValue();
++      if (expectedType.isInCategory(categoryCalledCategory)) {
++        listOfCategories.push(expectedType);
++      }
++      /* WRONG -- DELETE ME
++      var listOfCategoryEntriesForExpectedType = expectedType.getEntriesForAttribute(attributeCalledCategory);
++      var categoryEntryForExpectedType = listOfCategoryEntriesForExpectedType[0]; // PENDING: should look at whole list, not just element 0
++      var categoryForExpectedType = categoryEntryForExpectedType.getValue();
++      if (categoryForExpectedType.isInCategory(categoryCalledCategory)) {
++        listOfCategories.push(categoryForExpectedType);
++      }
++      */
++    }
++    for (key in listOfCategories) {
++      var category = listOfCategories[key];
++      var listOfItems = this.getWorld().getItemsInCategory(category);
++      for (keyToo in listOfItems) {
++        var item = listOfItems[keyToo];
++        Util.addObjectToSet(item, listOfSuggestedItems);
++      }
++    }
++  }
++  if (listOfSuggestedItems.length === 0) {
++    listOfSuggestedItems = null;
++  }
++  return listOfSuggestedItems;
++};
++
++
++/**
+  * Inserts a table row at rowNum given contentItem
+  *
+  * @scope    private instance method
+@@ -178,6 +230,7 @@
+   return aRow;
+ };
+ 
++
+ /**
+  * Constructs the table body 
+  *
+@@ -198,6 +251,10 @@
+   }
+ };
+ 
++
++/**
++ *
++ */
+ TablePlugin.prototype.observedItemHasChanged = function(item) {
+   // called when a provisional item becomes a real item
+   item.removeObserver(this); //now that provisional item is real, we stop observing it
+@@ -216,6 +273,7 @@
+   var aRow = this._insertRow(newItem, this._listOfItems.length+1, true);
+ };
+ 
++
+ /**
+  * Constructs the table header 
+  *
+@@ -232,7 +290,8 @@
+     var headerStr = attribute.getDisplayName();
+     aCell.appendChild(document.createTextNode(headerStr));
+     if (this._sortAttribute == attribute) {
+-      aCell.appendChild(this.getSortIcon());}
++      aCell.appendChild(this.getSortIcon());
++    }
+     aCell.onclick = this.clickOnHeader.bindAsEventListener(this, attribute);
+     
+     headerRow.appendChild(aCell);
+@@ -314,7 +373,7 @@
+ TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
+   var aCell = row.insertCell(col);
+   aCell.className = this.myCellClass;
+-  var multiEntriesView = new MultiEntriesView(this, aCell, item,attribute, this.myCellClass);
++  var multiEntriesView = new MultiEntriesView(this, aCell, item, attribute, this.myCellClass);
+   aCell.or_entriesView = multiEntriesView;
+   multiEntriesView.refresh();
+   if (this.isInEditMode()) {
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/TextView.js	2005-06-02 19:04:37 UTC (rev 114)
+@@ -78,11 +78,15 @@
+   this._proxyOnKeyFunction = null;
+   
+   this._isProvisional = inItem.isProvisional();
+-  if (this._isProvisional) {this._provisionalText = inAttribute.getDisplayName();}
+-  
++  if (this._isProvisional) {
++    this._provisionalText = inAttribute.getDisplayName();
++  }
+ }
+ 
+ 
++/**
++ *
++ */
+ TextView.prototype._setupSuggestionBox = function() {
+   if (this._suggestions) {
+     var suggestionBox = new AttributeSuggestionBox(this._editField, this._suggestions);
+@@ -90,10 +94,15 @@
+   }
+ };
+ 
++
++/**
++ *
++ */
+ TextView.prototype.setSuggestions = function(suggestionList) {
+   this._suggestions = suggestionList;
+ };
+ 
++
+ /**
+  * Updates the HTML elements in this view to reflect any changes in 
+  * the item's attribute values.
+@@ -106,7 +115,7 @@
+   } else {
+   // if (weHaveBeenNotifiedOfChangesTo(this._item)) {
+   //   var newText = getNewValueFrom(this._item);
+-  //   this.textNode.data = newText;
++  //   this._textNode.data = newText;
+   // }
+   }
+ };
+@@ -128,8 +137,8 @@
+     this._oldColor = htmlElement.style.color;
+     htmlElement.style.color = TextView.PROVISIONAL_COLOR;
+   }
+-  this.textNode = document.createTextNode(textString);
+-  htmlElement.appendChild(this.textNode);
++  this._textNode = document.createTextNode(textString);
++  htmlElement.appendChild(this._textNode);
+ 
+   htmlElement.onclick =  this.onClick.bindAsEventListener(this);
+     
+@@ -160,13 +169,13 @@
+       editField.onkeypress = this.onKeyPress.bindAsEventListener(this);
+       editField.onkeyup = this.onKeyUp.bindAsEventListener(this);
+       editField.onfocus = this.onFocus.bindAsEventListener(this);
+-      editField.defaultValue = this._isProvisional ? '' : this.textNode.data;
++      editField.defaultValue = this._isProvisional ? '' : this._textNode.data;
+     }
+     //editField.style.width = this.getHTMLElement().offsetWidth + &quot;px&quot;;    
+     //editField.style.height = (this.getHTMLElement().offsetHeight) + &quot;px&quot;;
+     
+     this._setupSuggestionBox();
+-    this.getHTMLElement().replaceChild(editField, this.textNode);
++    this.getHTMLElement().replaceChild(editField, this._textNode);
+     editField.select();
+     //editField.focus();
+     this._isEditing = true;
+@@ -181,44 +190,60 @@
+  */
+ TextView.prototype.stopEditing = function() {
+   if (this._isEditing) {
++    var newValue;
++    if (this._suggestionBox) {
++      newValue = this._suggestionBox.getSelectedItem();
++    }
++    if (!newValue) {
++      newValue = this._editField.value;
++    }
+     var newText = this._editField.value;
+-    var stillProvisional = this._isProvisional &amp;&amp; newText === '';
++    var stillProvisional = this._isProvisional &amp;&amp; !newValue;
+     var htmlElement = this.getHTMLElement();
+ 
+     this._isEditing = false;
+ 
+-    if (this._suggestionBox) {this._suggestionBox._blurOnInputField();}
++    if (this._suggestionBox) {
++      this._suggestionBox._blurOnInputField();
++    }
+     if (stillProvisional) {
+-      newText = this._provisionalText;
++      newValue = this._provisionalText;
+     }
+-    this.textNode.data = newText;
++    var newValueDisplayString = &quot;&quot;;
++    if (Util.isString(newValue)) {
++      newValueDisplayString = newValue;
++    }
++    if (newValue instanceof Item) {
++      newValueDisplayString = newValue.getDisplayName();
++    }
++    this._textNode.data = newValueDisplayString;
+     this._suggestionBox = null;
+-    this.getHTMLElement().replaceChild(this.textNode, this._editField);
++    this.getHTMLElement().replaceChild(this._textNode, this._editField);
+ 
+-    // we need this _writeText() to be after all display related code, because this may trigger an observer call
+-    if (!stillProvisional) { this._writeText(newText); }
++    // we need this _writeValue() to be after all display related code, because this may trigger an observer call
++    if (!stillProvisional) { this._writeValue(newValue); }
+   }
+ };
+ 
+ 
+ /**
+- * Writes edited text back into item entry of repository
++ * Writes edited value back into item entry of repository.
+  *
+  * @scope    private instance method
+- * @param    inText    text to be written. 
++ * @param    value    The new value to be saved. 
+  */
+-TextView.prototype._writeText = function(inText) {
++TextView.prototype._writeValue = function(value) {
+   if (this._entry) {
+-    var oldText = this._entry.getDisplayString();
+-    if (oldText != inText) {
+-      this._entry = this._item.replaceEntry(this._entry,inText);
++    var oldValue = this._entry.getValue();
++    if (oldValue != value) {
++      this._entry = this._item.replaceEntry(this._entry, value);
+     }
++  } else if (value) {
++    this._entry = this._item.addEntryForAttribute(this._attribute, value);
+   }
+-  else if (inText !== '') {
+-    this._entry = this._item.addEntryForAttribute(this._attribute, inText);
+-  }
+ };
+ 
++
+ /**
+  * Returns text string for TextView to be displaying and editing
+  *
+@@ -230,6 +255,7 @@
+   return '';
+ };
+ 
++
+ /**
+  * Restores the original text before this editing session
+  *
+@@ -242,6 +268,7 @@
+   this._editField.select();
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // Event handler methods
+ // -------------------------------------------------------------------
+@@ -257,6 +284,7 @@
+   this._clickFunction = inClickFunction;
+ };
+ 
++
+ /**
+  * Called when the user clicks on the text.
+  *
+@@ -274,10 +302,17 @@
+   }
+ };
+ 
++
++/**
++ *
++ */
+ TextView.prototype.onFocus = function(inEventObject) {
+-  if (this._suggestionBox) {this._suggestionBox._focusOnInputField(inEventObject);}
++  if (this._suggestionBox) {
++    this._suggestionBox._focusOnInputField(inEventObject);
++  }
+ };
+ 
++
+ /**
+  * Called when focus leaves the text view.
+  *
+@@ -296,16 +331,23 @@
+  * Sets a function to be used when onkeypress is called to the TextView
+  *
+  * @scope    public instance method
+- * @param    inEventObject    An event object. 
++ * @param    keyPressFunction    A function. 
+  */
+ TextView.prototype.setKeyPressFunction = function(keyPressFunction) {
+   this._keyPressFunction = keyPressFunction;
+ };
+ 
++
++/**
++ *
++ */
+ TextView.prototype.onKeyUp = function(inEventObject) {
+-  if (this._suggestionBox) {this._suggestionBox._keyPressOnInputField(inEventObject);}
++  if (this._suggestionBox) {
++    this._suggestionBox._keyPressOnInputField(inEventObject);
++  }
+ };
+ 
++
+ /**
+  * Called when the user types in editField
+  *
+@@ -363,11 +405,15 @@
+   */
+ };
+ 
++
++/**
++ *
++ */
+ TextView.prototype.noLongerProvisional = function() {
+   if (this._isProvisional) {
+     this._isProvisional = false;
+     this.getHTMLElement().style.color = this._oldColor;
+-    // need to set line below because _writeText() hasn't returned an entry yet
++    // need to set line below because _writeValue() hasn't returned an entry yet
+     this._entry = this._item.getSingleEntryFromAttribute(this._attribute); 
+     this._buildView();
+   }
+@@ -376,10 +422,15 @@
+ // -------------------------------------------------------------------
+ // Suggestion box methods
+ // -------------------------------------------------------------------
+-function AttributeSuggestionBox(inHTMLInputField, inListOfEntries) {
++
++/**
++ *
++ */
++function AttributeSuggestionBox(inHTMLInputField, listOfItems) {
+   this._myInputField = inHTMLInputField;
+-  this._myListOfEntries = inListOfEntries.sort(AttributeSuggestionBox.compareEntryDisplayNames);
+-
++  this._listOfSuggestedItems = listOfItems.sort(AttributeSuggestionBox._compareItemDisplayNames);
++  this._selectedItem = null;
++  
+   this._myAttributeSuggestionBoxDivElement = document.createElement('div');
+   // this._myAttributeSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
+   this._myAttributeSuggestionBoxDivElement.style.zIndex = 11;
+@@ -392,9 +443,21 @@
+   //this._keyPressOnInputField();
+ }
+ 
+-AttributeSuggestionBox.compareEntryDisplayNames = function (inEntryOne, inEntryTwo) {
+-  var displayNameOne = inEntryOne.getDisplayString();
+-  var displayNameTwo = inEntryTwo.getDisplayString();
++
++/**
++ *
++ */
++AttributeSuggestionBox.prototype.getSelectedItem = function () {
++  return this._selectedItem;
++};
++
++
++/**
++ *
++ */
++AttributeSuggestionBox._compareItemDisplayNames = function (itemOne, itemTwo) {
++  var displayNameOne = itemOne.getDisplayName();
++  var displayNameTwo = itemTwo.getDisplayName();
+   if (displayNameOne == displayNameTwo) {
+     return 0;
+   } else {
+@@ -402,46 +465,64 @@
+   }
+ };
+ 
++
++/**
++ *
++ */
+ AttributeSuggestionBox.prototype._focusOnInputField = function (inEventObject) {
+   //this._myInputField.value = &quot;&quot;;
+   this._redisplayAttributeSuggestionBox();
+ };
+ 
+ 
++/**
++ *
++ */
+ AttributeSuggestionBox.prototype._keyPressOnInputField = function (inEventObject) {
+   this._redisplayAttributeSuggestionBox();
+ };
+ 
+ 
++/**
++ *
++ */
+ AttributeSuggestionBox.prototype._blurOnInputField = function () {
+   // make the suggestion box disappear
+   this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+ };
+ 
+ 
+-AttributeSuggestionBox.prototype._clickOnSelection = function (inEventObject, inString) {
+-  this._myInputField.value = inString;
++/**
++ *
++ */
++AttributeSuggestionBox.prototype._clickOnSelection = function (inEventObject, item) {
++  this._selectedItem = item;
++  this._myInputField.value = item.getDisplayName();  // PENDING: need to pass back the item, not a string
+ };
+ 
+ 
++/**
++ *
++ */
+ AttributeSuggestionBox.prototype._redisplayAttributeSuggestionBox = function () {
+   var partialInputString = this._myInputField.value;
+-  var listOfMatchingStrings = [];
++  var listOfMatchingItems = [];
+   var key;
++  var item;
+ 
+-  for (key in this._myListOfEntries) {
+-    var entry = this._myListOfEntries[key];
+-    var lowerCaseEntryString = entry.getDisplayString().toLowerCase();
++  for (key in this._listOfSuggestedItems) {
++    item = this._listOfSuggestedItems[key];
++    var lowerCaseEntryString = item.getDisplayName().toLowerCase();
+     var lowerCaseInputString = partialInputString.toLowerCase();
+     var numberOfCharactersToCompare = lowerCaseInputString.length;
+     var shortEntryString = lowerCaseEntryString.substring(0, numberOfCharactersToCompare);
+     if (shortEntryString == lowerCaseInputString) {
+       // we have a match!
+-      listOfMatchingStrings.push(entry.getDisplayString());
++      listOfMatchingItems.push(item);
+     }
+   }
+ 
+-  if (listOfMatchingStrings.length === 0) {
++  if (listOfMatchingItems.length === 0) {
+     // make the suggestion box disappear
+     this._myAttributeSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+@@ -449,13 +530,13 @@
+     var table = document.createElement('table');
+     var rowNumber = 0;
+     var columnNumber = 0;
+-    for (key in listOfMatchingStrings) {
+-      var string = listOfMatchingStrings[key];
+-      var textNode = document.createTextNode(string);
++    for (key in listOfMatchingItems) {
++      item = listOfMatchingItems[key];
++      var textNode = document.createTextNode(item.getDisplayName());
+       var row = table.insertRow(rowNumber);
+       var cell = row.insertCell(columnNumber);
+       cell.appendChild(textNode);
+-      cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, string);
++      cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, item);
+       rowNumber += 1;
+     }
+     this._myAttributeSuggestionBoxDivElement.appendChild(table);
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/base_style.css	2005-06-02 19:04:37 UTC (rev 114)
+@@ -232,8 +232,11 @@
+   float: right;
+ }
+ 
++div.editmode p.edit_mode_only_control {
++  background-color: rgb(100%, 100%, 40%);
++}
++
+ div.editmode .edit_mode_only_control {
+-  background-color: rgb(100%, 100%, 40%);
+   display: block;
+ }
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/model/Item.js	2005-06-02 19:04:37 UTC (rev 114)
+@@ -396,8 +396,9 @@
+   var listOfCategories = this.getEntriesForAttribute(attributeCategory);
+   for (var key in listOfCategories) {
+     var category = listOfCategories[key];
+-    Util.assert(category instanceof Item);
+-    returnString += &quot;(&quot; + category.getDisplayName() + &quot;)&quot;;
++    if (category instanceof Item) {
++      returnString += &quot;(&quot; + category.getDisplayName() + &quot;)&quot;;
++    }
+   }
+   returnString += &quot; \&quot;&quot; + this.getDisplayName() + &quot;\&quot;&quot; + &quot;]&quot;;
+   return returnString; 
+
+Modified: trunk/source/repositories/demo_page/2005_may_chronological_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-02 18:22:08 UTC (rev 113)
++++ trunk/source/repositories/demo_page/2005_may_chronological_list.json	2005-06-02 19:04:37 UTC (rev 114)
+@@ -516,11 +516,6 @@
+       &quot;userstamp&quot;: &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // by (Amy ex machina)
+       &quot;timestamp&quot;: &quot;1114819457656&quot; }
+   },
+-
+-  
+-  
+-  
+-  
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Text
+            &quot;uuid&quot;: &quot;88801200&quot;,
+@@ -771,7 +766,7 @@
+       &quot;timestamp&quot;: &quot;1114819457765&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Book
++  { &quot;Item&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;3104&quot;,
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+       &quot;timestamp&quot;: &quot;1114819457781&quot; }
+@@ -933,72 +928,6 @@
+       &quot;timestamp&quot;: &quot;1114819458062&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Make it possible to assign ...
+-           &quot;uuid&quot;: &quot;4304&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458062&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Allow for entering number-v...
+-           &quot;uuid&quot;: &quot;4305&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458078&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Have table mode show multi-...
+-           &quot;uuid&quot;: &quot;4306&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458093&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // When you assign a value to ...
+-           &quot;uuid&quot;: &quot;4307&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458093&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Clean up all the code that ...
+-           &quot;uuid&quot;: &quot;4308&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458109&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Be able to create new pages
+-           &quot;uuid&quot;: &quot;4309&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458125&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Be able to add a new sectio...
+-           &quot;uuid&quot;: &quot;4310&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458125&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Observable queries: all ite...
+-           &quot;uuid&quot;: &quot;4311&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458140&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Observable queries: limit r...
+-           &quot;uuid&quot;: &quot;4312&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458156&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Be able to edit the query o...
+-           &quot;uuid&quot;: &quot;4313&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458156&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Make it possible to add new...
+-           &quot;uuid&quot;: &quot;4314&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458171&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // Figure out how to declare d...
+            &quot;uuid&quot;: &quot;4315&quot;,
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+@@ -1143,24 +1072,6 @@
+       &quot;timestamp&quot;: &quot;1114819458437&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // All Items
+-           &quot;uuid&quot;: &quot;6000&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458437&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // All Items
+-           &quot;uuid&quot;: &quot;6010&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458453&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Item&quot;: {                             // Query for all items
+-           &quot;uuid&quot;: &quot;6011&quot;,
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819458468&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+   { &quot;Item&quot;: {                             // JavaScript: The Definitive ...
+            &quot;uuid&quot;: &quot;6012&quot;,
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+@@ -1371,7 +1282,7 @@
+       &quot;timestamp&quot;: &quot;1114819459093&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6040&quot;,
+       &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
+            &quot;item&quot;: &quot;3011&quot;,                // Query for all books
+@@ -1402,7 +1313,7 @@
+            &quot;uuid&quot;: &quot;6043&quot;,
+       &quot;attribute&quot;: &quot;00000108-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Item
+            &quot;item&quot;: &quot;3021&quot;,                // Query for one book
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;3205&quot; },
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot; },
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+       &quot;timestamp&quot;: &quot;1114819459171&quot; }
+   },
+@@ -1410,22 +1321,22 @@
+   { &quot;Entry&quot;: {                             // Category
+            &quot;uuid&quot;: &quot;6044&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;3104&quot;,                // Book
++           &quot;item&quot;: &quot;3104&quot;,                // Old Book
+           &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+       &quot;timestamp&quot;: &quot;1114819459203&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6045&quot;,
+       &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;3104&quot;,                // Book
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book&quot; },
++           &quot;item&quot;: &quot;3104&quot;,                // Old Book
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Old Book&quot; },
+       &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+       &quot;timestamp&quot;: &quot;1114819459218&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6046&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;3205&quot;,                // HTTP: The Definitive Guide
+@@ -1524,7 +1435,7 @@
+       &quot;timestamp&quot;: &quot;1114819459453&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6057&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;3201&quot;,                // The Transparent Society
+@@ -1569,7 +1480,7 @@
+       &quot;timestamp&quot;: &quot;1114819459546&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6062&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;3202&quot;,                // The Hobbit
+@@ -1623,7 +1534,7 @@
+       &quot;timestamp&quot;: &quot;1114819459656&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6068&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;3203&quot;,                // The Wisdom of Crowds
+@@ -1668,7 +1579,7 @@
+       &quot;timestamp&quot;: &quot;1114819459765&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6073&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;3204&quot;,                // Shrinking Violets and Caspa...
+@@ -2236,204 +2147,6 @@
+   },
+   // -----------------------------------------------------------------------
+   { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6136&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4304&quot;,                // Make it possible to assign ...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461125&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Make it possible to assign ...
+-           &quot;uuid&quot;: &quot;6137&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4304&quot;,                // Make it possible to assign ...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Make it possible to assign items to categories -- allow for entering reference-values, not just string-values&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461140&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6138&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4305&quot;,                // Allow for entering number-v...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461171&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Allow for entering number-v...
+-           &quot;uuid&quot;: &quot;6139&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4305&quot;,                // Allow for entering number-v...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Allow for entering number-values, not just string-values&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461187&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6140&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4306&quot;,                // Have table mode show multi-...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461218&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Have table mode show multi-...
+-           &quot;uuid&quot;: &quot;6141&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4306&quot;,                // Have table mode show multi-...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Have table mode show multi-valued attributes&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461234&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6142&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4307&quot;,                // When you assign a value to ...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461250&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // When you assign a value to ...
+-           &quot;uuid&quot;: &quot;6143&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4307&quot;,                // When you assign a value to ...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;When you assign a value to an item, mark it with a timestamp&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461265&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6144&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4308&quot;,                // Clean up all the code that ...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461296&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Clean up all the code that ...
+-           &quot;uuid&quot;: &quot;6145&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4308&quot;,                // Clean up all the code that ...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Clean up all the code that assumes single-valued attributes -- search for '[0]'&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461312&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6146&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4309&quot;,                // Be able to create new pages
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461343&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Be able to create new pages
+-           &quot;uuid&quot;: &quot;6147&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4309&quot;,                // Be able to create new pages
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to create new pages&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461359&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6148&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4310&quot;,                // Be able to add a new sectio...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461390&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Be able to add a new sectio...
+-           &quot;uuid&quot;: &quot;6149&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4310&quot;,                // Be able to add a new sectio...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to add a new section to a page&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461406&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6150&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4311&quot;,                // Observable queries: all ite...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461437&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Observable queries: all ite...
+-           &quot;uuid&quot;: &quot;6151&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4311&quot;,                // Observable queries: all ite...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Observable queries: all items, limited to a requested subset based on kind and category (e.g. 'All fiction books')&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461453&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6152&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4312&quot;,                // Observable queries: limit r...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461484&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Observable queries: limit r...
+-           &quot;uuid&quot;: &quot;6153&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4312&quot;,                // Observable queries: limit r...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Observable queries: limit results to just a requested subset of the attributes (e.g. just the names of the books)&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461484&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6154&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4313&quot;,                // Be able to edit the query o...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461515&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Be able to edit the query o...
+-           &quot;uuid&quot;: &quot;6155&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4313&quot;,                // Be able to edit the query o...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Be able to edit the query of a section&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461531&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+-           &quot;uuid&quot;: &quot;6156&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;4314&quot;,                // Make it possible to add new...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4102&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461562&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Make it possible to add new...
+-           &quot;uuid&quot;: &quot;6157&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;4314&quot;,                // Make it possible to add new...
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Make it possible to add new attributes to a table view&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819461578&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Feature
+            &quot;uuid&quot;: &quot;6158&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;4315&quot;,                // Figure out how to declare d...
+@@ -2847,7 +2560,7 @@
+       &quot;timestamp&quot;: &quot;1114819462640&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6204&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;5204&quot;,                // The Gumption Memo
+@@ -2883,7 +2596,7 @@
+       &quot;timestamp&quot;: &quot;1114819462734&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6208&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;5205&quot;,                // Deceit and Denial
+@@ -2982,97 +2695,7 @@
+       &quot;timestamp&quot;: &quot;1114819462968&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Page
+-           &quot;uuid&quot;: &quot;6219&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;6000&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000200-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463000&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // 5. All Items
+-           &quot;uuid&quot;: &quot;6220&quot;,
+-      &quot;attribute&quot;: &quot;00000102-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Short Name
+-           &quot;item&quot;: &quot;6000&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;5. All Items&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463015&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // All Items
+-           &quot;uuid&quot;: &quot;6221&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;6000&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Items&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463031&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // All Items
+-           &quot;uuid&quot;: &quot;6222&quot;,
+-      &quot;attribute&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
+-           &quot;item&quot;: &quot;6000&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;6010&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463046&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Section
+-           &quot;uuid&quot;: &quot;6223&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;6010&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463078&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // All Items
+-           &quot;uuid&quot;: &quot;6224&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;6010&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Items&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463156&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Table
+-           &quot;uuid&quot;: &quot;6225&quot;,
+-      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
+-           &quot;item&quot;: &quot;6010&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Table&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463171&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query for all items
+-           &quot;uuid&quot;: &quot;6226&quot;,
+-      &quot;attribute&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
+-           &quot;item&quot;: &quot;6010&quot;,                // All Items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;6011&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463203&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query
+-           &quot;uuid&quot;: &quot;6227&quot;,
+-      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+-           &quot;item&quot;: &quot;6011&quot;,                // Query for all items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463234&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Query for all items
+-           &quot;uuid&quot;: &quot;6228&quot;,
+-      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
+-           &quot;item&quot;: &quot;6011&quot;,                // Query for all items
+-          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Query for all items&quot; },
+-      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
+-      &quot;timestamp&quot;: &quot;1114819463234&quot; }
+-  },
+-  // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6229&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;6012&quot;,                // JavaScript: The Definitive ...
+@@ -3117,7 +2740,7 @@
+       &quot;timestamp&quot;: &quot;1114819463343&quot; }
+   },
+   // -----------------------------------------------------------------------
+-  { &quot;Entry&quot;: {                             // Book
++  { &quot;Entry&quot;: {                             // Old Book
+            &quot;uuid&quot;: &quot;6234&quot;,
+       &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
+            &quot;item&quot;: &quot;6013&quot;,                // The Two Towers
+@@ -3234,4 +2857,1271 @@
+           &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Brian Totty&quot; },
+       &quot;userstamp&quot;: &quot;6241&quot;,                // by (Chih-Chao Lam)
+       &quot;timestamp&quot;: &quot;1117671612418&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;54f4bd36-a6d7-4c00-8e3a-891183a307e9&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Page&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Page
++           &quot;uuid&quot;: &quot;462800a1-83d5-4fb3-853b-1bc9d5c83150&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000200-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This is a new page.
++           &quot;uuid&quot;: &quot;7ffbc5c1-e179-4f49-808c-8562c502529b&quot;,
++      &quot;attribute&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
++           &quot;item&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This is a new page.&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;a642b640-8897-4711-8bf1-60ce3627649d&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Section&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Section
++           &quot;uuid&quot;: &quot;bdb9dacf-66c8-4575-8cc5-5b84423c9dc0&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;fba77cc2-0ee8-4d27-8970-d80a100120c2&quot;,
++      &quot;attribute&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
++           &quot;item&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Table
++           &quot;uuid&quot;: &quot;41399161-e055-4881-82ca-96a985b4d3c1&quot;,
++      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++           &quot;item&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Table&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;2a11573b-2c42-448b-8a52-1c5e80497f98&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Query&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Query
++           &quot;uuid&quot;: &quot;ef65a730-3850-4d41-854e-c4b01fa87914&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;c9ea5105-e1c3-4a9c-83a7-aa66e9d40599&quot;,
++      &quot;attribute&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++           &quot;item&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735225265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;5e551cd6-7cae-4e7b-8a15-ba71f803805e&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735265703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735265765&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;56985ffa-10d4-45b3-8e0d-130b1436d04e&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot;,                // Book
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Book&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735275890&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;075574a1-6e33-4df1-86b8-b4a63a2427ed&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot;,                // Book
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735275890&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735275906&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;8600bd8f-ca00-4126-841a-2484c069f6fb&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot;,                // Publisher
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Publisher&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735285140&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;b9846b93-fbd8-402f-8f23-933a3d2bb3a2&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot;,                // Publisher
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735285140&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Category
++           &quot;uuid&quot;: &quot;4eed673e-c224-44db-8a2b-9e72998c6d00&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot;,                // Person
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000111-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735288437&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735285140&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;7043b8ad-3bdf-4a0a-867f-d4523ebc77a1&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot;,                // Person
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Person&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735288437&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Attribute
++           &quot;uuid&quot;: &quot;f9afff15-663e-4b45-8d62-bf2297ec0fe7&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++   &quot;previousEntry&quot;: &quot;5e551cd6-7cae-4e7b-8a15-ba71f803805e&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735336265&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Published by
++           &quot;uuid&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735412984&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Published by
++           &quot;uuid&quot;: &quot;9c5d6ea2-80fa-4e7a-81e5-342332c1c15a&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Published by&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735433734&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Attribute
++           &quot;uuid&quot;: &quot;8dc501b8-0150-4fe8-8a86-b275955bc868&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735433734&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;ba275354-35bd-4b33-876f-00d738cad5ea&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735436750&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Attribute
++           &quot;uuid&quot;: &quot;f1301a57-c78c-4f51-88ae-76d0d927d932&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000110-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735443890&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Written by
++           &quot;uuid&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735433750&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Written by
++           &quot;uuid&quot;: &quot;4ad6a276-6dda-4bc6-8be0-ee9cf7524852&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Written by&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735443890&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;723176f0-9a10-4a69-8b06-4150f8cf575f&quot;,
++      &quot;attribute&quot;: &quot;0000010a-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Expected Type
++           &quot;item&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735449609&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;a11a8ac9-08d4-460b-8cfe-23ea90b04f7e&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++   &quot;previousEntry&quot;: &quot;f9afff15-663e-4b45-8d62-bf2297ec0fe7&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735470703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // J.R.R. Tolkien
++           &quot;uuid&quot;: &quot;fd9a510b-bd3b-4dbb-8770-99d04ffe5c0d&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735470750&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // J.R.R. Tolkien
++           &quot;uuid&quot;: &quot;48905153-87af-4aa7-860e-19c6aae90286&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;fd9a510b-bd3b-4dbb-8770-99d04ffe5c0d&quot;,                // J.R.R. Tolkien
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;J.R.R. Tolkien&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735489703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;12b8ea06-5c10-4b72-807c-55bedb008a1d&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;fd9a510b-bd3b-4dbb-8770-99d04ffe5c0d&quot;,                // J.R.R. Tolkien
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735489703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;a88ec17e-1371-4c51-8d9f-ec2498c517da&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;de981d0d-16fd-430a-82d1-4d60d87e64e3&quot;,                // David Brin
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735503187&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // David Brin
++           &quot;uuid&quot;: &quot;de981d0d-16fd-430a-82d1-4d60d87e64e3&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735489703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Brin
++           &quot;uuid&quot;: &quot;63416b27-606d-49b7-8dac-761b10022911&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;de981d0d-16fd-430a-82d1-4d60d87e64e3&quot;,                // David Brin
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Brin&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735503171&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;aee1b28e-103e-4693-89a4-294ad2807b04&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;75987591-ed47-4f4f-8ddb-b96c6d8637e6&quot;,                // David Gourley
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735662250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // David Gourley
++           &quot;uuid&quot;: &quot;75987591-ed47-4f4f-8ddb-b96c6d8637e6&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735503187&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Gourley
++           &quot;uuid&quot;: &quot;128051d3-a821-4cea-864d-280a70b0fb46&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;75987591-ed47-4f4f-8ddb-b96c6d8637e6&quot;,                // David Gourley
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Gourley&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735662250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Brian Totty
++           &quot;uuid&quot;: &quot;d678b21e-1434-459e-83f0-c7c8c6213d36&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735662250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Brian Totty
++           &quot;uuid&quot;: &quot;3dd26484-4b9c-4b28-8eca-ace451138e0c&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;d678b21e-1434-459e-83f0-c7c8c6213d36&quot;,                // Brian Totty
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Brian Totty&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735665218&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;d91825da-f16d-4162-8c34-b59766506957&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;d678b21e-1434-459e-83f0-c7c8c6213d36&quot;,                // Brian Totty
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735665218&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;b5a28733-cab5-47c0-81bd-34c8f6691e98&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;9f47f559-d9b7-4b68-8dae-96a26cf2f232&quot;,                // James Surowiecki
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735676015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // James Surowiecki
++           &quot;uuid&quot;: &quot;9f47f559-d9b7-4b68-8dae-96a26cf2f232&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735665218&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // James Surowiecki
++           &quot;uuid&quot;: &quot;946be1e1-7ca0-45d7-8926-9071c8687abf&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;9f47f559-d9b7-4b68-8dae-96a26cf2f232&quot;,                // James Surowiecki
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;James Surowiecki&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735676015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Patricia McDaniel
++           &quot;uuid&quot;: &quot;2a0a9a32-210a-429f-868d-3b015d3ae9ac&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735676015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Patricia McDaniel
++           &quot;uuid&quot;: &quot;abe384b4-5db4-4317-8de9-637cf301917a&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;2a0a9a32-210a-429f-868d-3b015d3ae9ac&quot;,                // Patricia McDaniel
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Patricia McDaniel&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735684140&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;75751349-c78c-41bc-8fc2-6d1c7d1cbd38&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;2a0a9a32-210a-429f-868d-3b015d3ae9ac&quot;,                // Patricia McDaniel
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735684140&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Gerald Markowitz
++           &quot;uuid&quot;: &quot;1d9030cd-3659-42a1-8627-196644d6deb1&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735684156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Gerald Markowitz
++           &quot;uuid&quot;: &quot;b7bab2ca-aac7-46d2-8710-419ac4e69a6e&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;1d9030cd-3659-42a1-8627-196644d6deb1&quot;,                // Gerald Markowitz
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Gerald Markowitz&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735693234&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;3c5836d5-4fc1-4ccf-8eea-faaf0184c084&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;1d9030cd-3659-42a1-8627-196644d6deb1&quot;,                // Gerald Markowitz
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735693234&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // David Rosner
++           &quot;uuid&quot;: &quot;b5620dda-b123-409c-8f92-c8fcf318d4e5&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735693250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Rosner
++           &quot;uuid&quot;: &quot;ec8039f7-cdd3-4c23-8bad-e6ada9be27f7&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;b5620dda-b123-409c-8f92-c8fcf318d4e5&quot;,                // David Rosner
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Rosner&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735700140&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;5f957996-8db3-47ff-829d-96df96237e65&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;b5620dda-b123-409c-8f92-c8fcf318d4e5&quot;,                // David Rosner
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735700156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // David Flanagan
++           &quot;uuid&quot;: &quot;11106568-0dfe-4bb8-8574-8a30b2874b25&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735700156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Flanagan
++           &quot;uuid&quot;: &quot;61939bd6-2903-4f01-89a5-538a1cd2769f&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;11106568-0dfe-4bb8-8574-8a30b2874b25&quot;,                // David Flanagan
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Flanagan&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735705218&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;80c6fdb1-9852-49e6-825a-ed151113b7ac&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;11106568-0dfe-4bb8-8574-8a30b2874b25&quot;,                // David Flanagan
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735705218&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;5cceee12-d202-46ac-8724-0474ba4860ae&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++   &quot;previousEntry&quot;: &quot;a11a8ac9-08d4-460b-8cfe-23ea90b04f7e&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735713015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;639d46b7-8479-4cb1-89c1-b5b338de5d86&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;52cf8bc2-fd62-4d07-8d39-0008cb9c3a9c&quot;,                // O'Reilly
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735718921&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // O'Reilly
++           &quot;uuid&quot;: &quot;52cf8bc2-fd62-4d07-8d39-0008cb9c3a9c&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735713062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // O'Reilly
++           &quot;uuid&quot;: &quot;c23a5be3-924c-446f-8bcd-40eb46e1af83&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;52cf8bc2-fd62-4d07-8d39-0008cb9c3a9c&quot;,                // O'Reilly
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;O'Reilly&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735718906&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;3543b8aa-33e1-4974-8d6b-ba1041c99548&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;0f4132ec-fabd-4857-8c26-1f842d3d94b3&quot;,                // Perseus Publishing
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735728843&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Perseus Publishing
++           &quot;uuid&quot;: &quot;0f4132ec-fabd-4857-8c26-1f842d3d94b3&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735718921&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Perseus Publishing
++           &quot;uuid&quot;: &quot;7812b147-bf2f-4e4a-8db0-05d173e79df0&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;0f4132ec-fabd-4857-8c26-1f842d3d94b3&quot;,                // Perseus Publishing
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Perseus Publishing&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735728843&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // HarperCollins
++           &quot;uuid&quot;: &quot;32b872e6-5f78-484e-8bd9-6e12d48fd266&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735728859&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HarperCollins
++           &quot;uuid&quot;: &quot;d0911998-ef56-405e-81e8-56176f14deaa&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;32b872e6-5f78-484e-8bd9-6e12d48fd266&quot;,                // HarperCollins
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HarperCollins&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735733328&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;f262e255-5f33-4b02-8981-e0293a870042&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;32b872e6-5f78-484e-8bd9-6e12d48fd266&quot;,                // HarperCollins
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735733343&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Doubleday
++           &quot;uuid&quot;: &quot;fef1fb5a-d03d-490b-8396-f599d68652aa&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735733343&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Doubleday
++           &quot;uuid&quot;: &quot;597e97a5-7c35-4135-83e1-51fba8bd6c03&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;fef1fb5a-d03d-490b-8396-f599d68652aa&quot;,                // Doubleday
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Doubleday&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735736468&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;2df70b86-1b15-4178-8eca-e65ccab69a13&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;fef1fb5a-d03d-490b-8396-f599d68652aa&quot;,                // Doubleday
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735736468&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // NYU Press
++           &quot;uuid&quot;: &quot;81a0fa22-0432-4f6e-822d-4e11caefa730&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735736484&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // NYU Press
++           &quot;uuid&quot;: &quot;5a0b9077-4df7-4909-85db-5328546e3456&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;81a0fa22-0432-4f6e-822d-4e11caefa730&quot;,                // NYU Press
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;NYU Press&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735740015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;745cd21b-b190-4521-8d26-82eb3656a1ae&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;81a0fa22-0432-4f6e-822d-4e11caefa730&quot;,                // NYU Press
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735740015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // University of California
++           &quot;uuid&quot;: &quot;774bf718-823a-4284-86d2-d24a334786af&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735740015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // University of California
++           &quot;uuid&quot;: &quot;c25ad76b-9a12-4b7b-852a-531b767bba76&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;774bf718-823a-4284-86d2-d24a334786af&quot;,                // University of California
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;University of California&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735752015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;fd2066e5-b876-4241-8c22-f7208af4ec85&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;774bf718-823a-4284-86d2-d24a334786af&quot;,                // University of California
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735752031&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;cd9b4dfb-6fec-4f0f-815b-e0a2ae2ac7c3&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++   &quot;previousEntry&quot;: &quot;5cceee12-d202-46ac-8724-0474ba4860ae&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735771046&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735771093&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HTTP: The Definitive Guide
++           &quot;uuid&quot;: &quot;f19bf2d2-2a53-41ba-84e7-c9d5b82d908e&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;HTTP: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735778156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;d9360e8b-d892-49d4-8b2a-a4651ac92eb5&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735778156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;5bd72c4e-90b9-487e-8c65-77dae04c9a2b&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;e2b50553-bd0e-45a6-8fca-9b35e603e52c&quot;,                // The Hobbit
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735780703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // The Hobbit
++           &quot;uuid&quot;: &quot;e2b50553-bd0e-45a6-8fca-9b35e603e52c&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735778156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Hobbit
++           &quot;uuid&quot;: &quot;43c67130-8b68-4d84-8883-83655c6b3c9f&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;e2b50553-bd0e-45a6-8fca-9b35e603e52c&quot;,                // The Hobbit
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Hobbit&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735780703&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // The Wisdom of Crowds
++           &quot;uuid&quot;: &quot;04215e09-c5d1-4af1-8167-2bb10c06e6e4&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735780718&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Wisdom of Crowds
++           &quot;uuid&quot;: &quot;e9bf97a2-302a-498c-853e-505b66b8ca37&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;04215e09-c5d1-4af1-8167-2bb10c06e6e4&quot;,                // The Wisdom of Crowds
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Wisdom of Crowds&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735788562&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;a756ff74-be71-4870-8e30-09658e4d70f6&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;04215e09-c5d1-4af1-8167-2bb10c06e6e4&quot;,                // The Wisdom of Crowds
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735788578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // The Transparent Society
++           &quot;uuid&quot;: &quot;b42a8eed-c7c9-4b21-84cb-70c20e29e64a&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735788578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Transparent Society
++           &quot;uuid&quot;: &quot;66a95e67-5721-4711-83c0-2cfffffcfcd9&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;b42a8eed-c7c9-4b21-84cb-70c20e29e64a&quot;,                // The Transparent Society
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Transparent Society&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735798062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;38ca0209-7651-41ba-8f43-12b20273c614&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;b42a8eed-c7c9-4b21-84cb-70c20e29e64a&quot;,                // The Transparent Society
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735798062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Brin
++           &quot;uuid&quot;: &quot;38ca0210-7651-41ba-8f43-12b20273c614&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;b42a8eed-c7c9-4b21-84cb-70c20e29e64a&quot;,                // The Transparent Society
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;de981d0d-16fd-430a-82d1-4d60d87e64e3&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735798062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Perseus Publishing
++           &quot;uuid&quot;: &quot;38ca0211-7651-41ba-8f43-12b20273c614&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;b42a8eed-c7c9-4b21-84cb-70c20e29e64a&quot;,                // The Transparent Society
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0f4132ec-fabd-4857-8c26-1f842d3d94b3&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117735798062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // J.R.R. Tolkien
++           &quot;uuid&quot;: &quot;ca3d4029-6e05-4079-8012-1dbe4dac5b94&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;e2b50553-bd0e-45a6-8fca-9b35e603e52c&quot;,                // The Hobbit
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;fd9a510b-bd3b-4dbb-8770-99d04ffe5c0d&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736236500&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // HarperCollins
++           &quot;uuid&quot;: &quot;1b5dc73a-34fb-4909-8f83-b7cadfa58d07&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;e2b50553-bd0e-45a6-8fca-9b35e603e52c&quot;,                // The Hobbit
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;32b872e6-5f78-484e-8bd9-6e12d48fd266&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736261015&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Gourley
++           &quot;uuid&quot;: &quot;0a4d47fa-ffe2-409a-8590-50d527b159cd&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;75987591-ed47-4f4f-8ddb-b96c6d8637e6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736305546&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Gourley
++           &quot;uuid&quot;: &quot;21e55207-dc7d-4dd5-86fc-da5ca9bbb20e&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++   &quot;previousEntry&quot;: &quot;0a4d47fa-ffe2-409a-8590-50d527b159cd&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Gourley&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736311578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // J.R.R. Tolkien
++           &quot;uuid&quot;: &quot;58dc3820-a73a-4d1d-8f45-b6954ec5d16d&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;e2b50553-bd0e-45a6-8fca-9b35e603e52c&quot;,                // The Hobbit
++   &quot;previousEntry&quot;: &quot;ca3d4029-6e05-4079-8012-1dbe4dac5b94&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;J.R.R. Tolkien&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736313546&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Brian Totty
++           &quot;uuid&quot;: &quot;5610ec06-b4e9-4eeb-867b-dad8b0073636&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Brian Totty&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736335578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // O'Reilly
++           &quot;uuid&quot;: &quot;bac5ec21-422a-4a5f-82f2-0518ab052b9e&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;52cf8bc2-fd62-4d07-8d39-0008cb9c3a9c&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736353671&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Gourley
++           &quot;uuid&quot;: &quot;fb9d3ea1-fa9f-4bf4-8aab-ff7a50e2e062&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;bc9d5cce-99f7-42ad-85dc-36491cac46ba&quot;,                // HTTP: The Definitive Guide
++   &quot;previousEntry&quot;: &quot;21e55207-dc7d-4dd5-86fc-da5ca9bbb20e&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;75987591-ed47-4f4f-8ddb-b96c6d8637e6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736369546&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // James Surowiecki
++           &quot;uuid&quot;: &quot;d9677f00-4c56-46f9-84c1-f5df896c1058&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;04215e09-c5d1-4af1-8167-2bb10c06e6e4&quot;,                // The Wisdom of Crowds
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;9f47f559-d9b7-4b68-8dae-96a26cf2f232&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736379671&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Doubleday
++           &quot;uuid&quot;: &quot;db17fade-a60b-463d-8f29-d9de909c3d35&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;04215e09-c5d1-4af1-8167-2bb10c06e6e4&quot;,                // The Wisdom of Crowds
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;fef1fb5a-d03d-490b-8396-f599d68652aa&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736389781&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;d5326b0b-1228-4232-8a6e-d8be50b1af97&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;f1001a06-8ffa-4366-8f6e-e9c5fcc2b70c&quot;,                // Shrinking Violets and Caspa...
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736411390&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Shrinking Violets and Caspa...
++           &quot;uuid&quot;: &quot;f1001a06-8ffa-4366-8f6e-e9c5fcc2b70c&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736231890&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Shrinking Violets and Caspa...
++           &quot;uuid&quot;: &quot;426fdd09-3112-4be6-8998-d77fcba475b9&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;f1001a06-8ffa-4366-8f6e-e9c5fcc2b70c&quot;,                // Shrinking Violets and Caspa...
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Shrinking Violets and Caspar Milquetoasts&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736411375&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Patricia McDaniel
++           &quot;uuid&quot;: &quot;2fd80172-7c5c-45ba-8bc0-d6d212b4816c&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;f1001a06-8ffa-4366-8f6e-e9c5fcc2b70c&quot;,                // Shrinking Violets and Caspa...
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;2a0a9a32-210a-429f-868d-3b015d3ae9ac&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736413562&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // NYU Press
++           &quot;uuid&quot;: &quot;ccc919f4-ba3a-4524-80ce-eaeda75880b2&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;f1001a06-8ffa-4366-8f6e-e9c5fcc2b70c&quot;,                // Shrinking Violets and Caspa...
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;81a0fa22-0432-4f6e-822d-4e11caefa730&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736417593&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;bd1df12b-d9bf-4e57-8853-ae955baf296e&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736429578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736411390&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Deceit and Denial
++           &quot;uuid&quot;: &quot;9608e7de-7ec0-49ae-8425-aac277cef1ac&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Deceit and Denial&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736429578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Gerald Markowitz
++           &quot;uuid&quot;: &quot;cb5ea4e5-9d95-4a19-8959-a6fa702178e5&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;1d9030cd-3659-42a1-8627-196644d6deb1&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736431937&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Gerald Markowitz
++           &quot;uuid&quot;: &quot;14f04804-8252-4ff7-81d0-7de53b90db8d&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++   &quot;previousEntry&quot;: &quot;cb5ea4e5-9d95-4a19-8959-a6fa702178e5&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Gerald Markowitz&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736438968&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // D
++           &quot;uuid&quot;: &quot;cb57a1ef-d238-4400-8ab0-7714d39cdc62&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;D&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736444109&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Rosner
++           &quot;uuid&quot;: &quot;7675c038-d911-4e6e-80aa-280bdb3833d1&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++   &quot;previousEntry&quot;: &quot;cb57a1ef-d238-4400-8ab0-7714d39cdc62&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;David Rosner&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736451250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // University of California
++           &quot;uuid&quot;: &quot;dd9e8536-b688-433f-806b-b6e5e5786f2f&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;7cf451e5-be71-4c0c-8ede-1c03e2f5af9e&quot;,                // Deceit and Denial
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;774bf718-823a-4284-86d2-d24a334786af&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736460250&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;113eaca6-0936-476b-81c8-8275583d0ad6&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;0378913e-e5c9-48c0-835a-b839edee467f&quot;,                // JavaScript: The Definitive ...
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736474109&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // JavaScript: The Definitive ...
++           &quot;uuid&quot;: &quot;0378913e-e5c9-48c0-835a-b839edee467f&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736429578&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // JavaScript: The Definitive ...
++           &quot;uuid&quot;: &quot;6835a402-d069-4565-88c1-1e6f577f0744&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;0378913e-e5c9-48c0-835a-b839edee467f&quot;,                // JavaScript: The Definitive ...
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;JavaScript: The Definitive Guide&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736474109&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // David Flanagan
++           &quot;uuid&quot;: &quot;09a9c592-7e0b-4bc1-8397-0a1596915793&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;0378913e-e5c9-48c0-835a-b839edee467f&quot;,                // JavaScript: The Definitive ...
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;11106568-0dfe-4bb8-8574-8a30b2874b25&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736475484&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // O'Reilly
++           &quot;uuid&quot;: &quot;a6b5975a-7298-4fab-89cd-1c7455d47272&quot;,
++      &quot;attribute&quot;: &quot;ecd53ca6-5989-40e2-8915-db04cad4a0a2&quot;,                // Published by
++           &quot;item&quot;: &quot;0378913e-e5c9-48c0-835a-b839edee467f&quot;,                // JavaScript: The Definitive ...
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;52cf8bc2-fd62-4d07-8d39-0008cb9c3a9c&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736479968&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // The Two Towers
++           &quot;uuid&quot;: &quot;933227ee-bda7-4924-81ac-94c018d35503&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736474109&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // The Two Towers
++           &quot;uuid&quot;: &quot;41ec5e1b-5c19-45c2-8028-22037b49dbbb&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;933227ee-bda7-4924-81ac-94c018d35503&quot;,                // The Two Towers
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;The Two Towers&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736492531&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;7788e6bc-2c93-40cc-885c-312a17551a11&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;933227ee-bda7-4924-81ac-94c018d35503&quot;,                // The Two Towers
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736492531&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // J.R.R. Tolkien
++           &quot;uuid&quot;: &quot;99ee41ff-85d7-4744-827f-cc0e81017df6&quot;,
++      &quot;attribute&quot;: &quot;269e0b2a-e5bc-405c-83ac-58e8a7eb58c8&quot;,                // Written by
++           &quot;item&quot;: &quot;933227ee-bda7-4924-81ac-94c018d35503&quot;,                // The Two Towers
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;fd9a510b-bd3b-4dbb-8770-99d04ffe5c0d&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736496203&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Book
++           &quot;uuid&quot;: &quot;0515ceef-33b9-477b-8ebf-66a3d0baf174&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;3011&quot;,                // Query for all books
++   &quot;previousEntry&quot;: &quot;6040&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;0d4f1de8-4d5c-49db-8a9e-e8462c95ae6e&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736561171&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // People
++           &quot;uuid&quot;: &quot;42c6eae2-97f7-4a40-869d-f3a1b994b8ce&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,                // People
++   &quot;previousEntry&quot;: &quot;54f4bd36-a6d7-4c00-8e3a-891183a307e9&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;People&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736688156&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Person
++           &quot;uuid&quot;: &quot;ff73a3d6-7155-44cb-89e9-33a89404f203&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;d634981c-c10d-4526-8b8f-fcc8bd3077d3&quot;,                // New Query
++   &quot;previousEntry&quot;: &quot;cd9b4dfb-6fec-4f0f-815b-e0a2ae2ac7c3&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;4952a8fd-5bb8-44f9-8c11-12801a41b189&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736701343&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All People
++           &quot;uuid&quot;: &quot;a7e79a1c-c971-4e25-8479-e0394ea63dd3&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,                // All People
++   &quot;previousEntry&quot;: &quot;a642b640-8897-4711-8bf1-60ce3627649d&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All People&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736711968&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Outline
++           &quot;uuid&quot;: &quot;03af3557-c06e-4c43-86e5-a5b69d370cf7&quot;,
++      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++           &quot;item&quot;: &quot;cbc5f6c8-8115-4bfa-88d1-d9947fa71fda&quot;,                // All People
++   &quot;previousEntry&quot;: &quot;41399161-e055-4881-82ca-96a985b4d3c1&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Outline&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736715750&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This is a page for keeping ...
++           &quot;uuid&quot;: &quot;af0ade8e-5ece-404e-84de-7a004ddf1d35&quot;,
++      &quot;attribute&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
++           &quot;item&quot;: &quot;8cbddbd1-368e-45d6-88ec-39690e9331a0&quot;,                // People
++   &quot;previousEntry&quot;: &quot;7ffbc5c1-e179-4f49-808c-8562c502529b&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This is a page for keeping track of people.&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736738984&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Page
++           &quot;uuid&quot;: &quot;ac20c09b-027c-4cf7-8d1d-c571b577d026&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Page&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Page
++           &quot;uuid&quot;: &quot;bb94fce5-d490-45c8-8ae0-49ebe7aab3fc&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000200-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This is a new page.
++           &quot;uuid&quot;: &quot;a831f70d-fd95-468a-8a0a-31a5937cbcd3&quot;,
++      &quot;attribute&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
++           &quot;item&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This is a new page.&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;5737311c-2d52-4354-8a85-6a404e947fd9&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Section&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Section
++           &quot;uuid&quot;: &quot;ee6af493-b200-4d26-8b88-2b641cd6fa80&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000201-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Section
++           &quot;uuid&quot;: &quot;3107a69d-8e86-4afe-8ec7-e82c95f9fcae&quot;,
++      &quot;attribute&quot;: &quot;00000300-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Section
++           &quot;item&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,                // New Page
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Table
++           &quot;uuid&quot;: &quot;0a8d7e91-ca14-49a4-8064-e5eabe133b78&quot;,
++      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++           &quot;item&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Table&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Item&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;e30ba726-d976-46fb-88ac-7f5e841a6b43&quot;,
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;02b28988-dd13-4ffb-8933-bb6c5b9d2822&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;e30ba726-d976-46fb-88ac-7f5e841a6b43&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;New Query&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Query
++           &quot;uuid&quot;: &quot;d3b32b1d-0f22-439e-85ff-f069e4d76bff&quot;,
++      &quot;attribute&quot;: &quot;00000105-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Category
++           &quot;item&quot;: &quot;e30ba726-d976-46fb-88ac-7f5e841a6b43&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;00000112-ce7f-11d9-8cd5-0011113ae5d6&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // New Query
++           &quot;uuid&quot;: &quot;f8fd9872-3806-42c8-886f-78cdb53299ad&quot;,
++      &quot;attribute&quot;: &quot;00000106-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Query
++           &quot;item&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,                // New Section
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;e30ba726-d976-46fb-88ac-7f5e841a6b43&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736745062&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publisher
++           &quot;uuid&quot;: &quot;414b2c92-ded7-4071-8ff3-af2468ec665b&quot;,
++      &quot;attribute&quot;: &quot;00000107-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Matching Category
++           &quot;item&quot;: &quot;e30ba726-d976-46fb-88ac-7f5e841a6b43&quot;,                // New Query
++          &quot;value&quot;: { &quot;type&quot;: &quot;RelatedUuid&quot;, &quot;value&quot;: &quot;ea435816-c5c0-482b-8850-5651fbfaad12&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736753953&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Outline
++           &quot;uuid&quot;: &quot;5e715995-f16d-4021-87b6-43f674fa7380&quot;,
++      &quot;attribute&quot;: &quot;00000400-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Plugin Name
++           &quot;item&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,                // New Section
++   &quot;previousEntry&quot;: &quot;0a8d7e91-ca14-49a4-8064-e5eabe133b78&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Outline&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736756890&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // Publishers
++           &quot;uuid&quot;: &quot;f37b2702-5e6a-4bc7-84b6-8d89e0b75e9a&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,                // Publishers
++   &quot;previousEntry&quot;: &quot;ac20c09b-027c-4cf7-8d1d-c571b577d026&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;Publishers&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736763359&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // This is a page for keeping ...
++           &quot;uuid&quot;: &quot;10c45258-cdb0-44ac-8605-002ce083c43e&quot;,
++      &quot;attribute&quot;: &quot;00000103-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Summary
++           &quot;item&quot;: &quot;2faa7b9a-7a1d-47fb-8bb5-4e702c6163db&quot;,                // Publishers
++   &quot;previousEntry&quot;: &quot;a831f70d-fd95-468a-8a0a-31a5937cbcd3&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;This is a page for keeping track of publishers.&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736780078&quot; }
++  },
++  // -----------------------------------------------------------------------
++  { &quot;Entry&quot;: {                             // All Publishers
++           &quot;uuid&quot;: &quot;e3bf3e14-e8f4-43e2-866c-121c5ab70c0b&quot;,
++      &quot;attribute&quot;: &quot;00000101-ce7f-11d9-8cd5-0011113ae5d6&quot;,                // Name
++           &quot;item&quot;: &quot;38e3da07-957f-40a2-894d-f3636aed7c23&quot;,                // All Publishers
++   &quot;previousEntry&quot;: &quot;5737311c-2d52-4354-8a85-6a404e947fd9&quot;,
++          &quot;value&quot;: { &quot;type&quot;: &quot;StringValue&quot;, &quot;value&quot;: &quot;All Publishers&quot; },
++      &quot;userstamp&quot;: &quot;1502&quot;,                // by (Guest)
++      &quot;timestamp&quot;: &quot;1117736787093&quot; }
+   }
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000100.html">[openrecord-svn] r113 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000102.html">[openrecord-svn] r115 - trunk/source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#101">[ date ]</a>
+              <a href="thread.html#101">[ thread ]</a>
+              <a href="subject.html#101">[ subject ]</a>
+              <a href="author.html#101">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

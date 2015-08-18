@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r385 - in trunk: documentation source source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r385%20-%20in%20trunk%3A%20documentation%20source%20source/view&In-Reply-To=%3C200512010451.jB14pSKK023972%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000368.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r385 - in trunk: documentation source source/view</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r385%20-%20in%20trunk%3A%20documentation%20source%20source/view&In-Reply-To=%3C200512010451.jB14pSKK023972%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r385 - in trunk: documentation source source/view">skinner at berlios.de
+       </A><BR>
+    <I>Thu Dec  1 05:51:28 CET 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000368.html">[openrecord-svn] r386 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-12-01 05:51:09 +0100 (Thu, 01 Dec 2005)
+New Revision: 385
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/TablePlugin.js
+   trunk/source/view/PluginView.js
+   trunk/source/view/SectionView.js
+Log:
+Minor change to do lazy creation of layout-data-items. We now only create a new layout-data-item when we have layout data to save, rather than every time you create a new section or choose a new plugin view for a section.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2005-11-30 20:28:18 UTC (rev 384)
++++ trunk/documentation/to_do_list.txt	2005-12-01 04:51:09 UTC (rev 385)
+@@ -65,7 +65,7 @@
+        |          |         |  1. Research standard text representations for DateValues
+        |          |         |  2. Make DateValue support date ranges
+        |          |         |  3. Make ordinal value strings not grow long so quickly
+-       |          |         |  4. Do lazy creation of layout data items
++brian  |          | 0.2  IED|  4. Do lazy creation of layout data items
+        |          |         |  5. Make sure view code uses transactions
+        |          |         |  6. Write concurrency tests 
+        |          |         |  7. Ensure that PHP scripts and file I/O works for concurrent multi-user access
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-11-30 20:28:18 UTC (rev 384)
++++ trunk/source/TablePlugin.js	2005-12-01 04:51:09 UTC (rev 385)
+@@ -158,11 +158,19 @@
+  */
+ orp.TablePlugin.prototype._getListOfColumns = function() {
+   var world = this.getWorld();
+-  var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+-  var listOfTableColumnEntries = this._layout.getEntriesForAttribute(attributeTableColumns);
++  var useSavedListOfColumns = false;
+   var displayAttributes = [];
+   var anAttribute;
+-  if (listOfTableColumnEntries.length &gt; 0) {
++  
++  var layoutItem = this.getLayoutItem();
++  if (layoutItem) {
++    var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
++    var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeTableColumns);
++    if (listOfTableColumnEntries.length &gt; 0) {
++      useSavedListOfColumns = true;
++    }
++  }
++  if (useSavedListOfColumns) {
+     // If we get here, it means this table has a saved list of user-selected
+     // columns, and we just want to use that list.
+     for (var i in listOfTableColumnEntries) {
+@@ -175,7 +183,7 @@
+     // user-selected columns, so we need to come up with a list.
+     // We will build a list of display attributes by looking at all the items in 
+     // the table and finding the union of all the attributes of those items.
+-    var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++    var attributeCalledCategory = world.getAttributeCalledCategory();
+     var hashTableOfAttributesKeyedByUuid = {};
+     var attributeUuid;
+     for (var j in this._listOfItems) {
+@@ -194,7 +202,7 @@
+       // If we have not yet identified any display attributes to use as
+       // column headers, then we'll just use the &quot;Name&quot; attribute so that
+       // our table will have at least one column.
+-      var attributeCalledName = this.getWorld().getAttributeCalledName();
++      var attributeCalledName = world.getAttributeCalledName();
+       attributeUuid = attributeCalledName.getUuid();
+       hashTableOfAttributesKeyedByUuid[attributeUuid] = attributeCalledName;
+     }
+@@ -370,7 +378,10 @@
+ 
+   // Now we need to save the new column order to the repository.
+   var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+-  var listOfTableColumnEntries = this._layout.getEntriesForAttribute(attributeTableColumns);
++  world.beginTransaction();
++  var createNewLayoutItemIfNecessary;
++  var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++  var listOfTableColumnEntries = layoutItem.getEntriesForAttribute(attributeTableColumns);
+   if (listOfTableColumnEntries.length &gt; 0) {
+     // If we get here, it means this table has a saved list of user-selected
+     // columns, and we just want to re-order that list.
+@@ -405,16 +416,15 @@
+       // the user dragged the column to the right
+       this._displayAttributes.splice(indexOfDroppedOnAttribute, 0, draggedAttribute);
+     }
+-    world.beginTransaction();
+     // alertString = &quot;&quot;;
+     for (var i in this._displayAttributes) {
+       var attribute = this._displayAttributes[i];
+-      this._layout.addEntry({attribute:attributeTableColumns, value:attribute});
++      layoutItem.addEntry({attribute:attributeTableColumns, value:attribute});
+       // alertString += attribute.getDisplayString() + '\n';
+     }
+     // alert(alertString);
+-    world.endTransaction();
+   }
++  world.endTransaction();
+   this.refresh();
+ };
+ 
+@@ -675,15 +685,6 @@
+           attribute:attribute, 
+           value:value, 
+           inverseAttribute:inverseAttribute });
+-/*
+-        var inverseAttributeEntry = attribute.getSingleEntryFromAttribute(attributeCalledInverseAttribute);
+-        if (inverseAttributeEntry) {
+-          var inverseAttribute = inverseAttributeEntry.getValue(attribute);
+-          newItem.addConnectionEntry(attribute, value, inverseAttribute);
+-        } else {
+-          newItem.addEntry({attribute:attribute, value:value});
+-        }
+-*/
+       }
+     }
+   }
+@@ -715,14 +716,20 @@
+  */
+ orp.TablePlugin.prototype._attributeEditorChanged = function(eventObject) {
+   var attributeUuid = eventObject.target.value;
++  
+   if (attributeUuid) {
+-    var repository = this.getWorld();
+-    var attributeTableColumns = repository.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
+-    var entriesTableColumns = this._layout.getEntriesForAttribute(attributeTableColumns);
++    var world = this.getWorld();
++    world.beginTransaction();
++    
++    var createNewLayoutItemIfNecessary;
++    var layoutItem = this.getLayoutItem(createNewLayoutItemIfNecessary = true);
++    
++    var attributeTableColumns = world.getItemFromUuid(orp.TablePlugin.UUID.ATTRIBUTE_TABLE_COLUMNS);
++    var entriesTableColumns = layoutItem.getEntriesForAttribute(attributeTableColumns);
+     var noStoredColumns = (entriesTableColumns.length === 0);
+     var changedAttribute = this.getWorld().getItemFromUuid(attributeUuid);
+-    var removeAttribute = orp.util.removeObjectFromSet(changedAttribute,this._displayAttributes);
+-    var typeCalledItem = repository.getTypeCalledItem();
++    var removeAttribute = orp.util.removeObjectFromSet(changedAttribute, this._displayAttributes);
++    var typeCalledItem = world.getTypeCalledItem();
+     if (removeAttribute) {
+       for (var i in entriesTableColumns) {
+         if (changedAttribute == entriesTableColumns[i].getValue()) {
+@@ -736,13 +743,15 @@
+     if (noStoredColumns) {
+       for (i in this._displayAttributes) {
+         var anAttribute = this._displayAttributes[i];
+-        this._layout.addEntry({attribute:attributeTableColumns, value:anAttribute, type:typeCalledItem});
++        layoutItem.addEntry({attribute:attributeTableColumns, value:anAttribute, type:typeCalledItem});
+       }
+     } else {
+       if (!removeAttribute) {
+-        this._layout.addEntry({attribute:attributeTableColumns, value:changedAttribute, type:typeCalledItem});
++        layoutItem.addEntry({attribute:attributeTableColumns, value:changedAttribute, type:typeCalledItem});
+       }
+     }
++    world.endTransaction();
++    
+     this._buildTable(true);
+   }
+ };
+
+Modified: trunk/source/view/PluginView.js
+===================================================================
+--- trunk/source/view/PluginView.js	2005-11-30 20:28:18 UTC (rev 384)
++++ trunk/source/view/PluginView.js	2005-12-01 04:51:09 UTC (rev 385)
+@@ -54,7 +54,7 @@
+  * @param    superview    The superview for this view. 
+  * @param    htmlElement    The HTMLElement to display this view in. 
+  * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
+- * @param    layoutItem    ???. 
++ * @param    layoutItem    An item that this plugin view can use to store and retrieve any layout information, such as what columns to include in a chart. 
+  * @syntax   var PluginView = new PluginView()
+  */
+ orp.view.PluginView = function(superview, htmlElement, querySpec, layoutItem, cssClassName) {
+@@ -64,7 +64,7 @@
+ 
+   this._querySpec = querySpec;
+   this._queryRunner = this.getWorld().newQueryRunner(this._querySpec, this);
+-  this._layout = layoutItem;
++  this._layoutItem = layoutItem;
+   this._pluginItem = null;
+ };
+ 
+@@ -121,6 +121,27 @@
+ 
+ 
+ /**
++ * Returns the layout item that this plugin view can use to store
++ * and retrieve any layout information the view wants to keep.  For
++ * example, a TableView might want to keep a list of the columns to
++ * be included in the table.
++ *
++ * @scope    public instance method
++ * @param    createFlag    Optional. Defaults to false. If true, and if there is no existing layout item, this method will try to create a new layout item for the plugin. 
++ * @return   A layout item.
++ */
++orp.view.PluginView.prototype.getLayoutItem = function(createFlag) {
++  if (createFlag &amp;&amp; !this._layoutItem) {
++    var superview = this.getSuperview();
++    if (superview.createLayoutItemForPluginView) {
++      this._layoutItem = superview.createLayoutItemForPluginView(this);
++    }
++  }
++  return this._layoutItem;
++};
++
++
++/**
+  * Does final clean-up.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-11-30 20:28:18 UTC (rev 384)
++++ trunk/source/view/SectionView.js	2005-12-01 04:51:09 UTC (rev 385)
+@@ -347,25 +347,19 @@
+ 
+ 
+ /**
+- * Returns layout data of this section for a particular plugin
+- * Creates a the layout data item if doesn't exist
++ * Returns a layout item for this section for a particular plugin.
+  *
+  * @param    pluginTypeItem    An item representing a class of plugin
+  * @return    layout data of this section for a particular plugin
+  */
+ orp.view.SectionView.prototype._getLayoutDataForPlugin = function(pluginTypeItem) {
+-  var repository = this.getWorld();
+-  var attributeLayoutData = repository.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_LAYOUT_DATA);
++  var world = this.getWorld();
++  var attributeLayoutData = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_LAYOUT_DATA);
+   var entriesLayoutData = this._section.getEntriesForAttribute(attributeLayoutData);
+-  var attributeAppliesToPlugin = repository.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_APPLIES_TO_PLUGIN);
++  var attributeAppliesToPlugin = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_APPLIES_TO_PLUGIN);
+   if (entriesLayoutData) {
+     for (var i=0; i &lt; entriesLayoutData.length; ++i) {
+-      var FIXME_OCT_7_2005_EXPERIMENT = true;
+-      if (FIXME_OCT_7_2005_EXPERIMENT) {
+-        var layoutItem = entriesLayoutData[i].getValue();
+-      } else {
+-        layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
+-      }
++      var layoutItem = entriesLayoutData[i].getValue();
+       var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attributeAppliesToPlugin);
+       orp.lang.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
+       if (entriesAppliesToPlugin[0].getValue() == pluginTypeItem) {
+@@ -373,16 +367,28 @@
+       }
+     }
+   }
++  return null;
++};
++
++
++/**
++ * Creates a layout item for this section for a particular plugin.
++ *
++ */
++orp.view.SectionView.prototype.createLayoutItemForPluginView = function(pluginView) {
++  var world = this.getWorld();
++  var pluginTypeItem = pluginView.getPluginItem();
+   
+-  // layoutData not found, so create the item
+-  var categoryCalledLayoutData = repository.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_LAYOUT_DATA);
+-  var attributeCalledSectionThisLayoutDataBelongsTo = repository.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO);
+-  repository.beginTransaction();
+-  layoutItem = repository.newItem(&quot;Layout data for &quot; + pluginTypeItem.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
++  var categoryCalledLayoutData = world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_LAYOUT_DATA);
++  var attributeCalledSectionThisLayoutDataBelongsTo = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO);
++  var attributeAppliesToPlugin = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_APPLIES_TO_PLUGIN);
++  var attributeLayoutData = world.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_LAYOUT_DATA);
++  world.beginTransaction();
++  layoutItem = world.newItem(&quot;Layout data for &quot; + pluginTypeItem.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
+   layoutItem.assignToCategory(categoryCalledLayoutData);
+   layoutItem.addEntry({attribute:attributeAppliesToPlugin, value:pluginTypeItem});
+   this._section.addConnectionEntry(attributeLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
+-  repository.endTransaction();
++  world.endTransaction();
+   return layoutItem;
+ };
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000368.html">[openrecord-svn] r386 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#367">[ date ]</a>
+              <a href="thread.html#367">[ thread ]</a>
+              <a href="subject.html#367">[ subject ]</a>
+              <a href="author.html#367">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

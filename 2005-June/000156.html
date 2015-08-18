@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r170 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r170%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506220500.j5M50U9p031891%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000155.html">
+   <LINK REL="Next"  HREF="000157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r170 - in trunk: documentation source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r170%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200506220500.j5M50U9p031891%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r170 - in trunk: documentation source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Jun 22 07:00:30 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000155.html">[openrecord-svn] r169 - in trunk: documentation source source/model
+</A></li>
+        <LI>Next message: <A HREF="000157.html">[openrecord-svn] r171 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-22 07:00:23 +0200 (Wed, 22 Jun 2005)
+New Revision: 170
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/TablePlugin.js
+Log:
+minor clean-up
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-06-22 03:21:11 UTC (rev 169)
++++ trunk/documentation/release_planning.txt	2005-06-22 05:00:23 UTC (rev 170)
+@@ -163,7 +163,7 @@
+ brian  | 0.5  IED | 0.25    |  4. Store transaction info in repository
+        |          |         |  5. UI for deleting a row from a table
+ brian  | 0.5  IED | 0.25    |  6. Save provisional item and then set the category, in that order, and in one transaction
+-       |          |         |  7. Fix the bug that happens when you call the PHP server code with no POST data
++brian  | 0.25 IED |         |  7. Fix the bug that happens when you call the PHP server code with no POST data
+ chao   | 0.5  IED | 0.5 IED |  8. UI for entering a number literal (instead of a string literal) in a table [with Brian]
+ chao   | 1    IED | 1   IED |  9. UI for entering a date literal in a table (and data model support) [with Brian]
+ brian  | 1    IED | 1   IED | 10. Add data model support for bi-directional references
+@@ -181,8 +181,8 @@
+        |          |         | 21. Provide GUI feedback about what's editable
+        |          |         | 22. Reach consensus on (colors, padding, and borders) and then implement
+        |          |         | 23. Get data model to pass the ordinal unit tests again
+-       |          |         | 24. Display Navbar pages in the right order
+-       |          |         | 25. Arrow keys in SuggestionBox
++mignon |          | done    | 24. Display Navbar pages in the right order
++chao   |          | done?   | 25. Arrow keys in SuggestionBox
+        |          |         | 26. Arrow keys in Table View
+        |          |         | 27. Change UI so that non-literal entries are immutable
+        |          |         | 28. Implement a good URL-to-content mapping, such that URLs won't go bad in future releases
+@@ -227,6 +227,8 @@
+ chao   | 0.5 IED  | 0.5 IED | Allow plugins to store layout data
+ chao   | 0.5 IED  | 0.5 IED | Table plugin persists column order
+        
++
++
+ =======================================================
+ Categories and Attributes we might use for release 0.1
+ =======================================================
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-06-22 03:21:11 UTC (rev 169)
++++ trunk/source/TablePlugin.js	2005-06-22 05:00:23 UTC (rev 170)
+@@ -106,6 +106,7 @@
+   return -ascendingInt;
+ };
+ 
++
+ /**
+  * Creates an array containing all the attributes of the content items 
+  * in this table.  Populates list of suggested items for relevant attributes
+@@ -142,8 +143,12 @@
+   this._displayAttributes = displayAttrs;
+ };
+ 
++
++/**
++ *
++ */
+ TablePlugin.prototype._buildAttributeHashFromScratch = function() {
+-  var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
++  // var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var hashTableOfAttributes = {};
+   var hashTableOfEntries = {};
+@@ -156,6 +161,8 @@
+         var attributeKeyString = attribute.getUniqueKeyString();
+         hashTableOfAttributes[attributeKeyString] = attribute;
+         
++        hashTableOfEntries[attributeKeyString] = this.getWorld().getSuggestedItemsForAttribute(attribute);
++/*
+         // build entries representing this attribute in this table 
+         // PENDING we may only want to do this for certain attributes
+         var itemEntries = contentItem.getEntriesForAttribute(attribute);
+@@ -170,16 +177,18 @@
+             hashTableOfEntries[attributeKeyString][entry.getUniqueKeyString()] = entry;
+           }
+         }
++*/
+       }
+     }
+   }
+   
+-  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++/*  if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+   } else {
+     for (attributeKey in hashTableOfEntries) {
+       hashTableOfEntries[attributeKey] = Util.hashTableValues(hashTableOfEntries[attributeKey]);
+     }
+   }
++*/
+   this._hashTableOfEntries = hashTableOfEntries;
+   if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
+     var attributeCalledName = this.getWorld().getAttributeCalledName();
+@@ -216,6 +225,7 @@
+   importButton.onchange = this._importData.bindAsEventListener(this, importButton);*/
+ };
+ 
++
+ /**
+  * Inserts a table row at rowNum given contentItem
+  *
+@@ -247,7 +257,11 @@
+   
+   if (this.isInEditMode()) {
+     // add one more row to allow users to add a new item to the table
+-    var newItem = this.getWorld().newProvisionalItem(this);
++    var observer = this; 
++    // PENDING: 
++    // no need to register an observer here, if we move code from
++    // observedItemHasChanged() to _provisionalItemJustBecomeReal()
++    var newItem = this.getWorld().newProvisionalItem(observer);
+     this._insertRow(newItem, ++numRows, true);
+   }
+ };
+@@ -269,7 +283,21 @@
+ 
+ 
+ /**
+- *
++ * PENDING: 
++ * This method observedItemHasChanged() was written back before we 
++ * wrote the method above this one, _provisionalItemJustBecomeReal().
++ * Now we've got things set up so that the TextView will call
++ * our _provisionalItemJustBecomeReal() method when the user first
++ * makes a change that causes the provisional item to become real.
++ * Now that we have _provisionalItemJustBecomeReal(), we might 
++ * want to move all the code from observedItemHasChanged() over
++ * into _provisionalItemJustBecomeReal(), and then we could get
++ * rid of this method.  HOWEVER, moving the code might cause bugs,
++ * because this observedItemHasChanged() method is probably 
++ * called slightly later than the _provisionalItemJustBecomeReal()
++ * method above.  The _provisionalItemJustBecomeReal() is called
++ * DURING the transaction, whereas observedItemHasChanged() is,
++ * in theory, called after the transaction.
+  */
+ TablePlugin.prototype.observedItemHasChanged = function(item) {
+   // called when a provisional item becomes a real item
+@@ -495,12 +523,12 @@
+       delete this._hashTableOfEntries[attributeUuid];
+     }
+     else {
+-      var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
++      // var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+       this._displayAttributes.push(changedAttribute);
+       this._layout.addEntryForAttribute(attrTableColumns,changedAttribute,repository.getTypeCalledItem());
+-      if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
+-        this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(changedAttribute);
+-      }
++      // if (PENDING__JUNE_1_EXPERIMENT_BY_BRIAN) {
++      this._hashTableOfEntries[attributeUuid] = this.getWorld().getSuggestedItemsForAttribute(changedAttribute);
++      // }
+     }
+     this._buildTable(true);
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000155.html">[openrecord-svn] r169 - in trunk: documentation source source/model
+</A></li>
+	<LI>Next message: <A HREF="000157.html">[openrecord-svn] r171 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#156">[ date ]</a>
+              <a href="thread.html#156">[ thread ]</a>
+              <a href="subject.html#156">[ subject ]</a>
+              <a href="author.html#156">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,620 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r186 - in trunk: . source source/model source/repositories
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r186%20-%20in%20trunk%3A%20.%20source%20source/model%20source/repositories&In-Reply-To=%3C200506270641.j5R6fBha023326%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000171.html">
+   <LINK REL="Next"  HREF="000173.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r186 - in trunk: . source source/model source/repositories</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r186%20-%20in%20trunk%3A%20.%20source%20source/model%20source/repositories&In-Reply-To=%3C200506270641.j5R6fBha023326%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r186 - in trunk: . source source/model source/repositories">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jun 27 08:41:11 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000171.html">[openrecord-svn] r185 - in trunk: . source/repositories
+</A></li>
+        <LI>Next message: <A HREF="000173.html">[openrecord-svn] r187 - in trunk/source: . model repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-27 08:40:51 +0200 (Mon, 27 Jun 2005)
+New Revision: 186
+
+Removed:
+   trunk/dashboard.js
+   trunk/demo_page.js
+   trunk/dogfood.js
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/dogfood.html
+   trunk/source/RootView.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/World.js
+   trunk/source/repositories/dashboard.json
+   trunk/source/repositories/dogfood.json
+Log:
+Simplified the code required to create a new World and associating a repository with an HTML document.  Added a few lines of JavaScript to the HTML files, and deleted their companion JavaScript files.  Improved RootView so that it no longer hard-codes the UUID of the main page.  Fixed the repository files so that they no longer overlap in the new UUIDs the define.  Fixed the UUIDs in the repository files so that they reflect the user that created them.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/dashboard.html	2005-06-27 06:40:51 UTC (rev 186)
+@@ -43,7 +43,12 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+     
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;dashboard.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      window.onload = function() {  
++        var world = new World();
++        new RootView(world);
++      };    
++    &lt;/script&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Deleted: trunk/dashboard.js
+===================================================================
+--- trunk/dashboard.js	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/dashboard.js	2005-06-27 06:40:51 UTC (rev 186)
+@@ -1,86 +0,0 @@
+-/*****************************************************************************
+- dashboard.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+-
+-
+-// -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   RootView.js
+-// -------------------------------------------------------------------
+-
+-/**
+- * Called when the window first loads. Calls all the functions that do 
+- * initialization when the page is loaded.
+- *
+- * @scope    global function
+- */
+-window.doOnloadActions = function() {  
+-  var repositoryName = &quot;dashboard&quot;;
+-  var deltaVirtualServer = new DeltaVirtualServer(repositoryName);
+-  var world = new World(deltaVirtualServer);
+-  window.rootView = new RootView(world);
+-  
+-  Util.setTargetsForExternalLinks();
+-};
+-
+-
+-/**
+- * Called when the user leaves the browser window.  Save any unsaved changes,
+- * and prepare to exit.
+- *
+- * @scope    global function
+- */
+-window.doOnunloadActions = function() {
+-  // world.saveChanges();
+-};
+-
+-window.doOnfocusActions = function() {
+-  // window.rootView.displayTextInDebugTextarea(&quot;onfocus&quot;);
+-};
+-
+-window.doOnblurActions = function() {
+-  // window.rootView.displayTextInDebugTextarea(&quot;onblur&quot;);
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Register for window events
+-// -------------------------------------------------------------------
+-window.onload = window.doOnloadActions;
+-window.onunload = window.doOnunloadActions;
+-window.onerror = Util.handleError;
+-window.onfocus = window.doOnfocusActions;
+-window.onblur = window.doOnblurActions;
+-// window.onresize = window.doOnresizeActions;
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/demo_page.html	2005-06-27 06:40:51 UTC (rev 186)
+@@ -43,7 +43,12 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+     
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;demo_page.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      window.onload = function() {  
++        var world = new World();
++        new RootView(world);
++      };    
++    &lt;/script&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Deleted: trunk/demo_page.js
+===================================================================
+--- trunk/demo_page.js	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/demo_page.js	2005-06-27 06:40:51 UTC (rev 186)
+@@ -1,86 +0,0 @@
+-/*****************************************************************************
+- demo_page.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+-
+-
+-// -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   RootView.js
+-// -------------------------------------------------------------------
+-
+-/**
+- * Called when the window first loads. Calls all the functions that do 
+- * initialization when the page is loaded.
+- *
+- * @scope    global function
+- */
+-window.doOnloadActions = function() {  
+-  var repositoryName = &quot;demo_page&quot;;
+-  var deltaVirtualServer = new DeltaVirtualServer(repositoryName);
+-  var world = new World(deltaVirtualServer);
+-  window.rootView = new RootView(world);
+-  
+-  Util.setTargetsForExternalLinks();
+-};
+-
+-
+-/**
+- * Called when the user leaves the browser window.  Save any unsaved changes,
+- * and prepare to exit.
+- *
+- * @scope    global function
+- */
+-window.doOnunloadActions = function() {
+-  // world.saveChanges();
+-};
+-
+-window.doOnfocusActions = function() {
+-  // window.rootView.displayTextInDebugTextarea(&quot;onfocus&quot;);
+-};
+-
+-window.doOnblurActions = function() {
+-  // window.rootView.displayTextInDebugTextarea(&quot;onblur&quot;);
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Register for window events
+-// -------------------------------------------------------------------
+-window.onload = window.doOnloadActions;
+-window.onunload = window.doOnunloadActions;
+-window.onerror = Util.handleError;
+-window.onfocus = window.doOnfocusActions;
+-window.onblur = window.doOnblurActions;
+-// window.onresize = window.doOnresizeActions;
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/dogfood.html	2005-06-27 06:40:51 UTC (rev 186)
+@@ -43,7 +43,12 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/model/DeltaVirtualServer.js&quot;&gt;&lt;/script&gt;
+     
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;dogfood.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      window.onload = function() {  
++        var world = new World();
++        new RootView(world);
++      };    
++    &lt;/script&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Deleted: trunk/dogfood.js
+===================================================================
+--- trunk/dogfood.js	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/dogfood.js	2005-06-27 06:40:51 UTC (rev 186)
+@@ -1,86 +0,0 @@
+-/*****************************************************************************
+- dogfood.js
+- 
+-******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+-
+-
+-// -------------------------------------------------------------------
+-// Dependencies:
+-//   World.js
+-//   RootView.js
+-// -------------------------------------------------------------------
+-
+-/**
+- * Called when the window first loads. Calls all the functions that do 
+- * initialization when the page is loaded.
+- *
+- * @scope    global function
+- */
+-window.doOnloadActions = function() {  
+-  var repositoryName = &quot;dogfood&quot;;
+-  var deltaVirtualServer = new DeltaVirtualServer(repositoryName);
+-  var world = new World(deltaVirtualServer);
+-  window.rootView = new RootView(world);
+-  
+-  Util.setTargetsForExternalLinks();
+-};
+-
+-
+-/**
+- * Called when the user leaves the browser window.  Save any unsaved changes,
+- * and prepare to exit.
+- *
+- * @scope    global function
+- */
+-window.doOnunloadActions = function() {
+-  // world.saveChanges();
+-};
+-
+-window.doOnfocusActions = function() {
+-  // window.rootView.displayTextInDebugTextarea(&quot;onfocus&quot;);
+-};
+-
+-window.doOnblurActions = function() {
+-  // window.rootView.displayTextInDebugTextarea(&quot;onblur&quot;);
+-};
+-
+-
+-// -------------------------------------------------------------------
+-// Register for window events
+-// -------------------------------------------------------------------
+-window.onload = window.doOnloadActions;
+-window.onunload = window.doOnunloadActions;
+-window.onerror = Util.handleError;
+-window.onfocus = window.doOnfocusActions;
+-window.onblur = window.doOnblurActions;
+-// window.onresize = window.doOnresizeActions;
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/source/RootView.js	2005-06-27 06:40:51 UTC (rev 186)
+@@ -60,7 +60,7 @@
+ RootView.UUID_FOR_CATEGORY_PAGE    = &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ RootView.UUID_FOR_CATEGORY_SECTION = &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+-RootView.UUID_FOR_HOME_PAGE        = &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
++// RootView.UUID_FOR_HOME_PAGE        = &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -78,6 +78,13 @@
+  * @syntax   var rootView = new RootView()
+  */
+ function RootView(inWorld) {
++  window.onerror = Util.handleError;
++  // window.onunload = window.doOnunloadActions;
++  // window.onfocus = window.doOnfocusActions;
++  // window.onblur = window.doOnblurActions;
++  // window.onresize = window.doOnresizeActions;  
++  Util.setTargetsForExternalLinks();
++  
+   RootView.ourSingleInstance = this;
+    
+   Util.assert(inWorld instanceof World);
+@@ -91,10 +98,14 @@
+   this._myHashTableOfItemViewsKeyedByUuid = {};
+   this._myHashTableOfPageViewsKeyedByUuid = {};
+   this._myCurrentContentView = null;
++  this._homePage = null;
+   
+   this.myHashTableOfPagesKeyedByUuid = {};
+   var categoryCalledPage = this._myWorld.getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   var listOfPages = this._myWorld.getItemsInCategory(categoryCalledPage);
++  if (listOfPages &amp;&amp; listOfPages.length &gt; 0) {
++    this._homePage = listOfPages[0];
++  }
+   for (var key in listOfPages) {
+     var page = listOfPages[key];
+     this.myHashTableOfPagesKeyedByUuid[page._getUuid()] = page; 
+@@ -179,7 +190,8 @@
+  * @return   A page item.
+  */
+ RootView.prototype.getHomePage = function () {
+-  return this.getWorld().getItemFromUuid(RootView.UUID_FOR_HOME_PAGE);
++  // return this.getWorld().getItemFromUuid(RootView.UUID_FOR_HOME_PAGE);
++  return this._homePage;
+ };
+ 
+ 
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-27 06:40:51 UTC (rev 186)
+@@ -1010,18 +1010,18 @@
+   { &quot;Transaction&quot;: [
+     // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Brian Douglas Skinner
+-             &quot;uuid&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot; }
++             &quot;uuid&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;User&quot;: {                                               // Brian Douglas Skinner
+-             &quot;user&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot;,
++             &quot;user&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;,
+          &quot;password&quot;: &quot;92eb5ffee6ae2fec3ad71c777531578f&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Brian Douglas Skinner
+-             &quot;uuid&quot;: &quot;2c4fa781-dde4-11d9-9c71-8022ab6bc8ae&quot;,
++             &quot;uuid&quot;: &quot;2c4fa781-dde4-11d9-9c71-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot;,  // Brian Douglas Skinner
++             &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;,  // Brian Douglas Skinner
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Brian Douglas Skinner&quot; }
+     }  ]
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/source/model/World.js	2005-06-27 06:40:51 UTC (rev 186)
+@@ -107,7 +107,14 @@
+   if (virtualServer) {
+     server = virtualServer;
+   } else {
+-    server = new StubVirtualServer();
++    // server = new StubVirtualServer();
++    var filepath = window.location.pathname;
++    var arrayOfSegments = filepath.split('/');
++    var lastSegment = arrayOfSegments.pop();
++    var arrayWithFilenameAndExtension = lastSegment.split('.');
++    var filename = arrayWithFilenameAndExtension[0];
++    var repositoryName = filename;
++    server = new DeltaVirtualServer(repositoryName);
+   }
+   this._virtualServer = server;
+ 
+
+Modified: trunk/source/repositories/dashboard.json
+===================================================================
+--- trunk/source/repositories/dashboard.json	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/source/repositories/dashboard.json	2005-06-27 06:40:51 UTC (rev 186)
+@@ -5,37 +5,37 @@
+   { &quot;Transaction&quot;: [  // Home Page  
+     // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // The OpenRecord Dogfood Site
+-             &quot;uuid&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++             &quot;uuid&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Page
+-             &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;8a3c6b5a-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Dashboard Demo Page
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // Dashboard Demo Page
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Dashboard
+-             &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;8a3c6b5b-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Dashboard Demo Page
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // Dashboard Demo Page
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dashboard&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Dashboard Demo Page
+-             &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;8a3c6b5c-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Dashboard Demo Page
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // Dashboard Demo Page
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dashboard Demo Page&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // This is a UI prototype of t...
+-             &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;8a3c6b5d-ce7f-11d9-8cd5-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;8a3c6b50-ce7f-11d9-8cd5-e24829d2f59b&quot;,  // The OpenRecord Dogfood Site
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This is a UI prototype of the dashboard view, built using OpenRecord.&quot; }
+     } ]
+
+Modified: trunk/source/repositories/dogfood.json
+===================================================================
+--- trunk/source/repositories/dogfood.json	2005-06-25 00:49:42 UTC (rev 185)
++++ trunk/source/repositories/dogfood.json	2005-06-27 06:40:51 UTC (rev 186)
+@@ -5,37 +5,37 @@
+   { &quot;Transaction&quot;: [  // Home Page  
+     // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // The OpenRecord Dogfood Site
+-             &quot;uuid&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++             &quot;uuid&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Page
+-             &quot;uuid&quot;: &quot;0005000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;246ec32a-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Dogfood
+-             &quot;uuid&quot;: &quot;0005000b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;246ec32b-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Short Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Dogfood&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // The OpenRecord Dogfood Site
+-             &quot;uuid&quot;: &quot;0005000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;246ec32c-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;The OpenRecord Dogfood Site&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // This web site is a demo of ...
+-             &quot;uuid&quot;: &quot;0005000d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;uuid&quot;: &quot;246ec32d-ce7f-11d9-8cd5-000c414ce854&quot;,
+         &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Summary
+-             &quot;item&quot;: &quot;00050000-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // The OpenRecord Dogfood Site
++             &quot;item&quot;: &quot;246ec320-ce7f-11d9-8cd5-000c414ce854&quot;,  // The OpenRecord Dogfood Site
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;This web site is where people working on OpenRecord keep track of the work being done.&quot; }
+     } ]
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000171.html">[openrecord-svn] r185 - in trunk: . source/repositories
+</A></li>
+	<LI>Next message: <A HREF="000173.html">[openrecord-svn] r187 - in trunk/source: . model repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#172">[ date ]</a>
+              <a href="thread.html#172">[ thread ]</a>
+              <a href="subject.html#172">[ subject ]</a>
+              <a href="author.html#172">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

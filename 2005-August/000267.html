@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r282 - trunk/source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r282%20-%20trunk/source/view&In-Reply-To=%3C200508130038.j7D0c9SZ009258%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000266.html">
+   <LINK REL="Next"  HREF="000268.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r282 - trunk/source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r282%20-%20trunk/source/view&In-Reply-To=%3C200508130038.j7D0c9SZ009258%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r282 - trunk/source/view">skinner at berlios.de
+       </A><BR>
+    <I>Sat Aug 13 02:38:09 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000266.html">[openrecord-svn] r281 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000268.html">[openrecord-svn] r283 - trunk/meeting_notes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#267">[ date ]</a>
+              <a href="thread.html#267">[ thread ]</a>
+              <a href="subject.html#267">[ subject ]</a>
+              <a href="author.html#267">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-13 02:38:07 +0200 (Sat, 13 Aug 2005)
+New Revision: 282
+
+Modified:
+   trunk/source/view/EntryView.js
+Log:
+Quick demo hack -- double-click on a lozenge now takes you to the detail view for the item the lozenge points to.
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-08-12 23:48:32 UTC (rev 281)
++++ trunk/source/view/EntryView.js	2005-08-13 00:38:07 UTC (rev 282)
+@@ -252,6 +252,7 @@
+     var connectionType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
+     if (dataType == itemType || dataType == connectionType) {
+       if (this._isLozenge()) {
++        this.getHtmlElement().ondblclick = this.onDoubleClick.bindAsEventListener(this);
+         if (this.isInEditMode() &amp;&amp; !this._draggable) {
+           var PENDING_temporaryHackToDecreaseLayoutTime = true;
+           if (PENDING_temporaryHackToDecreaseLayoutTime) {
+@@ -603,8 +604,25 @@
+ 
+ 
+ /**
++ * Called when the user double clicks on a lozenge.
+  *
++ * @scope    public instance method
++ * @param    eventObject    An event object. 
+  */
++EntryView.prototype.onDoubleClick = function(eventObject) {
++  if (this._valueIsItem) {
++    var relatedItem = this._entry.getValue(this._item);
++    var urlOfRelatedItem = RootView.URL_HASH_ITEM_PREFIX + relatedItem._getUuid();
++    window.location = urlOfRelatedItem;
++    this.getRootView().setCurrentContentViewFromUrl();
++  }
++  return true;
++};
++
++
++/**
++ *
++ */
+ EntryView.prototype.onFocus = function(eventObject) {
+   if (this._suggestionBox) {
+     this._suggestionBox._focusOnInputField(eventObject);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000266.html">[openrecord-svn] r281 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000268.html">[openrecord-svn] r283 - trunk/meeting_notes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#267">[ date ]</a>
+              <a href="thread.html#267">[ thread ]</a>
+              <a href="subject.html#267">[ subject ]</a>
+              <a href="author.html#267">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r320 - trunk/documentation
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r320%20-%20trunk/documentation&In-Reply-To=%3C200509130309.j8D39elD019061%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000303.html">
+   <LINK REL="Next"  HREF="000305.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r320 - trunk/documentation</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r320%20-%20trunk/documentation&In-Reply-To=%3C200509130309.j8D39elD019061%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r320 - trunk/documentation">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 13 05:09:40 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000303.html">[openrecord-svn] r319 - in trunk: source/model third_party/gtd_tiddlywiki
+</A></li>
+        <LI>Next message: <A HREF="000305.html">[openrecord-svn] r321 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-13 05:09:36 +0200 (Tue, 13 Sep 2005)
+New Revision: 320
+
+Modified:
+   trunk/documentation/release_planning.txt
+Log:
+updated release_planning.txt
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-09-12 01:29:38 UTC (rev 319)
++++ trunk/documentation/release_planning.txt	2005-09-13 03:09:36 UTC (rev 320)
+@@ -352,23 +352,30 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  1. look into using the Dojo Package System
++brian  |          | done    |  1. look into using the Dojo Package System
++       |          |         |     convert code to use Dojo Package System
++brian  | 0.25 IED |         |     move scrap_yard contents to the tests_of_external_code directory and delete scrap_yard
++brian  | 0.25 IED |         |     refactor UUID constructor API
+        |          |         |  2. create a FakeStorage class, + rename FileSaver + HttpSaver
+        |          |         |  3. rename Dehydrate and Rehydrate to Serialize and Deserialize
+        |          |         |  4. merge StubVirtualServer + DeltaVirtualServer, and re-name
+-       |          |         |  5. consider a different JSON representation for DateValues
++       |          |         |  5. research standard text representations for DateValues
+        |          |         |  6. make ordinal value strings not grow long so quickly
+        |          |         |  7. Do lazy creation of layout data items
+-       |          |         |  8. Improve and document the Data model public api
++brian  | 0.5  IED |         |     Make Item.js use namedParameter based API
++brian  |          |         |     Decide whether or not to replace bi-directional connection entries with twin-entries
++       |          |         |  8. Document the Data model public API
+        |          |         |  9. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+        |          |         | 10. Pick one file, and do a group code review on it
+        |          |         | 11. Implement a good URL-to-content mapping, so that URLs won't go bad in future releases
+-       |          |         | 12. Rationalize the View api and document public api
+-       |          |         | 13. Create a &quot;plugin&quot; or &quot;plugin_view&quot; directory 
++       |          |         | 12. Rationalize the View API and document public API
++mignon | 1    IED |         |     Rationalize the ViewPlugin API
++mignon | 0.25 IED |         | 13. Create a &quot;view_plugins&quot; directory &amp; change &quot;TablePlugin&quot; to &quot;TableView&quot;, etc. 
++mignon | 2    IED |         |     Automatically load ViewPlugins found in the view_plugins directory 
+        |          |         | 14. Make RootView subclass from View, or add comments explaining why it doesn't
+        |          |         | 15. Make DateValue subclass from Date, or wrap an internal Date object
+ -------+----------+---------+----------------------------------------------
+-       |          |         |     Fix the message that says &quot;Sorry, for some reason OpenRecrod was not able to launch.&quot;
++       |          |         |     Fix the message that says &quot;Sorry, for some reason OpenRecord was not able to launch.&quot;
+        |          |         | 16. Assign system attributes &amp; categories to a &quot;System&quot; category
+        |          |         | 17. Hide &quot;System&quot; items most of the time
+        |          |         | 18. improve UI for creating a new category
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000303.html">[openrecord-svn] r319 - in trunk: source/model third_party/gtd_tiddlywiki
+</A></li>
+	<LI>Next message: <A HREF="000305.html">[openrecord-svn] r321 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#304">[ date ]</a>
+              <a href="thread.html#304">[ thread ]</a>
+              <a href="subject.html#304">[ subject ]</a>
+              <a href="author.html#304">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

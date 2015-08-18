@@ -1,0 +1,532 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r34 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r34%20-%20trunk/source&In-Reply-To=%3C200504160115.j3G1FOY0027600%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000026.html">
+   <LINK REL="Next"  HREF="000028.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r34 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r34%20-%20trunk/source&In-Reply-To=%3C200504160115.j3G1FOY0027600%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r34 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Sat Apr 16 03:15:24 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000026.html">[openrecord-svn] r33 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000028.html">[openrecord-svn] r35 - in trunk: source third_party third_party/jslint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#27">[ date ]</a>
+              <a href="thread.html#27">[ thread ]</a>
+              <a href="subject.html#27">[ subject ]</a>
+              <a href="author.html#27">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-16 03:15:23 +0200 (Sat, 16 Apr 2005)
+New Revision: 34
+
+Added:
+   trunk/source/LintTest.html
+   trunk/source/LintTest.js
+Modified:
+   trunk/source/Item.js
+   trunk/source/RootView.js
+   trunk/source/Stevedore.js
+   trunk/source/TablePlugin.js
+   trunk/source/TestSuite.html
+   trunk/source/TextView.js
+   trunk/source/Util.js
+Log:
+Added a unit test that runs the source code through JSLint, and cleaned up some tidbits so that all the code now passes the JSLint tests.
+
+Modified: trunk/source/Item.js
+===================================================================
+--- trunk/source/Item.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/Item.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -147,7 +147,7 @@
+   var cleanValue = inValue;
+   // alert(&quot;assign(&quot; + inAttribute + &quot;, &quot; + inValue + &quot;)&quot;);
+   if (Util.isString(inValue)) {
+-    var cleanValue = Util.getCleanString(inValue);
++    cleanValue = Util.getCleanString(inValue);
+   }
+   var valueWasSet = this._initializeAttributeValue(inAttribute, cleanValue);
+   if (valueWasSet) {
+
+Added: trunk/source/LintTest.html
+===================================================================
+--- trunk/source/LintTest.html	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/LintTest.html	2005-04-16 01:15:23 UTC (rev 34)
+@@ -0,0 +1,102 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;<A HREF="http://www.crockford.com/javascript/jslint.js">http://www.crockford.com/javascript/jslint.js</A>&quot;&gt;&lt;/script&gt;
++&lt;!-- 
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/jslint.js&quot;&gt;&lt;/script&gt;
++--&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;View.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;RootView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;ItemView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;SectionView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;TextView.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;TablePlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;DetailPlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;BarChartPlugin.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;demo_page.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Stevedore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;datastore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/LintTest.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -0,0 +1,142 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var Lint = {};
++
++
++/**
++ * Given a string containing JavaScript code, returns true if the code passes 
++ * the lint tests.
++ *
++ * @scope    public class method
++ * @param    inString    A string containing JavaScript code. 
++ * @return   A boolean value. True if the code is good (according to jslint).
++ */
++Lint.isCodeCleanInString = function(inString) {
++  jslint.laxLineEnd = false;
++  jslint.plusplus = true;
++  jslint.cap = false;
++  jslint.jscript = false;
++  jslint(inString);
++  var report = jslint.report();
++  var jslingIsOkay = (report.substr(0, 2) == 'ok');
++  var noTabs = (inString.indexOf(&quot;\t&quot;) == -1);
++  var noBackspaces = (inString.indexOf(&quot;\b&quot;) == -1);
++  var noCarriageReturns = (inString.indexOf(&quot;\r&quot;) == -1);
++  var noFormFeeds = (inString.indexOf(&quot;\f&quot;) == -1);
++  var allClean = jslingIsOkay &amp;&amp; noTabs &amp;&amp; noBackspaces &amp;&amp; noCarriageReturns &amp;&amp; noFormFeeds;
++  return (allClean);
++}; 
++
++
++/**
++ * Given the URL of a file containing JavaScript code, returns true if the code 
++ * passes the lint tests.
++ *
++ * @scope    public class method
++ * @param    inUrl    A string with the URL of a file containing JavaScript code. 
++ * @return   A boolean value. True if the code is good (according to jslint).
++ */
++Lint.isCodeCleanAtUrl = function(inUrl) {
++  var anXMLHttpRequestObject = new XMLHttpRequest();
++  anXMLHttpRequestObject.open(&quot;GET&quot;, inUrl, false);
++  anXMLHttpRequestObject.send(null);
++  var fileContents = anXMLHttpRequestObject.responseText;
++  return Lint.isCodeCleanInString(fileContents);
++};
++
++
++/**
++ * Given the name of a file containing JavaScript code, returns true if the 
++ * code passes the lint tests.
++ *
++ * @scope    public class method
++ * @param    inFileName    A string with the name of a file containing JavaScript code. 
++ * @return   A boolean value. True if the code is good (according to jslint).
++ */
++Lint.isCodeCleanInFile = function(inFileName) {
++  var url  = &quot;../../current/trunk/source/&quot; + inFileName;
++  return Lint.isCodeCleanAtUrl(url);
++};
++
++function setUp() {
++}
++
++function testJsLintOnGoodCodeFragment() {
++  var textToRunLintOn = &quot;function iggy() { var pop = 'no fun'; }&quot;;
++  assertTrue(&quot;jslint says clean code is clean&quot;, Lint.isCodeCleanInString(textToRunLintOn));
++}
++
++function testJsLintOnBadCodeFragment() {
++  // badFragmentOne has THIS_SYMBOL_IS_BAD, which JSLint should catch
++  var badFragmentOne = &quot;function iggy() { var pop = 'no fun'; } THIS_SYMBOL_IS_BAD&quot;;
++
++  // badFragmentTwo has tab characters in it, which our own isCodeCleanInString()
++  // method should catch
++  var badFragmentTwo = &quot;function iggy()		{ var pop = 'no fun'; } &quot;;
++  
++  // badFragmentThree has a carriage return character in it, which our own 
++  // isCodeCleanInString() method should catch
++  var badFragmentThree = &quot;function iggy() \r { var pop = 'no fun'; } &quot;;
++  
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentOne));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentTwo));
++  assertFalse(&quot;jslint says dirty code is dirty&quot;, Lint.isCodeCleanInString(badFragmentThree));
++}
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;Util.js&quot;,
++    &quot;View.js&quot;,
++    &quot;RootView.js&quot;,
++    &quot;ItemView.js&quot;,
++    &quot;PageView.js&quot;,
++    &quot;SectionView.js&quot;,
++    &quot;TextView.js&quot;,
++    &quot;TablePlugin.js&quot;,
++    &quot;OutlinePlugin.js&quot;,
++    &quot;DetailPlugin.js&quot;,
++    &quot;BarChartPlugin.js&quot;,
++    &quot;demo_page.js&quot;,
++    &quot;Item.js&quot;,
++    &quot;Stevedore.js&quot;,
++    &quot;UtilTest.js&quot;];
++  for (var key in listOfSourceCodeFiles) {
++    var fileName = listOfSourceCodeFiles[key];
++    assertTrue(&quot;jslint says Util.js is clean&quot;, Lint.isCodeCleanInFile(fileName));
++  }
++}
++
++function tearDown() {
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/RootView.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -316,7 +316,7 @@
+   var finalString = listOfStrings.join(&quot;&quot;);
+   this.myDebugDivElement.innerHTML = finalString;
+   this.myDebugTextarea = document.getElementById(RootView.ELEMENT_ID_DEBUG_TEXTAREA);
+-}
++};
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -363,7 +363,7 @@
+  * @param    inText    A text string to be displayed. 
+  */
+ RootView.prototype.displayTextInDebugTextarea = function (inText) {
+-  this.myNumberOfCallsToDebug++;
++  this.myNumberOfCallsToDebug += 1;
+   if (this.myNumberOfCallsToDebug &gt; 20) {
+     return;
+   }
+@@ -387,7 +387,7 @@
+     outputText += property + &quot; == &quot; + inObject[property] + &quot;\n&quot;;
+   }
+   this.displayTextInDebugTextarea(outputText);
+-}
++};
+ 
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/Stevedore.js
+===================================================================
+--- trunk/source/Stevedore.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/Stevedore.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -177,6 +177,8 @@
+ Stevedore.prototype.getListOfResultItemsForQuery = function (inQuery) {
+   Util.assert(inQuery instanceof Item);
+ 
++  var uuid = null;
++  var item = null;
+   var listOfQueryResultItems = null;
+   var listOfMatchingCategories = inQuery.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+   var listOfMatchingItems = inQuery.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+@@ -193,8 +195,8 @@
+     listOfQueryResultItems = [];
+     // This is a wildly inefficient search.  But maybe it doesn't matter,
+     // because this code should all be replaced someday by server code.
+-    for (var uuid in this._myHashTableOfItemsKeyedByUuid) {
+-      var item = this._myHashTableOfItemsKeyedByUuid[uuid];
++    for (uuid in this._myHashTableOfItemsKeyedByUuid) {
++      item = this._myHashTableOfItemsKeyedByUuid[uuid];
+       var includeItem = true;
+       for (var key in listOfMatchingCategories) {
+         var category = listOfMatchingCategories[key];
+@@ -210,8 +212,8 @@
+   
+   if (!isItemMatchingQuery &amp;&amp; !isCategoryMatchingQuery) {
+     listOfQueryResultItems = [];
+-    for (var uuid in this._myHashTableOfItemsKeyedByUuid) {
+-      var item = this._myHashTableOfItemsKeyedByUuid[uuid];
++    for (uuid in this._myHashTableOfItemsKeyedByUuid) {
++      item = this._myHashTableOfItemsKeyedByUuid[uuid];
+       listOfQueryResultItems.push(item);
+     }
+   }
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/TablePlugin.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -67,7 +67,7 @@
+   this.myColumnNumber = inColumnNumber;
+   this.myAttribute = inAttribute;
+   this.myTablePlugin = inTablePlugin;
+-}
++};
+ 
+ 
+ /**
+@@ -77,12 +77,12 @@
+  * @scope    private instance constructor
+  */
+ TablePlugin._RowDelegate = function (inContentItem, inRowNumber) {
+-  Util.assert((inContentItem == null) || (inContentItem instanceof Item));
++  Util.assert((inContentItem === null) || (inContentItem instanceof Item));
+ 
+   this.myContentItem = inContentItem;
+   this.myRowNumber = inRowNumber;
+   this.myArrayOfCellDelegates = new Array();
+-}
++};
+ 
+ 
+ /**
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/TestSuite.html	2005-04-16 01:15:23 UTC (rev 34)
+@@ -24,6 +24,7 @@
+       function openRecordTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
+         testSuite.addTestPage(&quot;../../current/trunk/source/UtilTest.html&quot;);
++        testSuite.addTestPage(&quot;../../current/trunk/source/LintTest.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/TextView.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -71,7 +71,7 @@
+   this.isMultiLine = isMultiLine;
+   this.isEditing = false;
+   this._myHasEverBeenDisplayedFlag = false;
+-};
++}
+ 
+ 
+ /**
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-04-15 03:19:53 UTC (rev 33)
++++ trunk/source/Util.js	2005-04-16 01:15:23 UTC (rev 34)
+@@ -177,7 +177,7 @@
+  * @return   A boolean value. True if inValue is a string.
+  */
+ Util.isString = function (inValue) {
+-  return (typeof(inValue) == &quot;string&quot;);
++  return ((typeof inValue) == &quot;string&quot;);
+ };
+ 
+ 
+@@ -189,7 +189,7 @@
+  * @return   A boolean value. True if inValue is a number.
+  */
+ Util.isNumber = function (inValue) {
+-  return ((typeof(inValue) == &quot;number&quot;) &amp;&amp; isFinite(inValue));
++  return (((typeof inValue) == &quot;number&quot;) &amp;&amp; isFinite(inValue));
+ };
+ 
+ 
+@@ -219,7 +219,7 @@
+  * @return   A boolean value. True if inValue is a boolean.
+  */
+ Util.isBoolean = function (inValue) {
+-  return (typeof(inValue) == &quot;boolean&quot;);
++  return ((typeof inValue) == &quot;boolean&quot;);
+ };
+ 
+ 
+@@ -231,7 +231,7 @@
+  * @return   A boolean value. True if inValue is an object.
+  */
+ Util.isObject = function (inValue) {
+-  return (inValue &amp;&amp; (typeof(inValue) == &quot;object&quot;));
++  return (inValue &amp;&amp; ((typeof inValue) == &quot;object&quot;));
+ };
+ 
+ 
+@@ -243,7 +243,7 @@
+  * @return   A boolean value. True if inValue is an array.
+  */
+ Util.isArray = function (inValue) {
+-  return (inValue &amp;&amp; (typeof(inValue) == &quot;object&quot;) &amp;&amp; (inValue.constructor == Array));
++  return (inValue &amp;&amp; ((typeof inValue) == &quot;object&quot;) &amp;&amp; (inValue.constructor == Array));
+ };
+ 
+ 
+@@ -255,7 +255,7 @@
+  * @return   A boolean value. True if inValue is a hash table.
+  */
+ Util.isHashTable = function (inValue) {
+-  return (inValue &amp;&amp; (typeof(inValue) == &quot;object&quot;));  // PENDING: we should be more restrictive!
++  return (inValue &amp;&amp; ((typeof inValue) == &quot;object&quot;));  // PENDING: we should be more restrictive!
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000026.html">[openrecord-svn] r33 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000028.html">[openrecord-svn] r35 - in trunk: source third_party third_party/jslint
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#27">[ date ]</a>
+              <a href="thread.html#27">[ thread ]</a>
+              <a href="subject.html#27">[ subject ]</a>
+              <a href="author.html#27">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

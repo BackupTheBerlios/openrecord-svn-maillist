@@ -1,0 +1,2632 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r309 - in trunk: documentation repositories source source/model source/util source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r309%20-%20in%20trunk%3A%20documentation%20repositories%20source%20source/model%20source/util%20source/view&In-Reply-To=%3C200508311922.j7VJMPT3030838%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000293.html">
+   <LINK REL="Next"  HREF="000295.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r309 - in trunk: documentation repositories source source/model source/util source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r309%20-%20in%20trunk%3A%20documentation%20repositories%20source%20source/model%20source/util%20source/view&In-Reply-To=%3C200508311922.j7VJMPT3030838%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r309 - in trunk: documentation repositories source source/model source/util source/view">skinner at berlios.de
+       </A><BR>
+    <I>Wed Aug 31 21:22:25 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000293.html">[openrecord-svn] r308 - trunk/source/util
+</A></li>
+        <LI>Next message: <A HREF="000295.html">[openrecord-svn] r310 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#294">[ date ]</a>
+              <a href="thread.html#294">[ thread ]</a>
+              <a href="subject.html#294">[ subject ]</a>
+              <a href="author.html#294">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-31 21:22:20 +0200 (Wed, 31 Aug 2005)
+New Revision: 309
+
+Added:
+   trunk/source/model/MockUuidGenerator.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/repositories/open_agenda.json
+   trunk/repositories/tobacco.json
+   trunk/repositories/tuscany.json
+   trunk/source/BarChartPlugin.js
+   trunk/source/OpenRecordLoader.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/TablePlugin.js
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.html
+   trunk/source/model/ModelTest.js
+   trunk/source/model/Record.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/TestReorderingForSpecialCases.html
+   trunk/source/model/TestReorderingForSpecialCases.js
+   trunk/source/model/TestReorderingForTypicalOrdinals.html
+   trunk/source/model/TestReorderingForTypicalOrdinals.js
+   trunk/source/model/World.js
+   trunk/source/util/LintTest.js
+   trunk/source/util/Util.js
+   trunk/source/util/UtilTest.html
+   trunk/source/util/UtilTest.js
+   trunk/source/util/Uuid.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/ItemView.js
+   trunk/source/view/LoginView.js
+   trunk/source/view/NavbarView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/RootView.js
+   trunk/source/view/SectionView.js
+Log:
+Created UUID objects, and moved from using string-representions of UUIDs to UUID objects.  Broke Uuid.js apart, and created RandomUuid.js and TimeBasedUuid.js.  Did follow-up refactoring and clean-up.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/documentation/release_planning.txt	2005-08-31 19:22:20 UTC (rev 309)
+@@ -313,6 +313,7 @@
+ brian  |          | 0    IED| 12. drag-and-drop lozenges: move instead of copy
+ brian  |          | 0.25 IED|     display numbers with commas and allow commas during entry 
+ brian  |          | 0.5  IED|     profiling and performance improvements
++brian  |          | 1    IED|     moved from string-UUIDs to object-UUIDs; refactored and cleaned-up
+        |          |         |     BUG: as you drag-and-drop, other text gets selected 
+ -------+----------+---------+----------------------------------------------
+        |          |         | 13. Assign system attributes &amp; categories to a &quot;System&quot; category
+@@ -600,7 +601,6 @@
+  + How should we rename &quot;VirtualServer&quot;?
+  + How should we interoperate with other repositories(openrecord + other sources of data)?
+  + Should we rename &quot;World&quot;?
+- + BUG: need to convert HTML entity codes back at client-server layer
+  + BUG: Can't really create own plugins yet (e.g. UUID need to be assigned, plugin item created)
+  + Q: Do we (and how) need a concept of focus for Views? Currently, only Text input 
+     and Textarea gets keyboard focus. We need it for table selections and possibly 
+
+Modified: trunk/repositories/open_agenda.json
+===================================================================
+--- trunk/repositories/open_agenda.json	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/repositories/open_agenda.json	2005-08-31 19:22:20 UTC (rev 309)
+@@ -3036,4 +3036,19 @@
+     &quot;attribute&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+          &quot;item&quot;: &quot;f38808a0-0c70-11da-beea-000c414ce854&quot;,
+         &quot;value&quot;: &quot;Intermittent presumptive treatment for expectant mothers&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;8dd75d40-1a48-11da-8163-000c414ce854&quot;,
++       &quot;record&quot;: &quot;295652f0-0c6e-11da-beea-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c6e295652f00dfb3a8NaN52783fd0&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;97bdb250-1a48-11da-8163-000c414ce854&quot;,
++       &quot;record&quot;: &quot;5ebf9280-0c6e-11da-beea-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c6e295652f0809241c4c94a9e4b&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;99bbf350-1a48-11da-8163-000c414ce854&quot;,
++       &quot;record&quot;: &quot;7b5e3b80-0c6e-11da-beea-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c6e295652f0809241c4c94a9e4b91b99370&quot;  }
+ }
+\ No newline at end of file
+
+Modified: trunk/repositories/tobacco.json
+===================================================================
+--- trunk/repositories/tobacco.json	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/repositories/tobacco.json	2005-08-31 19:22:20 UTC (rev 309)
+@@ -2211,4 +2211,34 @@
+          &quot;uuid&quot;: &quot;be25f800-0c4f-11da-8b96-000c414ce854&quot;,
+        &quot;record&quot;: &quot;b84ff4b0-0c47-11da-9c9f-000c414ce854&quot;,
+         &quot;value&quot;: &quot;11da0c45cee23960cb8bd71735bc65bd&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;ae5a9370-1a48-11da-a727-000c414ce854&quot;,
++       &quot;record&quot;: &quot;cee23960-0c45-11da-9c9f-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c45cee23960cb8bd71674c7a35a&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;bc2a30a0-1a48-11da-a727-000c414ce854&quot;,
++       &quot;record&quot;: &quot;b84ff4b0-0c47-11da-9c9f-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c45cee23960cb8bd71674c7a35aeb4daba8&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;bdbf9db0-1a48-11da-a727-000c414ce854&quot;,
++       &quot;record&quot;: &quot;5eff13b0-0c46-11da-9c9f-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c45cee23960cb8bd71674c7a35aeb4daba8a64022b5&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;c0302880-1a48-11da-a727-000c414ce854&quot;,
++       &quot;record&quot;: &quot;164668f0-0c49-11da-9c9f-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c4cae51dfa03c20720d9da097f9&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;c2d2e6e0-1a48-11da-a727-000c414ce854&quot;,
++       &quot;record&quot;: &quot;ae51dfa0-0c4c-11da-9c9f-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c4cae51dfa03c20720d818f2b3b&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;c40b3fd0-1a48-11da-a727-000c414ce854&quot;,
++       &quot;record&quot;: &quot;8dcbaaf0-0c46-11da-9c9f-000c414ce854&quot;,
++        &quot;value&quot;: &quot;11da0c4cae51dfa03c20720d9da097f9b27e1373&quot;  }
+ }
+\ No newline at end of file
+
+Modified: trunk/repositories/tuscany.json
+===================================================================
+--- trunk/repositories/tuscany.json	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/repositories/tuscany.json	2005-08-31 19:22:20 UTC (rev 309)
+@@ -35300,4 +35300,14 @@
+          &quot;uuid&quot;: &quot;99236cb0-0eeb-11da-b953-c103016080e1&quot;,
+        &quot;record&quot;: &quot;2281a9b0-0eea-11da-b953-c103016080e1&quot;,
+         &quot;value&quot;: &quot;11da0eeac63db580403baf7d&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;0cdfa890-1a49-11da-8f73-000c414ce854&quot;,
++       &quot;record&quot;: &quot;2281a9b0-0eea-11da-b953-c103016080e1&quot;,
++        &quot;value&quot;: &quot;1da0eeac63db580e2d05709&quot;  }
++},
++{ &quot;Ordinal&quot;: {
++         &quot;uuid&quot;: &quot;1c5ef190-1a49-11da-8f73-000c414ce854&quot;,
++       &quot;record&quot;: &quot;6ded8630-0eea-11da-b953-c103016080e1&quot;,
++        &quot;value&quot;: &quot;1da0ee63fc2d11058db85ce&quot;  }
+ }
+\ No newline at end of file
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/BarChartPlugin.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -105,31 +105,31 @@
+   var attribute = null;
+   var listOfEntries;
+   var firstEntry;
+-  var attributeKey;
+-  var hashTableOfNumericValueIncidenceKeyedByAttributeKey = {};
+-  var hashTableOfAttributesKeyedByAttributeKey = {};
++  var attributeUuid;
++  var hashTableOfNumericValueIncidenceKeyedByUuid = {};
++  var hashTableOfAttributesKeyedByUuid = {};
+   
+   // for each attribute, count the number of items where that attribute has a numeric value
+   var listOfContentItems = this.fetchItems();
+   for (var iKey in listOfContentItems) {
+     contentItem = listOfContentItems[iKey];
+     var listOfAttributesForItem = contentItem.getAttributes();
+-    for (attributeKey in listOfAttributesForItem) {
+-      attribute = listOfAttributesForItem[attributeKey];
+-      var attributeKeyString = attribute.getUniqueKeyString();
+-      hashTableOfAttributesKeyedByAttributeKey[attributeKeyString] = attribute;
++    for (var i in listOfAttributesForItem) {
++      attribute = listOfAttributesForItem[i];
++      attributeUuid = attribute.getUuid();
++      hashTableOfAttributesKeyedByUuid[attributeUuid] = attribute;
+       listOfEntries = contentItem.getEntriesForAttribute(attribute);
+       if (listOfEntries) {
+         firstEntry = listOfEntries[0];
+         if (firstEntry) {
+           var value = firstEntry.getValue(contentItem);
+           if (Util.isNumber(value)) {
+-            var count = hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKeyString];
++            var count = hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid];
+             if (!count) {
+               count = 0;
+             }
+             count += 1;
+-            hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKeyString] = count;
++            hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid] = count;
+           }
+         }
+       }
+@@ -139,10 +139,10 @@
+   // find the attribute for which most of the items have a numeric value 
+   var maxIncidence = 0;
+   var selectedAttribute = null;
+-  for (attributeKey in hashTableOfNumericValueIncidenceKeyedByAttributeKey) {
+-    var incidence = hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKey];
++  for (attributeUuid in hashTableOfNumericValueIncidenceKeyedByUuid) {
++    var incidence = hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid];
+     if (incidence &gt; maxIncidence) {
+-      selectedAttribute = hashTableOfAttributesKeyedByAttributeKey[attributeKey];
++      selectedAttribute = hashTableOfAttributesKeyedByUuid[attributeUuid];
+       maxIncidence = incidence;
+     }
+   }
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/OpenRecordLoader.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -99,6 +99,8 @@
+     &quot;third_party/gtd_tiddlywiki/FileSaver.js&quot;,
+     // util
+     &quot;source/util/Uuid.js&quot;,
++    &quot;source/util/RandomUuid.js&quot;,
++    &quot;source/util/TimeBasedUuid.js&quot;,
+     &quot;source/util/Util.js&quot;,
+     &quot;source/util/Cookie.js&quot;,
+     &quot;source/util/DateValue.js&quot;,
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/OutlinePlugin.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -114,7 +114,7 @@
+     // PENDING: 
+     //  We shouldn't call the private method _getUuid()
+     //  We need a better way to get the URL for a content item
+-    anchorElement.setAttribute(&quot;href&quot;, RootView.URL_HASH_ITEM_PREFIX + contentItem._getUuid());
++    anchorElement.setAttribute(&quot;href&quot;, RootView.URL_HASH_ITEM_PREFIX + contentItem.getUuidString());
+ 
+     // View.appendNewTextNode(anchorElement, &quot;(more &#8658;)&quot;);
+     anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/TablePlugin.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -149,45 +149,36 @@
+       Util.assert(anAttribute instanceof Item);
+       displayAttributes.push(anAttribute);
+     }
+-    /*
+-    var PENDING_debug = false;
+-    if (PENDING_debug) {
+-      var string = &quot;&quot;;
+-      for (i in listOfTableColumnEntries) {
+-        string += listOfTableColumnEntries[i]._getUuid() + '\n';
+-      }
+-      alert(listOfTableColumnEntries.length + &quot; columns\n&quot; + string);
+-    }
+-    */
+   } else {
+     // If we get here, it means this table did not have a saved list of 
+     // user-selected columns, so we need to come up with a list.
+     // We will build a list of display attributes by looking at all the items in 
+     // the table and finding the union of all the attributes of those items.
+     var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+-    var hashTableOfAttributes = {};
++    var hashTableOfAttributesKeyedByUuid = {};
++    var attributeUuid;
+     for (var j in this._listOfItems) {
+       var contentItem = this._listOfItems[j];
+       var listOfAttributesForItem = contentItem.getAttributes();
+       for (var k in listOfAttributesForItem) {
+         var attribute = listOfAttributesForItem[k];
+         if (attribute != attributeCalledCategory) {
+-          var attributeKeyString = attribute.getUniqueKeyString();
+-          hashTableOfAttributes[attributeKeyString] = attribute;
++          attributeUuid = attribute.getUuid();
++          hashTableOfAttributesKeyedByUuid[attributeUuid] = attribute;
+         }
+       }
+     }
+     
+-    if (Util.lengthOfHashTable(hashTableOfAttributes) &lt; 1) {
++    if (Util.lengthOfHashTable(hashTableOfAttributesKeyedByUuid) &lt; 1) {
+       // If we have not yet identified any display attributes to use as
+       // column headers, then we'll just use the &quot;Name&quot; attribute so that
+       // our table will have at least one column.
+       var attributeCalledName = this.getWorld().getAttributeCalledName();
+-      var keyString = attributeCalledName.getUniqueKeyString();
+-      hashTableOfAttributes[keyString] = attributeCalledName;
++      attributeUuid = attributeCalledName.getUuid();
++      hashTableOfAttributesKeyedByUuid[attributeUuid] = attributeCalledName;
+     }
+-    for (var key in hashTableOfAttributes) {
+-      anAttribute = hashTableOfAttributes[key];
++    for (attributeUuid in hashTableOfAttributesKeyedByUuid) {
++      anAttribute = hashTableOfAttributesKeyedByUuid[attributeUuid];
+       displayAttributes.push(anAttribute);
+     }
+   }
+@@ -213,7 +204,7 @@
+       optionElt.text = '* ';
+     }
+     optionElt.text += attribute.getDisplayString();
+-    optionElt.value = attribute.getUniqueKeyString();
++    optionElt.value = attribute.getUuidString();
+     optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
+   }
+   this._selectElement = selectElt;
+@@ -418,8 +409,8 @@
+   for (var i in this._displayAttributes) {
+     var attribute = this._displayAttributes[i];
+     if (!this._sortAttribute) {this._sortAttribute = attribute;}
+-    var headerCell = View.appendNewElement(headerRow, &quot;th&quot;, null, {uuid: attribute._getUuid()});
+-    var headerCellContentSpan = View.appendNewElement(headerCell, &quot;span&quot;, &quot;headerCellContentSpan&quot;, {uuid: attribute._getUuid()});
++    var headerCell = View.appendNewElement(headerRow, &quot;th&quot;, null, {uuid: attribute.getUuidString()});
++    var headerCellContentSpan = View.appendNewElement(headerCell, &quot;span&quot;, &quot;headerCellContentSpan&quot;, {uuid: attribute.getUuidString()});
+     var textSpan = View.appendNewElement(headerCellContentSpan, &quot;span&quot;, null, null, attribute.getDisplayString());
+     if (this._sortAttribute == attribute) {
+       headerCellContentSpan.appendChild(this.getSortIcon());
+@@ -625,7 +616,7 @@
+   var attributeCalledExpectedType = world.getAttributeCalledExpectedType();
+   var attributeCalledInverseAttribute = world.getAttributeCalledInverseAttribute();
+ 
+-  var hashTableOfTypesKeyedByAttribute = {};
++  var hashTableOfTypesKeyedByAttributeUuid = {};
+   for (i in listOfAttributes) {
+     var attribute = listOfAttributes[i];
+     var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
+@@ -634,8 +625,7 @@
+       var entry = listOfExpectedTypeEntries[j];
+       listOfTypes.push(entry.getValue());
+     }
+-    var attributeKeyString = attribute.getUniqueKeyString();
+-    hashTableOfTypesKeyedByAttribute[attributeKeyString] = listOfTypes;
++    hashTableOfTypesKeyedByAttributeUuid[attribute.getUuid()] = listOfTypes;
+   }
+   world.beginTransaction();
+   var count = 0;
+@@ -653,7 +643,7 @@
+       attribute = listOfAttributes[j];
+       var value = listOfFields[j];
+       if (value !== &quot;&quot;) {
+-        listOfTypes = hashTableOfTypesKeyedByAttribute[attribute.getUniqueKeyString()];
++        listOfTypes = hashTableOfTypesKeyedByAttributeUuid[attribute.getUuid()];
+         value = EntryView._transformValueToExpectedType(world, value, listOfTypes);
+         var inverseAttributeEntry = attribute.getSingleEntryFromAttribute(attributeCalledInverseAttribute);
+         if (inverseAttributeEntry) {
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/ContentRecord.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -37,6 +37,7 @@
+ /*global Util  */
+ /*global World  */
+ /*global Record  */
++/*global RandomUuid  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -110,11 +111,7 @@
+  * @return   A number.
+  */
+ ContentRecord.prototype.getOrdinalNumberAtCreation = function() {
+-  // PENDING: we should cache this value in the Uuid instance instead of in the ContentRecord instance
+-  if (!this._ordinalNumberAtCreation) {
+-    this._ordinalNumberAtCreation = Uuid.getOriginalOrdinalFromUuid(this._uuid);
+-  }
+-  return this._ordinalNumberAtCreation;
++  return this.getUuid().getTimestampAsHexString();
+ };
+ 
+ 
+@@ -279,16 +276,16 @@
+         firstOrdinalNumber = thirdOrdinalNumber;
+         thirdOrdinalNumber = temp;
+       }
+-      secondOrdinalNumber = firstOrdinalNumber + Uuid._getRandomEightCharacterHexString();
++      secondOrdinalNumber = firstOrdinalNumber + RandomUuid._generateRandomEightCharacterHexString();
+       var zeroes = &quot;&quot;;
+       while (secondOrdinalNumber &gt;= thirdOrdinalNumber) {
+         zeroes += &quot;0&quot;;
+-        secondOrdinalNumber = firstOrdinalNumber + zeroes + Uuid._getRandomEightCharacterHexString();
++        secondOrdinalNumber = firstOrdinalNumber + zeroes + RandomUuid._generateRandomEightCharacterHexString();
+       }
+     }
+   }
+   if (firstOrdinalNumber &amp;&amp; !thirdOrdinalNumber) {
+-    secondOrdinalNumber = firstOrdinalNumber + Uuid._getRandomEightCharacterHexString();
++    secondOrdinalNumber = firstOrdinalNumber + RandomUuid._generateRandomEightCharacterHexString();
+   }
+   if (!firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+     secondOrdinalNumber = thirdOrdinalNumber;
+@@ -304,7 +301,7 @@
+     while (secondOrdinalNumber.length &lt; origLen) {
+       secondOrdinalNumber += &quot;f&quot;;
+     }
+-    secondOrdinalNumber += Uuid._getRandomEightCharacterHexString();
++    secondOrdinalNumber += RandomUuid._generateRandomEightCharacterHexString();
+   }
+   this.getWorld()._newOrdinal(this, secondOrdinalNumber);
+ };
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/DeltaVirtualServer.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -252,7 +252,7 @@
+       }
+       if (Util.isObjectInSet(item, listOfUsers)) {
+         var user = item;
+-        var password = this._hashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
++        var password = this._hashTableOfUserAuthenticationInfo[user.getUuid()];
+         var passwordString = &quot;null&quot;;
+         if (password) {
+           passwordString = '&quot;' + password + '&quot;';
+@@ -263,7 +263,7 @@
+           listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(user) + '\n');
+         }
+         listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_USER_CLASS + '&quot;: ' + '{\n');
+-        listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_USER + '&quot;: &quot;' + user._getUuid() + '&quot;,\n');
++        listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_USER + '&quot;: ' + user._getUuidInQuotes() + ',\n');
+         listOfStrings.push(indent + '     &quot;' + StubVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }\n');
+         listOfStrings.push(indent + '}');
+       }
+@@ -277,8 +277,8 @@
+         listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
+       }
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{\n');
+-      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + vote._getUuid() + '&quot;,\n');
+-      listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getContentRecord()._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: ' + vote._getUuidInQuotes() + ',\n');
++      listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: ' + vote.getContentRecord()._getUuidInQuotes() + ',\n');
+       listOfStrings.push(indent + '   &quot;' + StubVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
+       listOfStrings.push('  }\n');
+       listOfStrings.push(indent + '}');
+@@ -291,8 +291,8 @@
+         listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
+       }
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+-      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + ordinal._getUuid() + '&quot;,\n');
+-      listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
++      listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: ' + ordinal._getUuidInQuotes() + ',\n');
++      listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: ' + ordinal.getContentRecord()._getUuidInQuotes() + ',\n');
+       listOfStrings.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
+       listOfStrings.push('  }\n');
+       listOfStrings.push(indent + '}');
+@@ -301,7 +301,7 @@
+     if (record instanceof Entry) {
+       var entry = record;
+       var entryType = entry.getType();
+-      var typeUuid = entryType._getUuid();
++      var typeUuid = entryType.getUuid();
+       // var entryString = &quot;&quot;;
+       if (generateComments) {
+         listOfStringsForEntry = [];
+@@ -314,11 +314,11 @@
+       if (previousEntry) {
+         listOfStringsForEntry.push(indent + '&quot;' + StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE + '&quot;: ' + previousEntry._getUuidInQuotes() + ',\n');
+       }
+-      listOfStringsForEntry.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid + '&quot;,\n');
++      listOfStringsForEntry.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeUuid.toString() + '&quot;,\n');
+       if (generateComments) {
+         commentString = &quot;&quot;;
+       }
+-      if (typeUuid == World.UUID_FOR_TYPE_CONNECTION) {
++      if (typeUuid.toString() == World.UUID_FOR_TYPE_CONNECTION) {
+         var pairOfItems = entry.getItem();
+         var firstItem = pairOfItems[0];
+         var secondItem = pairOfItems[1];
+@@ -346,7 +346,7 @@
+         
+         var valueString = null;
+         var valueComment = null;
+-        switch (typeUuid) {
++        switch (typeUuid.toString()) {
+           case World.UUID_FOR_TYPE_NUMBER: 
+             valueString = '&quot;' + contentData + '&quot;';
+             if (generateComments) {valueComment = contentData;}
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/Entry.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -389,7 +389,7 @@
+  * @return   A string with a description of the item.
+  */
+ Entry.prototype.toString = function() {
+-  var returnString = &quot;[Entry #&quot; + this.getUniqueKeyString() + 
++  var returnString = &quot;[Entry #&quot; + this.getUuid() + 
+     &quot; \&quot;&quot; + this.getDisplayString() + &quot;\&quot;&quot; + &quot;]&quot;;
+   return returnString;
+ };
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/Item.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -321,13 +321,13 @@
+   Util.assert(attribute instanceof Item);
+   
+   if (this._cachedEntriesKeyedByAttributeUuid !== null) {
+-    var listOfCachedEntries = this._cachedEntriesKeyedByAttributeUuid[attribute._getUuid()];
++    var listOfCachedEntries = this._cachedEntriesKeyedByAttributeUuid[attribute.getUuid()];
+     if (listOfCachedEntries) {
+       return listOfCachedEntries;
+     }
+   }
+   
+-  var listOfEntriesForAttribute = this._hashTableOfEntryListsKeyedByAttributeUuid[attribute._getUuid()];
++  var listOfEntriesForAttribute = this._hashTableOfEntryListsKeyedByAttributeUuid[attribute.getUuid()];
+   if (!listOfEntriesForAttribute) {
+     listOfEntriesForAttribute = [];
+   }
+@@ -367,7 +367,7 @@
+   if (!this._cachedEntriesKeyedByAttributeUuid) {
+     this._cachedEntriesKeyedByAttributeUuid = {};
+   }
+-  this._cachedEntriesKeyedByAttributeUuid[attribute._getUuid()] = filteredListOfEntries;
++  this._cachedEntriesKeyedByAttributeUuid[attribute.getUuid()] = filteredListOfEntries;
+ 
+   return filteredListOfEntries;
+ };
+@@ -560,7 +560,7 @@
+  * @return   A string with a description of the item.
+  */
+ Item.prototype.toString = function() {
+-  var returnString = &quot;[Item #&quot; + this.getUniqueKeyString() + &quot; &quot;;
++  var returnString = &quot;[Item #&quot; + this.getUuid() + &quot; &quot;;
+   var attributeCategory = this.getWorld().getAttributeCalledCategory();
+   var listOfCategories = this.getEntriesForAttribute(attributeCategory);
+   for (var key in listOfCategories) {
+@@ -711,7 +711,7 @@
+  * @param    attribute    The attribute that this entry is assigned to. 
+  */
+ Item.prototype.__addEntryToListOfEntriesForAttribute = function(entry, attribute) {
+-  var attributeUuid = attribute._getUuid();
++  var attributeUuid = attribute.getUuid();
+   var listOfEntries = this._hashTableOfEntryListsKeyedByAttributeUuid[attributeUuid];
+   if (!listOfEntries) {
+     listOfEntries = [];
+
+Added: trunk/source/model/MockUuidGenerator.js
+===================================================================
+--- trunk/source/model/MockUuidGenerator.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/MockUuidGenerator.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -0,0 +1,47 @@
++/*****************************************************************************
++ MockUuidGenerator.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Mignon Belongie
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++mockUuidGenerator.queueOfUuids = new Array();
++
++function mockUuidGenerator() {
++  if (mockUuidGenerator.queueOfUuids.length === 0) {
++    // This should probably throw an exception instead.    
++    return &quot;00000000-0000-0000-0000-000000000000&quot;;
++  }
++  var uuidString = mockUuidGenerator.queueOfUuids.shift();
++  var uuid = new TimeBasedUuid(uuidString);
++  return uuid;
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/ModelTest.html	2005-08-31 19:22:20 UTC (rev 309)
+@@ -17,6 +17,8 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/ModelTest.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -50,10 +50,26 @@
+   world = new World(stubVirtualServer);
+ }
+ 
++function testUuids() {
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);  
++
++  world.login(userJane, janesPassword);
++  var apple = world.newItem(&quot;Apple&quot;);
++  var brownie = world.newItem(&quot;Brownie&quot;);
++  var cupcake = world.newItem(&quot;Cupcake&quot;);
++  
++  var appleUuidString = apple.getUuidString();
++  var appleToo = world.getItemFromUuid(appleUuidString);
++  assertTrue('We can retrieve &quot;apple&quot; from its UUID string', (apple == appleToo)); 
++  
++  var appleUuid = apple.getUuid();
++  var appleAgain = world.getItemFromUuid(appleUuid);
++  assertTrue('We can retrieve &quot;apple&quot; from its UUID', (apple == appleAgain)); 
++}
++
+ function testGetUserstamp() {
+   var listOfUsers = world.getUsers();  
+-  // var axiomaticUser = listOfUsers[0];
+-  // assertTrue('The axiomaticUser created the axiomaticUser', (axiomaticUser.getUserstamp() == axiomaticUser));
+ 
+   var janesPassword = &quot;jane's password&quot;;
+   var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/Record.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -65,6 +65,12 @@
+  * @param    uuid    The UUID for this Record. 
+  */
+ Record.prototype._Record = function(world, uuid) {
++  Util.assert(Util.isUuidValue(uuid));
++  if (Util.isString(uuid)) {
++    var uuidString = uuid;
++    Util.assert(uuidString.length == 36);
++    uuid = new TimeBasedUuid(uuidString);
++  }
+   Util.assert(Util.isUuid(uuid));
+   
+   this._world = world;
+@@ -89,17 +95,6 @@
+ 
+ 
+ /**
+- * Returns a string which can be used as a unique key in a hash table. 
+- *
+- * @scope    public instance method
+- * @return   A string which can serve as a unique key.
+- */
+-Record.prototype.getUniqueKeyString = function() {
+-  return this._uuid;
+-};
+-
+-
+-/**
+  * Returns the item representing the user who created this item.
+  *
+  * @scope    public instance method
+@@ -109,12 +104,13 @@
+   if (this._creationUserstamp) {
+     return this._creationUserstamp;
+   }
++  var myPseudonode = this.getUuid().getNode();
+   var allUsers = this._world.getUsers();
+-  var myPseudonode = Uuid.getNodeFromUuid(this._uuid);
+   for (var key in allUsers) {
+-    var usersPseudonode = Uuid.getNodeFromUuid(allUsers[key]._getUuid());
++    var user = allUsers[key];
++    var usersPseudonode = user.getUuid().getNode();
+     if (usersPseudonode == myPseudonode) {
+-      this._creationUserstamp = allUsers[key];
++      this._creationUserstamp = user;
+       return this._creationUserstamp;
+     }
+   }
+@@ -137,44 +133,62 @@
+ 
+ 
+ /**
+- * Returns a Date object with the creation timestamp for this item.
++ * Returns a Date object with the creation timestamp for this record.
+  *
+  * @scope    public instance method
+  * @return   A Date object.
+  */
+ Record.prototype.getCreationDate = function() {
+-  if (!this._creationDate) {
+-    this._creationDate = Uuid.getDateFromUuid(this._uuid);
++  /* if (!this._creationDate) {
++    this._creationDate = Uuid.getDateFromUuid(this._uuid.toString());
+   }
+   return this._creationDate;
++  */
++  return this.getUuid().getDate();
+ };
+ 
+ 
++/**
++ * Returns the UUID of the record. 
++ *
++ * @scope    public instance method
++ * @return   The UUID of the record.
++ */
++Record.prototype.getUuid = function() {
++  return this._uuid;
++};
++
++
++/**
++ * Returns a string representation of the UUID of the record. 
++ *
++ * @scope    public instance method
++ * @return   A string representing the UUID of the record.
++ */
++Record.prototype.getUuidString = function() {
++  return this._uuid.toString();
++};
++
++
+ // -------------------------------------------------------------------
+ // Package/module methods           
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Returns the UUID of the item. 
++ * Returns a string representation of the UUID of the item, wrapped in
++ * quotes.  The return value will always be a 38-character string, 
++ * where the first and last characters are quotes.  For example:  
+  *
+- * WARNING: This method should be called ONLY from a 
+- * VirtualServer implementation.
++ * &lt;pre&gt;
++ *   &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;
++ * &lt;/pre&gt;
+  *
+- * If you're writing code in the view layer, call
+- * item.getUniqueKeyString() instead of item._getUuid();
+- *
+  * @scope    protected instance method
+- * @return   The UUID of the item.
++ * @return   The record's UUID, as a string, wrapped in quotes.
+  */
+-Record.prototype._getUuid = function() {
+-  return this._uuid;
+-};
+-
+-
+-// PENDING: this should be an instance method on Uuid
+ Record.prototype._getUuidInQuotes = function() {
+   if (!this._uuidInQuotes) {
+-    this._uuidInQuotes = '&quot;' + this._uuid + '&quot;';
++    this._uuidInQuotes = '&quot;' + this._uuid.toString() + '&quot;';
+   }
+   return this._uuidInQuotes;
+ };
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/StubVirtualServer.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -74,17 +74,19 @@
+ StubVirtualServer.JSON_MEMBER_RETAIN_FLAG = &quot;retainFlag&quot;;
+ StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER = &quot;value&quot;;
+ 
+-StubVirtualServer.prototype._generateUuid = function(arg1) {
+-  return Uuid.generateTimeBasedUuid(arg1);
+-};
+ 
++/**
++ * ??.
++ *
++ * @scope    private instance method
+ StubVirtualServer.prototype._processOptionalDefaultOverrides = function(optionalDefaultOverrides) {
+-  for (key in optionalDefaultOverrides) {
++  for (var key in optionalDefaultOverrides) {
+     // Should I check first that there is already a property called 'key'?
+     this[key] = optionalDefaultOverrides[key];
+-//alert(&quot;key = &quot; + key + &quot;\noptionalDefaultOverrides[key] = &quot; + optionalDefaultOverrides[key]);
++    // alert(&quot;key = &quot; + key + &quot;\noptionalDefaultOverrides[key] = &quot; + optionalDefaultOverrides[key]);
+   }
+ };
++ */
+ 
+ 
+ /**
+@@ -93,7 +95,7 @@
+  *
+  * @scope    public instance constructor
+  */
+-function StubVirtualServer(pathToTrunkDirectory, optionalDefaultOverrides) {
++function StubVirtualServer(pathToTrunkDirectory) {
+   var fileName = &quot;2005_june_axiomatic_items.json&quot;;
+   var urlForAxiomaticFile = &quot;&quot;;
+   if (pathToTrunkDirectory) {
+@@ -102,10 +104,11 @@
+   urlForAxiomaticFile += &quot;source/model/&quot; + fileName;
+   
+   this._dehydratedAxiomFileURL = urlForAxiomaticFile;
+-//  this._generateUuid = Uuid.generateTimeBasedUuid;
++  /*
+   if (optionalDefaultOverrides) {
+     this._processOptionalDefaultOverrides(optionalDefaultOverrides, &quot;Stub&quot;);
+   }
++  */
+ }
+ 
+ /**
+@@ -466,7 +469,7 @@
+   if (authentication) {
+     md5Authentication = Util.hex_md5(authentication);
+   }
+-  this._hashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = md5Authentication;
++  this._hashTableOfUserAuthenticationInfo[newUser.getUuid()] = md5Authentication;
+ 
+   this._currentUser = newUser;
+   var categoryCalledPerson = this.getWorld().getCategoryCalledPerson();
+@@ -528,7 +531,7 @@
+     return false;
+   }
+ 
+-  if (user._getUuid() == World.UUID_FOR_USER_AMY) {
++  if (user.getUuidString() == World.UUID_FOR_USER_AMY) {
+     // nobody is allowed to log in as the axiomatic user
+     return false;
+   }
+@@ -583,7 +586,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ StubVirtualServer.prototype.getItemFromUuid = function(uuid, observer) {
+-  Util.assert(Util.isUuid(uuid), uuid + ' is not a Uuid');
++  Util.assert(Util.isUuidValue(uuid));
+   
+   var item = this._hashTableOfItemsKeyedByUuid[uuid];
+   if (item &amp;&amp; observer) {
+@@ -766,6 +769,17 @@
+ 
+ 
+ /**
++ * Returns a newly created UUID.
++ *
++ * @scope    private instance method
++ * @param    pseudoNode    The pseudoNode value that the new UUID should have. 
++ */
++StubVirtualServer.prototype._generateUuid = function(pseudoNode) {
++  return new TimeBasedUuid(pseudoNode);
++};
++
++
++/**
+  * Creates a brand new UUID to allocate to an item or entry.
+  *
+  * @scope    private instance method
+@@ -774,12 +788,12 @@
+ StubVirtualServer.prototype._getNewUuid = function() {
+   var newUuid;
+   if (this._currentUser) {
+-    var uuidOfCurrentUser = this._currentUser._getUuid();
+-    var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
+-    var pseudoNodeOfCurrentUser = arrayOfParts[4];//&quot;0123456789AB&quot;;
++    var uuidOfCurrentUser = this._currentUser.getUuid();
++    // var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
++    // var pseudoNodeOfCurrentUser = arrayOfParts[4]; // &quot;0123456789AB&quot;;
++    var pseudoNodeOfCurrentUser = uuidOfCurrentUser.getNode(); // &quot;0123456789AB&quot;;
+     newUuid = this._generateUuid(pseudoNodeOfCurrentUser);
+-  }
+-  else {
++  } else {
+     newUuid = this._generateUuid();
+   }
+   return newUuid;
+@@ -795,7 +809,7 @@
+  * @return   The authentication info for the user.
+  */
+ StubVirtualServer.prototype._getAuthenticationInfoForUser = function(user) {
+-  return this._hashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
++  return this._hashTableOfUserAuthenticationInfo[user.getUuid()];
+ };
+ 
+ 
+@@ -927,7 +941,7 @@
+         var userPasswordHash = dehydratedUser[StubVirtualServer.JSON_MEMBER_PASSWORD];
+         var user = this.__getItemFromUuidOrBootstrapItem(userUuid);
+         this._listOfUsers.push(user);
+-        this._hashTableOfUserAuthenticationInfo[user.getUniqueKeyString()] = userPasswordHash;
++        this._hashTableOfUserAuthenticationInfo[user.getUuid()] = userPasswordHash;
+       }
+       
+       if (dehydratedVote) {
+@@ -966,7 +980,7 @@
+         }
+  
+         var dataTypeUuid = dehydratedEntry[StubVirtualServer.JSON_MEMBER_TYPE];
+-        Util.assert(Util.isUuid(dataTypeUuid));
++        Util.assert(Util.isUuidValue(dataTypeUuid));
+         var dataType = this.__getItemFromUuidOrBootstrapItem(dataTypeUuid);
+         
+         if (dataTypeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.html
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.html	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/TestReorderingForSpecialCases.html	2005-08-31 19:22:20 UTC (rev 309)
+@@ -15,7 +15,10 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/TestReorderingForSpecialCases.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -2,6 +2,9 @@
+  TestReorderingForSpecialCases.js
+  
+ ******************************************************************************
++ Written in 2005 by 
++    Mignon Belongie
++
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+     <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+@@ -48,7 +51,9 @@
+   utilAssertReportedError = false;
+   Util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../../../&quot;;
+-  var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++  // var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++  var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
++  StubVirtualServer.prototype._generateUuid = mockUuidGenerator;
+   world = new World(virtualServer);
+ 
+   annUuid1 = &quot;10000000-2222-3333-4444-555555555555&quot;;
+@@ -60,7 +65,7 @@
+ 
+   var annsPassword = &quot;Ann's password&quot;;
+   var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+-  assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUniqueKeyString() == annUuid1);
++  assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUuidString() == annUuid1);
+   world.login(userAnn, annsPassword);
+ 
+   foodUuid1    = &quot;20000000-2222-3333-4444-555555555555&quot;;
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.html
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.html	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.html	2005-08-31 19:22:20 UTC (rev 309)
+@@ -15,7 +15,10 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/RandomUuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../util/DateValue.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;HttpSaver.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -2,6 +2,9 @@
+  TestReorderingForTypicalOrdinals.js
+  
+ ******************************************************************************
++ Written in 2005 by 
++    Mignon Belongie
++  
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+     <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+@@ -52,7 +55,9 @@
+   utilAssertReportedError = false;
+   Util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../../../&quot;;
+-  var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++  // var virtualServer = new StubVirtualServer(pathToTrunkDirectory, {&quot;_generateUuid&quot;:mockUuidGenerator});
++  var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
++  StubVirtualServer.prototype._generateUuid = mockUuidGenerator;
+ /*
+ You can use DeltaVirtualServer instead if you want to append all transactions to a file for debugging purposes.
+ Note that the tests will run a lot slower if you do.
+@@ -71,7 +76,7 @@
+ 
+   var annsPassword = &quot;Ann's password&quot;;
+   var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+-  assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUniqueKeyString() == annUuid1);
++  assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUuidString() == annUuid1);
+   world.login(userAnn, annsPassword);
+ 
+   foodUuid1    = &quot;20000000-2222-3333-4444-555555555555&quot;;
+@@ -99,13 +104,13 @@
+   mockUuidGenerator.queueOfUuids.push(taffyUuid);
+   mockUuidGenerator.queueOfUuids.push(taffyNameUuid);
+   sushi = world.newItem(&quot;Sushi&quot;);
+-  assertTrue(&quot;sushi has the expected uuid&quot;, sushi.getUniqueKeyString() == sushiUuid);
++  assertTrue(&quot;sushi has the expected uuid&quot;, sushi.getUuidString() == sushiUuid);
+   pesto = world.newItem(&quot;Pesto&quot;);
+-  assertTrue(&quot;pesto has the expected uuid&quot;, pesto.getUniqueKeyString() == pestoUuid);
++  assertTrue(&quot;pesto has the expected uuid&quot;, pesto.getUuidString() == pestoUuid);
+   guava = world.newItem(&quot;Guava&quot;);
+-  assertTrue(&quot;guava has the expected uuid&quot;, guava.getUniqueKeyString() == guavaUuid);
++  assertTrue(&quot;guava has the expected uuid&quot;, guava.getUuidString() == guavaUuid);
+   taffy = world.newItem(&quot;Taffy&quot;);
+-  assertTrue(&quot;taffy has the expected uuid&quot;, taffy.getUniqueKeyString() == taffyUuid);
++  assertTrue(&quot;taffy has the expected uuid&quot;, taffy.getUuidString() == taffyUuid);
+ 
+   sushiLinkUuid    = &quot;60000000-2222-3333-4444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/model/World.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -242,10 +242,10 @@
+     }
+     for (var j in listOfItems) {
+       item = listOfItems[j];
+-      listOfRecordsForItem = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item._getUuid()];
++      listOfRecordsForItem = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item.getUuid()];
+       if (!listOfRecordsForItem) {
+         listOfRecordsForItem = [];
+-        hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item._getUuid()] = listOfRecordsForItem;
++        hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item.getUuid()] = listOfRecordsForItem;
+       }
+       listOfRecordsForItem.push(record);
+     }
+@@ -290,7 +290,7 @@
+     var listOfItemChangeReports = null;
+     for (key in listBeingObserved) {
+       item = listBeingObserved[key];
+-      var changes = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item._getUuid()];
++      var changes = hashTableOfNewlyCreatedRecordsKeyedByItemUuid[item.getUuid()];
+       if (changes) {
+         var changeReportForItem = [item, changes];
+         if (!listOfItemChangeReports) {
+@@ -870,6 +870,7 @@
+   return (this._virtualServer.getItemFromUuid(uuid, observer));
+ };
+ 
++
+ /**
+  * Given a UUID, returns the entry identified by that UUID.
+  *
+@@ -881,6 +882,7 @@
+   return (this._virtualServer.__getEntryFromUuid(uuid));
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // Query methods
+ // -------------------------------------------------------------------
+@@ -1062,10 +1064,10 @@
+  * @param    observer    An object or method to be registered as an observer of the item. 
+  */
+ World.prototype.addItemObserver = function(item, observer) {
+-  var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item._getUuid()];
++  var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item.getUuid()];
+   if (!observerList) {
+     observerList = [];
+-    this._hashTableOfObserverListsKeyedByItemUuid[item._getUuid()] = observerList;
++    this._hashTableOfObserverListsKeyedByItemUuid[item.getUuid()] = observerList;
+   }
+   var observerWasAdded = Util.addObjectToSet(observer, observerList);
+   return observerWasAdded;
+@@ -1082,7 +1084,7 @@
+  */
+ World.prototype.removeItemObserver = function(item, observer) {
+   var observerWasRemoved = false;
+-  var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item._getUuid()];
++  var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item.getUuid()];
+   if (observerList) {
+     observerWasRemoved = Util.removeObjectFromSet(observer, observerList);
+   } 
+
+Modified: trunk/source/util/LintTest.js
+===================================================================
+--- trunk/source/util/LintTest.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/LintTest.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -45,6 +45,8 @@
+     &quot;DateValue.js&quot;,
+     &quot;DateValueTest.js&quot;,
+     &quot;Uuid.js&quot;,
++    &quot;RandomUuid.js&quot;,
++    &quot;TimeBasedUuid.js&quot;,
+     &quot;LintTool.js&quot;];
+   var prefix = &quot;../../../source/util/&quot;;
+   var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+
+Added: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/RandomUuid.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -0,0 +1,124 @@
++/*****************************************************************************
++ RandomUuid.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++/*global Util  */
++/*global Uuid  */
++// -------------------------------------------------------------------
++
++
++/**
++ * The RandomUuid class offers methods for working with 
++ * random UUIDs, meaning &quot;version 4&quot; UUIDs.
++ * 
++ * For more info, see 
++ * <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
++ *
++ * @scope    public instance constructor
++ */
++RandomUuid.prototype = new Uuid();  // makes RandomUuid be a subclass of Uuid
++function RandomUuid(uuidString) {
++  if (uuidString) {
++    Util.assert(Util.isString(uuidString));
++    Util.assert(uuidString.length == 36);
++    this._uuidString = uuidString;
++  } else {
++    this._uuidString = RandomUuid._generateUuidString();
++  }
++}
++
++
++// -------------------------------------------------------------------
++// Public class constants
++// -------------------------------------------------------------------
++RandomUuid.HEX_RADIX = 16;
++
++
++// -------------------------------------------------------------------
++// Private class methods
++// -------------------------------------------------------------------
++
++/**
++ * Generates a random UUID, meaning a &quot;version 4&quot; UUID.  Hopefully this 
++ * implementation conforms to the existing standards for UUIDs and GUIDs.  
++ * 
++ * @scope    public class method
++ * @return   Returns a 36-character string, which will look something like &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;.
++ */
++RandomUuid._generateUuidString = function() {
++  var hyphen = &quot;-&quot;;
++  var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;; // 8 == binary2hex(&quot;0100&quot;)
++  var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
++  var a = RandomUuid._generateRandomEightCharacterHexString();
++  var b = RandomUuid._generateRandomEightCharacterHexString();
++  b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
++  var c = RandomUuid._generateRandomEightCharacterHexString();
++  c = variantCodeForDCEUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
++  var d = RandomUuid._generateRandomEightCharacterHexString();
++  var result = a + hyphen + b + hyphen + c + d;
++  
++  return result;
++};
++
++
++/**
++ * Returns a randomly generated floating point number 
++ * between 0 and (4,294,967,296 - 1), inclusive.
++ *
++ * @scope    private class method
++ */
++RandomUuid._generateRandom32bitNumber = function() {
++  return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
++};
++
++
++/**
++ * Returns a randomly generated 8-character string of hex digits.
++ *
++ * @scope    private class method
++ */
++RandomUuid._generateRandomEightCharacterHexString = function() {
++  // PENDING: 
++  // This isn't really random.  We should find some source of real 
++  // randomness, and feed it to an MD5 hash algorithm.     
++  var eightCharacterString = RandomUuid._generateRandom32bitNumber().toString(RandomUuid.HEX_RADIX);
++  while (eightCharacterString.length &lt; 8) {
++    eightCharacterString = &quot;0&quot; + eightCharacterString;
++  }
++  return eightCharacterString;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/TimeBasedUuid.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -0,0 +1,445 @@
++/*****************************************************************************
++ TimeBasedUuid.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++/*global Util  */
++/*global Uuid  */
++// -------------------------------------------------------------------
++
++
++/**
++ * The TimeBasedUuid class offers methods for working with 
++ * time-based UUIDs, meaning &quot;version 1&quot; UUIDs.
++ *
++ * For more info, see 
++ *   <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
++ *   <A HREF="http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm">http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm</A>
++ *   <A HREF="http://kruithof.xs4all.nl/uuid/uuidgen">http://kruithof.xs4all.nl/uuid/uuidgen</A>
++ *   <A HREF="http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20">http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20</A>
++ *   <A HREF="http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html">http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html</A>
++ *
++ * @scope    public instance constructor
++ */
++TimeBasedUuid.prototype = new Uuid();  // makes TimeBasedUuid be a subclass of Uuid
++function TimeBasedUuid(uuidStringOrPseudoNode) {
++  if (uuidStringOrPseudoNode) {
++    Util.assert(Util.isString(uuidStringOrPseudoNode));
++    var lengthOfPseudoNodeString = 12;
++    if (uuidStringOrPseudoNode.length == lengthOfPseudoNodeString) {
++      var pseudoNode = uuidStringOrPseudoNode;
++      this._uuidString = TimeBasedUuid._generateUuidString(pseudoNode);
++    } else {
++      Util.assert(uuidStringOrPseudoNode.length == 36);
++      this._uuidString = uuidStringOrPseudoNode;
++    }
++  } else {
++    this._uuidString = TimeBasedUuid._generateUuidString();
++  }
++}
++
++
++// -------------------------------------------------------------------
++// TimeBasedUuid public class constants
++// -------------------------------------------------------------------
++// Number of seconds between October 15, 1582 and January 1, 1970
++// Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
++TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
++TimeBasedUuid.HEX_RADIX = 16;
++
++
++// -------------------------------------------------------------------
++// Uuid private global class variables
++// -------------------------------------------------------------------
++TimeBasedUuid._ourUuidClockSeqString = null;
++TimeBasedUuid._ourDateValueOfPreviousUuid = null;
++TimeBasedUuid._ourNextIntraMillisecondIncrement = 0;
++
++TimeBasedUuid._ourCachedMillisecondsBetween1582and1970 = null;
++TimeBasedUuid._ourCachedHundredNanosecondIntervalsPerMillisecond = null;
++
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a 12-character string with the &quot;node&quot; or &quot;pseudonode&quot; portion of 
++ * the UUID, which is the rightmost 12 characters.
++ * 
++ * @scope    public instance method
++ * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
++ */
++TimeBasedUuid.prototype.getNode = function() {
++  return TimeBasedUuid._getNodeFromUuidString(this._uuidString);
++};
++
++
++/**
++ * Returns a JavaScript Date object with a value equal to the value in the
++ * time fields of the UUID.
++ * 
++ * @scope    public instance method
++ * @return   Returns a JavaScript Date object.
++ */
++TimeBasedUuid.prototype.getDate = function() {
++  if (!this._date) {
++    this._date = TimeBasedUuid._getDateFromUuidString(this._uuidString);
++  } 
++  return this._date;
++};
++
++
++/**
++ * Returns a 15-character string of hex digits that contains the creation
++ * timestamp for this UUID, with the high-order bits first.  
++ * 
++ * @scope    public instance method
++ * @return   A 15-character string of hex digits.
++ */
++TimeBasedUuid.prototype.getTimestampAsHexString = function() {
++  if (!this._timestampAsHexString) {
++    this._timestampAsHexString = TimeBasedUuid._getTimestampAsHexString(this.toString());
++  }
++  return this._timestampAsHexString;
++};
++
++
++// -------------------------------------------------------------------
++// Private class methods
++// -------------------------------------------------------------------
++
++/**
++ * Generates a time-based UUID, meaning a &quot;version 1&quot; UUID.  JavaScript
++ * code running in a browser doesn't have access to the IEEE 802.3 address
++ * of the computer, so we generate a random pseudonode value instead.
++ * Hopefully this implementation conforms to the existing standards for 
++ * UUIDs and GUIDs.  
++ * 
++ * @scope    private class method
++ * @param    pseudoNode    Optional. A 12-character string to use as the node in the new UUID.
++ * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
++ */
++TimeBasedUuid._generateUuidString = function(pseudoNode) {
++  Util.assert(!pseudoNode || Util.isString(pseudoNode));  
++  if (pseudoNode) {
++    Util.assert(pseudoNode.length == 12);  
++  } else {
++    var pseudoNodeIndicatorBit = 0x8000;
++    var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
++    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(TimeBasedUuid.HEX_RADIX);
++    pseudoNode = leftmost4HexCharacters + RandomUuid._generateRandomEightCharacterHexString();
++  }
++  if (!TimeBasedUuid._ourUuidClockSeqString) {
++    var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
++    var random14bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 14) );
++    TimeBasedUuid._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(TimeBasedUuid.HEX_RADIX);
++  }
++
++  // Maybe someday think about trying to make the code more readable to
++  // newcomers by creating a class called &quot;WholeNumber&quot; that encapsulates
++  // the methods and data structures for working with these arrays that 
++  // hold 4 16-bit numbers?  And then these variables below have names  
++  // like &quot;wholeSecondsPerHour&quot; rather than &quot;arraySecondsPerHour&quot;?
++  var now = new Date();
++  var nowArray = TimeBasedUuid._get64bitArrayFromFloat(now.valueOf());
++  if (!TimeBasedUuid._ourCachedMillisecondsBetween1582and1970) {
++    var arraySecondsPerHour = TimeBasedUuid._get64bitArrayFromFloat(60 * 60);
++    var arrayHoursBetween1582and1970 = TimeBasedUuid._get64bitArrayFromFloat(TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS);
++    var arraySecondsBetween1582and1970 = TimeBasedUuid._multiplyTwo64bitArrays(arrayHoursBetween1582and1970, arraySecondsPerHour);
++    var arrayMillisecondsPerSecond = TimeBasedUuid._get64bitArrayFromFloat(1000);
++    TimeBasedUuid._ourCachedMillisecondsBetween1582and1970 = TimeBasedUuid._multiplyTwo64bitArrays(arraySecondsBetween1582and1970, arrayMillisecondsPerSecond);
++    TimeBasedUuid._ourCachedHundredNanosecondIntervalsPerMillisecond = TimeBasedUuid._get64bitArrayFromFloat(10000);
++  }
++  var arrayMillisecondsSince1970 = nowArray;
++  var arrayMillisecondsSince1582 = TimeBasedUuid._addTwo64bitArrays(TimeBasedUuid._ourCachedMillisecondsBetween1582and1970, arrayMillisecondsSince1970);
++  // var arrayMicrosecondsPerMillisecond = TimeBasedUuid._get64bitArrayFromFloat(1000);
++  // var arrayMicrosecondsSince1582 = TimeBasedUuid._multiplyTwo64bitArrays(arrayMillisecondsSince1582, arrayMicrosecondsPerMillisecond);
++  // var arrayHundredNanosecondIntervalsPerMicrosecond = TimeBasedUuid._get64bitArrayFromFloat(10);
++  // var arrayHundredNanosecondIntervalsSince1582 = TimeBasedUuid._multiplyTwo64bitArrays(arrayMicrosecondsSince1582, arrayHundredNanosecondIntervalsPerMicrosecond);
++  var arrayHundredNanosecondIntervalsSince1582 = TimeBasedUuid._multiplyTwo64bitArrays(arrayMillisecondsSince1582, TimeBasedUuid._ourCachedHundredNanosecondIntervalsPerMillisecond);
++  
++  if (now.valueOf() == TimeBasedUuid._ourDateValueOfPreviousUuid) {
++    arrayHundredNanosecondIntervalsSince1582[3] += TimeBasedUuid._ourNextIntraMillisecondIncrement;
++    TimeBasedUuid._carry(arrayHundredNanosecondIntervalsSince1582);
++    TimeBasedUuid._ourNextIntraMillisecondIncrement += 1;
++    if (TimeBasedUuid._ourNextIntraMillisecondIncrement == 10000) {
++      // If we've gotten to here, it means we've already generated 10,000
++      // UUIDs in this single millisecond, which is the most that the UUID
++      // timestamp field allows for.  So now we'll just sit here and wait
++      // for a fraction of a millisecond, so as to ensure that the next 
++      // time this method is called there will be a different millisecond 
++      // value in the timestamp field.
++      while (now.valueOf() == TimeBasedUuid._ourDateValueOfPreviousUuid) {
++        now = new Date();
++      }
++    }
++  } else {
++    TimeBasedUuid._ourDateValueOfPreviousUuid = now.valueOf();
++    TimeBasedUuid._ourNextIntraMillisecondIncrement = 1;
++  }
++  
++  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(TimeBasedUuid.HEX_RADIX);
++  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(TimeBasedUuid.HEX_RADIX);
++  var hexTimeLow = TimeBasedUuid._padWithLeadingZeros(hexTimeLowLeftHalf, 4) + TimeBasedUuid._padWithLeadingZeros(hexTimeLowRightHalf, 4);
++  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(TimeBasedUuid.HEX_RADIX);
++  hexTimeMid = TimeBasedUuid._padWithLeadingZeros(hexTimeMid, 4);
++  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(TimeBasedUuid.HEX_RADIX);
++  hexTimeHigh = TimeBasedUuid._padWithLeadingZeros(hexTimeHigh, 3);
++  var hyphen = &quot;-&quot;;
++  var versionCodeForTimeBasedUuids = &quot;1&quot;; // binary2hex(&quot;0001&quot;)
++  var resultUuid = hexTimeLow + hyphen + hexTimeMid + hyphen +
++        versionCodeForTimeBasedUuids + hexTimeHigh + hyphen +
++        TimeBasedUuid._ourUuidClockSeqString + hyphen + pseudoNode;
++  return resultUuid;
++};
++
++
++/**
++ * Given a 36-character UUID string, this method returns the &quot;node&quot; or 
++ * &quot;pseudonode&quot; portion of the UUID, which is the rightmost 12 characters.
++ * 
++ * @scope    private class method
++ * @param    uuidString    A 36-character UUID string.
++ * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
++ */
++TimeBasedUuid._getNodeFromUuidString = function(uuidString) {
++  var arrayOfStrings = uuidString.split('-');
++  var nodeString = arrayOfStrings[4];
++  return nodeString;
++};
++
++
++/**
++ * Given a 36-character UUID string for a time-based UUID, this method 
++ * returns a JavaScript Date object.
++ * 
++ * @scope    private class method
++ * @param    uuidString    A 36-character UUID string for a time-based UUID.
++ * @return   Returns a JavaScript Date objects
++ */
++TimeBasedUuid._getDateFromUuidString = function(uuidString) {
++  var hexTimeLow = uuidString.split('-')[0];
++  var hexTimeMid = uuidString.split('-')[1];
++  var hexTimeHigh = uuidString.split('-')[2];
++  var timeLow = parseInt(hexTimeLow, TimeBasedUuid.HEX_RADIX);
++  var timeMid = parseInt(hexTimeMid, TimeBasedUuid.HEX_RADIX);
++  var timeHigh = parseInt(hexTimeHigh, TimeBasedUuid.HEX_RADIX);
++  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
++  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
++  hundredNanosecondIntervalsSince1582 += timeMid;
++  // What we really want to do next is shift left 32 bits, but the result will be too big
++  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
++  hundredNanosecondIntervalsSince1582 *= 0x100000000;
++  hundredNanosecondIntervalsSince1582 += timeLow;
++  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
++
++  // Again, this will be a floating point approximation.
++  // We can make things exact later if we need to.
++  var secondsPerHour = 60 * 60;
++  var hoursBetween1582and1970 = TimeBasedUuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
++  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
++  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
++
++  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
++
++  var date = new Date(millisecondsSince1970);
++  return date;
++};
++
++
++/**
++ * Returns a 15-character string of hex digits that contains the creation
++ * timestamp for this UUID, with the high-order bits first.  
++ * 
++ * @scope    private class method
++ * @return   A 15-character string of hex digits.
++ */
++TimeBasedUuid._getTimestampAsHexString = function(uuidString) {
++  var arrayOfParts = uuidString.split('-');
++  var hexTimeLow = arrayOfParts[0];
++  var hexTimeMid = arrayOfParts[1];
++  var hexTimeHigh = arrayOfParts[2];
++
++  // Chop off the leading &quot;1&quot; character, which is the UUID version number for
++  // time-based UUIDs.
++  hexTimeHigh = hexTimeHigh.slice(1); 
++  
++  returnString = hexTimeHigh + hexTimeMid + hexTimeLow;
++  
++  Util.assert(returnString.length == 15);
++  return returnString;
++};
++
++
++/**
++ * Given an array which holds a 64-bit number broken into 4 16-bit elements,
++ * this method carries any excess bits (greater than 16-bits) from each array
++ * element into the next.
++ *
++ * @scope    private class method
++ * @param    arrayA    An array with 4 elements, each of which is a 16-bit number.
++ */
++TimeBasedUuid._carry = function(arrayA) {
++  arrayA[2] += arrayA[3] &gt;&gt;&gt; 16;
++  arrayA[3] &amp;= 0xFFFF;
++  arrayA[1] += arrayA[2] &gt;&gt;&gt; 16;
++  arrayA[2] &amp;= 0xFFFF;
++  arrayA[0] += arrayA[1] &gt;&gt;&gt; 16;
++  arrayA[1] &amp;= 0xFFFF;
++  Util.assert((arrayA[0] &gt;&gt;&gt; 16) === 0);
++};
++
++
++/**
++ * Given a floating point number, this method returns an array which holds a 
++ * 64-bit number broken into 4 16-bit elements.
++ *
++ * @scope    private class method
++ * @param    x    A floating point number.
++ * @return   An array with 4 elements, each of which is a 16-bit number.
++ */
++TimeBasedUuid._get64bitArrayFromFloat = function(x) {
++  var result = new Array(0, 0, 0, 0);
++  result[3] = x % 0x10000;
++  x -= result[3];
++  x /= 0x10000;
++  result[2] = x % 0x10000;
++  x -= result[2];
++  x /= 0x10000;
++  result[1] = x % 0x10000;
++  x -= result[1];
++  x /= 0x10000;
++  result[0] = x;
++  return result;
++};
++
++
++/**
++ * Takes two arrays, each of which holds a 64-bit number broken into 4 
++ * 16-bit elements, and returns a new array that holds a 64-bit number
++ * that is the sum of the two original numbers.
++ *
++ * @scope    private class method
++ * @param    arrayA    An array with 4 elements, each of which is a 16-bit number.
++ * @param    arrayB    An array with 4 elements, each of which is a 16-bit number.
++ * @return   An array with 4 elements, each of which is a 16-bit number.
++ */
++TimeBasedUuid._addTwo64bitArrays = function(arrayA, arrayB) {
++  Util.assert(Util.isArray(arrayA));
++  Util.assert(arrayA.length == 4);
++  Util.assert(Util.isArray(arrayB));
++  Util.assert(arrayB.length == 4);
++  var result = new Array(0, 0, 0, 0);
++  result[3] = arrayA[3] + arrayB[3];
++  result[2] = arrayA[2] + arrayB[2];
++  result[1] = arrayA[1] + arrayB[1];
++  result[0] = arrayA[0] + arrayB[0];
++  TimeBasedUuid._carry(result);
++  return result;
++};
++
++
++/**
++ * Takes two arrays, each of which holds a 64-bit number broken into 4 
++ * 16-bit elements, and returns a new array that holds a 64-bit number
++ * that is the product of the two original numbers.
++ *
++ * @scope    private class method
++ * @param    arrayA    An array with 4 elements, each of which is a 16-bit number.
++ * @param    arrayB    An array with 4 elements, each of which is a 16-bit number.
++ * @return   An array with 4 elements, each of which is a 16-bit number.
++ */
++TimeBasedUuid._multiplyTwo64bitArrays = function(arrayA, arrayB) {
++  Util.assert(Util.isArray(arrayA));
++  Util.assert(arrayA.length == 4);
++  Util.assert(Util.isArray(arrayB));
++  Util.assert(arrayB.length == 4);
++  var overflow = false;
++  if (arrayA[0] * arrayB[0] !== 0) { overflow = true; }
++  if (arrayA[0] * arrayB[1] !== 0) { overflow = true; }
++  if (arrayA[0] * arrayB[2] !== 0) { overflow = true; }
++  if (arrayA[1] * arrayB[0] !== 0) { overflow = true; }
++  if (arrayA[1] * arrayB[1] !== 0) { overflow = true; }
++  if (arrayA[2] * arrayB[0] !== 0) { overflow = true; }
++  Util.assert(!overflow);
++  
++  var result = new Array(0, 0, 0, 0);
++  result[0] += arrayA[0] * arrayB[3];
++  TimeBasedUuid._carry(result);
++  result[0] += arrayA[1] * arrayB[2];
++  TimeBasedUuid._carry(result);
++  result[0] += arrayA[2] * arrayB[1];
++  TimeBasedUuid._carry(result);
++  result[0] += arrayA[3] * arrayB[0];
++  TimeBasedUuid._carry(result);
++  result[1] += arrayA[1] * arrayB[3];
++  TimeBasedUuid._carry(result);
++  result[1] += arrayA[2] * arrayB[2];
++  TimeBasedUuid._carry(result);
++  result[1] += arrayA[3] * arrayB[1];
++  TimeBasedUuid._carry(result);
++  result[2] += arrayA[2] * arrayB[3];
++  TimeBasedUuid._carry(result);
++  result[2] += arrayA[3] * arrayB[2];
++  TimeBasedUuid._carry(result);
++  result[3] += arrayA[3] * arrayB[3];
++  TimeBasedUuid._carry(result);
++  return result;
++};
++
++
++/**
++ * Pads a string with leading zeros and returns the result.
++ * For example:
++ * &lt;pre&gt;
++ *   result = TimeBasedUuid._padWithLeadingZeros(&quot;abc&quot;, 6);
++ *   Util.assert(result == &quot;000abc&quot;);
++ * &lt;/pre&gt;
++ * 
++ * @scope    private class method
++ * @param    string    A string to add padding to.
++ * @param    desiredLength    The number of characters the return string should have.
++ * @return   A string.
++ */
++TimeBasedUuid._padWithLeadingZeros = function(string, desiredLength) {
++  while (string.length &lt; desiredLength) {
++    string = &quot;0&quot; + string;
++  }
++  return string;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/Util.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -282,21 +282,37 @@
+ 
+ 
+ /**
+- * Returns true if the given value is a UUID. Here's an example of
+- * a valid UUID: &quot;e3bf3e14-e8f4-43e2-866c-121c5ab70c0b&quot;.
++ * Returns true if the given value is a UUID object. 
+  *
+  * @scope    public class method
+  * @param    value    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a UUID.
++ * @return   A boolean value. True if value is a UUID object.
+  */
+ Util.isUuid = function(value) {
+-  // PENDING: 
+-  // We should include more rigorous tests, to make sure this
+-  // is really a UUID, not just a string with 36 characters.
+-  if ((typeof value) != &quot;string&quot;) {
+-    return false;
++  return (value instanceof Uuid);
++};
++
++
++/**
++ * Returns true if the given value is a UUID object or a string
++ * that represents a UUID. Here's an example of a string that
++ * represents a UUID: &quot;e3bf3e14-e8f4-43e2-866c-121c5ab70c0b&quot;.
++ *
++ * @scope    public class method
++ * @param    value    Any object or literal value. 
++ * @return   A boolean value. True if value is a UUID.
++ */
++Util.isUuidValue = function(value) {
++  if (value instanceof Uuid) {
++    return true;
+   }
+-  return (value.length == 36);  
++  if ((typeof value) == &quot;string&quot;) {
++    // PENDING: 
++    // We should include more rigorous tests, to make sure this
++    // is really a UUID, not just a string with 36 characters.
++    return (value.length == 36);
++  }
++  return false;
+ };
+ 
+ 
+
+Modified: trunk/source/util/UtilTest.html
+===================================================================
+--- trunk/source/util/UtilTest.html	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/UtilTest.html	2005-08-31 19:22:20 UTC (rev 309)
+@@ -17,6 +17,8 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Uuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;RandomUuid.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/source/util/UtilTest.js
+===================================================================
+--- trunk/source/util/UtilTest.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/UtilTest.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -78,7 +78,7 @@
+ 
+ function testGet64bitArrayFromFloat() {
+   var x = Math.pow(2, 63) + Math.pow(2, 15);
+-  var result = Uuid._get64bitArrayFromFloat(x);
++  var result = TimeBasedUuid._get64bitArrayFromFloat(x);
+   assertTrue(&quot;result[0] == 0x8000&quot;, result[0] === 0x8000);
+   assertTrue(&quot;result[1] == 0x0000&quot;, result[1] === 0x0000);
+   assertTrue(&quot;result[2] == 0x0000&quot;, result[2] === 0x0000);
+@@ -86,7 +86,7 @@
+   
+   var date = new Date();
+   x = date.valueOf();
+-  result = Uuid._get64bitArrayFromFloat(x);
++  result = TimeBasedUuid._get64bitArrayFromFloat(x);
+   var reconstructedFloat = result[0];
+   reconstructedFloat *= 0x10000;
+   reconstructedFloat += result[1];
+@@ -101,7 +101,7 @@
+ function testAddTwo64bitArrays() {
+   var a = [0x0000, 0x0000, 0x0000, 0x0001];
+   var b = [0x0FFF, 0xFFFF, 0xFFFF, 0xFFFF];
+-  var result = Uuid._addTwo64bitArrays(a, b);
++  var result = TimeBasedUuid._addTwo64bitArrays(a, b);
+   assert(result[0] === 0x1000);
+   assert(result[1] === 0x0000);
+   assert(result[2] === 0x0000);
+@@ -109,7 +109,7 @@
+   
+   a = [0x4000, 0x8000, 0x8000, 0x8000];
+   b = [0x8000, 0x8000, 0x8000, 0x8000];
+-  result = Uuid._addTwo64bitArrays(a, b);
++  result = TimeBasedUuid._addTwo64bitArrays(a, b);
+   assert(result[0] === 0xC001);
+   assert(result[1] === 0x0001);
+   assert(result[2] === 0x0001);
+@@ -117,7 +117,7 @@
+   
+   a = [7, 6, 2, 5];
+   b = [1, 0, 3, 4];
+-  result = Uuid._addTwo64bitArrays(a, b);
++  result = TimeBasedUuid._addTwo64bitArrays(a, b);
+   assert(result[0] === 8);
+   assert(result[1] === 6);
+   assert(result[2] === 5);
+@@ -127,7 +127,7 @@
+ function testMultiplyTwo64bitArrays() {
+   var a = [     0, 0x0000, 0x0000, 0x0003];
+   var b = [0x1111, 0x1234, 0x0000, 0xFFFF];
+-  var result = Uuid._multiplyTwo64bitArrays(a, b);
++  var result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
+   assert(result[0] === 0x3333);
+   assert(result[1] === 0x369C);
+   assert(result[2] === 0x0002);
+@@ -135,7 +135,7 @@
+   
+   a = [0, 0, 0, 5];
+   b = [0, 0, 0, 4];
+-  result = Uuid._multiplyTwo64bitArrays(a, b);
++  result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
+   assert(result[0] === 0);
+   assert(result[1] === 0);
+   assert(result[2] === 0);
+@@ -143,7 +143,7 @@
+   
+   a = [0, 0, 2, 5];
+   b = [0, 0, 3, 4];
+-  result = Uuid._multiplyTwo64bitArrays(a, b);
++  result = TimeBasedUuid._multiplyTwo64bitArrays(a, b);
+   assert(result[0] === 0);
+   assert(result[1] === 6);
+   assert(result[2] === 23);
+@@ -171,7 +171,7 @@
+   assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+   
+   var section3 = arrayOfParts[3];
+-  var hex3 = parseInt(section3, Uuid.HEX_RADIX);
++  var hex3 = parseInt(section3, TimeBasedUuid.HEX_RADIX);
+   var binaryString = hex3.toString(2);
+   // alert(&quot;section3 = &quot; + section3 + &quot;\n binaryString = &quot; + binaryString);
+   assertTrue('section 3 has 16 bits', binaryString.length == 16);
+@@ -181,8 +181,11 @@
+ }
+ 
+ function testMethodsForWorkingWithRandomUuids() {
+-  var uuid1 = Uuid.generateRandomUuid();
+-  var uuid2 = Uuid.generateRandomUuid();
++  var uuid1 = new RandomUuid();
++  var uuid2 = new RandomUuid();
++  uuid1 = uuid1.toString();
++  uuid2 = uuid2.toString();
++
+   // alert(uuid1 + &quot;\n&quot; + uuid2);
+   subtestOnUuid(uuid1);
+   subtestOnUuid(uuid2);
+@@ -195,9 +198,12 @@
+ }
+ 
+ function testMethodsForWorkingWithTimeBasedUuids() {
+-  var uuid1 = Uuid.generateTimeBasedUuid();
+-  var uuid2 = Uuid.generateTimeBasedUuid();
+-  var uuid3 = Uuid.generateTimeBasedUuid();
++  var uuid1 = new TimeBasedUuid();
++  var uuid2 = new TimeBasedUuid();
++  var uuid3 = new TimeBasedUuid();
++  uuid1 = uuid1.toString();
++  uuid2 = uuid2.toString();
++  uuid3 = uuid3.toString();
+   
+   subtestOnUuid(uuid1);
+   subtestOnUuid(uuid2);
+@@ -212,7 +218,7 @@
+ 
+   var section4 = arrayOfParts[4];
+   var firstChar = section4.charAt(0);
+-  var hexFirstChar = parseInt(firstChar, Uuid.HEX_RADIX);
++  var hexFirstChar = parseInt(firstChar, TimeBasedUuid.HEX_RADIX);
+   binaryString = hexFirstChar.toString(2);
+   var firstBit;
+   if (binaryString.length == 4) {
+@@ -224,7 +230,8 @@
+   //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+   assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+ 
+-  var uuid4 = Uuid.generateTimeBasedUuid(&quot;123456789ABC&quot;);
++  var uuid4 = new TimeBasedUuid(&quot;123456789ABC&quot;);
++  uuid4 = uuid4.toString();
+   subtestOnUuid(uuid4);
+   arrayOfParts = uuid4.split(&quot;-&quot;);
+   section4 = arrayOfParts[4];
+@@ -286,6 +293,14 @@
+   */
+ }
+ 
++function testUuidObjects() {
++  var uuid1 = new TimeBasedUuid();
++  var timestampAsHexString = uuid1.getTimestampAsHexString();
++  assertTrue(&quot;A UUID's timestamp hex string is 15-characters long.&quot;, timestampAsHexString.length == 15);
++
++  
++}
++
+ function tearDown() {
+   test = null;
+ }
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/util/Uuid.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -33,50 +33,33 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+-/*global Util  */
+ // -------------------------------------------------------------------
+ 
+ 
+ /**
+  * The Uuid class offers methods for generating UUIDs and 
+  * inspecting existing UUIDs.
+- * 
+- * There is no need to ever call this constructor.  All the Uuid
+- * methods are class methods, not instance methods, and the only 
+- * reason this constructor exists is to cause the name &quot;Uuid&quot;
+- * to be a globally-scoped class name, which the class methods 
+- * can then be attached to.
+  *
++ * THIS IS AN ABSTRACT SUPERCLASS.  
++ * DO NOT CALL THIS CONSTRUCTOR.
++ *
+  * @scope    public instance constructor
+- * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+ function Uuid() {
+-  this._uuidString = Uuid.generateTimeBasedUuid();
++  this._uuidString = null;
+ }
+ 
+-// -------------------------------------------------------------------
+-// Uuid public class constants
+-// -------------------------------------------------------------------
+-// Number of seconds between October 15, 1582 and January 1, 1970
+-// Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
+-Uuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
+-Uuid.HEX_RADIX = 16;
+ 
+-
+ // -------------------------------------------------------------------
+-// Uuid private global class variables
++// Public instance methods
+ // -------------------------------------------------------------------
+-Uuid._ourUuidClockSeqString = null;
+-Uuid._ourDateValueOfPreviousUuid = null;
+-Uuid._ourNextIntraMillisecondIncrement = 0;
+ 
+-Uuid._ourCachedMillisecondsBetween1582and1970 = null;
+-Uuid._ourCachedHundredNanosecondIntervalsPerMillisecond = null;
+-
+ /**
+- * Returns a 36-character string representing the UUID, such as 
+- * &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
+- * 
++ * Returns a 36-character string representing the UUID, such as: 
++ * &lt;pre&gt;
++ *   3B12F1DF-5232-1804-897E-917BF397618A
++ * &lt;/pre&gt;
++ *
+  * @scope    public instance method
+  * @return   Returns a 36-character UUID string.
+  */
+@@ -85,355 +68,6 @@
+ };
+ 
+ 
+-/**
+- * Returns a 12-character string with the &quot;node&quot; or &quot;pseudonode&quot; portion of 
+- * the UUID, which is the rightmost 12 characters.
+- * 
+- * @scope    public instance method
+- * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
+- */
+-Uuid.prototype.getNode = function() {
+-  return Uuid.getNodeFromUuid(this._uuidString);
+-};
+-
+-
+-/**
+- * Returns a JavaScript Date object with a value equal to the value in the
+- * time fields of the UUID.
+- * 
+- * @scope    public class method
+- * @return   Returns a JavaScript Date object.
+- */
+-Uuid.prototype.getDate = function() {
+-  return Uuid.getDateFromUuid(this._uuidString);
+-};
+-
+-
+ // -------------------------------------------------------------------
+-// Public methods for working with UUIDs
+-// -------------------------------------------------------------------
+-
+-mockUuidGenerator.queueOfUuids = new Array();
+-
+-function mockUuidGenerator() {
+-  if (mockUuidGenerator.queueOfUuids.length === 0) {
+-    // This should probably throw an exception instead.    
+-    return &quot;00000000-0000-0000-0000-000000000000&quot;;
+-  }
+-  return mockUuidGenerator.queueOfUuids.shift();
+-}
+-
+-/**
+- * Generates a time-based UUID, meaning a &quot;version 1&quot; UUID.  JavaScript
+- * code running in a browser doesn't have access to the IEEE 802.3 address
+- * of the computer, so we generate a random pseudonode value instead.
+- * Hopefully this implementation conforms to the existing standards for 
+- * UUIDs and GUIDs.  
+- * 
+- * For more info, see 
+- *   <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
+- *   <A HREF="http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm">http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm</A>
+- *   <A HREF="http://kruithof.xs4all.nl/uuid/uuidgen">http://kruithof.xs4all.nl/uuid/uuidgen</A>
+- *   <A HREF="http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20">http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20</A>
+- *   <A HREF="http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html">http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html</A>
+- *
+- * @scope    public class method
+- * @param    pseudoNode    Optional. A 12-character string to use as the node in the new UUID.
+- * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
+- */
+-Uuid.generateTimeBasedUuid = function(pseudoNode) {
+-  Util.assert(!pseudoNode || Util.isString(pseudoNode));  
+-  if (pseudoNode) {
+-    Util.assert(pseudoNode.length == 12);  
+-  }
+-  else {
+-    var pseudoNodeIndicatorBit = 0x8000;
+-    var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
+-    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Uuid.HEX_RADIX);
+-    pseudoNode = leftmost4HexCharacters + Uuid._getRandomEightCharacterHexString();
+-  }
+-  if (!Uuid._ourUuidClockSeqString) {
+-    var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
+-    var random14bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 14) );
+-    Uuid._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(Uuid.HEX_RADIX);
+-  }
+-
+-  // Maybe someday think about trying to make the code more readable to
+-  // newcomers by creating a class called &quot;WholeNumber&quot; that encapsulates
+-  // the methods and data structures for working with these arrays that 
+-  // hold 4 16-bit numbers?  And then these variables below have names  
+-  // like &quot;wholeSecondsPerHour&quot; rather than &quot;arraySecondsPerHour&quot;?
+-  var now = new Date();
+-  var nowArray = Uuid._get64bitArrayFromFloat(now.valueOf());
+-  if (!Uuid._ourCachedMillisecondsBetween1582and1970) {
+-    var arraySecondsPerHour = Uuid._get64bitArrayFromFloat(60 * 60);
+-    var arrayHoursBetween1582and1970 = Uuid._get64bitArrayFromFloat(Uuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS);
+-    var arraySecondsBetween1582and1970 = Uuid._multiplyTwo64bitArrays(arrayHoursBetween1582and1970, arraySecondsPerHour);
+-    var arrayMillisecondsPerSecond = Uuid._get64bitArrayFromFloat(1000);
+-    Uuid._ourCachedMillisecondsBetween1582and1970 = Uuid._multiplyTwo64bitArrays(arraySecondsBetween1582and1970, arrayMillisecondsPerSecond);
+-    Uuid._ourCachedHundredNanosecondIntervalsPerMillisecond = Uuid._get64bitArrayFromFloat(10000);
+-  }
+-  var arrayMillisecondsSince1970 = nowArray;
+-  var arrayMillisecondsSince1582 = Uuid._addTwo64bitArrays(Uuid._ourCachedMillisecondsBetween1582and1970, arrayMillisecondsSince1970);
+-  // var arrayMicrosecondsPerMillisecond = Uuid._get64bitArrayFromFloat(1000);
+-  // var arrayMicrosecondsSince1582 = Uuid._multiplyTwo64bitArrays(arrayMillisecondsSince1582, arrayMicrosecondsPerMillisecond);
+-  // var arrayHundredNanosecondIntervalsPerMicrosecond = Uuid._get64bitArrayFromFloat(10);
+-  // var arrayHundredNanosecondIntervalsSince1582 = Uuid._multiplyTwo64bitArrays(arrayMicrosecondsSince1582, arrayHundredNanosecondIntervalsPerMicrosecond);
+-  var arrayHundredNanosecondIntervalsSince1582 = Uuid._multiplyTwo64bitArrays(arrayMillisecondsSince1582, Uuid._ourCachedHundredNanosecondIntervalsPerMillisecond);
+-  
+-  if (now.valueOf() == Uuid._ourDateValueOfPreviousUuid) {
+-    arrayHundredNanosecondIntervalsSince1582[3] += Uuid._ourNextIntraMillisecondIncrement;
+-    Uuid._carry(arrayHundredNanosecondIntervalsSince1582);
+-    Uuid._ourNextIntraMillisecondIncrement += 1;
+-    if (Uuid._ourNextIntraMillisecondIncrement == 10000) {
+-      // If we've gotten to here, it means we've already generated 10,000
+-      // UUIDs in this single millisecond, which is the most that the UUID
+-      // timestamp field allows for.  So now we'll just sit here and wait
+-      // for a fraction of a millisecond, so as to ensure that the next 
+-      // time this method is called there will be a different millisecond 
+-      // value in the timestamp field.
+-      while (now.valueOf() == Uuid._ourDateValueOfPreviousUuid) {
+-        now = new Date();
+-      }
+-    }
+-  }
+-  else {
+-    Uuid._ourDateValueOfPreviousUuid = now.valueOf();
+-    Uuid._ourNextIntraMillisecondIncrement = 1;
+-  }
+-  
+-  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(Uuid.HEX_RADIX);
+-  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(Uuid.HEX_RADIX);
+-  var hexTimeLow = Uuid._padWithLeadingZeros(hexTimeLowLeftHalf, 4) + Uuid._padWithLeadingZeros(hexTimeLowRightHalf, 4);
+-  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(Uuid.HEX_RADIX);
+-  hexTimeMid = Uuid._padWithLeadingZeros(hexTimeMid, 4);
+-  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(Uuid.HEX_RADIX);
+-  hexTimeHigh = Uuid._padWithLeadingZeros(hexTimeHigh, 3);
+-  var hyphen = &quot;-&quot;;
+-  var versionCodeForTimeBasedUuids = &quot;1&quot;; // binary2hex(&quot;0001&quot;)
+-  var resultUuid = hexTimeLow + hyphen + hexTimeMid + hyphen +
+-        versionCodeForTimeBasedUuids + hexTimeHigh + hyphen +
+-        Uuid._ourUuidClockSeqString + hyphen + pseudoNode;
+-  return resultUuid;
+-};
+-
+-
+-/**
+- * Generates a random UUID, meaning a &quot;version 4&quot; UUID.  Hopefully this 
+- * implementation conforms to the existing standards for UUIDs and GUIDs.  
+- * For more info, see 
+- * <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
+- * 
+- * @scope    public class method
+- * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;.
+- */
+-Uuid.generateRandomUuid = function() {
+-  var hyphen = &quot;-&quot;;
+-  var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;; // 8 == binary2hex(&quot;0100&quot;)
+-  var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
+-  var a = Uuid._getRandomEightCharacterHexString();
+-  var b = Uuid._getRandomEightCharacterHexString();
+-  b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
+-  var c = Uuid._getRandomEightCharacterHexString();
+-  c = variantCodeForDCEUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
+-  var d = Uuid._getRandomEightCharacterHexString();
+-  var result = a + hyphen + b + hyphen + c + d;
+-  
+-  return result;
+-};
+-
+-
+-/**
+- * Given a 36-character UUID string, this method returns the &quot;node&quot; or 
+- * &quot;pseudonode&quot; portion of the UUID, which is the rightmost 12 characters.
+- * 
+- * @scope    public class method
+- * @param    uuid    A 36-character UUID string.
+- * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
+- */
+-Uuid.getNodeFromUuid = function(uuid) {
+-  var arrayOfStrings = uuid.split('-');
+-  var nodeString = arrayOfStrings[4];
+-  return nodeString;
+-};
+-
+-
+-/**
+- * Given a 36-character UUID string for a time-based UUID, this method 
+- * returns a JavaScript Date object.
+- * 
+- * @scope    public class method
+- * @param    uuid    A 36-character UUID string for a time-based UUID.
+- * @return   Returns a JavaScript Date objects
+- */
+-Uuid.getDateFromUuid = function(uuid) {
+-  var hexTimeLow = uuid.split('-')[0];
+-  var hexTimeMid = uuid.split('-')[1];
+-  var hexTimeHigh = uuid.split('-')[2];
+-  var timeLow = parseInt(hexTimeLow, Uuid.HEX_RADIX);
+-  var timeMid = parseInt(hexTimeMid, Uuid.HEX_RADIX);
+-  var timeHigh = parseInt(hexTimeHigh, Uuid.HEX_RADIX);
+-  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
+-  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
+-  hundredNanosecondIntervalsSince1582 += timeMid;
+-  // What we really want to do next is shift left 32 bits, but the result will be too big
+-  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
+-  hundredNanosecondIntervalsSince1582 *= 0x100000000;
+-  hundredNanosecondIntervalsSince1582 += timeLow;
+-  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
+-
+-  // Again, this will be a floating point approximation.
+-  // We can make things exact later if we need to.
+-  var secondsPerHour = 60 * 60;
+-  var hoursBetween1582and1970 = Uuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
+-  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
+-  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
+-
+-  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
+-
+-  var date = new Date(millisecondsSince1970);
+-  return date;
+-};
+-
+-
+-Uuid.getOriginalOrdinalFromUuid = function(uuid) {
+-  var arrayOfParts = uuid.split('-');
+-  var hexTimeLow = arrayOfParts[0];
+-  var hexTimeMid = arrayOfParts[1];
+-  var hexTimeHigh = arrayOfParts[2];
+-  return hexTimeHigh + hexTimeMid + hexTimeLow;
+-};
+-
+-// -------------------------------------------------------------------
+-// Private methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * 
+- */
+-Uuid._getRandom32bitNumber = function() {
+-  return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
+-};
+-
+-
+-/**
+- * 
+- */
+-Uuid._getRandomEightCharacterHexString = function() {
+-  // PENDING: 
+-  // This isn't really random.  We should find some source of real 
+-  // randomness, and feed it to an MD5 hash algorithm.     
+-  var eightCharacterString = Uuid._getRandom32bitNumber().toString(Uuid.HEX_RADIX);
+-  while (eightCharacterString.length &lt; 8) {
+-    eightCharacterString = &quot;0&quot; + eightCharacterString;
+-  }
+-  return eightCharacterString;
+-};
+-
+-
+-/**
+- * 
+- */
+-Uuid._carry = function(a) {
+-  a[2] += a[3] &gt;&gt;&gt; 16;
+-  a[3] &amp;= 0xFFFF;
+-  a[1] += a[2] &gt;&gt;&gt; 16;
+-  a[2] &amp;= 0xFFFF;
+-  a[0] += a[1] &gt;&gt;&gt; 16;
+-  a[1] &amp;= 0xFFFF;
+-  Util.assert((a[0] &gt;&gt;&gt; 16) === 0);
+-};
+-
+-
+-/**
+- * 
+- */
+-Uuid._get64bitArrayFromFloat = function(x) {
+-  var result = new Array(0, 0, 0, 0);
+-  result[3] = x % 0x10000;
+-  x -= result[3];
+-  x /= 0x10000;
+-  result[2] = x % 0x10000;
+-  x -= result[2];
+-  x /= 0x10000;
+-  result[1] = x % 0x10000;
+-  x -= result[1];
+-  x /= 0x10000;
+-  result[0] = x;
+-  return result;
+-};
+-
+-
+-/**
+- * 
+- */
+-Uuid._addTwo64bitArrays = function(a, b) {
+-  Util.assert(Util.isArray(a));
+-  Util.assert(a.length == 4);
+-  Util.assert(Util.isArray(b));
+-  Util.assert(b.length == 4);
+-  var result = new Array(0, 0, 0, 0);
+-  result[3] = a[3] + b[3];
+-  result[2] = a[2] + b[2];
+-  result[1] = a[1] + b[1];
+-  result[0] = a[0] + b[0];
+-  Uuid._carry(result);
+-  return result;
+-};
+-
+-
+-/**
+- * 
+- */
+-Uuid._multiplyTwo64bitArrays = function(a, b) {
+-  Util.assert(Util.isArray(a));
+-  Util.assert(a.length == 4);
+-  Util.assert(Util.isArray(b));
+-  Util.assert(b.length == 4);
+-  var overflow = false;
+-  if (a[0] * b[0] !== 0) { overflow = true; }
+-  if (a[0] * b[1] !== 0) { overflow = true; }
+-  if (a[0] * b[2] !== 0) { overflow = true; }
+-  if (a[1] * b[0] !== 0) { overflow = true; }
+-  if (a[1] * b[1] !== 0) { overflow = true; }
+-  if (a[2] * b[0] !== 0) { overflow = true; }
+-  Util.assert(!overflow);
+-  
+-  var result = new Array(0, 0, 0, 0);
+-  result[0] += a[0] * b[3];
+-  Uuid._carry(result);
+-  result[0] += a[1] * b[2];
+-  Uuid._carry(result);
+-  result[0] += a[2] * b[1];
+-  Uuid._carry(result);
+-  result[0] += a[3] * b[0];
+-  Uuid._carry(result);
+-  result[1] += a[1] * b[3];
+-  Uuid._carry(result);
+-  result[1] += a[2] * b[2];
+-  Uuid._carry(result);
+-  result[1] += a[3] * b[1];
+-  Uuid._carry(result);
+-  result[2] += a[2] * b[3];
+-  Uuid._carry(result);
+-  result[2] += a[3] * b[2];
+-  Uuid._carry(result);
+-  result[3] += a[3] * b[3];
+-  Uuid._carry(result);
+-  return result;
+-};
+-
+-
+-/**
+- * 
+- */
+-Uuid._padWithLeadingZeros = function(string, desiredLength) {
+-  while (string.length &lt; desiredLength) {
+-    string = &quot;0&quot; + string;
+-  }
+-  return string;
+-};
+-
+-// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/EntryView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -62,7 +62,7 @@
+ // -------------------------------------------------------------------
+ // EntryView private class variables
+ // -------------------------------------------------------------------
+-EntryView._ourHashTableOfTypesKeyedByClassName = null;
++EntryView._ourHashTableOfClassNamesKeyedByTypeUuid = null;
+ 
+ EntryView._PENDING_temporaryHackToDecreaseLayoutTime = true;
+ EntryView._PENDING_enableDragging = true;
+@@ -617,7 +617,7 @@
+ EntryView.prototype.onDoubleClick = function(eventObject) {
+   if (this._valueIsItem) {
+     var relatedItem = this._entry.getValue(this._item);
+-    var urlOfRelatedItem = RootView.URL_HASH_ITEM_PREFIX + relatedItem._getUuid();
++    var urlOfRelatedItem = RootView.URL_HASH_ITEM_PREFIX + relatedItem.getUuidString();
+     window.location = urlOfRelatedItem;
+     this.getRootView().setCurrentContentViewFromUrl();
+   }
+@@ -788,14 +788,14 @@
+  * @scope    private instance method
+  */
+ EntryView.prototype._buildTypeHashTable = function() {
+-  EntryView._ourHashTableOfTypesKeyedByClassName = {};
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_TEXT] = EntryView.CSS_CLASS_TEXT_VALUE;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_NUMBER] = EntryView.CSS_CLASS_NUMBER_VALUE;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_DATE] = EntryView.CSS_CLASS_DATE_VALUE;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_CHECK_MARK] = EntryView.CSS_CLASS_CHECKMARK_VALUE;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_URL] = EntryView.CSS_CLASS_URL_VALUE;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_ITEM] = EntryView.CSS_CLASS_ITEM_VALUE;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_CONNECTION] = EntryView.CSS_CLASS_CONNECTION_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid = {};
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_TEXT] = EntryView.CSS_CLASS_TEXT_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_NUMBER] = EntryView.CSS_CLASS_NUMBER_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_DATE] = EntryView.CSS_CLASS_DATE_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_CHECK_MARK] = EntryView.CSS_CLASS_CHECKMARK_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_URL] = EntryView.CSS_CLASS_URL_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_ITEM] = EntryView.CSS_CLASS_ITEM_VALUE;
++  EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[World.UUID_FOR_TYPE_CONNECTION] = EntryView.CSS_CLASS_CONNECTION_VALUE;
+ };
+ 
+ 
+@@ -808,36 +808,13 @@
+  * @return   A string with the CSS className for that type.
+  */
+ EntryView.prototype._getClassNameFromType = function(type) {
+-  if (!EntryView._ourHashTableOfTypesKeyedByClassName) {
++  if (!EntryView._ourHashTableOfClassNamesKeyedByTypeUuid) {
+     this._buildTypeHashTable();
+   }
+-  return EntryView._ourHashTableOfTypesKeyedByClassName[type.getUniqueKeyString()];
+-/*  for (var className in EntryView._ourHashTableOfTypesKeyedByClassName) {
+-    typeItem = EntryView._ourHashTableOfTypesKeyedByClassName[className];
+-    if (type == typeItem) {
+-      return className;
+-    }
+-  }
+-  Util.assert(false, &quot;no such type: &quot; + type.getDisplayString());*/
++  return EntryView._ourHashTableOfClassNamesKeyedByTypeUuid[type.getUuid()];
+ };
+ 
+ 
+-/**
+- * Given a string with the CSS className of a basic data type, this method
+- * returns the corresponding item that represents the same data type.
+- *
+- * @scope    private instance method
+- * @param    className    A string with the CSS className for a type.
+- * @return   An item that represents a basic data type, like Text, Number, or URL. 
+-
+-EntryView.prototype._getTypeFromTypeClassName = function(className) {
+-  if (!EntryView._ourHashTableOfTypesKeyedByClassName) {
+-    this._buildTypeHashTable();
+-  }
+-  return EntryView._ourHashTableOfTypesKeyedByClassName[className]; //NO LONGER VALID
+-};
+- */
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+\ No newline at end of file
+
+Modified: trunk/source/view/ItemView.js
+===================================================================
+--- trunk/source/view/ItemView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/ItemView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -94,10 +94,10 @@
+   var listOfStrings = [];
+ 
+   // add an &lt;h1&gt; heading with the name of the page
+-  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this._item._getUuid() + &quot;\&quot;&gt;&quot; + this._item.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
++  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this._item.getUuidString() + &quot;\&quot;&gt;&quot; + this._item.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+ 
+   // add a &lt;div&gt; element for the detail plugin
+-  var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this._item._getUuid();
++  var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this._item.getUuidString();
+   listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + detailDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+ 
+   // write out all the new content 
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/LoginView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -313,8 +313,8 @@
+ LoginView.prototype._loginUser = function(user, password) {
+   var loginSuccess = this.getWorld().login(user, password); 
+   if (loginSuccess) {
+-    var userUuid = user._getUuid();
+-    this._cookie.userUuid = userUuid;
++    var userUuidString = user.getUuidString();
++    this._cookie.userUuid = userUuidString;
+     this._cookie.password = password;
+     this._cookie.store();
+     this._rebuildView();
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/NavbarView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -175,7 +175,7 @@
+   View.removeChildrenOfElement(this._htmlElementForAnchors);
+   for (key in listOfPages) {
+     page = listOfPages[key];
+-    var anchorName = RootView.URL_PAGE_PREFIX + page._getUuid();
++    var anchorName = RootView.URL_PAGE_PREFIX + page.getUuidString();
+     View.appendNewElement(this._htmlElementForAnchors, &quot;a&quot;, null, {name: anchorName});
+   }
+   
+@@ -193,7 +193,7 @@
+     // dragdrop.js library, this menuItemId must have exactly one underscore in
+     // it, with the id for the whole menu is to the left of the underscore, and
+     // the id for the individual menu item to the right of the underscore.
+-    var menuItemId = NavbarView.ELEMENT_ID_MENU + '_' + page._getUuid();
++    var menuItemId = NavbarView.ELEMENT_ID_MENU + '_' + page.getUuidString();
+     var liElement = View.appendNewElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM, {id: menuItemId});
+     if (page == this.getRootView().getCurrentPage()) {Util.css_addClass(liElement,NavbarView.CSS_CLASS_SELECTED);}
+     var anchorElement = View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/PageView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -167,6 +167,7 @@
+   // PENDING: 
+   // Turn off the links-to-sections table-of-contents feature until
+   // we have the bugs worked out.
++  // See: <A HREF="http://lists.berlios.de/pipermail/openrecord-dev/2005-August/000208.html">http://lists.berlios.de/pipermail/openrecord-dev/2005-August/000208.html</A>
+   var PENDING_include_links_to_sections = false; 
+   
+   if (PENDING_include_links_to_sections) {
+@@ -181,7 +182,7 @@
+     var section = entryForSection.getConnectedItem(this._pageItem);
+     if (section) {
+       if (PENDING_include_links_to_sections &amp;&amp; sectionNavigatorDiv) {
+-        View.appendNewElement(sectionNavigatorDiv, &quot;a&quot;, null, {'href' : '#' + section.getUniqueKeyString()}, section.getDisplayName());
++        View.appendNewElement(sectionNavigatorDiv, &quot;a&quot;, null, {'href' : '#' + section.getUuidString()}, section.getDisplayName());
+         View.appendNewTextNode(sectionNavigatorDiv, &quot; &quot;);
+       }
+       this._buildNewSection(section);
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/RootView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -301,7 +301,7 @@
+   } else {
+     prefix = RootView.URL_HASH_ITEM_PREFIX;
+   }
+-  var url = prefix + item._getUuid();
++  var url = prefix + item.getUuidString();
+   return url;
+ };
+ 
+@@ -358,12 +358,12 @@
+   if (!contentViewToSwitchTo) {
+     var page = this.getHomePage();
+     if (page) {
+-      contentViewToSwitchTo = this._hashTableOfPageViewsKeyedByUuid[page._getUuid()];
++      contentViewToSwitchTo = this._hashTableOfPageViewsKeyedByUuid[page.getUuid()];
+       if (!contentViewToSwitchTo) {
+         divElement = window.document.createElement(&quot;div&quot;); 
+         this._contentViewDivElement.appendChild(divElement);
+         contentViewToSwitchTo = new PageView(this, divElement, page);
+-        this._hashTableOfPageViewsKeyedByUuid[page._getUuid()] = contentViewToSwitchTo;
++        this._hashTableOfPageViewsKeyedByUuid[page.getUuid()] = contentViewToSwitchTo;
+       }
+     }
+   }
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-08-30 00:30:05 UTC (rev 308)
++++ trunk/source/view/SectionView.js	2005-08-31 19:22:20 UTC (rev 309)
+@@ -151,7 +151,7 @@
+   
+   var newPlugin = null;
+   var pluginClass;
+-  pluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[pluginItem._getUuid()];
++  pluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[pluginItem.getUuid()];
+   if (pluginClass) {
+     var pluginType = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+     var layoutData = this._getLayoutDataForPlugin(pluginType);
+@@ -212,13 +212,13 @@
+   var selectedPluginClass;
+   if (selectedPluginViewEntry) {
+     selectedPluginItem = selectedPluginViewEntry.getValue();
+-    selectedPluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[selectedPluginItem._getUuid()];
++    selectedPluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[selectedPluginItem.getUuid()];
+   } else {
+     selectedPluginClass = TablePlugin; 
+   }
+   
+   var sectionDiv = this.getHtmlElement();
+-  var headerH2 = View.appendNewElement(sectionDiv, &quot;h2&quot;,null, {'id':this._section.getUniqueKeyString()});
++  var headerH2 = View.appendNewElement(sectionDiv, &quot;h2&quot;, null, {'id':this._section.getUuidString()});
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   // var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+   this._headerView = new EntryView(this, headerH2, this._section, attributeCalledName,
+@@ -322,7 +322,7 @@
+     var anAttribute = listOfAttributes[key];
+     var optionElement = View.appendNewElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (matchingAttribute.getDisplayString() == anAttribute.getDisplayString());
+-    optionElement.value = anAttribute._getUuid();
++    optionElement.value = anAttribute.getUuidString();
+     optionElement.onclick = this.clickOnAttributeMenu.bindAsEventListener(this);
+     optionElement.text = anAttribute.getDisplayString();
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000293.html">[openrecord-svn] r308 - trunk/source/util
+</A></li>
+	<LI>Next message: <A HREF="000295.html">[openrecord-svn] r310 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#294">[ date ]</a>
+              <a href="thread.html#294">[ thread ]</a>
+              <a href="subject.html#294">[ subject ]</a>
+              <a href="author.html#294">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

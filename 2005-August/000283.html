@@ -1,0 +1,2891 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r298 - in trunk: . web_pages web_pages/chrome web_pages/content web_pages/page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r298%20-%20in%20trunk%3A%20.%20web_pages%20web_pages/chrome%20web_pages/content%20web_pages/page&In-Reply-To=%3C200508172043.j7HKhOsp022932%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000282.html">
+   <LINK REL="Next"  HREF="000284.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r298 - in trunk: . web_pages web_pages/chrome web_pages/content web_pages/page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r298%20-%20in%20trunk%3A%20.%20web_pages%20web_pages/chrome%20web_pages/content%20web_pages/page&In-Reply-To=%3C200508172043.j7HKhOsp022932%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r298 - in trunk: . web_pages web_pages/chrome web_pages/content web_pages/page">skinner at berlios.de
+       </A><BR>
+    <I>Wed Aug 17 22:43:24 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000282.html">[openrecord-svn] r297 - in trunk/source: . model view
+</A></li>
+        <LI>Next message: <A HREF="000284.html">[openrecord-svn] r299 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#283">[ date ]</a>
+              <a href="thread.html#283">[ thread ]</a>
+              <a href="subject.html#283">[ subject ]</a>
+              <a href="author.html#283">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-17 22:43:22 +0200 (Wed, 17 Aug 2005)
+New Revision: 298
+
+Added:
+   trunk/web_pages/
+   trunk/web_pages/chrome/
+   trunk/web_pages/chrome/base_style.css
+   trunk/web_pages/chrome/external_links.js
+   trunk/web_pages/chrome/footer.html
+   trunk/web_pages/chrome/header.html
+   trunk/web_pages/chrome/navbar.html
+   trunk/web_pages/content/
+   trunk/web_pages/content/about.html
+   trunk/web_pages/content/bookmarks.html
+   trunk/web_pages/content/copyright.html
+   trunk/web_pages/content/demo.html
+   trunk/web_pages/content/dev.html
+   trunk/web_pages/content/people.html
+   trunk/web_pages/content/pitch.html
+   trunk/web_pages/content/spec.html
+   trunk/web_pages/page/
+   trunk/web_pages/page/about.html
+   trunk/web_pages/page/bookmarks.html
+   trunk/web_pages/page/copyright.html
+   trunk/web_pages/page/demo.html
+   trunk/web_pages/page/dev.html
+   trunk/web_pages/page/index.html
+   trunk/web_pages/page/people.html
+   trunk/web_pages/page/pitch.html
+   trunk/web_pages/page/spec.html
+Log:
+Initial check-in of the 8 static html web pages for the OpenRecord.org web site.
+
+Added: trunk/web_pages/chrome/base_style.css
+===================================================================
+--- trunk/web_pages/chrome/base_style.css	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/chrome/base_style.css	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,511 @@
++/* -------------------------------------------------------------------
++ * base_style.css
++ * 
++ * -------------------------------------------------------------------
++ * Copyright 2005 Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">skinner at gumption.org</A>&gt;
++ * 
++ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;); 
++ * you may not use this file except in compliance with the License. 
++ * You may obtain a copy of the License at 
++ * 
++ *     <A HREF="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</A> 
++ * 
++ * Unless required by applicable law or agreed to in writing, software 
++ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS, 
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
++ * See the License for the specific language governing permissions and 
++ * limitations under the License.
++ * -------------------------------------------------------------------
++ * OSI Certified Open Source Software -- <A HREF="http://www.opensource.org/">http://www.opensource.org/</A>
++ * -------------------------------------------------------------------
++*/
++
++/*********************************************************************
++ Font sizes and line sizes
++ 
++ When I first wrote this stylesheet, I tested only in Firefox, not IE.
++ My early versions relied heavily on some CSS values like &quot;thin&quot;, 
++ which IE doesn't seem to support.  To make the IE output to match
++ the Firefox output, I reluctantly changed many of the values here.
++ At some point, once IE supports more of CSS, it would be good to 
++ change these values back.  You can safely just do global replacements
++ in this file.  Here's the list of replacements:
++   1pt    --&gt;  thin
++   1.5em  --&gt;  x-large
++   0.8em  --&gt;  small
++   0.6em  --&gt;  x-small
++ ********************************************************************/
++  
++/*********************************************************************
++ Colors
++ 
++ Here are lists of the colors I use.
++ 
++ Background colors:
++   white            --&gt;  rgb(100%,100%,100%);
++   gray background  --&gt;  rgb(90%,90%,90%);
++   green background --&gt;  rgb(80%,100%,80%);
++   red background   --&gt;  rgb(100%,80%,80%);
++   bright yellow    --&gt;  rgb(100%,100%,0%);
++
++ Line colors
++   table line gray  --&gt;  rgb(70%,70%,70%);
++   dark blue        --&gt;  rgb(0%, 0%, 50%);
++ 
++ Font colors:
++   black            --&gt;  rgb(0%, 0%, 0%);
++   logo gray        --&gt;  rgb(60%,60%,60%);  
++   dark blue        --&gt;  rgb(0%, 0%, 50%);
++   red              --&gt;  rgb(100%, 0%, 0%);
++ 
++ Link colors:
++   blue             --&gt;  #0000cc;
++   maroon           --&gt;  #551a8b;
++   dark gray        --&gt;  rgb(30%,30%,30%);  
++
++ ********************************************************************/
++
++
++/****************************************/
++/* Universal styles                     */
++
++html, body {
++  background: rgb(100%,100%,100%);
++  color: rgb(0%,0%,0%);
++  font-family: Arial, Verdana, sans-serif;
++}
++
++div.editmode {
++  background: rgb(100%,100%,100%);
++}
++
++h1 {
++  color: rgb(0%, 0%, 50%);
++  font-size: 1.5em;
++  margin-top: 1.4em;
++}
++
++h2 {
++  color: rgb(0%, 0%, 50%);
++  font-size: large;
++}
++
++h3 {
++  color: rgb(0%, 0%, 0%);
++  font-size: medium;
++  font-weight: bold;
++}
++
++a {
++  text-decoration: none;
++  border-bottom-style: dotted;
++  border-bottom-width: thin;
++}
++
++a:link {
++  color: #0000cc;
++}
++
++a:visited {
++  color: #551a8b;
++}
++
++a:active {
++  color: rgb(100%, 0%, 0%);
++}
++
++a:hover {
++  text-decoration: none;
++  border-bottom-style: solid;
++  border-bottom-width: 1pt;
++  background: rgb(100%,100%,0%);
++}
++
++a.anchor {
++  text-decoration: none;
++  border-bottom-style: none;
++}
++
++a[rel~=&quot;external&quot;]:after {
++  content: &quot; &gt;&quot;;
++  font-weight: bold;
++}
++
++a[rel~=&quot;external&quot;] {
++  text-decoration: none;
++  border-bottom-style: dotted;
++  border-bottom-width: thin;
++}
++
++a[rel~=&quot;external&quot;]:hover {
++  text-decoration: none;
++  border-bottom-style: solid;
++  border-bottom-width: 1pt;
++  background: rgb(100%,100%,0%);
++}
++
++
++.helpbox {
++  margin: 1.4em 6%;
++  padding: 1em;
++  border: solid 1pt rgb(0%, 0%, 50%); 
++}
++
++.helpbox h2 {
++  font-size: medium;
++  font-weight: bold;
++  padding: 0px;
++  margin: 0px;
++}
++
++span.bad {
++  color: rgb(100%, 0%, 0%);
++}
++
++/****************************************/
++/* Header and logo styles               */
++
++.header {
++  clear: both;
++  border-left: solid 1pt rgb(0%, 0%, 50%);
++  border-bottom: solid 1pt rgb(0%, 0%, 50%);
++  padding: 0.3em;
++  width: 100%;
++}
++
++.logo a {
++  font-weight: bold;
++  text-decoration: none;
++  border-bottom-style: none;
++}
++
++.logo a:hover {
++  border-bottom-style: solid;
++}
++
++.logostart {
++  color: rgb(60%,60%,60%);  
++}
++
++.logomiddle {
++  color: rgb(0%, 0%, 50%); 
++}
++
++.logoend {
++  color: rgb(60%,60%,60%);  
++}
++
++.logo {
++  float: left;
++}
++
++
++/****************************************/
++/* Edit button styles                   */
++
++#main_control_span {
++  float: right;
++}
++
++.page_edit_button {
++  /* float: right; */
++}
++
++.section_layout_menu {
++}
++
++
++/****************************************/
++/* Navigation bar styles                */
++
++div.navbar {
++  float: left;
++  width: 100pt;
++  margin: 0;
++  padding: 0;
++  font-size: 0.8em;
++  font-weight: bold;
++}
++
++.menu {
++  padding-left: 0;
++  padding-top: 8pt;
++  padding-bottom: 20pt;
++  margin-left: 0;
++  list-style-type: none;
++  width: 80pt;
++}
++
++.menu_item {
++  list-style: none;
++  margin: 0;
++}
++
++.menu_item a {
++  display: block;
++  width: 100%;
++  padding: 5pt 0pt 5pt 5pt;
++  text-decoration: none; 
++  border-left: solid 5pt rgb(100%, 100%, 100%);
++  border-top: solid 1pt rgb(0%, 0%, 50%);
++  border-right: solid 1pt rgb(0%, 0%, 50%);
++  border-bottom-style: none;
++  color: rgb(0%, 0%, 50%); 
++}
++
++.menu_item a:link {
++  color: rgb(0%, 0%, 50%); 
++  background-color: rgb(100%,100%,100%);
++}
++
++.menu_item a:visited {
++  color: rgb(0%, 0%, 50%); 
++  background-color: rgb(90%,90%,90%);
++  border-left: solid 5pt rgb(90%, 90%, 90%);
++}
++
++.menu_item a:hover {
++  background-color: rgb(100%,100%,0%);
++  width: 100%;
++  border-left: solid 5pt rgb(0%, 0%, 50%);
++  border-bottom-style: none;
++}
++
++.sub_menu {
++  margin-left: 15pt;
++  padding: 0;
++  list-style-type: none;
++}
++
++.sub_menu_item {
++  list-style: none;
++  margin: 0;
++}
++
++.sub_menu_item a {
++  display: block;
++  width: 65pt;  /* menu.width - sub_menu.margin-left = 80pt - 15pt = 65pt */
++  padding: 5pt 0pt 5pt 5pt;
++  text-decoration: none; 
++  border-top: solid 1pt rgb(0%, 0%, 50%);
++  border-right: solid 1pt rgb(0%, 0%, 50%);
++  border-bottom-style: none;
++}
++
++
++
++/****************************************/
++/* Content area styles                  */
++
++div.content_area {
++  margin: 0pt 0pt 0pt 115pt;
++  padding: 0pt;
++}
++
++
++/****************************************/
++/* Footer and copyright styles          */
++.footer {
++  clear: both;
++  border-left: solid 1pt rgb(0%, 0%, 50%);
++  border-top: solid 1pt rgb(0%, 0%, 50%);
++  padding: 0.3em;
++  width: 100%;
++  font-size: 0.6em;
++  margin-top: 3em;
++}
++
++.copyright {
++  float: left;
++}
++
++.fileformat {
++  float: right;
++}
++
++
++/****************************************/
++/* FAQ styles                           */
++
++.faq dt {
++  font-weight: bold;
++  color: rgb(0%,0%,50%);
++  margin-top: 1.4em;
++}
++
++.faq dd {
++  color: rgb(0%,0%,0%);
++}
++
++
++/****************************************/
++/* Table styles                         */
++
++.simple_table {
++  background: rgb(70%,70%,70%);
++  border: 1pt solid rgb(70%,70%,70%);
++  border-collapse: collapse; 
++}
++
++.simple_table th {
++  padding: 0.3em;
++  color: rgb(0%,0%,50%);
++  background: rgb(90%,90%,90%);
++  font-size: 0.8em;
++  border: 1pt solid rgb(70%,70%,70%);
++}
++
++.simple_table tr {
++  background: rgb(100%,100%,100%);
++}
++
++.viewmode .simple_table tr:hover {
++  background: rgb(100%,100%,0%);
++}
++
++.simple_table td {
++  padding: 0.1em 0.3em; 
++  font-size: 0.8em;
++  border: 1pt solid rgb(70%,70%,70%);
++}
++
++td.plain {
++  text-align: left;
++}
++
++td.yup {
++  background: rgb(80%,100%,80%);
++}
++
++td.nope {
++  background: rgb(100%,80%,80%);
++}
++
++td.year {
++  font-weight: bold;  
++  padding-left: 1em;
++  padding-right: 1em;
++}
++
++td.money {
++  text-align: right;
++}
++
++td.title {
++  font-weight: bold;  
++  background: rgb(90%,90%,90%);
++}
++
++td.label {
++  font-weight: bold;  
++  text-align: right;
++  vertical-align: top;
++}
++
++td.negative {
++  color: rgb(90%,0%,0%);
++}
++
++td.total {
++  font-weight: bold;  
++  background: rgb(90%,90%,90%);
++}
++
++input.text_field_in_table_cell {
++  border-width: 0px;
++  width: 100%;
++  background: rgb(100%,100%,0%);
++}
++
++input.text_field_in_table_cell:hover {
++  border-width: 0px;
++  width: 100%;
++  background: rgb(100%,100%,0%);
++}
++
++.editmode .simple_table td:hover {
++  background: rgb(100%,100%,70%);
++}
++
++td.newitem {
++  /* background: rgb(100%,100%,50%); */
++  border-top: medium solid rgb(70%,70%,70%);
++}
++
++.editmode .simple_table td.selected {
++  /* padding: 0px 0px; */
++  background: rgb(100%,100%,0%);
++}
++
++
++/****************************************/
++/* Outline styles                       */
++
++li.category {
++   color: rgb(0%, 0%, 50%);
++   line-height: 1em;
++   padding-top: 12pt;
++   font-weight: normal;
++   font-size: medium;
++}
++
++li.primary {
++   font-weight: bold;
++   font-size: medium;
++   line-height: 1.1em;
++   padding-top: 8pt;
++}
++
++li.detail {
++   color: rgb(0%,0%,0%);
++   line-height: 1.2em;
++   padding-top: 4pt;
++   font-weight: normal;
++   font-size: small;
++}
++
++
++/****************************************/
++/* Bar chart styles                     */
++
++.simple_table td.bar_chart_frame {
++  width: 20em;
++  padding: 0px;
++  margin: 0px;
++  text-align: left;
++}
++
++.bar_chart_bar {
++  height: 100%;
++  margin: 0px;
++  padding: 0px;
++  background: rgb(0%, 0%, 50%);
++  border: none;
++  text-align: right;
++  vertical-align: middle;
++  color: white;
++}
++
++
++/****************************************/
++/* PENDING -- time to delete these?     */
++
++p.byline {
++  font-size: 0.8em;
++  text-align: right;
++  line-height: 0.4em;
++}
++
++p.byline a {
++  color: rgb(0%,0%,0%);
++}
++
++div.section {
++  border-top: solid thin rgb(0%, 0%, 50%);
++  margin-top: 3em;
++  padding-left: 0px;
++}
++
++/****************************************/
++/* END                                  */
++/****************************************/
+
+Added: trunk/web_pages/chrome/external_links.js
+===================================================================
+--- trunk/web_pages/chrome/external_links.js	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/chrome/external_links.js	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,14 @@
++function setTargetsForExternalLinks() {
++  if (!window.document.getElementsByTagName) {
++    return;
++  }
++  var listOfAnchorElements = window.document.getElementsByTagName(&quot;a&quot;);
++  var regExp = new RegExp(&quot;\\b&quot; + &quot;external&quot; + &quot;\\b&quot;);
++  for (var i=0; i&lt;listOfAnchorElements.length; i+=1) {
++    var anchor = listOfAnchorElements[i];
++    if (anchor.getAttribute(&quot;href&quot;) &amp;&amp; (anchor.getAttribute(&quot;rel&quot;)) &amp;&amp; (anchor.getAttribute(&quot;rel&quot;).search(regExp) != -1)) {
++      anchor.target = &quot;_blank&quot;;
++    }
++  }
++};
++window.onload = setTargetsForExternalLinks;
+\ No newline at end of file
+
+Added: trunk/web_pages/chrome/footer.html
+===================================================================
+--- trunk/web_pages/chrome/footer.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/chrome/footer.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,30 @@
++    &lt;p class=&quot;footer&quot;&gt;
++      &lt;span class=&quot;copyright&quot;&gt;You can copy freely from this site &mdash; &lt;a href=&quot;copyright.html&quot;&gt;copyright&lt;/a&gt; rights relinquished under the Creative Commons  
++      &lt;a rel=&quot;license external&quot; href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain Dedication&lt;/a&gt;.&lt;/span&gt;
++      &lt;span class=&quot;fileformat&quot;&gt;
++        &lt;a href=&quot;<A HREF="http://validator.w3.org/check?uri=referer">http://validator.w3.org/check?uri=referer</A>&quot; rel=&quot;external&quot;&gt;&lt;acronym title=&quot;eXtensible Hypertext Markup Language&quot;&gt;XHTML&lt;/acronym&gt;&lt;/a&gt; | 
++        &lt;a href=&quot;<A HREF="http://jigsaw.w3.org/css-validator/">http://jigsaw.w3.org/css-validator/</A>&quot; rel=&quot;external&quot;&gt;&lt;acronym title=&quot;Cascading Style Sheets&quot;&gt;CSS&lt;/acronym&gt;&lt;/a&gt;
++      &lt;/span&gt;
++      &lt;br/&gt;
++    &lt;/p&gt;
++    
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openagenda.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
+
+Added: trunk/web_pages/chrome/header.html
+===================================================================
+--- trunk/web_pages/chrome/header.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/chrome/header.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,7 @@
++&lt;p class=&quot;header&quot;&gt;
++  &lt;span class=&quot;logo&quot;&gt;
++    &lt;a href=&quot;<A HREF="http://openrecord.org">http://openrecord.org</A>&quot;&gt;&lt;span class=&quot;logostart&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;logomiddle&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;logoend&quot;&gt;.org&lt;/span&gt;&lt;/a&gt;
++  &lt;/span&gt;
++  &lt;br/&gt;
++&lt;/p&gt;
++
+
+Added: trunk/web_pages/chrome/navbar.html
+===================================================================
+--- trunk/web_pages/chrome/navbar.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/chrome/navbar.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,15 @@
++&lt;div class=&quot;navbar&quot;&gt;
++  &lt;ul class=&quot;menu&quot;&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;about.html&quot;&gt;about&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;people.html&quot;&gt;people&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;pitch.html&quot;&gt;pitch&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;spec.html&quot;&gt;spec&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;demo.html&quot;&gt;demo&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;dev.html&quot;&gt;dev&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;bookmarks.html&quot;&gt;bookmarks&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;menu_item&quot;&gt;&lt;a href=&quot;copyright.html&quot;&gt;copyright&lt;/a&gt;&lt;/li&gt;
++  &lt;/ul&gt;
++  &lt;p&gt;&nbsp;&lt;/p&gt;
++&lt;/div&gt;
++
++
+
+Added: trunk/web_pages/content/about.html
+===================================================================
+--- trunk/web_pages/content/about.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/about.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,11 @@
++&lt;h1&gt;About the OpenRecord project&lt;/h1&gt;
++&lt;div&gt;
++  &lt;p&gt;The goal of the project is to create open-source software.  We're 
++  making a web-based collaboration system, somewhat like a wiki. To read 
++  about what the software is supposed to do, see the &lt;a href=&quot;spec.html&quot;&gt;spec page&lt;/a&gt;.&lt;/p&gt;
++  &lt;p&gt;We're just getting started, so we don't yet have too much to show you.
++  Brian Skinner wrote the original spec in February 2005.  Chao Lam and Mignon
++  Belongie joined the project soon after, and we've been actively coding 
++  for about six months now.&lt;/p&gt;
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/content/bookmarks.html
+===================================================================
+--- trunk/web_pages/content/bookmarks.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/bookmarks.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,238 @@
++&lt;h1&gt;Bookmarks&lt;/h1&gt;
++&lt;div&gt;
++  &lt;h2&gt;JavaScript UI examples&lt;/h2&gt;
++  &lt;blockquote&gt;
++  &lt;dl class=&quot;faq&quot;&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.btinternet.com/~kurt.grigg/javascript/followingeyes/followingeyes.html">http://www.btinternet.com/~kurt.grigg/javascript/followingeyes/followingeyes.html</A>&quot; rel=&quot;external&quot;&gt;Eyes&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.btinternet.com/~kurt.grigg/javascript/crosshairs/crosshairs.html">http://www.btinternet.com/~kurt.grigg/javascript/crosshairs/crosshairs.html</A>&quot; rel=&quot;external&quot;&gt;Crosshairs&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.baekdal.com/x/xmlhttprequest/">http://www.baekdal.com/x/xmlhttprequest/</A>&quot; rel=&quot;external&quot;&gt;Business Card Creator&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;Shows off a number of design choices that make for a more usable UI - 
++      read about &lt;a href=&quot;<A HREF="http://www.baekdal.com/articles/usability/usable-XMLHttpRequest/">http://www.baekdal.com/articles/usability/usable-XMLHttpRequest/</A>&quot; rel=&quot;external&quot;&gt;why this is a good UI&lt;/a&gt;
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.monket.net/wiki/monket-calendar/">http://www.monket.net/wiki/monket-calendar/</A>&quot; rel=&quot;external&quot;&gt;Monket Calendar&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://openrico.org/livegrid.page">http://openrico.org/livegrid.page</A>&quot; rel=&quot;external&quot;&gt;Live Grid&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;A component that displays tables with tens of thousands of item.  As
++      you scroll the table, the widget automatically fetches data from the 
++      server as needed, a small chunk at a time.
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Drag-and-drop&lt;/dt&gt;
++      &lt;dd&gt;
++        &lt;ul&gt; 
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://tool-man.org/examples/sorting.html">http://tool-man.org/examples/sorting.html</A>&quot; rel=&quot;external&quot;&gt;drag-and-drop list entries&lt;/a&gt;&lt;/li&gt;
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://sproutliner.com/">http://sproutliner.com/</A>&quot; rel=&quot;external&quot;&gt;Sproutliner&lt;/a&gt;&lt;/li&gt;
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://www.ditchnet.org/hotspot/">http://www.ditchnet.org/hotspot/</A>&quot; rel=&quot;external&quot;&gt;HotSpot&lt;/a&gt;&lt;/li&gt;
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://script.aculo.us/drag-and-drop">http://script.aculo.us/drag-and-drop</A>&quot; rel=&quot;external&quot;&gt;script.aculo.us&lt;/a&gt; and 
++              &lt;a href=&quot;<A HREF="http://prototype.conio.net/">http://prototype.conio.net/</A>&quot; rel=&quot;external&quot;&gt;prototype&lt;/a&gt;&lt;/li&gt;
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://www.youngpup.net/2001/domdrag">http://www.youngpup.net/2001/domdrag</A>&quot; rel=&quot;external&quot;&gt;youngpup DOM-Drag&lt;/a&gt; and 
++              &lt;a href=&quot;<A HREF="http://www.youngpup.net/_projectDirectories/domdrag/demos/domdrag/index.html">http://www.youngpup.net/_projectDirectories/domdrag/demos/domdrag/index.html</A>&quot; rel=&quot;external&quot;&gt;example&lt;/a&gt;&lt;/li&gt;
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://confluence.atlassian.com/display/DOC/Dynamic+Tasklist+Macro">http://confluence.atlassian.com/display/DOC/Dynamic+Tasklist+Macro</A>&quot; rel=&quot;external&quot;&gt;Tasklist -- a nice example of grabby handles&lt;/a&gt;&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Menus and tree widgets&lt;/dt&gt;
++      &lt;dd&gt;
++        &lt;ul&gt; 
++          &lt;li&gt;&lt;a href=&quot;<A HREF="http://www.ditchnet.org/wp/2005/06/24/dhtml-freakshow-a-cute-tree-widget/">http://www.ditchnet.org/wp/2005/06/24/dhtml-freakshow-a-cute-tree-widget/</A>&quot; rel=&quot;external&quot;&gt;a cute tree widget&lt;/a&gt;&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://shared.snapgrid.com/gtd_tiddlywiki.html">http://shared.snapgrid.com/gtd_tiddlywiki.html</A>&quot; rel=&quot;external&quot;&gt;GTD TiddlyWiki&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.aypwip.org/webnote/">http://www.aypwip.org/webnote/</A>&quot; rel=&quot;external&quot;&gt;Webnote&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;A nice example of a simple, responsive UI.  It has some features a real app 
++      would have -- undo/redo, transparency, saving state on the server, using 
++      unique URLs to address new content, etc. Check out the hints list to see more 
++      about how to use it: &lt;a href=&quot;<A HREF="http://www.aypwip.org/webnote/hints.html">http://www.aypwip.org/webnote/hints.html</A>&quot; rel=&quot;external&quot;&gt;hints&lt;/a&gt;
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.ajaxadvocates.com/">http://www.ajaxadvocates.com/</A>&quot; rel=&quot;external&quot;&gt;BlahBlah Finance -- AJAX spreadsheet&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.activewidgets.com/grid/">http://www.activewidgets.com/grid/</A>&quot; rel=&quot;external&quot;&gt;ActiveWidgets Grid&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;Note all the little features they've done:&lt;br/&gt;
++      - real-time column header re-sizing (drag bars between headings)&lt;br/&gt;
++      - column sorting (click on column headers)&lt;br/&gt;
++      - the top column headers scroll in sync with the horizontal scroll bar, yet 
++      they stay visible even when you scroll down with the vertical scroll bar -- 
++      similarly, the row headers sync with the vertical scroll bar yet stay visible 
++      even if you scroll the horizontal scroll bar
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://trimpath.com/demos/test1/trimpath/spreadsheet_demo0.html">http://trimpath.com/demos/test1/trimpath/spreadsheet_demo0.html</A>&quot; rel=&quot;external&quot;&gt;TrimSpreadsheet Demo&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://ditchnet.org/dhtmlgallery/jsdock.html">http://ditchnet.org/dhtmlgallery/jsdock.html</A>&quot; rel=&quot;external&quot;&gt;Mac-style dock&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://a9.com/-/search/moreColumns.jsp">http://a9.com/-/search/moreColumns.jsp</A>&quot; rel=&quot;external&quot;&gt;A9: add more columns&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;Another drag and drop example.
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://map.search.ch/index.en.html">http://map.search.ch/index.en.html</A>&quot; rel=&quot;external&quot;&gt;map.search.ch&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;Map browsing.
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.francisshanahan.com/zuggest.aspx">http://www.francisshanahan.com/zuggest.aspx</A>&quot; rel=&quot;external&quot;&gt;Zuggest&lt;/a&gt;&lt;/dt&gt;
++      &lt;dd&gt;Text searching via XMLHttpRequest.
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.fiftyfoureleven.com/resources/programming/xmlhttprequest/examples">http://www.fiftyfoureleven.com/resources/programming/xmlhttprequest/examples</A>&quot; rel=&quot;external&quot;&gt;more examples&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://www.oddpost.com/img/readingMail.gif">http://www.oddpost.com/img/readingMail.gif</A>&quot; rel=&quot;external&quot;&gt;Oddpost&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Scalix's outlook clone&lt;/dt&gt;
++      &lt;dd&gt;&lt;a href=&quot;<A HREF="http://blogs.zdnet.com/BTL/index.php?p=1061">http://blogs.zdnet.com/BTL/index.php?p=1061</A>&quot; rel=&quot;external&quot;&gt;article&lt;/a&gt; 
++      and &lt;a href=&quot;<A HREF="http://www.flickr.com/photos/50773152@N00/4922638/">http://www.flickr.com/photos/50773152@N00/4922638/</A>&quot; rel=&quot;external&quot;&gt;photo&lt;/a&gt;
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://weblog.infoworld.com/udell/2005/05/25.html#a1238">http://weblog.infoworld.com/udell/2005/05/25.html#a1238</A>&quot; rel=&quot;external&quot;&gt;Tibco's AJAX-stlye GUI builder&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;&lt;a href=&quot;<A HREF="http://trimpath.com/demos/nextaction_static1/nextaction.htm">http://trimpath.com/demos/nextaction_static1/nextaction.htm</A>&quot; rel=&quot;external&quot;&gt;TrimPath's &quot;Next Action&quot; to-do list tool.&lt;/a&gt;&lt;/dt&gt;
++    &lt;/di&gt;
++  &lt;/dl&gt;
++  &lt;/blockquote&gt;
++
++  &lt;h2&gt;Articles and Resources&lt;/h2&gt;
++  &lt;ul&gt; 
++    &lt;li class=&quot;detail&quot;&gt;Social construction of knowledge
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://weblog.infoworld.com/udell/2005/06/13.html">http://weblog.infoworld.com/udell/2005/06/13.html</A>&quot; rel=&quot;external&quot;&gt;Jon Udell on Wikipedia dispute resolution&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://weblog.infoworld.com/udell/gems/wikiAnimate.html">http://weblog.infoworld.com/udell/gems/wikiAnimate.html</A>&quot; rel=&quot;external&quot;&gt;Jon Udell on tools for seeing change histories&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Legal
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.softwarefreedom.org/">http://www.softwarefreedom.org/</A>&quot; rel=&quot;external&quot;&gt;Software Freedom Law Center&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.oreilly.com/pub/a/oreilly/ask_tim/2001/codepolicy.html">http://www.oreilly.com/pub/a/oreilly/ask_tim/2001/codepolicy.html</A>&quot; rel=&quot;external&quot;&gt;O'Reilly Policy on Re-Use of Code Examples from Books&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://en.wikipedia.org/wiki/Fair_use">http://en.wikipedia.org/wiki/Fair_use</A>&quot; rel=&quot;external&quot;&gt;Fair Use -- wikipedia&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.utsystem.edu/ogc/intellectualproperty/copypol2.htm#test">http://www.utsystem.edu/ogc/intellectualproperty/copypol2.htm#test</A>&quot; rel=&quot;external&quot;&gt;Fair Use -- University of Texas&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://fairuse.stanford.edu/Copyright_and_Fair_Use_Overview/chapter9/9-b.html">http://fairuse.stanford.edu/Copyright_and_Fair_Use_Overview/chapter9/9-b.html</A>&quot; rel=&quot;external&quot;&gt;Fair Use -- Stanford&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Extreme Programming
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.extremeprogramming.org/rules.html">http://www.extremeprogramming.org/rules.html</A>&quot; rel=&quot;external&quot;&gt;Extreme Programming Summary Page&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;AJAX
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://adaptivepath.com/publications/essays/archives/000385.php">http://adaptivepath.com/publications/essays/archives/000385.php</A>&quot; rel=&quot;external&quot;&gt;Ajax: A New Approach to Web Applications&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.ajaxpatterns.org/">http://www.ajaxpatterns.org/</A>&quot; rel=&quot;external&quot;&gt;Ajax Patterns&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://ajaxian.com/">http://ajaxian.com/</A>&quot; rel=&quot;external&quot;&gt;ajaxian&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;w3schools
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.w3schools.com/">http://www.w3schools.com/</A>&quot; rel=&quot;external&quot;&gt;w3schools.com&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;CSS
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://css.maxdesign.com.au/index.htm">http://css.maxdesign.com.au/index.htm</A>&quot; rel=&quot;external&quot;&gt;css.maxdesign: listamatic&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.richinstyle.com/">http://www.richinstyle.com/</A>&quot; rel=&quot;external&quot;&gt;richinstyle.com&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;JavaScript Articles
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.sitepoint.com/article/structural-markup-javascript">http://www.sitepoint.com/article/structural-markup-javascript</A>&quot; rel=&quot;external&quot;&gt;sitepoint.com: Enhancing Structural Markup with JavaScript&lt;/a&gt;&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.sitepoint.com/blog-post-view.php?id=249759">http://www.sitepoint.com/blog-post-view.php?id=249759</A>&quot; rel=&quot;external&quot;&gt;sitepoint.com: Cross-browser event registration&lt;/a&gt;&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.quirksmode.org/index.html?/dom/innerhtml.html">http://www.quirksmode.org/index.html?/dom/innerhtml.html</A>&quot; rel=&quot;external&quot;&gt;quirksmode.org: innerHTML&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.sitepoint.com/blog-post-view.php?id=239170">http://www.sitepoint.com/blog-post-view.php?id=239170</A>&quot; rel=&quot;external&quot;&gt;GreaseMonkey &lt;/a&gt; -
++        a Firefox extension that allows end-users to add JavaScript &quot;plug-ins&quot; to 
++        any existing page.  Similar to the Chandler idea of allowing for end-user 
++        scripting in python.  &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.dojotoolkit.org/js_style_guide.html">http://www.dojotoolkit.org/js_style_guide.html</A>&quot; rel=&quot;external&quot;&gt;JavaScript coding standards&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.joelonsoftware.com/articles/Wrong.html">http://www.joelonsoftware.com/articles/Wrong.html</A>&quot; rel=&quot;external&quot;&gt;Joel-on-Software: Hungarian notation&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.ditchnet.org/wp/2005/05/12/calling-superclass-constructors-javascript/">http://www.ditchnet.org/wp/2005/05/12/calling-superclass-constructors-javascript/</A>&quot; rel=&quot;external&quot;&gt;Calling superclass constructors&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.ditchnet.org/wp/?p=7">http://www.ditchnet.org/wp/?p=7</A>&quot; rel=&quot;external&quot;&gt;Packages (or namespaces) in JavaScript&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.deepwood.net/writing/method-references.html.utf8">http://www.deepwood.net/writing/method-references.html.utf8</A>&quot; rel=&quot;external&quot;&gt;Object-Oriented Event Listening through Partial Application in JavaScript&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www-128.ibm.com/developerworks/xml/library/x-matters41.html?ca=dnt-621">http://www-128.ibm.com/developerworks/xml/library/x-matters41.html?ca=dnt-621</A>&quot; rel=&quot;external&quot;&gt;Advanced DOM techniques&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://dojotoolkit.org/intro_to_dojo_io.html">http://dojotoolkit.org/intro_to_dojo_io.html</A>&quot; rel=&quot;external&quot;&gt;The Dojo XMLHTTP wrapper, the back button, and bookmarking&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.xml.com/pub/a/2005/05/11/ajax-error.html">http://www.xml.com/pub/a/2005/05/11/ajax-error.html</A>&quot; rel=&quot;external&quot;&gt;Catching JavaScript errors on the client and logging them on the server.&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;JavaScript Tools
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.crockford.com/javascript/lint.html">http://www.crockford.com/javascript/lint.html</A>&quot; rel=&quot;external&quot;&gt;JSLint&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.mozilla.org/projects/venkman/">http://www.mozilla.org/projects/venkman/</A>&quot; rel=&quot;external&quot;&gt;venkman&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;jsunit&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.mozilla.org/docs/dom/domref/dom_shortIX.html">http://www.mozilla.org/docs/dom/domref/dom_shortIX.html</A>&quot; rel=&quot;external&quot;&gt;mozilla.org: DOM reference&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://wick.sourceforge.net/wick_sample/">http://wick.sourceforge.net/wick_sample/</A>&quot; rel=&quot;external&quot;&gt;WICK: Web Input Completion Kit&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://jgwebber.blogspot.com/2005/05/drip-ie-leak-detector.html">http://jgwebber.blogspot.com/2005/05/drip-ie-leak-detector.html</A>&quot; rel=&quot;external&quot;&gt;Drip: a memory leak detector for IE&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://blog.monstuff.com/archives/000252.html">http://blog.monstuff.com/archives/000252.html</A>&quot; rel=&quot;external&quot;&gt;XMLHttpRequest Tracer and Debugger&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;JavaScript widgets and libraries
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.brics.dk/bigwig/powerforms/">http://www.brics.dk/bigwig/powerforms/</A>&quot; rel=&quot;external&quot;&gt;powerforms: text field validation&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://gosu.pl/dhtml/javascript-libraries.html">http://gosu.pl/dhtml/javascript-libraries.html</A>&quot; rel=&quot;external&quot;&gt;gosu.pl libraries&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://burstproject.org/">http://burstproject.org/</A>&quot; rel=&quot;external&quot;&gt;burstproject.org&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.cross-browser.com/">http://www.cross-browser.com/</A>&quot; rel=&quot;external&quot;&gt;cross-browser.com&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.mozilla.org/js/scripting/">http://www.mozilla.org/js/scripting/</A>&quot; rel=&quot;external&quot;&gt;mozilla.org: JavaScript&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.modernmethod.com/sajax/">http://www.modernmethod.com/sajax/</A>&quot; rel=&quot;external&quot;&gt;Sajax&lt;/a&gt; 
++        Sajax makes it easy to call PHP, Perl or Python functions from your 
++        webpages via JavaScript without performing a browser refresh. &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.bigbold.com/snippets/">http://www.bigbold.com/snippets/</A>&quot; rel=&quot;external&quot;&gt;bigbold code snippets&lt;/a&gt;&lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;PHP widgets, libraries, tools
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.php.net/manual/en/index.php">http://www.php.net/manual/en/index.php</A>&quot; rel=&quot;external&quot;&gt;php manual&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://pear.php.net/">http://pear.php.net/</A>&quot; rel=&quot;external&quot;&gt;pear.php.net&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.aditus.nu/jpgraph/">http://www.aditus.nu/jpgraph/</A>&quot; rel=&quot;external&quot;&gt;jpgraph&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.maani.us/charts/index.php">http://www.maani.us/charts/index.php</A>&quot; rel=&quot;external&quot;&gt;maani.us charts&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++  &lt;/ul&gt;
++
++  &lt;h2&gt;Client-server and server-server communication&lt;/h2&gt;
++  &lt;ul&gt; 
++    &lt;li class=&quot;detail&quot;&gt;Server-side content aggregation: &lt;a href=&quot;<A HREF="http://portals.apache.org/jetspeed-1/">http://portals.apache.org/jetspeed-1/</A>&quot; rel=&quot;external&quot;&gt;Jetspeed&lt;/a&gt; &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Connecting Java and JavaScript: &lt;a href=&quot;<A HREF="http://www.nextapp.com/products/echo/">http://www.nextapp.com/products/echo/</A>&quot; rel=&quot;external&quot;&gt;Nextapp echo&lt;/a&gt; &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Connecting JavaScript, XML, PHP, etc.
++      &lt;ul&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.sitepoint.com/blog-post-view.php?id=191776">http://www.sitepoint.com/blog-post-view.php?id=191776</A>&quot; rel=&quot;external&quot;&gt;sitepoint.com&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://xmljs.sourceforge.net/index.html">http://xmljs.sourceforge.net/index.html</A>&quot; rel=&quot;external&quot;&gt;xmljs&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://xmlrpccom.sourceforge.net/scriptserver/scriptserver/docs/scriptserver.html">http://xmlrpccom.sourceforge.net/scriptserver/scriptserver/docs/scriptserver.html</A>&quot; rel=&quot;external&quot;&gt;scriptserver&lt;/a&gt; &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://developer.apple.com/internet/webcontent/xmlhttpreq.html">http://developer.apple.com/internet/webcontent/xmlhttpreq.html</A>&quot; rel=&quot;external&quot;&gt;apple.com: xmlhttprequest&lt;/a&gt; &lt;/li&gt;
++      &lt;/ul&gt;
++    &lt;/li&gt;
++  &lt;/ul&gt;
++  
++  &lt;h2&gt;Content Management Systems (CMS)&lt;/h2&gt;
++  &lt;ul&gt; 
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.cmsmatrix.org/matrix">http://www.cmsmatrix.org/matrix</A>&quot; rel=&quot;external&quot;&gt;cmsmatrix.org&lt;/a&gt; - 
++    a site with feature comparison charts for hundreds of CMS products &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://www.opensourcecms.com/">http://www.opensourcecms.com/</A>&quot; rel=&quot;external&quot;&gt;opensourcecms.com&lt;/a&gt; - 
++    a site with clean-installed versions of lots of open source CMS products, 
++    so that you can play around with them without have to set up your own 
++    installations &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://ez.no/community/news/ez_publish_tutorial">http://ez.no/community/news/ez_publish_tutorial</A>&quot; rel=&quot;external&quot;&gt;eZ publish tutorial&lt;/a&gt; - 
++    a good tutorial for building a simple site using eZ publish&lt;/li&gt;
++  &lt;/ul&gt;
++
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/content/copyright.html
+===================================================================
+--- trunk/web_pages/content/copyright.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/copyright.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,13 @@
++&lt;h1&gt;Copyright&lt;/h1&gt;
++
++&lt;div&gt;
++  &lt;p&gt;All of the content on this site is available for reuse or repurposing on 
++  other projects. I've started out by making the content available using the
++  &lt;a href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot; rel=&quot;external&quot;&gt;Creative Commons Public
++  Domain Dedication&lt;/a&gt;. I want to think about the licensing issues a little more carefully,
++  but we'll probably end up either sticking with that license, or switching to the
++  &lt;a href=&quot;<A HREF="http://creativecommons.org/licenses/by/2.0/">http://creativecommons.org/licenses/by/2.0/</A>&quot; rel=&quot;external&quot;&gt;Creative 
++  Commons Attribution License&lt;/a&gt;.&lt;/p&gt;
++        
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/content/demo.html
+===================================================================
+--- trunk/web_pages/content/demo.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/demo.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,18 @@
++&lt;div&gt;
++  &lt;h1&gt;Demo&lt;/h1&gt;
++  
++  &lt;p&gt;It'll probably be another couple of months until we're far enough
++  along to put together a first demo.&lt;/p&gt;
++
++  &lt;p&gt;Right now there's not much to see, but you're welcome to look if 
++  you'd like. Currently the code &lt;b&gt;only runs in Firefox&lt;/b&gt;. 
++  If you're using Firefox, here are a couple examples of old demo pages:
++  &lt;ul&gt; 
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;demo/old_2005_04_14/trunk/source/demo_page.html&quot; rel=&quot;external&quot;&gt;April 14, 2005&lt;/a&gt; &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;demo/old_2005_06_12/trunk/source/demo_page.html&quot; rel=&quot;external&quot;&gt;June 12, 2005&lt;/a&gt; &lt;/li&gt;
++  &lt;/ul&gt;
++  
++  &lt;/p&gt;
++    
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/content/dev.html
+===================================================================
+--- trunk/web_pages/content/dev.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/dev.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,58 @@
++&lt;h1&gt;Developer Links&lt;/h1&gt;
++&lt;div&gt;
++  &lt;h2&gt;Mailing lists&lt;/h2&gt;
++  &lt;p&gt;We have two mailing lists for OpenRecord developers.  One is a development
++  discussion list, where people can ask questions and make suggestions.  The 
++  other list just has automatically generated messages that are sent by the 
++  Subversion repository when anyone makes changes to the source code. Anyone 
++  can subscribe to either list.  You can also just browse through the archives 
++  of past messages.&lt;/p&gt;
++  &lt;ul&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://lists.berlios.de/mailman/listinfo/openrecord-dev">http://lists.berlios.de/mailman/listinfo/openrecord-dev</A>&quot; rel=&quot;external&quot;&gt;developer mailing list: openrecord-dev&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://lists.berlios.de/mailman/listinfo/openrecord-svn">http://lists.berlios.de/mailman/listinfo/openrecord-svn</A>&quot; rel=&quot;external&quot;&gt;subversion mailing list: openrecord-svn&lt;/a&gt;&lt;/li&gt;
++  &lt;/ul&gt;
++  
++  &lt;h2&gt;Lists of features, &quot;user stories&quot;, tasks to do, and bugs to fix&lt;/h2&gt;
++  &lt;p&gt;For now, we're using a simple plain-text file to keep track of all 
++  the work we need to do.&lt;/p&gt; 
++  &lt;ul&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://svn.berlios.de/viewcvs/openrecord/trunk/documentation/release_planning.txt?view=markup">http://svn.berlios.de/viewcvs/openrecord/trunk/documentation/release_planning.txt?view=markup</A>&quot; rel=&quot;external&quot;&gt;tasks and user stories&lt;/a&gt;&lt;/li&gt;
++  &lt;/ul&gt;
++
++  &lt;h2&gt;Source code: browsing&lt;/h2&gt;
++  &lt;p&gt;All of the OpenRecord source code is publicly available on the web.  You can
++  use your web browser to look at the code.&lt;/p&gt;
++  &lt;ul&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://svn.berlios.de/viewcvs/openrecord/">http://svn.berlios.de/viewcvs/openrecord/</A>&quot; rel=&quot;external&quot;&gt;browse the source code&lt;/a&gt;&lt;/li&gt;
++  &lt;/ul&gt;
++
++  &lt;h2&gt;Source code: downloading&lt;/h2&gt;
++  &lt;p&gt;You should be able to download the OpenRecord source code using any 
++  Subversion client. You can download the source code via anonymous SVN, so 
++  you don't need to have any sort of account.&lt;/p&gt;
++  &lt;ul&gt; 
++    &lt;li class=&quot;detail&quot;&gt;You can download a Subversion client from: &lt;a href=&quot;<A HREF="http://subversion.tigris.org/">http://subversion.tigris.org/</A>&quot; rel=&quot;external&quot;&gt;subversion.tigris.org&lt;/a&gt; &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;For info about using Subversion to get the OpenRecord source, see &lt;a href=&quot;<A HREF="http://developer.berlios.de/svn/?group_id=3396">http://developer.berlios.de/svn/?group_id=3396</A>&quot; rel=&quot;external&quot;&gt;the OpenRecord SVN page&lt;/a&gt; &lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Using a Subversion client, the OpenRecord source code is available at: &quot;<A HREF="svn://svn.berlios.de/openrecord">svn://svn.berlios.de/openrecord</A>&quot;&lt;/li&gt;
++  &lt;/ul&gt;
++
++  &lt;h2&gt;Source code: contributing&lt;/h2&gt;
++  &lt;p&gt;The OpenRecord source code repository is being hosted by BerliOS.  In order
++  to commit changes to the source code, you will need to have a developer account
++  at BerliOS, and you will need me (Brian Skinner) to add you to the list of 
++  developers associated with the OpenRecord project.&lt;/p&gt;
++  &lt;ul&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://developer.berlios.de/">http://developer.berlios.de/</A>&quot; rel=&quot;external&quot;&gt;general information about BerliOS&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;&lt;a href=&quot;<A HREF="http://developer.berlios.de/account/register.php">http://developer.berlios.de/account/register.php</A>&quot; rel=&quot;external&quot;&gt;register for a BerliOS developer account&lt;/a&gt;&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Once you have a developer account and are listed as an 
++    OpenRecord developer, the source code is available at: &quot;svn+<A HREF="ssh://svn.berlios.de/svnroot/repos/openrecord">ssh://svn.berlios.de/svnroot/repos/openrecord</A>&quot;&lt;/li&gt;
++  &lt;/ul&gt;
++  
++  &lt;h2&gt;Hosted by BerliOS&lt;/h2&gt;
++  &lt;p&gt;&lt;a href=&quot;<A HREF="http://developer.berlios.de">http://developer.berlios.de</A>&quot; title=&quot;BerliOS Developer&quot; style=&quot;border-style: none;&quot;&gt; 
++    &lt;img src=&quot;<A HREF="http://developer.berlios.de/bslogo.php?group_id=3396">http://developer.berlios.de/bslogo.php?group_id=3396</A>&quot; 
++    width=&quot;124px&quot; height=&quot;32px&quot; alt=&quot;BerliOS Developer Logo&quot; style=&quot;border-style: none;&quot;&gt;
++  &lt;/a&gt;&lt;/p&gt;
++  
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/content/people.html
+===================================================================
+--- trunk/web_pages/content/people.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/people.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,50 @@
++&lt;div&gt;
++  &lt;h1&gt;People&lt;/h1&gt;
++  
++  &lt;p&gt;So far only a couple people are involved, since the project is just getting started. 
++  We hope to gradually add more names to the list.&lt;/p&gt;
++  
++  &lt;dl class=&quot;faq&quot;&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Brian Douglas Skinner&lt;/dt&gt;
++      &lt;dd&gt;I wrote my first computer program a quarter century ago, on a 
++      Teletype machine that had no screen and that saved files by punching 
++      holes in a paper tape. Over the years things have improved a lot, as 
++      computers gained disk drives, and screens, and faster processors.
++      In recent years there's been more progress still, with the creation 
++      of the internet and the world wide web, which I consider one of the 
++      great human achievements, right up there with things like penicillin, 
++      and democracy, and Gutenberg's press.  I'm excited about each new 
++      advance, and hope to play a small role in helping to move us forward.  
++      Currently, I'm happily unemployed, living in San Francisco and working 
++      on the OpenRecord project.&lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Chih-Chao Lam&lt;/dt&gt;
++      &lt;dd&gt;Having started two venture-backed companies, ShoppingList and ClickOver, 
++      Chao is a veteran, beneficiary and casualty of the Internet boom. Chao is 
++      curious about why certain innovations catch on and others die by the wayside.
++      Chao and Brian first met while working at  
++      &lt;a href=&quot;<A HREF="http://osafoundation.org/">http://osafoundation.org/</A>&quot; rel=&quot;external&quot;&gt;OSAF&lt;/a&gt;, and Chao 
++      is contributing to the OpenRecord project in his spare time while he
++      explores ideas for his next start-up.
++      &lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Mignon Belongie&lt;/dt&gt;
++      &lt;dd&gt;Mignon is the most recent programmer to join the OpenRecord 
++      project.  Mignon went to college at Caltech and did her doctoral work 
++      at Cornell, and then went on to do rocket science at NASA's JPL. 
++      When she's not working on OpenRecord, Mignon holds down a day job
++      at &lt;a href=&quot;<A HREF="http://www.digitalpersona.com/">http://www.digitalpersona.com/</A>&quot; rel=&quot;external&quot;&gt;DigitalPersona&lt;/a&gt;
++      in Redwood City.&lt;/dd&gt;
++    &lt;/di&gt;
++    &lt;di&gt;
++      &lt;dt&gt;Your name here!&lt;/dt&gt;
++      &lt;dd&gt;You got involved in the project early on, and took an active role by... 
++      [ fill in the blank! ]&lt;/dd&gt;
++    &lt;/di&gt;
++  &lt;/dl&gt;  
++  
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/content/pitch.html
+===================================================================
+--- trunk/web_pages/content/pitch.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/pitch.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,165 @@
++&lt;h1&gt;Elevator Pitch&lt;/h1&gt;
++
++  &lt;p&gt;In the 1980s and 1990s there were a few types of desktop apps that had 
++  enormous markets:&lt;/p&gt;
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;word processors -- MS Word, etc.&lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;spreadsheets -- 1-2-3, Excel, etc.&lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;databases -- FileMaker, Access, Oracle, etc.&lt;/li&gt;
++    &lt;/ul&gt;       
++
++  &lt;p&gt;Today software developers are taking those desktop apps and reinventing 
++  them as web-based collaboration tools. So far, developers have focused on 
++  the word processor feature set, resulting in wikis and Content Management 
++  Systems (CMSs).&lt;/p&gt;
++
++  &lt;p&gt;The market is still pretty much wide open for general-purpose web-based 
++  collaborative spreadsheet and database software:&lt;/p&gt;
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;word processors --&gt; wikis and CMS systems (100+ products)&lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;spreadsheets --&gt; &lt;b&gt;open opportunity&lt;/b&gt;&lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;databases --&gt; &lt;b&gt;open opportunity&lt;/b&gt;&lt;/li&gt;
++    &lt;/ul&gt;       
++
++  &lt;p&gt;OpenRecord is a product spec for a web-based collaborative database tool. 
++  OpenRecord could grow to incorporate simple spreadsheet features, as well as 
++  interactive charting and graphing features, and OLAP and pivot table 
++  features.&lt;/p&gt;
++
++  &lt;p&gt;The OpenRecord design is inspired by wiki software and sites like Wikipedia, 
++  as well as CMSs like Zope/Plone and eZ publish. The OpenRecord design also 
++  draws on ideas from outliners like Lotus Agenda and OmniOutliner, spreadsheets 
++  like Lotus Improv, and newer work like Chandler and RDF.&lt;/p&gt;
++
++
++  &lt;h2&gt;Trends and Drivers&lt;/h2&gt;
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;Broadband adoption
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;We're seeing rapid adoption of broadband in the 
++          home, both in the United States and worldwide. Five years ago it 
++          was not safe to assume that the user's computer had a continuous, 
++          reliable connection to the internet. Today it is safe to assume 
++          that hundreds of millions of users have dependable internet access. 
++          That means users no longer need to save their own content on the 
++          own computers. They can now access their own content just as quickly 
++          and reliably when it's saved somewhere on the internet. And there's 
++          talk of large-scale public projects to provide entire cities with 
++          WiFi or WiMax coverage. Broadband wireless access will become 
++          increasingly ubiquitous.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;Cheap computers
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;Five years ago a home computer cost thousands of 
++          dollars. Very few people owned more than one. Today a home computer 
++          costs $500, and in a few years a computer will cost $100. Soon there 
++          will be many people who own more than one computer, and people will 
++          frequently have access to the internet through other people's computers, 
++          at their friends houses, at the library, or at work. It will become 
++          more convenient to have your content stored on the internet than to 
++          have it stored on your own computer, because you will always have 
++          access to the internet, but you often won't be at your own computer. 
++          Additionally, it will become increasingly inconvenient (or impossible) 
++          to install desktop apps on all the computers you use. Instead, users 
++          will want to use browser-based apps that are always available on any 
++          computer.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;Browser-based apps
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;Because of the above trends, we're starting to see 
++          widespread adoption of browser-based apps that store content 
++          on the internet. Examples include Gmail, Flickr, del.icio.us, and 
++          Hotmail.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;Wiki and CMS adoption
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;We're also seeing increasing adoption of wikis and 
++          Content Management Systems, and increasing interest in development of 
++          commercial-quality wiki software (Jotspot, Wikimedia, etc.). Which 
++          suggests that the market would be receptive to an app like OpenRecord.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;DHTML and AJAX adoption
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;There's a recent widespread awakening to the 
++          potential of architectures based on DHTML and AJAX. Examples include 
++          Google Suggest, Gmail, and Yahoo's Oddpost. Development dollars will 
++          start flowing toward AJAX apps. In the next decade old-style browser 
++          apps will gradually die off, and AJAX apps will take their place.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;Web-based peer production
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;There's been a recent widespread awakening to the 
++          potential of web-based peer production. Examples include Wikipedia and 
++          Linux. But, we've only hit the tip of the iceberg. This is a great 
++          time to catch the wave, and undertake substantial new web-based peer 
++          production projects.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;Continued demand for spreadsheets and databases
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;There are still multi-billion dollar markets for 
++          databases and spreadsheets. There will continue to be demand for 
++          spreadsheets and databases for decades to come.&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++    &lt;/ul&gt;       
++
++  &lt;h2&gt;Technical Specification&lt;/h2&gt;
++
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;For more details, see: &lt;a href=&quot;spec.html&quot;&gt;the 
++      OpenRecord spec&lt;/a&gt;&lt;/li&gt;
++    &lt;/ul&gt;
++
++  &lt;h2&gt;Prototyping and Alpha Testing&lt;/h2&gt;
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;Brian Skinner has been implementing a prototype of the 
++      OpenRecord software. It only runs in Firefox, and right now (mid-March 2005) 
++      there still isn't much to see, but if you want to take a peek, visit
++      the &lt;a href=&quot;demo.html&quot;&gt;demo page&lt;/a&gt;.&lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;As an early alpha-test project, Brian Skinner hopes to 
++      build a system that lets people collaborate on figuring out criteria for 
++      choosing charities to donate money to. For more on that, see 
++      &lt;a href=&quot;<A HREF="http://openagenda.org/">http://openagenda.org/</A>&quot; rel=&quot;external&quot;&gt;the openagenda.org site&lt;/a&gt;&lt;/li&gt;
++    &lt;/ul&gt;       
++
++  &lt;h2&gt;Non-Profit Revenue Models&lt;/h2&gt;
++
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;service contracts
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;sales of service contracts to corporate or government customers&lt;/li&gt;
++          &lt;li class=&quot;detail&quot;&gt;example: in the 1990's, I think Cygnus Support had stable revenue streams based on support contracts&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;donations
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;donations from users&lt;/li&gt;
++          &lt;li class=&quot;detail&quot;&gt;example: Wikipedia is run by the non-profit Wikimedia 
++          Foundation, which has been funded exclusively through private donations&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;foundation grants
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;for example, the Shuttleworth Foundation's Open Source Funding&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;public funding
++        &lt;ul&gt;
++          &lt;li class=&quot;detail&quot;&gt;from government R&amp;D grants, or contracts to 
++          custom build particular systems that departments need&lt;/li&gt;
++        &lt;/ul&gt;
++      &lt;/li&gt;
++    &lt;/ul&gt; 
++
++  &lt;h2&gt;Zero-Revenue Models&lt;/h2&gt;
++
++    &lt;ul&gt;
++      &lt;li class=&quot;detail&quot;&gt;Another option is to simply not have any revenue source. That sounds crazy, until you look at projects like Linux and Mediawiki, which gained widespread use before having real funding.&lt;/li&gt;
++      &lt;li class=&quot;detail&quot;&gt;The real goal is for the project to deliver something that people need, and to be self-sustaining. But perhaps that can be done without money, by relying on volunteers: volunteer programmers, volunteer artists, volunteer translators, etc.&lt;/li&gt;
++    &lt;/ul&gt;    
+
+Added: trunk/web_pages/content/spec.html
+===================================================================
+--- trunk/web_pages/content/spec.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/content/spec.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,1316 @@
++&lt;h1&gt;Product Specification&lt;/h1&gt;
++
++&lt;div&gt;
++  &lt;h2&gt;Introduction&lt;/h2&gt;
++  
++  &lt;p&gt;This feature list describes a hypothetical system designed to facilitate 
++  web-based collaboration. This OpenRecord design is inspired by wiki software 
++  and sites like Wikipedia, as well as Content Management Systems (CMSs) like 
++  Zope/Plone and &lt;a href=&quot;<A HREF="http://www.ez.no/">http://www.ez.no/</A>&quot; rel=&quot;external&quot;&gt;eZ publish&lt;/a&gt;. The OpenRecord 
++  design also draws on ideas from outliners like Lotus Agenda and OmniOutliner,
++  spreadsheets like Lotus Improv, and newer work like Chandler and RDF.&lt;/p&gt;
++  
++  &lt;p&gt;OpenRecord is similar to a wiki, but with some database features added in. 
++  Wiki systems usually let you organize your content as pages of text, or pages 
++  of rich text. In OpenRecord your content is organized as a database of items, 
++  or records. Each page on an OpenRecord site can query the database to get some 
++  set of items, and those items can be displayed in an editable table, or in an 
++  outline format, or in other formats. In time, OpenRecord could grow to 
++  incorporate simple spreadsheet features, as well as interactive charting and 
++  graphing features, and OLAP and pivot table features.&lt;/p&gt;
++
++  &lt;h2&gt;Goals&lt;/h2&gt;
++  
++  &lt;ol&gt;
++    &lt;li class=&quot;detail&quot;&gt;Enable a workgroup to work in an unusually open and transparent style&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Facilitate sharing and collaboration&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Facilitate tracking of goals, tasks, and work accomplished&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Facilitate comparison and prioritization&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Facilitate categorization and structuring of content&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Make it easy to create new content without first planning how the content will be organized&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Make it easy to gradually add structure and organization to the content.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Make it easy to re-organize content in different ways, and have multiple concurrent organization schemes.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Discourage the growth of a jumbled jungle of rambling discussion&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Offer features geared more toward collecting facts and figures, 
++    rather than &lt;a href=&quot;<A HREF="http://en.wikipedia.org/wiki/Op-Ed">http://en.wikipedia.org/wiki/Op-Ed</A>&quot; rel=&quot;external&quot;&gt;&lt;abbr title=&quot;Opinion Editorial&quot;&gt;op-ed&lt;/abbr&gt;&lt;/a&gt; content&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Discourage long pure-text discussion threads (like email or IRC)&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;Facilitate the creation of valuable reference material&lt;/li&gt;
++  &lt;/ol&gt;
++  
++  &lt;h2&gt;Examples of use cases&lt;/h2&gt;
++  
++  &lt;ol&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can propose new ideas for the workgroup to consider.
++    It should be easy to do make a new proposal, perhaps by filling in
++    some simple form.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can add little scraps of new information about a
++    proposal that was previously suggested. For example, if one person proposes
++    that the group lease equipment from a certain vendor, but doesn't give the URL 
++    for the vendor's website, another person
++    can come along later and fill in the missing information.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;A site might provide a small database of interesting products,
++    or companies, or non-profit organizations.  Each entry could include lots of 
++    little details we might want to keep track of, like links to the external
++    websites, or the tax id number of the organization.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can add to the list of things to keep track of about
++    an organization. For example, somebody might create a new field for keeping track of 
++    when each organization was founded, and then other people can fill in the value
++    for that field for each new organization, and people can go back and fill
++    in that information for previously listed organizations.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can fill out surveys, and the site can gather the
++    and display the results.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can create new surveys covering 
++    different topics, like what countries the organization operates in, or what
++    their affirmative action and employment practices are, or what their
++    fundraising practices and organizational overhead rates are.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can create new &quot;scorecards&quot;, which give scores to
++    different organizations based on the answers to questions on different surveys.
++    (Or perhaps some other sort of tools geared toward quantitative evaluation?)&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can look at lists of organizations and see how they 
++    scored on scorecards.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can contribute to cost-benefit estimates based on 
++    knowledge about the work the organizations do.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can see accounting records about how the group
++    is using its money.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can see a record of all the email sent and received
++    by the project.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can see simple charts and graphs, generated from
++    whatever quantitative info we have on record, like the annual budgets of 
++    different organizations, or how much money the project spent
++    this year compared to the last 2 years.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can disagree with each other, with having to argue
++    about it. Two people can have different answers to the same question, and the
++    system can record both answers, and show both answers to anybody who asks.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can propose new ideas. People might propose new ways
++    of running the site, or new sections the site should include, or a new ways for
++    selecting what work to do.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can comment on proposals, and list pros and cons, and 
++    add suggested amendments or refinements.&lt;/li&gt;
++    &lt;li class=&quot;detail&quot;&gt;People can vote for or against proposals, or somehow rate 
++    or rank the proposals.&lt;/li&gt;
++  &lt;/ol&gt;
++  
++  &lt;h2&gt;Features&lt;/h2&gt;
++
++  &lt;ul&gt;
++    &lt;li class=&quot;primary&quot;&gt;Priority 1 features
++      &lt;ol&gt;
++        &lt;li class=&quot;detail&quot;&gt;No invisible content
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;All the content on the site should be visible to the public.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Anybody can browse the site without logging in, and they can see all the content.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;All of the content should be viewable to anyone who 
++            browses to the site. All content available to account holders should 
++            also be available to the general public.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;        
++        &lt;li class=&quot;detail&quot;&gt;No anonymous content
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Nobody should be able to anonymously add content to the site.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;In order to add content, you first have to create an account
++            for yourself.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Exception: it might be fine to let anonymous visitors make
++            very minor contributions. For example, we might let people fix small typos,
++            or click on checkboxes to place votes or categorize content. But we should
++            draw the line at entering new content.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each piece of content is attributable to some particular user.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;        
++        &lt;li class=&quot;detail&quot;&gt;No decaying content
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;All content should be permanent.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be impossible to delete content, or to make 
++            content invisible. All content should be reachable through the navigation
++            menus, without having to know a secret URL.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible to &quot;retract&quot; content, if it is
++            obsolete or incorrect or offensive. You should be able to retract content
++            by marking it as retracted. The retracted content is not deleted, and is
++            still publicly available, but it is clearly labeled as retracted.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;        
++        &lt;li class=&quot;detail&quot;&gt;Free accounts for everyone
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Anyone should be able to create an new account for themselves.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Creating a new login account should take a minute or less.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;You should be required to provide your real name and a valid email address. 
++            We should not allow for anonymous or pseudononymous accounts.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;We should require that each account name be the user's real name.
++            My account name should be &quot;Brian Douglas Skinner&quot;, not something more fun or more
++            cryptic like &quot;brian&quot; or &quot;bskinner&quot; or &quot;papabear&quot;.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;In order to get your account, you must agree not to 
++            post content that is protected by copyright or intellectual property law.
++            You will need to agree that by posting content you are dedicating it 
++            to the public domain under the terms of the Creative Commons Public Domain Dedication. 
++            As a result, all content is publicly available for reuse and repurposing &mdash; content
++            is never left in some sort of legal limbo where we don't know who created it
++            or how to reach them.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;Once you have a login account, you can sign up for a 
++            &quot;transparent email account&quot; with an address <A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">firstname.lastname at openagenda.org.</A>&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;Once you have a login account, you can create any kind of content,
++            and do anything that anyone else can.&lt;/li&gt; 
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Change logs
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Change logs should be readily available.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;For example, say some piece of content was created a year ago, 
++            and since then has been changed a dozen times.  By default I should see the
++            most recent version of the content, but the version number should be visible with it,
++            and there should be a link (or links) that allow me to see the original version
++            or any of the intermediate versions. I should also be able to see when each 
++            change was made, and who made the change.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;        
++        &lt;li class=&quot;detail&quot;&gt;Standard formats
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;All the web pages should be delivered in a small number of standard formats.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;XHTML and CSS should be the norm for every page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Some pages might also use JavaScript.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Some pages might also include .gif or .png or .jpeg images.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Everything is stored in Unicode.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;No pages should use Flash or ActiveX.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;No content should be in .doc or .xls attachments.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;        
++        &lt;li class=&quot;detail&quot;&gt;Navigation bar
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;There should be a nav bar available on every page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;From the nav bar, it should be possible to get to every page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible to expand or collapse parts 
++            of the nav bar, to focus on just what you care about and get rid of visual clutter.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Items and attributes
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;When users create content, they're creating items. 
++            Every piece of new content is a new item. The back-end data store simply
++            stores a big jumble of undifferentiated items.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Every item can have a &quot;Name&quot;, a &quot;Summary&quot;, and a &quot;Body&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Users can make up new attributes to add to an item. &mdash; For 
++            example, I can add a &quot;Phone number&quot; attribute to the item representing
++            Amnesty International.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Any attribute can have more than one value. &mdash; For
++            example, I can put three different phone numbers into the &quot;phone number&quot; attribute
++            for Amnesty International. Or I can put one phone number in the attribute, and you 
++            can put a different phone number there without erasing what I put.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;An attribute can have a suggested data type. &mdash; For
++            example, the &quot;Name&quot; attribute would have a suggested data type of &quot;String&quot;,
++            while a &quot;Annual budget&quot; attribute would have a suggested data type of &quot;Money&quot;.
++            Any attribute can be assigned any type of value, regardless of what the
++            suggested data type is. &quot;Annual budget&quot; may have a suggested data type of &quot;Money&quot;,
++            but you're still free to put in a string value like &quot;Too little!&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Attributes can have a literal values (like numbers, or dates, or
++            text strings), and they can also have values that are references to items. For 
++            example, the item representing the book &quot;The Hobbit&quot; might have an attribute
++            called &quot;Author&quot;, which could contain a simple text string like 
++            &quot;J.R.R. Tolkien&quot;, or which could instead contain a reference to an item
++            representing Tolkien. The Tolkien item could have its own attributes, like
++            data of birth. All references between items are automatically bi-directional,
++            so when you take the item &quot;The Hobbit&quot; and set its &quot;Author&quot; attribute to
++            point to the &quot;Tolkien&quot; item, the system automatically sets an inverse attribute
++            on the &quot;Tolkien&quot; item to point back to &quot;The Hobbit&quot;. You can think of these
++            automatic inverse attributes as &quot;of/by/for&quot; attributes  &mdash; &quot;The Hobbit&quot;
++            has an &quot;Author&quot; set to &quot;Tolkien&quot;, and inversely, &quot;Tolkien&quot; is the &quot;Author of/by/for&quot;
++            &quot;The Hobbit&quot;. An employee item has a &quot;Department&quot; attribute, and the related
++            department item is the &quot;Department of/by/for&quot; that employee.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be a two-click operation to take any attribute 
++            value that's a string literal and turn it into a new item.  If the item
++            &quot;The Hobbit&quot; has an &quot;Author&quot; attribute containing the string &quot;J.R.R. Tolkien&quot;,
++            you should be able to click on &quot;J.R.R. Tolkien&quot; and do some command called
++            &quot;make this into an item&quot;. The command should create a new item which has
++            a &quot;Name&quot; attribute set to &quot;J.R.R. Tolkien&quot;, and the &quot;Author&quot; attribute of
++            &quot;The Hobbit&quot; should now point to the new item.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each attribute is itself an item, with attributes
++            like &quot;Name&quot;, &quot;Summary&quot;, and &quot;Suggested data type&quot;. Users can add other 
++            attributes to an attribute item, and put the attribute item in categories, and so on.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Every item can have a &quot;Start Date&quot; and &quot;End Date&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Every attribute value can have a &quot;Start Date&quot;, &quot;End Date&quot;, and &quot;Source&quot;.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Items and kinds
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Items do not inherently have a class or kind.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Items can be assigned to kinds. &mdash; For example, I
++            can make my Amnesty International item be of the kind &quot;Charity&quot;&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;An item can be assigned to more than one kind.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Users can create new kinds.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each kind can have a list of suggested attributes.
++            For example, the kind &quot;Book&quot; might have suggested attributes like &quot;Title&quot;
++            and &quot;Author&quot;. When a user creates a new item of that kind, the entry form  
++            for the item will include fields for all the suggested attributes associated with 
++            the kind.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Users can make up new attributes and add them
++            to the list of suggested attributes for a kind.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Any item can serve as a kind, and any item can be 
++            assigned to be an instance of some kind, or an instance of some any 
++            other item. There is no distinction between Classes and Objects, or 
++            in our vocabulary, between Kinds and Items. This is a &quot;Prototype-based&quot; 
++            system rather than a &quot;Class-based&quot; system. For example, a there could 
++            be items like &quot;Dog&quot; and &quot;Cat&quot;, which are of kind &quot;Animal&quot;. So, you 
++            could say that &quot;Dog&quot; and &quot;Cat&quot; are instances of &quot;Animal&quot;. &quot;Animal&quot; 
++            could have suggested attributes like &quot;hasTail&quot; and &quot;isCarnivore&quot;, 
++            and &quot;Dog&quot; and &quot;Cat&quot; would have values for those attributes. 
++            But then &quot;Fido&quot; and &quot;Snoopy&quot; could be of kind &quot;Dog&quot;, so that you 
++            could say that &quot;Fido&quot; and &quot;Snoopy&quot; are instances of &quot;Dog&quot;, while &quot;Dog&quot; 
++            in turn is an instance &quot;Animal&quot;. If &quot;Snoopy&quot; is an instance of &quot;Dog&quot;, 
++            it is therefore an instance of &quot;Animal&quot; as well. &quot;Snoopy&quot; might be 
++            also be both a &quot;Dog&quot; and a &quot;Cartoon Character&quot;, because we allow
++            an item to be assigned to more than one kind.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Items and categories
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Users can create new categories, and put items
++            in categories. &mdash; For example, I can create categories called
++            &quot;Fiction&quot; and &quot;Non-fiction&quot;, and I can put some books in fiction and
++            others in non-fiction. [PENDING: Maybe consider using the term &quot;tag&quot; instead
++            of &quot;category&quot;, on the theory that it's shorter and less intimidating
++            and more likely to give people the sense that an item can have more 
++            than one tag? The downside is that &quot;tag&quot; maybe suggests something that's just
++            a word, not something that might itself have a description and other attributes.]&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;When a user looks at a category, they can see
++            a list of all the items in that category.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;When a user looks at an item, they can see all
++            the categories that item is assigned to.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each category is itself an item, with standard attributes
++            like &quot;Name&quot; and &quot;Summary&quot;. Users can add other attributes to the item,
++            and assign the item to a kind. &mdash; For example, I might create an 
++            item called &quot;Kenya&quot;, which is of kind &quot;Country&quot;. &quot;Country&quot; has suggested 
++            attributes like &quot;Population&quot; and &quot;GDP&quot;. I can create an item called
++            &quot;Africa&quot;, which is of kind &quot;Region&quot;. I can assign &quot;Kenya&quot; to the 
++            &quot;Africa&quot; category.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Categories can be structured into a hierarchy. [PENDING: how?]&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Different users can create their own categorization schemes.
++            I might categorize &quot;Atlas Shrugged&quot; as &quot;Good&quot;, while you categorize it as
++            &quot;Polemic&quot;. That's fine. We can look at each other's categorizations if 
++            we want to, but we're not forced to.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt; [PENDING: Is a kind maybe just a sort category that
++            categorizes attributes? For example, the &quot;Author&quot; attribute belongs to
++            the category &quot;Book&quot;. Book is a kind simply because it has some attributes
++            that have it assigned as a category?]&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Items and pages
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;There should be a clear and rigidly enforced separation 
++            between content and presentation. Content consists of items, attributes,
++            categories, and kinds. Presentation consists of pages, layouts, and sections.
++            Both the content and the presentation are kept in some form of structured 
++            data store, like an XML file tree, or an RDF database, or a relational 
++            database, or a Chandler repository.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Editing items
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;When a user edits an existing item, or creates a 
++            new item, all the editing is done in some kind of structured form. Each
++            attribute of the item is edited in a separate field. The editing UI
++            is more like a spreadsheet than word processor &mdash; more like an
++            order form than a wiki page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;All editing is done &quot;in line&quot;, on the same page
++            the content is being viewed. Unlike a wiki, you don't have to press 
++            an &quot;edit&quot; button, and you don't have to go to a separate page to 
++            start editing. To edit, you just click on some text and start typing.
++            The tool should have a WYSIWYG feel, like a word processor. To
++            play with an example and see how this should feel, check out
++            &lt;a href=&quot;<A HREF="http://gumption.org/openchart/experiments/book_form/book_form.html">http://gumption.org/openchart/experiments/book_form/book_form.html</A>&quot; rel=&quot;external&quot;&gt;the Hobbit, a click-to-edit example page&lt;/a&gt;.
++            &lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;We do not offer any kind of wiki-style mark-up, even
++            for items that have large text bodies. Structure is never encoded in
++            text. If you want something to appear as a list of bullet points, those
++            bullet point line-items are really separate items, not a wiki-style applied to 
++            plain text. The UI makes it easy to create a list of items all at once.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Editing layouts
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;In addition to editing content items themselves,
++            users can also edit the layout of the pages that contain the items. For example,
++            let's say you're looking at a page that has a big table on it, where
++            each row in the table has an entry for a Book &mdash; there's one 
++            row for &quot;The Hobbit&quot;, and another for &quot;The Wisdom of Crowds&quot;, and so
++            on. Each column of the table is for some attribute, like &quot;Title&quot; or
++            &quot;Author&quot;. To edit a content item, you could click on &quot;The Hobbit&quot;, 
++            and type in some different text. But you could also edit the layout of the page itself, 
++            rather than an item on the page. For example, you might want to add
++            a new column to the table, or change the width of an existing column,
++            or change the table to be sorted by &quot;Author&quot; instead of &quot;Title&quot;.
++            To play with an example of a JavaScript widget that allows this sort 
++            of editing, check out 
++            &lt;a href=&quot;<A HREF="http://www.activewidgets.com/grid/">http://www.activewidgets.com/grid/</A>&quot; rel=&quot;external&quot;&gt;the ActiveWidgets Grid widget&lt;/a&gt;.
++            &lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Sometimes the user will want to save the changes 
++            that they make to the page layout, and other times they won't. We
++            need to support both types of use, but it may be tricky to know when
++            to save and when not to. We could automatically save every layout change,
++            but then when I'm just casually poking around a page I might inadvertently 
++            mess up the layout that you carefully arranged. Alternatively, we could 
++            generally refrain from saving layout changes, and only save them when
++            the user explicitly hits a &quot;save layout&quot; button. In either case, we'll
++            want to have some way to let the user do a &quot;save as...&quot;, or somehow
++            &quot;copy&quot; or &quot;clone&quot; the entire page and create a new page showing the same
++            content. Both the new page and the old page may continue to show the 
++            same content items for years to come, but one might evolve to have a summary-view style
++            layout, where the other might be a detail-view that shows all the attributes
++            of every content item.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be easy for a user to grab the URL of the
++            page that they're currently looking at, where that URL represents the 
++            page exactly as they're current looking at it, with all of the layout
++            options set just as they are now. If I'm looking at a page that I've just sorted
++            and arranged to show some key point, I should be able to easily send you
++            the URL so that you can see what I see. For a great example of this, 
++            check out &lt;a href=&quot;<A HREF="http://www.klynch.com/apps/flashlinking/index.html#id=1">http://www.klynch.com/apps/flashlinking/index.html#id=1</A>&quot; rel=&quot;external&quot;&gt;Kevin Lynch's demonstration of Stateful Linking to Rich Internet Applications&lt;/a&gt;.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Pages and sections
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each page is defined by a page layout. A page layout 
++            it just a list of sections that appear on the page. The first section
++            appears at the top of the page, the next section below it, and so on. 
++            There's nothing fancy with multiple columns or text flowing around images
++            or anything like that.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;What a section looks like depends on two things:
++            what items appear in the section, and what type of section it is. Initially,
++            we'll probably want to have just a few types of section: probably table
++            sections, item detail sections, and outline sections.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;A table section would just show a simple table of 
++            items and their attributes, like the table of books on 
++            &lt;a href=&quot;<A HREF="http://gumption.org/openchart/experiments/book_form/book_form.html">http://gumption.org/openchart/experiments/book_form/book_form.html</A>&quot; rel=&quot;external&quot;&gt;the Hobbit example page&lt;/a&gt;.
++            Each table section would have a list telling it what attributes should
++            appear as column headers, and in what order. The table section would also have
++            a list telling it what columns to sort on, and the table section would 
++            know how wide each column should be, and so on.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;An outline section would show a bullet-point list of items,
++            arranged in a hierarchy, like the lists on this page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;An item detail section would show the attributes
++            of a single item, with each item on a separate line. An item detail
++            section might show all of the attributes of the item, or might show
++            only a subset of the attributes, depending on how the section is 
++            configured.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each section has some sort of &quot;content list&quot; that
++            determines what items appear in the section. The content list for a
++            detail section would simply list a single specific item. The content
++            list for a table section might specify &quot;all the Book items in the
++            category Fiction&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible to set up a content list so
++            that it in effect pre-screens the content to show just the items that 
++            you yourself have created. For example, you might want to see the list 
++            of all the charities that you have nominated, rather than all the charities 
++            that anyone has nominated.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Transclusion is a first class feature. A page doesn't 
++            &quot;own&quot; the items that appear on it. Items exist in their own right, and
++            can appear on lots of different pages at once. An item still exists even
++            if it doesn't currently appear on any pages. This is fundamentally different from
++            how wikis work, or how word processors work, where the page does own
++            all of the content on the page.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Raw item pages
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each page has its own URL, and each page may display
++            one or more items, depending on what sections the page layout includes.
++            Independent of pages their URLs, each item has it's own URL, pointing
++            to a raw item page. A raw item page shows item detail information for
++            all of the attributes of the item. The attributes of the item can 
++            be edited, but unlike with normal pages, on the raw item pages the 
++            layout of the page is not editable.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Access permissions
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;There is no access permission model. All items are 
++            editable by anyone. Nobody ever &quot;owns&quot; an item or a page.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Clean UI
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;There should be no modal dialog boxes.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;There should be no menus or dialog boxes to &quot;Save&quot; 
++            or &quot;Open&quot; files. All content should be automatically saved.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;You should be able to do common tasks in just a few 
++            clicks. (As we're putting together the software we should keep records
++            about how many clicks it takes to do things, and we should work to keep 
++            breaking past records. In version 0.1 you could create an item in 2 clicks,
++            but in version 0.2 you can create an item in 1 click!)&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The visual design is simple and clean &mdash; a start page 
++            like &lt;a href=&quot;<A HREF="http://google.com/">http://google.com/</A>&quot; rel=&quot;external&quot;&gt;Google&lt;/a&gt;, 
++            not &lt;a href=&quot;<A HREF="http://yahoo.com/">http://yahoo.com/</A>&quot; rel=&quot;external&quot;&gt;Yahoo&lt;/a&gt; &mdash; 
++            colors like &lt;a href=&quot;<A HREF="http://plone.org/">http://plone.org/</A>&quot; rel=&quot;external&quot;&gt;Plone&lt;/a&gt;, 
++            not &lt;a href=&quot;<A HREF="http://frontier.userland.com/">http://frontier.userland.com/</A>&quot; rel=&quot;external&quot;&gt;Userland&lt;/a&gt;&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;We should have undo and redo features. (If we wanted,
++            it would be easy to implement a rollback feature that would allow the 
++            entire site to be rolled back to some earlier point in time. Or a &quot;window into
++            the past&quot; feature, that allows a user to look at the site exactly as 
++            it appeared at some earlier date.)&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Built-in data structures
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;The software infrastructure should have some kinds of 
++            items available as built-in primitives, including:&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;User Account&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Person &mdash; not necessarily a User&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Mail message&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Link (name, URL, internal/external)&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Page&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;View&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Picture&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Category/Collection&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Attribute/Value&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Comment&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Date &mdash; including Timestamp (with date and time), Date (with no time), and Year (with no month or day)&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;User-created data structures
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible for end-users to create new kinds of 
++            items, and create new items of those kinds, like:&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Charity&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Country&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Proposal&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Donation &mdash; $1,000 to PATH on May 5, 2006&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Goal/Task&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Weekly status report&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;FAQ entry&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Glossary entry&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Op-ed&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Properties and units of measure &mdash; DALYs, dollars, etc.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Variable being measured &mdash; total budget, number of members, etc.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Vote/Rating&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Content export and tool migration
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;We should not be &quot;locked in&quot; to a particular software toolset.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible to export the content into 
++            simple, standard formats, like XML or comma-delimited text files.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Ideally, the content should be automatically exported
++            all the time, so that there's always a current version of the export file
++            on hand.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Five years from now, it should be feasible 
++            to port all of the content into some new content management system.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Names and identity
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Underneath the covers, each item has a unique
++            identifier, but users never see those identifiers.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Items can have names, but the names do not serve
++            as identifiers.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;An item does not have to have a name.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Names do not have to be unique. A user could 
++            create two separate items, each named &quot;The Hobbit&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;A single item may have more than one name. Different
++            users can assign different values to the &quot;Name&quot; attribute, or a single
++            user could assign more than one value. A charity might have the name 
++            &quot;Doctors Without Borders&quot; and also the name &quot;Medecins Sans Frontieres&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Whenever an item has any kind of relationship or 
++            interaction with another item, the items keep track of each other based
++            on their identifiers, not their names. This is true for everything
++            in the system: keeping track of what kind an item is assigned to, 
++            what categories an item is in, what attributes an item has, what
++            attributes a derivation rule refers to, etc.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;URLs
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Each piece of content has a unique URL.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;All URLs are permanent. No URLs ever go stale or 
++            result in 404 errors. A URL always addresses the same piece of content
++            for its entire life.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The URLs should not disclose any information about 
++            what software products are serving the content. The URLs should not
++            include strings like &quot;.php&quot; or &quot;.asp&quot;&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The URLs should be as short as possible. Ideally 
++            they should all be less than 60 or 80 characters long.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The URLs should not include names or descriptions of 
++            the content that's available at the URL. For example, URLs should not
++            include strings like &quot;Mail&quot;, &quot;Money&quot;, &quot;People&quot;, or &quot;Brian&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The URLs should not include any information about
++            how the content is organized in the navigation hierarchy, or about 
++            how the content is categorized in any taxonomies used on the website.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Examples of good URLs:
++              &lt;ul&gt;
++                &lt;li class=&quot;detail&quot;&gt;<A HREF="http://openagenda.org/page.html?id=38762904&lt;/li">http://openagenda.org/page.html?id=38762904&lt;/li</A>&gt;
++                &lt;li class=&quot;detail&quot;&gt;<A HREF="http://openagenda.org/page?id=38762904&lt;/li">http://openagenda.org/page?id=38762904&lt;/li</A>&gt;
++                &lt;li class=&quot;detail&quot;&gt;<A HREF="http://openagenda.org/page.html#38762904&lt;/li">http://openagenda.org/page.html#38762904&lt;/li</A>&gt;
++                &lt;li class=&quot;detail&quot;&gt;<A HREF="http://openagenda.org/page_38762904.html&lt;/li">http://openagenda.org/page_38762904.html&lt;/li</A>&gt;
++              &lt;/ul&gt;
++            &lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Examples of bad URLs:
++              &lt;ul&gt;
++                &lt;li class=&quot;detail&quot;&gt;<A HREF="http://plone.org/documentation/archetypes/quickref#requirements&lt;/li">http://plone.org/documentation/archetypes/quickref#requirements&lt;/li</A>&gt;
++                &lt;li class=&quot;detail&quot;&gt;<A HREF="http://example.org/foo/index.php/iggy/content/view/full/45&lt;/li">http://example.org/foo/index.php/iggy/content/view/full/45&lt;/li</A>&gt;
++              &lt;/ul&gt;
++            &lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Free, and supported
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Here's one key feature we're looking for in the software that 
++            we use to run the site &mdash; we'd like it to be free, as in free beer.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;We'd also like to know that it will continue to be free
++            for years to come, which suggests that we might to look for software that's
++            available under an open source license, like &lt;a href=&quot;<A HREF="http://www.ez.no/">http://www.ez.no/</A>&quot; rel=&quot;external&quot;&gt;eZ publish&lt;/a&gt;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Lastly, we'd like the software we use to end up being
++            active supported for years to come. We'd like to use software that has
++            a thriving ecosystem of customers and developers and companies offering
++            support services. That suggests not trying to cobble something together
++            from scratch, unless you're extremely optimistic about the software
++            gaining widespread popularity and leading to a thriving community.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Search engine indexing
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;We need to make sure that search engines like
++            Google are able to index all the &quot;virtual&quot; pages that OpenRecord 
++            serves.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++      &lt;/ol&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;primary&quot;&gt;Priority 2 features
++      &lt;ol&gt;
++        &lt;li class=&quot;detail&quot;&gt;Transparent email 
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Any user should be able to have a &quot;transparent email account&quot;.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;That user should be the only person who can send mail from the e-mail account.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be set up so that all copies of all the 
++            messages that user sends are automatically posted on the website.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;Similarly, copies of all the messages the user receives 
++            should be automatically posted to the website.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;People sending mail to the account will need to 
++            know in advance that their messages will be posted publicly, and we 
++            need to make sure they're okay with that. As a safety check, we could 
++            require that the first line of each message be a consent statement, 
++            like &quot;I hereby dedicate the following message to the public domain,
++            under the terms of the Creative Commons Public Domain Dedication, as
++            described on the page <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;.
++            If that line is missing, we might automatically bounce the message, 
++            and/or send a reply explaining the problem and offering an alternate
++            email address for private messages.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The email messages should be first-class items, 
++            that can be categorized and annotated just like other items.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;We might want to automatically bounce any message
++            that has an attachment, rather than try to figure out how to post
++            attachments with messages. Also, attachments are likely to be in 
++            proprietary file formats, like .doc and .xls, which we'd rather not
++            have content stored in.&lt;/li&gt; 
++            &lt;li class=&quot;detail&quot;&gt;We could also think about only accepting plain text
++            messages, and automatically bouncing messages sent in rich text or HTML,
++            if that makes our lives easier. Or, we could accept HTML mail, but then 
++            ignore the formatting info and treat the message as plain text.&lt;/li&gt; 
++          &lt;/ul&gt;
++        &lt;/li&gt;
++      &lt;/ol&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;primary&quot;&gt;Priority 3 features
++      &lt;ol&gt;
++        &lt;li class=&quot;detail&quot;&gt;Photos
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible for account-holders to post photos to the site.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Subscriptions
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;It should be possible to subscribe to all or part of the site.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Anybody should be able to subscribe to RSS feeds generated by the site.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Anybody should be able to subscribe to email mailing list feeds generated by the site.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Ideally, anything that's available for RSS subscription 
++            should also be available for mailing list subscription, and vice versa.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;You should be able to subscribe to a feed that includes 
++            all new content posted to the site and all changes made to existing content.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;You should be able to subscribe to specific portions of the site, such as
++              &lt;ul&gt;
++                &lt;li class=&quot;detail&quot;&gt;All the outgoing email messages sent by Brian Skinner.&lt;/li&gt;
++                &lt;li class=&quot;detail&quot;&gt;All the outgoing email messages sent by anyone.&lt;/li&gt;
++                &lt;li class=&quot;detail&quot;&gt;All the changes to the list of proposals.&lt;/li&gt;
++                &lt;li class=&quot;detail&quot;&gt;All the changes to the one proposal my friend wrote.&lt;/li&gt;
++                &lt;li class=&quot;detail&quot;&gt;All the changes to any charity on the list of charities.&lt;/li&gt;
++                &lt;li class=&quot;detail&quot;&gt;All the changes to the records relating to the charity I work for.&lt;/li&gt;
++              &lt;/ul&gt;
++            &lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Live updates
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;When you're looking at a page, and an item appear
++            in more than one place on the page, if you make a change to the item
++            in one place, the item will automatically be updated everywhere
++            else it appears on the page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;When you're looking at a page, and another user makes
++            a change to one of the items shown on the page, the item on your page
++            is automatically updated to reflect the change.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Similarly, if you have two browser windows open,
++            each looking at a different page, if you change an item on one page
++            the change will automatically propagate to the second page.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;(This feature may sound wildly ambitious to experienced
++            engineers, but is actually not too hard implement. The page being viewed
++            just has some simple JavaScript code that polls the server once a minute
++            or so, requesting a list of changes. The server replies with the list of
++            changes, and the JavaScript code on the client updates the page. More
++            details can be found in  
++            &lt;a href=&quot;<A HREF="http://wiki.osafoundation.org/bin/view/Jungle/ObservableQueries">http://wiki.osafoundation.org/bin/view/Jungle/ObservableQueries</A>&quot; rel=&quot;external&quot;&gt;my 
++            2003 paper about Observable Queries&lt;/a&gt;.)&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Additional types of sections
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Pivot table sections &mdash; support for taking
++            a collection of items and rendering them in a pivot table.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Bar chart sections &mdash; support for taking
++            a collection of items and rendering them as a bar chart.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Scatter plot sections &mdash; support for taking
++            a collection of items and rendering them as a scatter plot.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Derived attributes
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Users can assign simple derivation rules to attributes.
++            For example, for an attribute called &quot;Per capita GDP&quot;, I could create
++            a derivation rule that says that &quot;Per capita GDP&quot; for this item is 
++            equal to &quot;GDP&quot; divided by &quot;Population&quot;. &lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The derivation rules may be presented to the user
++            as simple text strings like &quot;[Per capita GDP] = [GDP] / [Population]&quot;, but
++            the derivation rules are not stored as simple text strings. Instead,
++            the derivation rules are stored using item pointers for the attribute
++            references. If another user changes the name of the &quot;Population&quot; attribute
++            to read &quot;Total population&quot;, that change will not break the rule, and 
++            the next time you view the rule it will appear as &quot;[Per capita GDP] = 
++            [GDP] / [Total Population]&quot;&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;A derivation rule will only arrive at an answer
++            if the referenced attributes have values that are of compatible types.
++            The rule &quot;[Per capita GDP] = [GDP] / [Population]&quot; will work if 
++            &quot;GDP&quot; and &quot;Population&quot; have number values, but if one of them has
++            a string value, then the rule will quietly give up without raising a fuss.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Even attributes without derivation rules can have 
++            more than one value, and an attribute with a derivation rule can have
++            both a derived value and one or more user-assigned values.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;A derivation rule might be used to populate an 
++            attribute with values retrieved by traversing references to other items.
++            For example, for an item that represents a person, I might create a 
++            derivation rule like &quot;[Cousins] = [Parents].[Siblings].[Children]&quot;,
++            to say that a person's cousins is the set of all the children of the 
++            siblings of the parent of the person.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Accessibility
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;The graphical styles respect default settings for 
++            fonts and colors in the user's browser, and conform to accessibility 
++            requirements.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;The generated web pages follow commons accessibility 
++            guidelines, such as the United States Section 508 Guidelines, or the 
++            W3C's Web Content Accessibility Guidelines.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;On-line help
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;On-line help should be available.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Help pages are just normal pages, built out of sections and items.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Client platforms
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;The DHTML pages generated by the site should work 
++            in at least the 2 or 3 most popular browsers on each of the 3 major
++            platforms: Windows, Linux, and the Mac. We probably don't need to 
++            support older browsers, but we should support the versions of
++            IE, Firefox, and Safari that are recent enough to still have a 
++            substantial installed base.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Scalability
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;The system should scale up to handle small workgroups,
++            with maybe a few hundred user accounts, maybe a couple dozen people browsing
++            through pages at any given time, and maybe handful of people editing pages.&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Caching?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Load balancing?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Data store replication?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Polyglot items, internationalization, and localization
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Polyglot strings, and polyglot items &mdash; see 
++            &lt;a href=&quot;<A HREF="http://lists.osafoundation.org/pipermail/dev/2003-June/000690.html">http://lists.osafoundation.org/pipermail/dev/2003-June/000690.html</A>&quot; rel=&quot;external&quot;&gt;my 2003 
++            Chandler email message describing polyglot strings and localization&lt;/a&gt;&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Internationalization and localization, built using
++            polyglot strings, and polyglot items&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++      &lt;/ol&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;primary&quot;&gt;Lower priority features
++      &lt;ol&gt;
++        &lt;li class=&quot;detail&quot;&gt;Content rating
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe some sort of features geared towards letting user give
++            ratings or rankings to content, so that the group can collaboratively
++            sift through everything and have the good stuff rise to the top?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe some sort of features for making your own annotations
++            on items or attributes that other people created, so that you can keep 
++            track of what to build on and what to ignore &mdash; maybe tools for 
++            marking content as to whether you &quot;affirm&quot; it or &quot;question&quot; it.?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;...?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Search tools
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe a simple search box in the corner of every page?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe a separate page for doing more complicated searches?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe brute-force full-text searching? Full-text indexing?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Skins/Themes
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe end users can create new CSS style sheets and save them to the server?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe end users can pick which style sheet to use with a given page?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe each end user can each have their own default style 
++            sheet &mdash; we look at the same page, but I see blue text and you see red?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Security
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;SSL support?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Audit trails?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Kerberos?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Certificates?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Installers&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Submissions
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe workflow features that allow people to create proposed items,
++            and then submit those items for approval?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe workflow features that support the idea of &quot;draft&quot; status
++            vs. &quot;published&quot; status?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Spell checking&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Scripting
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe end-user scripting?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe user defined macros?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe filters?&lt;/li&gt;
++            &lt;li class=&quot;detail&quot;&gt;Maybe rules for automatic categorization?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Text recognition &mdash; &quot;next Tuesday&quot;, or &quot;call Joe&quot;&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Interoperability
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Interoperability with what? RDF, WebDAV, FTP, UTF-8?&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Peer-to-peer servers
++          &lt;ul&gt;
++            &lt;li class=&quot;detail&quot;&gt;Anybody can install this OpenRecord server software 
++            on their apache server, and then point it at a list of other known OpenRecord
++            servers. All the OpenRecord servers can query each other periodically to 
++            stay up to date on the latest changes made on each server, so that all
++            the servers are roughly in sync. All the content remains available and 
++            in the public domain, even if any one server goes down unexpectedly, and
++            even if a server is suddenly taken off-line permanently (think government 
++            coup, or police raid, or corporate bankruptcy). The data is out in the
++            ether, not locked into any one data store on any one server.&lt;/li&gt;
++          &lt;/ul&gt;
++        &lt;/li&gt;
++      &lt;/ol&gt;
++    &lt;/li&gt;
++    &lt;li class=&quot;primary&quot;&gt;Features that aren't part of what I have in mind 
++      &lt;ol&gt;
++        &lt;li class=&quot;detail&quot;&gt;Blog features&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Chat features&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Discussion forums&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;E-commerce features&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Calendar views&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Email compose and send tools&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;File attachments&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Advertising management&lt;/li&gt;
++        &lt;li class=&quot;detail&quot;&gt;Publishing approval workflows&lt;/li&gt;
++      &lt;/ol&gt;
++    &lt;/li&gt;
++  &lt;/ul&gt;
++      
++  &lt;h2&gt;Staged Implementation Roadmap&lt;/h2&gt;
++
++  &lt;p&gt;Should we decide to build our own software infrastructure &quot;from scratch&quot;, 
++  rather than using an existing product like &lt;a href=&quot;<A HREF="http://www.ez.no/">http://www.ez.no/</A>&quot; rel=&quot;external&quot;&gt;eZ publish&lt;/a&gt;, we will want to build 
++  out in stages. Here's are some initial thoughts about how to sequence the stages.&lt;/p&gt;
++
++  &lt;table class=&quot;simple_table&quot;&gt;
++    &lt;tr&gt;
++      &lt;th rowspan=&quot;2&quot;&gt;Feature Set&lt;/th&gt;
++      &lt;th colspan=&quot;10&quot;&gt;Milestone&lt;/th&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;th&gt;0.1&lt;br/&gt;(minimal kernel)&lt;/th&gt;
++      &lt;th&gt;0.2&lt;/th&gt;
++      &lt;th&gt;0.3&lt;/th&gt;
++      &lt;th&gt;.4&lt;/th&gt;
++      &lt;th&gt;.5&lt;/th&gt;
++      &lt;th&gt;.6&lt;/th&gt;
++      &lt;th&gt;.7&lt;/th&gt;
++      &lt;th&gt;.8&lt;/th&gt;
++      &lt;th&gt;.9&lt;/th&gt;
++      &lt;th&gt;1.0&lt;/th&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Account creation&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; demo accounts are hard-coded&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;?&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;?&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;?&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;?&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;?&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;?&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; people can create accounts for themselves&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Authentication&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; you can edit without logging in&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; users can log in&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Scalability&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; if two people edit, the system crashes&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; only one user can be logged in at a time&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; a few users can be logged in at a time&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Data store&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; dead-simple single-file plain-text &quot;data store&quot;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; dead-simple single-file plain-text &quot;data store&quot;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; safe and reliable&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Clean UI&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; we do good UI design from day one&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;URLs&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; we do good URL design from day one&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Items&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; everything is an item&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Attributes&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; any attribute can have more than one value &mdash; attributes are items too&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Data types&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; an attribute can have a suggested data type&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Kinds&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; items can be assigned to kinds &mdash; any item can serve as a kind&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Categories&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; items can be put in categories&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Pages and sections&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; support for table sections and detail sections&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; support for outline sections&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Editing items&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; items can be edited&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Editing page layouts&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; page layouts can be edited&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Change logs&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; we only record current values&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; change histories are recorded&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Nav bar&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; simple nav bar&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Standard formats&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; XHTML, CSS, etc.&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Sunshine features&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; nothing anonymous, nothing invisible, no decay&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Platforms&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope &mdash; just Firefox on windows&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup &mdash; IE, Firefox and Safari, on Windows, Mac, and Linux&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Search tools&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Subscriptions&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Photos&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Transparent email accounts&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Live updates&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Content export&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Accessibility&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Interoperability&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Skins/Themes&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Derived attributes&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;On-line help&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain yup&quot;&gt;yup&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Polyglot items, i18n, l10n&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Security&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Scripting&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Text recognition&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++    &lt;tr&gt;
++      &lt;td class=&quot;plain total&quot;&gt;Installers&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain&quot;&gt;&lt;/td&gt;
++      &lt;td class=&quot;plain nope&quot;&gt;nope&lt;/td&gt;
++    &lt;/tr&gt;
++  &lt;/table&gt;  
++  
++&lt;/div&gt;
++
+
+Added: trunk/web_pages/page/about.html
+===================================================================
+--- trunk/web_pages/page/about.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/about.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;About - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/about.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/bookmarks.html
+===================================================================
+--- trunk/web_pages/page/bookmarks.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/bookmarks.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Bookmarks - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/bookmarks.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/copyright.html
+===================================================================
+--- trunk/web_pages/page/copyright.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/copyright.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Copyright - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/copyright.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/demo.html
+===================================================================
+--- trunk/web_pages/page/demo.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/demo.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Demo - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/demo.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/dev.html
+===================================================================
+--- trunk/web_pages/page/dev.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/dev.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Developer Links - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/dev.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/index.html
+===================================================================
+--- trunk/web_pages/page/index.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/index.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,33 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- This is an example of an xhtml comment --&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot; style=&quot;padding: 2px 5px 2px 35px;&quot;&gt;
++      &lt;p style=&quot;font-size: 300%;&quot;&gt;
++        &lt;span class=&quot;logostart&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;logomiddle&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;logoend&quot;&gt;.org&lt;/span&gt;
++      &lt;/p&gt;
++      &lt;p style=&quot;font-size: 160%; color: rgb(0%,0%,50%);&quot;&gt;
++      An open source software development project.&lt;br/&gt;
++      Hosted by 
++        &lt;a href=&quot;<A HREF="http://developer.berlios.de">http://developer.berlios.de</A>&quot; title=&quot;BerliOS Developer&quot; style=&quot;border-style: none;&quot;&gt; 
++          &lt;img src=&quot;<A HREF="http://developer.berlios.de/bslogo.php?group_id=3396">http://developer.berlios.de/bslogo.php?group_id=3396</A>&quot; 
++           width=&quot;124px&quot; height=&quot;32px&quot; alt=&quot;BerliOS Developer Logo&quot; style=&quot;border-style: none;&quot;&gt;&lt;/img&gt;
++        &lt;/a&gt;
++      &lt;/p&gt;
++    &lt;/div&gt;
++
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
+
+Added: trunk/web_pages/page/people.html
+===================================================================
+--- trunk/web_pages/page/people.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/people.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;People - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/people.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/pitch.html
+===================================================================
+--- trunk/web_pages/page/pitch.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/pitch.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Elevator Pitch - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/pitch.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+Added: trunk/web_pages/page/spec.html
+===================================================================
+--- trunk/web_pages/page/spec.html	2005-08-17 20:39:04 UTC (rev 297)
++++ trunk/web_pages/page/spec.html	2005-08-17 20:43:22 UTC (rev 298)
+@@ -0,0 +1,23 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Product Specification - openrecord.org&lt;/title&gt;
++    &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;chrome/base_style.css&quot; /&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;chrome/external_links.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;!--#include virtual=&quot;../chrome/header.html&quot; --&gt;
++    &lt;!--#include virtual=&quot;../chrome/navbar.html&quot; --&gt;
++    
++    &lt;div class=&quot;content_area&quot;&gt;
++      &lt;!--#include virtual=&quot;../content/spec.html&quot; --&gt;
++    &lt;/div&gt;
++    
++    &lt;!--#include virtual=&quot;../chrome/footer.html&quot; --&gt;
++  &lt;/body&gt;
++  
++&lt;/html&gt;
++    
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000282.html">[openrecord-svn] r297 - in trunk/source: . model view
+</A></li>
+	<LI>Next message: <A HREF="000284.html">[openrecord-svn] r299 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#283">[ date ]</a>
+              <a href="thread.html#283">[ thread ]</a>
+              <a href="subject.html#283">[ subject ]</a>
+              <a href="author.html#283">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

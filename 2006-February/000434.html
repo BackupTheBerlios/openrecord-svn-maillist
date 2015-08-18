@@ -1,0 +1,1467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r453 - in trunk: documentation source source/archive source/model source/plugins/create_new_plugin source/view tests tests/archive tests/model tests/transcribers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-February/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r453%20-%20in%20trunk%3A%20documentation%20source%20source/archive%20source/model%20source/plugins/create_new_plugin%20source/view%20tests%20tests/archive%20tests/model%20tests/transcribers&In-Reply-To=%3C200602210618.k1L6IhK2029385%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000433.html">
+   <LINK REL="Next"  HREF="000435.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r453 - in trunk: documentation source source/archive source/model source/plugins/create_new_plugin source/view tests tests/archive tests/model tests/transcribers</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r453%20-%20in%20trunk%3A%20documentation%20source%20source/archive%20source/model%20source/plugins/create_new_plugin%20source/view%20tests%20tests/archive%20tests/model%20tests/transcribers&In-Reply-To=%3C200602210618.k1L6IhK2029385%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r453 - in trunk: documentation source source/archive source/model source/plugins/create_new_plugin source/view tests tests/archive tests/model tests/transcribers">skinner at berlios.de
+       </A><BR>
+    <I>Tue Feb 21 07:18:43 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000433.html">[openrecord-svn] r452 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000435.html">[openrecord-svn] r454 - in trunk/source: . plugins view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#434">[ date ]</a>
+              <a href="thread.html#434">[ thread ]</a>
+              <a href="subject.html#434">[ subject ]</a>
+              <a href="author.html#434">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-02-21 07:18:26 +0100 (Tue, 21 Feb 2006)
+New Revision: 453
+
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/OutlinePlugin.js
+   trunk/source/archive/StubArchive.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/Record.js
+   trunk/source/model/World.js
+   trunk/source/plugins/create_new_plugin/create_new_plugin.js
+   trunk/source/view/LoginView.js
+   trunk/source/view/View.js
+   trunk/tests/TestSuite.html
+   trunk/tests/archive/test_dependencies.js
+   trunk/tests/model/MockUuidGenerator.js
+   trunk/tests/model/TestReorderingForSpecialCases.js
+   trunk/tests/model/TestReorderingForTypicalOrdinals.js
+   trunk/tests/model/test_BeforeLogin.js
+   trunk/tests/model/test_dependencies.js
+   trunk/tests/transcribers/test_dependencies.js
+Log:
+422. Replaced use of orp.uuid with dojo.uuid, and deleted source/uuid and tests/uuid.  
+511. Assigned system attributes &amp; categories to a category called &quot;Not General Purpose&quot;.
+512. System attributes &amp; categories now only show up in suggestion lists when you're in developer mode.
+
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/documentation/to_do_list.txt	2006-02-21 06:18:26 UTC (rev 453)
+@@ -123,7 +123,7 @@
+ mignon |          | 5    IED| 419. done
+        |          |         | 420. Replace XMLHttpRequest calls with dojo.io.bind() calls
+        |          |         | 421. Consider refactoring orp.storage so that FileProtocolStorage is &quot;behind&quot; dojo.io.bind
+-       |          |         | 422. Replace all use of orp.uuid with dojo.uuid, and remove orp.uuid from our tree
++brian  |          | done?   | 422. Replace all use of orp.uuid with dojo.uuid, and remove orp.uuid from our tree
+        |          |         | 423. Replace all use of orp.lang with dojo.lang, and remove orp.lang from our tree
+        |          |         | 424. Fix the unit tests in tests/view/SectionViewConstructorTest.js
+        |          |         | 425. (new task...)
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/OutlinePlugin.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -122,12 +122,10 @@
+     var liElement = orp.view.View.appendNewElement(ulElement, &quot;li&quot;, null, null, liText);
+     var anchorElement = orp.view.View.appendNewElement(liElement, &quot;a&quot;, orp.view.SectionView.cssClass.MORE_LINK);
+ 
+-    // PENDING: 
+-    //  We need a better way to get the URL for a content item
+-    anchorElement.setAttribute(&quot;href&quot;, orp.view.RootView.URL_HASH_ITEM_PREFIX + contentItem.getUuidString());
++    anchorElement.setAttribute(&quot;href&quot;, this.getRootView().getUrlForItem(contentItem));
+ 
+-    // orp.view.View.appendNewTextNode(anchorElement, &quot;(more &#8658;)&quot;);
+-    anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
++    orp.view.View.appendNewTextNode(anchorElement, &quot;(more)&quot;);
++    // anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
+ 
+     dojo.event.connect(anchorElement, &quot;onclick&quot;, orp.view.RootView.clickOnLocalLink);
+   }
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/archive/StubArchive.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -41,8 +41,10 @@
+ dojo.require(&quot;orp.model.ProxyEntry&quot;);
+ dojo.require(&quot;orp.model.Transaction&quot;);
+ dojo.require(&quot;orp.util.DateValue&quot;);
+-// dojo.require(&quot;orp.uuid.Uuid&quot;);
+-dojo.require(&quot;orp.uuid.TimeBasedUuid&quot;);
++// dojo.  require(&quot;orp.uuid.Uuid&quot;);
++// dojo.  require(&quot;orp.uuid.TimeBasedUuid&quot;);
++dojo.require(&quot;dojo.uuid.Uuid&quot;);
++dojo.require(&quot;dojo.uuid.TimeBasedGenerator&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ dojo.require(&quot;orp.archive.TextEncoding&quot;);
+ dojo.require(&quot;orp.archive.JsonDeserializer&quot;);
+@@ -593,7 +595,7 @@
+  * @return   Returns the item identified by the given UUID, or returns undefined if there is no item for that UUID.
+  */
+ orp.archive.StubArchive.prototype.getItemFromUuid = function(uuid, observer) {
+-  orp.lang.assert(dojo.lang.isString(uuid) || uuid instanceof orp.uuid.Uuid);
++  orp.lang.assert(dojo.lang.isString(uuid) || uuid instanceof dojo.uuid.Uuid);
+   
+   var item = this._hashTableOfItemsKeyedByUuid[uuid];
+   if (item &amp;&amp; observer) {
+@@ -766,9 +768,12 @@
+  */
+ orp.archive.StubArchive.prototype._generateUuid = function(node) {
+   if (node) {
+-    return new orp.uuid.TimeBasedUuid({'node': node});
++    // return new orp.uuid.TimeBasedUuid({'node': node});
++    return dojo.uuid.TimeBasedGenerator.generate({node: node, returnType: dojo.uuid.Uuid});
+   } else {
+-    return new orp.uuid.TimeBasedUuid();
++    orp.lang.assert(false);
++    // return new orp.uuid.TimeBasedUuid();
++    // return dojo.uuid.TimeBasedGenerator.generate({returnType: dojo.uuid.Uuid});
+   }
+ };
+ 
+@@ -786,11 +791,33 @@
+     var nodeForCurrentUser = uuidOfCurrentUser.getNode(); // &quot;0123456789AB&quot;;
+     newUuid = this._generateUuid(nodeForCurrentUser);
+   } else {
+-    newUuid = this._generateUuid();
++    var HEX_RADIX = 16;
++    var pseudoNodeIndicatorBit = 0x8000;
++    var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
++    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(HEX_RADIX);
++    var uuidPseudoNodeString = leftmost4HexCharacters + this._generateRandomEightCharacterHexString();
++    newUuid = this._generateUuid(uuidPseudoNodeString);
+   }
+   return newUuid;
+ };
+ 
++orp.archive.StubArchive.prototype._generateRandomEightCharacterHexString = function() {
++  // PENDING: 
++  // This isn't really random.  We should find some source of real 
++  // randomness, and feed it to an MD5 hash algorithm.
++  
++  
++  // random32bitNumber is a randomly generated floating point number 
++  // between 0 and (4,294,967,296 - 1), inclusive.
++  var random32bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
++  
++  var HEX_RADIX = 16;
++  var eightCharacterString = random32bitNumber.toString(HEX_RADIX);
++  while (eightCharacterString.length &lt; 8) {
++    eightCharacterString = &quot;0&quot; + eightCharacterString;
++  }
++  return eightCharacterString;
++};
+ 
+ /**
+  * Given an item representing a user, return the authentication info
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/model/2005_june_axiomatic_items.json	2006-02-21 06:18:26 UTC (rev 453)
+@@ -23,7 +23,7 @@
+              &quot;uuid&quot;: &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Item&quot;: {                                               // Attribute: Body
++    { &quot;Item&quot;: {                                               // Attribute: Content
+              &quot;uuid&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+@@ -71,6 +71,10 @@
+              &quot;uuid&quot;: &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Attribute: Developer Mode
++             &quot;uuid&quot;: &quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Type: Text
+              &quot;uuid&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -127,6 +131,10 @@
+              &quot;uuid&quot;: &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Category: Not General Purpose
++             &quot;uuid&quot;: &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Amy the Axiomatic User&quot;
+              &quot;uuid&quot;: &quot;0001000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Name)
+@@ -218,17 +226,17 @@
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
+-    { &quot;Entry&quot;: {                                              // Body
++    { &quot;Entry&quot;: {                                              // Content
+              &quot;uuid&quot;: &quot;0001004a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+-             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Body
++             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Content
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+-            &quot;value&quot;: &quot;Body&quot; }
++            &quot;value&quot;: &quot;Content&quot; }
+     },
+     // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              
+-             // in item (Attribute: Body) assign (Attribute: Category) = (Category: Attribute)
+-             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Body)
++             // in item (Attribute: Content) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Content)
+              &quot;uuid&quot;: &quot;0001004b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;item&quot;: [&quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
+@@ -238,7 +246,7 @@
+     { &quot;Entry&quot;: {                                              // Text
+              &quot;uuid&quot;: &quot;0001004c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
+-             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Body
++             &quot;item&quot;: &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Content
+              &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -293,6 +301,15 @@
+             &quot;value&quot;: &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Query Spec) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Query Spec)
++             &quot;uuid&quot;: &quot;0001006d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Matching Value
+              &quot;uuid&quot;: &quot;0001007a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -310,6 +327,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Matching Value) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Matching Value)
++             &quot;uuid&quot;: &quot;0001007c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Matching Attribute
+              &quot;uuid&quot;: &quot;0001008a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -335,6 +361,15 @@
+             &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Matching Attribute) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Matching Attribute)
++             &quot;uuid&quot;: &quot;0001008d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Unfiled Entry
+              &quot;uuid&quot;: &quot;0001009a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -360,6 +395,15 @@
+             &quot;value&quot;: &quot;00001040-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Unfiled Entry) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Unfiled Entry)
++             &quot;uuid&quot;: &quot;0001009d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Expected Type
+              &quot;uuid&quot;: &quot;000100aa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -393,6 +437,15 @@
+             &quot;value&quot;: &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Expected Type) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Expected Type)
++             &quot;uuid&quot;: &quot;000100ae-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Inverse Attribute
+              &quot;uuid&quot;: &quot;000100ba-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -426,6 +479,15 @@
+             &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Inverse Attribute) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Inverse Attribute)
++             &quot;uuid&quot;: &quot;000100be-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Items in Category&quot;
+              &quot;uuid&quot;: &quot;000100ca-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // (Name)
+@@ -460,6 +522,15 @@
+             &quot;value&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Items in Category) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Items in Category)
++             &quot;uuid&quot;: &quot;000100ce-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Tag&quot;
+              &quot;uuid&quot;: &quot;000100da-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -485,6 +556,15 @@
+             &quot;value&quot;: &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Tag) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Tag)
++             &quot;uuid&quot;: &quot;000100dd-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Tagged Items&quot;
+              &quot;uuid&quot;: &quot;000100ea-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -519,6 +599,15 @@
+             &quot;value&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Tagged Items) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Tagged Items)
++             &quot;uuid&quot;: &quot;000100ee-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Class Name&quot;
+              &quot;uuid&quot;: &quot;000100fa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -544,6 +633,49 @@
+             &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Class Name) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Class Name)
++             &quot;uuid&quot;: &quot;000100fd-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Developer Mode&quot;
++             &quot;uuid&quot;: &quot;0001025a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Developer Mode
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Developer Mode&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Developer Mode) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Developer Mode)
++             &quot;uuid&quot;: &quot;0001025b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Developer Mode&quot;
++             &quot;uuid&quot;: &quot;0001025c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Developer Mode
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
++            &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }  // Text &lt;-- FIXME: should be &quot;Check Mark&quot;
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Developer Mode) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Developer Mode)
++             &quot;uuid&quot;: &quot;0001025d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Text&quot;
+              &quot;uuid&quot;: &quot;0001020a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -714,6 +846,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Attribute) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Attribute)
++             &quot;uuid&quot;: &quot;0001210c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Category&quot;
+              &quot;uuid&quot;: &quot;0001211a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -731,6 +872,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Category) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Category)
++             &quot;uuid&quot;: &quot;0001211c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Query Spec&quot;
+              &quot;uuid&quot;: &quot;0001212a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -748,6 +898,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Query Spec) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Query Spec)
++             &quot;uuid&quot;: &quot;0001212c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Type&quot;
+              &quot;uuid&quot;: &quot;0001213a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -765,6 +924,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Type) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Type)
++             &quot;uuid&quot;: &quot;0001213c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Tag&quot;
+              &quot;uuid&quot;: &quot;0001214a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -780,6 +948,41 @@
+              &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+              &quot;item&quot;: [&quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Tag) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Tag)
++             &quot;uuid&quot;: &quot;0001214c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Not General Purpose&quot;
++             &quot;uuid&quot;: &quot;0001215a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Category: Not General Purpose
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Not General Purpose&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Not General Purpose) assign (Attribute: Category) = (Category: Category)
++             // in item (Category: Category) assign (Attribute: Items in Category) = (Category: Not General Purpose)
++             &quot;uuid&quot;: &quot;0001215b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Not General Purpose) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Not General Purpose)
++             &quot;uuid&quot;: &quot;0001215c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     }  ]
+   },
+   // =======================================================================
+@@ -870,6 +1073,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Page) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Section)
++             &quot;uuid&quot;: &quot;0020000c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Section
+              &quot;uuid&quot;: &quot;0020100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -887,6 +1099,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Section) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Section)
++             &quot;uuid&quot;: &quot;0020100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Sections In Page
+              &quot;uuid&quot;: &quot;0030000a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -921,6 +1142,15 @@
+         &quot;attribute&quot;: [&quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Sections In Page) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Sections In Page)
++             &quot;uuid&quot;: &quot;0030000e-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Page for section
+              &quot;uuid&quot;: &quot;0030001a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -946,6 +1176,15 @@
+             &quot;value&quot;: &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Page for section) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Page for section)
++             &quot;uuid&quot;: &quot;0030001d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Plugin View
+              &quot;uuid&quot;: &quot;0040101a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -971,6 +1210,15 @@
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Plugin View) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Plugin View)
++             &quot;uuid&quot;: &quot;0040101d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Layout Data
+              &quot;uuid&quot;: &quot;0040102a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -996,6 +1244,15 @@
+             &quot;value&quot;: &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Layout Data) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Layout Data)
++             &quot;uuid&quot;: &quot;0040102d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Applies To Plugin
+              &quot;uuid&quot;: &quot;0040103a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1021,6 +1278,15 @@
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Applies To Plugin) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Applies To Plugin)
++             &quot;uuid&quot;: &quot;0040103d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Section for layout data 
+              &quot;uuid&quot;: &quot;0040104a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1055,6 +1321,15 @@
+             &quot;value&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Section for layout data) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Section for layout data)
++             &quot;uuid&quot;: &quot;0040104e-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Section for query spec 
+              &quot;uuid&quot;: &quot;0040105a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1089,6 +1364,15 @@
+             &quot;value&quot;: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Section for query spec) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Section for query spec)
++             &quot;uuid&quot;: &quot;0040105e-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Table Columns 
+              &quot;uuid&quot;: &quot;004010aa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1114,6 +1398,15 @@
+             &quot;value&quot;: &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Table Columns) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Table Columns)
++             &quot;uuid&quot;: &quot;004010ad-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Not Lozenge
+              &quot;uuid&quot;: &quot;004010fa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1131,6 +1424,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Not Lozenge) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Attribute: Not Lozenge)
++             &quot;uuid&quot;: &quot;004010fc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0004010f-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Plugin View
+              &quot;uuid&quot;: &quot;0040201a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1148,6 +1450,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Plugin View) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Plugin View)
++             &quot;uuid&quot;: &quot;0040201c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Layout Data
+              &quot;uuid&quot;: &quot;0040202a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1165,6 +1476,15 @@
+         &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
+     },  
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Category: Layout Data) assign (Attribute: Category) = (Category: Not General Purpose)
++             // in item (Category: Not General Purpose) assign (Attribute: Items in Category) = (Category: Layout Data)
++             &quot;uuid&quot;: &quot;0040202c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    }, 
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Table View
+              &quot;uuid&quot;: &quot;0040301a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -1332,7 +1652,15 @@
+              &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;,  // Brian Douglas Skinner
+              &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
+             &quot;value&quot;: &quot;Brian Douglas Skinner&quot; }
+-    }  ]
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Brian Douglas Skinner
++             &quot;uuid&quot;: &quot;2c4fa784-dde4-11d9-9c71-000c414ce854&quot;,
++        &quot;attribute&quot;: &quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Developer Mode
++             &quot;item&quot;: &quot;2c4fa780-dde4-11d9-9c71-000c414ce854&quot;,  // Brian Douglas Skinner
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue &lt;-- FIXME: should be a boolean
++            &quot;value&quot;: &quot;true&quot; }
++    }    ]
+   },
+   // =======================================================================
+   { &quot;Transaction&quot;: [
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/model/ContentRecord.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -113,7 +113,8 @@
+  * @return   A number.
+  */
+ orp.model.ContentRecord.prototype.getOrdinalNumberAtCreation = function() {
+-  return this.getUuid().getTimestampAsHexString();
++  // return this.getUuid().getTimestampAsHexString();
++  return this.getUuid().getTimestamp(&quot;hex&quot;);
+ };
+ 
+ 
+@@ -261,9 +262,6 @@
+   var secondOrdinalNumber = null;
+   var thirdOrdinalNumber = null;
+   
+-  // PENDING: this is a hack
+-  var sourceOfRandomness = contentRecordFirst ? contentRecordFirst.getUuid() : contentRecordThird.getUuid();
+-  
+   if (contentRecordFirst) {
+     firstOrdinalNumber = contentRecordFirst.getOrdinalNumber();
+   }
+@@ -281,20 +279,18 @@
+         firstOrdinalNumber = thirdOrdinalNumber;
+         thirdOrdinalNumber = temp;
+       }
+-      // PENDING: we should not be calling the private method _generateRandomEightCharacterHexString()
+-      var randomEightCharacterHexString = sourceOfRandomness._generateRandomEightCharacterHexString();
++      var randomEightCharacterHexString = this._generateRandomEightCharacterHexString();
+       secondOrdinalNumber = firstOrdinalNumber + randomEightCharacterHexString;
+       var zeroes = &quot;&quot;;
+       while (secondOrdinalNumber &gt;= thirdOrdinalNumber) {
+         zeroes += &quot;0&quot;;
+-        // PENDING: we should not be calling the private method _generateRandomEightCharacterHexString()
+-        randomEightCharacterHexString = sourceOfRandomness._generateRandomEightCharacterHexString();
++        randomEightCharacterHexString = this._generateRandomEightCharacterHexString();
+         secondOrdinalNumber = firstOrdinalNumber + zeroes + randomEightCharacterHexString;
+       }
+     }
+   }
+   if (firstOrdinalNumber &amp;&amp; !thirdOrdinalNumber) {
+-    secondOrdinalNumber = firstOrdinalNumber + sourceOfRandomness._generateRandomEightCharacterHexString();
++    secondOrdinalNumber = firstOrdinalNumber + this._generateRandomEightCharacterHexString();
+   }
+   if (!firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+     secondOrdinalNumber = thirdOrdinalNumber;
+@@ -310,11 +306,33 @@
+     while (secondOrdinalNumber.length &lt; origLen) {
+       secondOrdinalNumber += &quot;f&quot;;
+     }
+-    secondOrdinalNumber += sourceOfRandomness._generateRandomEightCharacterHexString();
++    secondOrdinalNumber += this._generateRandomEightCharacterHexString();
+   }
+   this.getWorld()._newOrdinal(this, secondOrdinalNumber);
+ };
+ 
++/**
++ * Returns a randomly generated 8-character string of hex digits.
++ *
++ * @scope    private instance method
++ */
++orp.model.ContentRecord.prototype._generateRandomEightCharacterHexString = function() {
++  // PENDING: 
++  // This isn't really random.  We should find some source of real 
++  // randomness, and feed it to an MD5 hash algorithm.
++  
++  
++  // random32bitNumber is a randomly generated floating point number 
++  // between 0 and (4,294,967,296 - 1), inclusive.
++  var random32bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
++  
++  var HEX_RADIX = 16;
++  var eightCharacterString = random32bitNumber.toString(HEX_RADIX);
++  while (eightCharacterString.length &lt; 8) {
++    eightCharacterString = &quot;0&quot; + eightCharacterString;
++  }
++  return eightCharacterString;
++};
+ 
+ /**
+  * Registers a vote to delete this contentRecord. 
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/model/Record.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -35,7 +35,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.model.Record&quot;);
+-dojo.require(&quot;orp.uuid.TimeBasedUuid&quot;);
++dojo.require(&quot;dojo.uuid.Uuid&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ 
+ // -------------------------------------------------------------------
+@@ -60,15 +60,17 @@
+ orp.model.Record = function(world, uuid) {
+   if (dojo.lang.isString(uuid)) {
+     var uuidString = uuid;
+-    uuid = new orp.uuid.TimeBasedUuid(uuidString);
+-    orp.lang.assert(uuid instanceof orp.uuid.TimeBasedUuid);
++    // uuid = new orp.uuid.TimeBasedUuid(uuidString);
++    // orp.lang.assert(uuid instanceof orp.uuid.TimeBasedUuid);
++    uuid = new dojo.uuid.Uuid(uuidString);
++    orp.lang.assert(uuid instanceof dojo.uuid.Uuid);
+   }
+ 
+   // Unfortunately, we need to treat 'world' and 'uuid' as 'Optional'. 
+   // I think this constructor is invoked by dojo.inherits() calls 
+   // (in ContentRecord, Vote, and Ordinal), which do not pass
+   // in any values for world and uuid.
+-  orp.lang.assertTypeForOptionalValue(uuid, orp.uuid.TimeBasedUuid);
++  orp.lang.assertTypeForOptionalValue(uuid, dojo.uuid.Uuid);
+   orp.lang.assertTypeForOptionalValue(world, orp.model.World);
+   
+   this._world = world;
+@@ -140,7 +142,7 @@
+  * @return   A Date object.
+  */
+ orp.model.Record.prototype.getCreationDate = function() {
+-  return this.getUuid().getDate();
++  return this.getUuid().getTimestamp(Date);
+ };
+ 
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/model/World.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -112,19 +112,44 @@
+   ATTRIBUTE_NAME:                     &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   ATTRIBUTE_SHORT_NAME:               &quot;00001002-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   ATTRIBUTE_SUMMARY:                  &quot;00001003-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_BODY:                     &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  ATTRIBUTE_CONTENT:                  &quot;00001004-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   ATTRIBUTE_CATEGORY:                 &quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_QUERY_SPEC:               &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_QUERY_MATCHING_VALUE:     &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_UNFILED:                  &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_EXPECTED_TYPE:            &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_INVERSE_ATTRIBUTE:        &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_ITEMS_IN_CATEGORY:        &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  ATTRIBUTE_QUERY_SPEC:               &quot;00001006-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_QUERY_MATCHING_VALUE:     &quot;00001007-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose 
++  ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE: &quot;00001008-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_UNFILED:                  &quot;00001009-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_EXPECTED_TYPE:            &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_INVERSE_ATTRIBUTE:        &quot;0000100b-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_ITEMS_IN_CATEGORY:        &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
+   ATTRIBUTE_TAG:                      &quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_TAGGED_ITEMS:             &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  ATTRIBUTE_CLASS_NAME:               &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  ATTRIBUTE_TAGGED_ITEMS:             &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_CLASS_NAME:               &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
++  ATTRIBUTE_DEVELOPER_MODE:           &quot;00001025-ce7f-11d9-8cd5-0011113ae5d6&quot;, // not general purpose
+ 
++  // see also:
++  //   orp.TablePlugin.UUID = {ATTRIBUTE_TABLE_COLUMNS: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot; };
++  //   orp.view.EntryView.UUID = {ATTRIBUTE_NOT_LOZENGE: &quot;0004010f-ce7f-11d9-8cd5-0011113ae5d6&quot; };
++  //   orp.view.PageView.UUID = {
++  //     ATTRIBUTE_SECTIONS_IN_PAGE:             &quot;00030000-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     ATTRIBUTE_PAGE_THIS_SECTION_APPEARS_ON: &quot;00030001-ce7f-11d9-8cd5-0011113ae5d6&quot; };
++  //   orp.view.SectionView.UUID = {
++  //     ATTRIBUTE_PLUGIN_VIEW:       &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     ATTRIBUTE_LAYOUT_DATA:       &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     ATTRIBUTE_APPLIES_TO_PLUGIN: &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO: &quot;00040104-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     ATTRIBUTE_SECTION_THIS_QUERY_BELONGS_TO: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++
++  //   orp.view.SectionView.UUID = {
++  //     CATEGORY_PLUGIN_VIEW:        &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     CATEGORY_LAYOUT_DATA:        &quot;00040202-ce7f-11d9-8cd5-0011113ae5d6&quot; };
++  //   orp.view.RootView.UUID = {
++  //     CATEGORY_PAGE:    &quot;00020000-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  //     CATEGORY_SECTION: &quot;00020100-ce7f-11d9-8cd5-0011113ae5d6&quot; };
++  
++  
++  // FIXME: 
++  // we should change these UUID prefixes from &quot;000010&quot; to &quot;000011&quot;
++  // but that will break existing repositories
+   TYPE_TEXT:               &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   TYPE_NUMBER:             &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   TYPE_DATE:               &quot;00001022-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -135,11 +160,12 @@
+   TYPE_CONNECTION:         &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+ 
+   CATEGORY_PERSON:         &quot;00001201-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  CATEGORY_ATTRIBUTE:      &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  CATEGORY_CATEGORY:       &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  CATEGORY_QUERY:          &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  CATEGORY_TYPE:           &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+-  CATEGORY_TAG:            &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot; };
++  CATEGORY_ATTRIBUTE:      &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;,   // not general purpose
++  CATEGORY_CATEGORY:       &quot;00001211-ce7f-11d9-8cd5-0011113ae5d6&quot;,   // not general purpose
++  CATEGORY_QUERY:          &quot;00001212-ce7f-11d9-8cd5-0011113ae5d6&quot;,   // not general purpose
++  CATEGORY_TYPE:           &quot;00001213-ce7f-11d9-8cd5-0011113ae5d6&quot;,   // not general purpose
++  CATEGORY_TAG:            &quot;00001214-ce7f-11d9-8cd5-0011113ae5d6&quot;,   // not general purpose
++  CATEGORY_NOT_GENERAL_PURPOSE:   &quot;00001215-ce7f-11d9-8cd5-0011113ae5d6&quot;};  // not general purpose
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -174,6 +200,7 @@
+   this._attributeCalledTag                    = server.getItemFromUuid(UUID.ATTRIBUTE_TAG);
+   this._attributeCalledTaggedItems            = server.getItemFromUuid(UUID.ATTRIBUTE_TAGGED_ITEMS);
+   this._attributeCalledClassName              = server.getItemFromUuid(UUID.ATTRIBUTE_CLASS_NAME);
++  this._attributeCalledDeveloperMode          = server.getItemFromUuid(UUID.ATTRIBUTE_DEVELOPER_MODE);
+ 
+   // load the axiomatic types
+   this._typeCalledText       = server.getItemFromUuid(UUID.TYPE_TEXT);
+@@ -192,6 +219,8 @@
+   this._categoryCalledQuery       = server.getItemFromUuid(UUID.CATEGORY_QUERY);
+   this._categoryCalledType        = server.getItemFromUuid(UUID.CATEGORY_TYPE);
+   this._categoryCalledTag         = server.getItemFromUuid(UUID.CATEGORY_TAG);
++  this._categoryCalledNotGeneralPurpose = server.getItemFromUuid(UUID.CATEGORY_NOT_GENERAL_PURPOSE);
++  
+ };
+ 
+ 
+@@ -507,6 +536,9 @@
+   return this._attributeCalledClassName;
+ };
+ 
++orp.model.World.prototype.getAttributeCalledDeveloperMode = function() {
++  return this._attributeCalledDeveloperMode;
++};
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -575,7 +607,11 @@
+   return this._categoryCalledTag;
+ };
+ 
++orp.model.World.prototype.getCategoryCalledNotGeneralPurpose = function() {
++  return this._categoryCalledNotGeneralPurpose;
++};
+ 
++
+ // -------------------------------------------------------------------
+ // Login and logout methods
+ // -------------------------------------------------------------------
+@@ -962,13 +998,34 @@
+  * @scope    public instance method
+  * @param    category    A category item. 
+  * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    filterOutNonGeneralPurposeItems    Optional. Boolean. 
+  * @return   A list of items.
+  */
+-orp.model.World.prototype.getItemsInCategory = function(category, observer) {
++orp.model.World.prototype.getItemsInCategory = function(category, observer, filterOutNonGeneralPurposeItems) {
+   var listOfItems = this._archive.getItemsInCategory(category);
+-  // listOfItems = this._getFilteredList(listOfItems); PENDING: not sure if I should call this?
+-  this._addListObserver(listOfItems, observer);
+-  return (listOfItems);
++  var returnList;
++  if (filterOutNonGeneralPurposeItems) {
++    var currentUser = this.getCurrentUser();
++    var attributeCalledDeveloperMode = this.getAttributeCalledDeveloperMode();
++    var inDeveloperMode = (currentUser.getSingleValueFromAttribute(attributeCalledDeveloperMode) == &quot;true&quot;); // FIXME
++    var categoryCalledNotGeneralPurpose = this.getCategoryCalledNotGeneralPurpose();
++    if (inDeveloperMode) {
++      returnList = listOfItems;
++    } else {
++      returnList = [];
++      for (var i in listOfItems) {
++        var item = listOfItems[i];
++        var itemIsGeneralPurpose = !(item.isInCategory(categoryCalledNotGeneralPurpose));
++        if (itemIsGeneralPurpose) {
++          returnList.push(item);
++        }
++      }
++    }
++  } else {
++    returnList = listOfItems;
++  }
++  this._addListObserver(returnList, observer);
++  return (returnList);
+ };
+ 
+ 
+@@ -983,6 +1040,7 @@
+   return this.getItemsInCategory(categoryCalledCategory, observer);
+ };
+ 
++
+ /**
+  * Returns a list of all the items that represent attributes.
+  *
+@@ -991,7 +1049,8 @@
+  */
+ orp.model.World.prototype.getAttributes = function(observer) {
+   var categoryCalledAttribute = this.getCategoryCalledAttribute();
+-  return this.getItemsInCategory(categoryCalledAttribute, observer);
++  var filterOutNonGeneralPurposeItems = true;
++  return this.getItemsInCategory(categoryCalledAttribute, observer, filterOutNonGeneralPurposeItems);
+ };
+ 
+ 
+@@ -1000,23 +1059,24 @@
+  */
+ orp.model.World.prototype.getSuggestedItemsForAttribute = function(attribute, observer) {
+   var listOfSuggestedItems = [];
+-  var key;
+   var categoryCalledCategory = this.getCategoryCalledCategory();
+   var attributeCalledExpectedType = this.getAttributeCalledExpectedType();
+   var listOfExpectedTypeEntries = attribute.getEntriesForAttribute(attributeCalledExpectedType);
+   var listOfCategories = [];
+-  for (key in listOfExpectedTypeEntries) {
+-    var expectedTypeEntry = listOfExpectedTypeEntries[key];
++  for (var i in listOfExpectedTypeEntries) {
++    var expectedTypeEntry = listOfExpectedTypeEntries[i];
+     var expectedType = expectedTypeEntry.getValue();
+     if (expectedType.isInCategory(categoryCalledCategory)) {
+       listOfCategories.push(expectedType);
+     }
+   }
+-  for (key in listOfCategories) {
+-    var category = listOfCategories[key];
+-    var listOfItems = this.getItemsInCategory(category);
+-    for (var keyToo in listOfItems) {
+-      var item = listOfItems[keyToo];
++
++  for (var j in listOfCategories) {
++    var category = listOfCategories[j];
++    var filterOutNonGeneralPurposeItems = true;
++    var listOfItems = this.getItemsInCategory(category, null, filterOutNonGeneralPurposeItems);
++    for (var k in listOfItems) {
++      var item = listOfItems[k];
+       orp.util.addObjectToSet(item, listOfSuggestedItems);
+     }
+   }
+
+Modified: trunk/source/plugins/create_new_plugin/create_new_plugin.js
+===================================================================
+--- trunk/source/plugins/create_new_plugin/create_new_plugin.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/plugins/create_new_plugin/create_new_plugin.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -33,7 +33,7 @@
+ dojo.setModulePrefix(&quot;orp&quot;, &quot;../../source&quot;); // relative to dojo.js
+ dojo.require(&quot;dojo.text.*&quot;);
+ dojo.require(&quot;dojo.event.*&quot;);
+-dojo.require(&quot;orp.uuid.TimeBasedUuid&quot;);
++dojo.require(&quot;dojo.uuid.TimeBasedGenerator&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ 
+ function startHere() {
+@@ -90,11 +90,12 @@
+   var arrayOfUuidParts = uuidForTheUserWhoCreatesPlugins.split('-');
+   var nodeForUserWhoCreatesPlugins = arrayOfUuidParts[4]; // the 'node' is part [4] of the UUID
+ 
+-  var itemUuid   = new orp.uuid.TimeBasedUuid({node: nodeForUserWhoCreatesPlugins});
+-  var entryUuid1 = new orp.uuid.TimeBasedUuid({node: nodeForUserWhoCreatesPlugins});
+-  var entryUuid2 = new orp.uuid.TimeBasedUuid({node: nodeForUserWhoCreatesPlugins});
+-  var entryUuid3 = new orp.uuid.TimeBasedUuid({node: nodeForUserWhoCreatesPlugins});
+-  var entryUuid4 = new orp.uuid.TimeBasedUuid({node: nodeForUserWhoCreatesPlugins});
++  dojo.uuid.TimeBasedGenerator.setNode(nodeForUserWhoCreatesPlugins);
++  var itemUuid   = dojo.uuid.TimeBasedGenerator.generate();
++  var entryUuid1 = dojo.uuid.TimeBasedGenerator.generate();
++  var entryUuid2 = dojo.uuid.TimeBasedGenerator.generate();
++  var entryUuid3 = dojo.uuid.TimeBasedGenerator.generate();
++  var entryUuid4 = dojo.uuid.TimeBasedGenerator.generate();
+   
+   var intermediateResult = templateFileContents;
+   intermediateResult = intermediateResult.replace(/%\(AUTHOR\)/g, author);
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/view/LoginView.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -161,7 +161,12 @@
+     // Create a line that looks like this:
+     //   Hello Jane Doe.  _Sign out_  [Edit]
+     
+-    orp.view.View.appendNewTextNode(mySpan, &quot;Hello &quot; + currentUser.getDisplayString() + &quot;. &quot;);
++    orp.view.View.appendNewTextNode(mySpan, &quot;Hello &quot;);
++    var userLink = orp.view.View.appendNewElement(mySpan, &quot;a&quot;);
++    userLink.setAttribute(&quot;href&quot;, this.getRootView().getUrlForItem(currentUser));
++    orp.view.View.appendNewTextNode(userLink, currentUser.getDisplayString());
++    dojo.event.connect(userLink, &quot;onclick&quot;, orp.view.RootView.clickOnLocalLink);
++    orp.view.View.appendNewTextNode(mySpan, &quot;. &quot;);
+     var signOutLink = orp.view.View.appendNewElement(mySpan, &quot;a&quot;, null, null, &quot;Sign out&quot;);
+     dojo.event.connect(signOutLink, &quot;onclick&quot;, this, &quot;_clickOnSignoutLink&quot;);
+     orp.view.View.appendNewTextNode(mySpan, &quot; &quot;);
+@@ -212,7 +217,6 @@
+   this.getRootView().setEditMode(false);
+ };
+ 
+-
+ /**
+  * Called when sign in password input field gets focus.
+  *
+
+Modified: trunk/source/view/View.js
+===================================================================
+--- trunk/source/view/View.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/source/view/View.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -34,7 +34,6 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.view.View&quot;);
+ dojo.require(&quot;orp.util.Util&quot;);
+-dojo.require(&quot;orp.uuid.TimeBasedUuid&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/TestSuite.html
+===================================================================
+--- trunk/tests/TestSuite.html	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/TestSuite.html	2006-02-21 06:18:26 UTC (rev 453)
+@@ -28,7 +28,6 @@
+         testSuite.addTestPage(&quot;../../../tests/dom/test_dom.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/lang/LangTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/TestSuite.html&quot;);
+-        testSuite.addTestPage(&quot;../../../tests/uuid/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/model/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/transcribers/TestSuite.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/archive/TestSuite.html&quot;);
+
+Modified: trunk/tests/archive/test_dependencies.js
+===================================================================
+--- trunk/tests/archive/test_dependencies.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/archive/test_dependencies.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -54,7 +54,8 @@
+ // -------------------------------------------------------------------
+ 
+ function testDependencies() {
+-  assertTrue(&quot;orp.archive depends only on lang, util, uuid, model, and storage&quot;, orp.util.hasExactlyTheseProperties(orp, [&quot;archive&quot;, &quot;lang&quot;, &quot;util&quot;, &quot;uuid&quot;, &quot;model&quot;, &quot;storage&quot;]));
++  // assertTrue(&quot;orp.archive depends only on lang, util, uuid, model, and storage&quot;, orp.util.hasExactlyTheseProperties(orp, [&quot;archive&quot;, &quot;lang&quot;, &quot;util&quot;, &quot;uuid&quot;, &quot;model&quot;, &quot;storage&quot;]));
++  assertTrue(&quot;orp.archive depends only on lang, util, uuid, model, and storage&quot;, orp.util.hasExactlyTheseProperties(orp, [&quot;archive&quot;, &quot;lang&quot;, &quot;util&quot;, &quot;model&quot;, &quot;storage&quot;]));
+ }
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/model/MockUuidGenerator.js
+===================================================================
+--- trunk/tests/model/MockUuidGenerator.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/model/MockUuidGenerator.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -32,14 +32,14 @@
+ // dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ 
+ function mockUuidGenerator() {
+-  dojo.require(&quot;orp.uuid.TimeBasedUuid&quot;);
++  dojo.require(&quot;dojo.uuid.Uuid&quot;);
+   
+   if (mockUuidGenerator.queueOfUuids.length === 0) {
+     // This should probably throw an exception instead.    
+     return &quot;00000000-0000-0000-0000-000000000000&quot;;
+   }
+   var uuidString = mockUuidGenerator.queueOfUuids.shift();
+-  var uuid = new orp.uuid.TimeBasedUuid();
++  var uuid = new dojo.uuid.Uuid();
+   uuid._uuidString = uuidString;
+   return uuid;
+ }
+
+Modified: trunk/tests/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/tests/model/TestReorderingForSpecialCases.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/model/TestReorderingForSpecialCases.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -61,9 +61,9 @@
+ 
+   world = new orp.model.World(archive);
+ 
+-  annUuid1 = &quot;10000000-2222-1333-F444-555555555555&quot;;
+-  annUuid2 = &quot;10000001-2222-1333-F444-555555555555&quot;;
+-  annUuid3 = &quot;10000002-2222-1333-F444-555555555555&quot;;
++  annUuid1 = &quot;10000000-2222-1333-8444-555555555555&quot;;
++  annUuid2 = &quot;10000001-2222-1333-8444-555555555555&quot;;
++  annUuid3 = &quot;10000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(annUuid1);
+   mockUuidGenerator.queueOfUuids.push(annUuid2);
+   mockUuidGenerator.queueOfUuids.push(annUuid3);
+@@ -73,9 +73,9 @@
+   assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUuidString() == annUuid1);
+   world.login(userAnn, annsPassword);
+ 
+-  foodUuid1    = &quot;20000000-2222-1333-F444-555555555555&quot;;
+-  foodUuid2    = &quot;20000001-2222-1333-F444-555555555555&quot;;
+-  foodUuid3    = &quot;20000002-2222-1333-F444-555555555555&quot;;
++  foodUuid1    = &quot;20000000-2222-1333-8444-555555555555&quot;;
++  foodUuid2    = &quot;20000001-2222-1333-8444-555555555555&quot;;
++  foodUuid3    = &quot;20000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(foodUuid1);
+   mockUuidGenerator.queueOfUuids.push(foodUuid2);
+   mockUuidGenerator.queueOfUuids.push(foodUuid3);
+@@ -93,16 +93,16 @@
+ // -------------------------------------------------------------------
+ 
+ function testReorderBetweenTwoItemsWithTheSameOrdinal() {
+-  sushiUuid     = &quot;40000000-2222-1333-F444-555555555555&quot;;
+-  sushiNameUuid = &quot;40000001-2222-1333-F444-555555555555&quot;;
++  sushiUuid     = &quot;40000000-2222-1333-8444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiUuid);
+   mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
+   pestoUuid     = &quot;40000000-2222-1333-9999-555555555555&quot;;
+   pestoNameUuid = &quot;40000001-2222-1333-9999-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoUuid);
+   mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
+-  guavaUuid     = &quot;50000000-2222-1333-F444-555555555555&quot;;
+-  guavaNameUuid = &quot;50000001-2222-1333-F444-555555555555&quot;;
++  guavaUuid     = &quot;50000000-2222-1333-8444-555555555555&quot;;
++  guavaNameUuid = &quot;50000001-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaUuid);
+   mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
+   var sushi = world.newItem(&quot;Sushi&quot;);
+@@ -123,16 +123,16 @@
+ }
+ 
+ function testReorderBetweenTwoItemsWithTheSameTimestamp() {
+-  sushiUuid     = &quot;40000000-2222-1333-F444-555555555555&quot;;
+-  sushiNameUuid = &quot;40000001-2222-1333-F444-555555555555&quot;;
++  sushiUuid     = &quot;40000000-2222-1333-8444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiUuid);
+   mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
+-  pestoUuid     = &quot;40000002-2222-1333-F444-555555555555&quot;;
+-  pestoNameUuid = &quot;40000003-2222-1333-F444-555555555555&quot;;
++  pestoUuid     = &quot;40000002-2222-1333-8444-555555555555&quot;;
++  pestoNameUuid = &quot;40000003-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoUuid);
+   mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
+-  guavaUuid     = &quot;40000004-2222-1333-F444-555555555555&quot;;
+-  guavaNameUuid = &quot;40000005-2222-1333-F444-555555555555&quot;;
++  guavaUuid     = &quot;40000004-2222-1333-8444-555555555555&quot;;
++  guavaNameUuid = &quot;40000005-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaUuid);
+   mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
+   var sushi = world.newItem(&quot;Sushi&quot;);
+@@ -147,13 +147,13 @@
+ 
+   orp.archive.StubArchive.prototype._generateUuid = mockUuidGenerator;
+ 
+-  sushiLinkUuid    = &quot;60000000-2222-1333-F444-555555555555&quot;;
++  sushiLinkUuid    = &quot;60000000-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
+   sushi.assignToCategory(categoryCalledFood);
+-  pestoLinkUuid    = &quot;60000001-2222-1333-F444-555555555555&quot;;
++  pestoLinkUuid    = &quot;60000001-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoLinkUuid);
+   pesto.assignToCategory(categoryCalledFood);
+-  guavaLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
++  guavaLinkUuid    = &quot;60000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
+   guava.assignToCategory(categoryCalledFood);
+   
+
+Modified: trunk/tests/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/tests/model/TestReorderingForTypicalOrdinals.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/model/TestReorderingForTypicalOrdinals.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -72,9 +72,9 @@
+ 
+   world = new orp.model.World(archive);
+ 
+-  annUuid1 = &quot;10000000-2222-1333-F444-555555555555&quot;;
+-  annUuid2 = &quot;10000001-2222-1333-F444-555555555555&quot;;
+-  annUuid3 = &quot;10000002-2222-1333-F444-555555555555&quot;;
++  annUuid1 = &quot;10000000-2222-1333-8444-555555555555&quot;;
++  annUuid2 = &quot;10000001-2222-1333-8444-555555555555&quot;;
++  annUuid3 = &quot;10000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(annUuid1);
+   mockUuidGenerator.queueOfUuids.push(annUuid2);
+   mockUuidGenerator.queueOfUuids.push(annUuid3);
+@@ -84,28 +84,28 @@
+   assertTrue(&quot;Ann has the expected uuid&quot;, userAnn.getUuidString() == annUuid1);
+   world.login(userAnn, annsPassword);
+ 
+-  foodUuid1    = &quot;20000000-2222-1333-F444-555555555555&quot;;
+-  foodUuid2    = &quot;20000001-2222-1333-F444-555555555555&quot;;
+-  foodUuid3    = &quot;20000002-2222-1333-F444-555555555555&quot;;
++  foodUuid1    = &quot;20000000-2222-1333-8444-555555555555&quot;;
++  foodUuid2    = &quot;20000001-2222-1333-8444-555555555555&quot;;
++  foodUuid3    = &quot;20000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(foodUuid1);
+   mockUuidGenerator.queueOfUuids.push(foodUuid2);
+   mockUuidGenerator.queueOfUuids.push(foodUuid3);
+   categoryCalledFood = world.newCategory(&quot;Food&quot;);
+ 
+-  sushiUuid     = &quot;40000000-2222-1333-F444-555555555555&quot;;
+-  sushiNameUuid = &quot;40000001-2222-1333-F444-555555555555&quot;;
++  sushiUuid     = &quot;40000000-2222-1333-8444-555555555555&quot;;
++  sushiNameUuid = &quot;40000001-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiUuid);
+   mockUuidGenerator.queueOfUuids.push(sushiNameUuid);
+-  pestoUuid     = &quot;40000010-2222-1333-F444-555555555555&quot;;
+-  pestoNameUuid = &quot;40000011-2222-1333-F444-555555555555&quot;;
++  pestoUuid     = &quot;40000010-2222-1333-8444-555555555555&quot;;
++  pestoNameUuid = &quot;40000011-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoUuid);
+   mockUuidGenerator.queueOfUuids.push(pestoNameUuid);
+-  guavaUuid     = &quot;40000020-2222-1333-F444-555555555555&quot;;
+-  guavaNameUuid = &quot;40000021-2222-1333-F444-555555555555&quot;;
++  guavaUuid     = &quot;40000020-2222-1333-8444-555555555555&quot;;
++  guavaNameUuid = &quot;40000021-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaUuid);
+   mockUuidGenerator.queueOfUuids.push(guavaNameUuid);
+-  taffyUuid     = &quot;40000030-2222-1333-F444-555555555555&quot;;
+-  taffyNameUuid = &quot;40000031-2222-1333-F444-555555555555&quot;;
++  taffyUuid     = &quot;40000030-2222-1333-8444-555555555555&quot;;
++  taffyNameUuid = &quot;40000031-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(taffyUuid);
+   mockUuidGenerator.queueOfUuids.push(taffyNameUuid);
+   sushi = world.newItem(&quot;Sushi&quot;);
+@@ -117,16 +117,16 @@
+   taffy = world.newItem(&quot;Taffy&quot;);
+   assertTrue(&quot;taffy has the expected uuid&quot;, taffy.getUuidString() == taffyUuid);
+ 
+-  sushiLinkUuid    = &quot;60000000-2222-1333-F444-555555555555&quot;;
++  sushiLinkUuid    = &quot;60000000-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(sushiLinkUuid);
+   sushi.assignToCategory(categoryCalledFood);
+-  pestoLinkUuid    = &quot;60000001-2222-1333-F444-555555555555&quot;;
++  pestoLinkUuid    = &quot;60000001-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(pestoLinkUuid);
+   pesto.assignToCategory(categoryCalledFood);
+-  guavaLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
++  guavaLinkUuid    = &quot;60000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(guavaLinkUuid);
+   guava.assignToCategory(categoryCalledFood);
+-  taffyLinkUuid    = &quot;60000002-2222-1333-F444-555555555555&quot;;
++  taffyLinkUuid    = &quot;60000002-2222-1333-8444-555555555555&quot;;
+   mockUuidGenerator.queueOfUuids.push(taffyLinkUuid);
+   taffy.assignToCategory(categoryCalledFood);
+ 
+
+Modified: trunk/tests/model/test_BeforeLogin.js
+===================================================================
+--- trunk/tests/model/test_BeforeLogin.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/model/test_BeforeLogin.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -110,7 +110,7 @@
+     assertTrue('Every entry can be displayed as a string', dojo.lang.isString(nameEntry.getDisplayString()));
+     assertTrue('Every axiomatic attribute is in the category &quot;Attribute&quot;', item.isInCategory(categoryCalledAttribute));
+     var uuid = item.getUuid();
+-    assertTrue('Every axiomatic attribute has a UUID', (uuid instanceof orp.uuid.Uuid));
++    assertTrue('Every axiomatic attribute has a UUID', (uuid instanceof dojo.uuid.Uuid));
+     assertTrue('getItemFromUuid() returns the right attribute', (world.getItemFromUuid(uuid) == item));
+   }
+   
+
+Modified: trunk/tests/model/test_dependencies.js
+===================================================================
+--- trunk/tests/model/test_dependencies.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/model/test_dependencies.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -58,7 +58,8 @@
+ // -------------------------------------------------------------------
+ 
+ function testDependencies() {
+-  assertTrue(&quot;orp.model depends only on lang, util, uuid, archive, and storage&quot;, orp.util.hasExactlyTheseProperties(orp, [&quot;model&quot;, &quot;lang&quot;, &quot;util&quot;, &quot;uuid&quot;, &quot;archive&quot;, &quot;storage&quot;]));
++  // assertTrue(&quot;orp.model depends only on lang, util, uuid, archive, and storage&quot;, orp.util.hasExactlyTheseProperties(orp, [&quot;model&quot;, &quot;lang&quot;, &quot;util&quot;, &quot;uuid&quot;, &quot;archive&quot;, &quot;storage&quot;]));
++  assertTrue(&quot;orp.model depends only on lang, util, uuid, archive, and storage&quot;, orp.util.hasExactlyTheseProperties(orp, [&quot;model&quot;, &quot;lang&quot;, &quot;util&quot;, &quot;archive&quot;, &quot;storage&quot;]));
+ }
+ 
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/transcribers/test_dependencies.js
+===================================================================
+--- trunk/tests/transcribers/test_dependencies.js	2006-02-21 06:17:48 UTC (rev 452)
++++ trunk/tests/transcribers/test_dependencies.js	2006-02-21 06:18:26 UTC (rev 453)
+@@ -51,7 +51,8 @@
+ // -------------------------------------------------------------------
+ 
+ function testDependencies() {
+-  var expectedOrpPackages = [&quot;lang&quot;, &quot;util&quot;, &quot;uuid&quot;, &quot;model&quot;, &quot;archive&quot;, &quot;storage&quot;, &quot;transcribers&quot;];
++  // var expectedOrpPackages = [&quot;lang&quot;, &quot;util&quot;, &quot;uuid&quot;, &quot;model&quot;, &quot;archive&quot;, &quot;storage&quot;, &quot;transcribers&quot;];
++  var expectedOrpPackages = [&quot;lang&quot;, &quot;util&quot;, &quot;model&quot;, &quot;archive&quot;, &quot;storage&quot;, &quot;transcribers&quot;];
+   assertTrue(&quot;Only orp.lang, orp.util, orp.model, and orp.transcriber are defined&quot;, orp.util.hasExactlyTheseProperties(orp, expectedOrpPackages));
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000433.html">[openrecord-svn] r452 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000435.html">[openrecord-svn] r454 - in trunk/source: . plugins view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#434">[ date ]</a>
+              <a href="thread.html#434">[ thread ]</a>
+              <a href="subject.html#434">[ subject ]</a>
+              <a href="author.html#434">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

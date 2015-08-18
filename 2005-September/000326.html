@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r343 - in trunk: documentation source source/model source/util tests/model tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r343%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20tests/model%20tests/util&In-Reply-To=%3C200509271952.j8RJqO5w009557%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000325.html">
+   <LINK REL="Next"  HREF="000327.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r343 - in trunk: documentation source source/model source/util tests/model tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r343%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20tests/model%20tests/util&In-Reply-To=%3C200509271952.j8RJqO5w009557%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r343 - in trunk: documentation source source/model source/util tests/model tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 27 21:52:24 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000325.html">[openrecord-svn] r342 - in trunk: source/model tests/model
+</A></li>
+        <LI>Next message: <A HREF="000327.html">[openrecord-svn] r344 - in trunk: . source source/util source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#326">[ date ]</a>
+              <a href="thread.html#326">[ thread ]</a>
+              <a href="subject.html#326">[ subject ]</a>
+              <a href="author.html#326">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-27 21:52:23 +0200 (Tue, 27 Sep 2005)
+New Revision: 343
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/OpenRecordLoader.js
+   trunk/source/model/Record.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Util.js
+   trunk/source/util/Uuid.js
+   trunk/tests/model/MockUuidGenerator.js
+   trunk/tests/util/UuidTest.js
+Log:
+More error checking and error handling.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/documentation/release_planning.txt	2005-09-27 19:52:23 UTC (rev 343)
+@@ -353,20 +353,20 @@
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+ brian  |          | 0.5  IED|  1. look into using the Dojo Package System
+-brian  |          | done (0.5+)   convert code to use Dojo Package System
+-       |          |         |     try removing all the lines: dojo.hostenv.setModulePrefix(&quot;dojo&quot;, ... 
+-       |          |         |     try to get djConfig.debugAtAllCosts to work (see sandbox.html)
+-       |          |         |     try to replace /source/util/Cookie.js with dojo.io.cookies
+-brian  |          |part done|     try to replace orpBindAsEventListener() with dojo.event.connect()
+-brian  |          | 0    IED|     try to replace orp.util.getStringContentsOfFileAtURL() with a Dojo method
+-       |          |         |     try to replace View.appendNewElement() with Dojo methods
+-       |          |         |     move isUuid out of Util.js
++brian  |          | 2    IED|     convert code to use Dojo Package System
++brian  |          | 0    IED|     try removing all the lines: dojo.hostenv.setModulePrefix(&quot;dojo&quot;, ... 
++brian  |          | 0    IED|     replace orp.util.getStringContentsOfFileAtURL() with a Dojo method
++brian  |          | 0.5  IED|     move isUuid out of Util.js, and add more error checking code
++brian  |          | (0.25+) |     replace orpBindAsEventListener() with dojo.event.connect()
++       |          | (0.25+) |     try to get djConfig.debugAtAllCosts to work (see sandbox.html)
++       |          |         |     try to replace orp.util.css_xxx functions with dojo.xml.htmlUtil.xxxClass functions
++       |          |         |     try to replace View.appendNewElement() with dojo.xml.domUtil methods
+        |          |         |     try to replace remaining Util.js functions with dojo.lang functions
+        |          |         |     try using Ant and the Dojo build system to build OpenRecord into a single-file 
+        |          |         |     change &quot;endOfLife()&quot; to &quot;destroy()&quot;
+        |          |         |     move XmlConverter.js out of util, because it depends on model code
+ brian  |          | 0    IED|     in model, get rid of ._Record() and ._ContentRecord()
+-brian  |          | done    |     make some sort of assertType() method
++brian  |          | 0.75 IED|     make some sort of assertType() method
+ brian  | 0.25 IED | 0    IED|     move scrap_yard contents to the tests_of_external_code directory and delete scrap_yard
+ brian  | 0.25 IED | 0.25 IED|     refactor UUID constructor API, and other UUID improvements
+        |          |         |  2. create a FakeStorage class, + rename FileSaver + HttpSaver
+@@ -375,7 +375,7 @@
+        |          |         |  5. research standard text representations for DateValues
+        |          |         |  6. make ordinal value strings not grow long so quickly
+        |          |         |  7. Do lazy creation of layout data items
+-brian  | 0.5  IED |         |     Make Item.js use namedParameter based API
++brian  | 0.5  IED | (0.5+)  |     Make Item.js use namedParameter based API
+ brian  |          |         |     Decide whether or not to replace bi-directional connection entries with twin-entries
+        |          |         |  8. Document the Data model public API
+        |          |         |  9. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+@@ -446,6 +446,7 @@
+        |          |         | 66. Set up an OpenRecord.org &quot;dogfood&quot; site &amp; hand-copy info into it
+        |          |         | 67. Have different documents use different style-sheets
+ -------+----------+---------+----------------------------------------------
++       |          |         |     replace /source/util/Cookie.js with dojo.io.cookies
+                               
+ 
+ 
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/OpenRecordLoader.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -136,8 +136,12 @@
+   if (firefox) {
+     errorMessage = &quot;Loading...&quot;;
+     // display errorMessage
+-    var world = new orp.model.World();
+-    new orp.view.RootView(world);
++    try {
++      var world = new orp.model.World();
++      new orp.view.RootView(world);
++    } catch (e) {
++      alert(e);
++    }
+   }
+ };    
+ 
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/model/Record.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -61,8 +61,9 @@
+   if (dojo.lang.isString(uuid)) {
+     var uuidString = uuid;
+     uuid = new orp.util.TimeBasedUuid(uuidString);
++    orp.lang.assert(uuid instanceof orp.util.TimeBasedUuid);
+   }
+-  
++
+   // Unfortunately, we need to treat 'world' and 'uuid' as 'Optional'. 
+   // I think this constructor is invoked by dj_inherits() calls 
+   // (in ContentRecord, Vote, and Ordinal), which do not pass
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/model/StubVirtualServer.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -607,7 +607,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ orp.model.StubVirtualServer.prototype.getItemFromUuid = function(uuid, observer) {
+-  orp.lang.assert(orp.util.isUuidValue(uuid));
++  orp.lang.assert(dojo.lang.isString(uuid) || uuid instanceof orp.util.Uuid);
+   
+   var item = this._hashTableOfItemsKeyedByUuid[uuid];
+   if (item &amp;&amp; observer) {
+@@ -1008,7 +1008,6 @@
+         }
+  
+         var dataTypeUuid = dehydratedEntry[JSON_MEMBER.TYPE];
+-        orp.lang.assert(orp.util.isUuidValue(dataTypeUuid));
+         var dataType = this._getItemFromUuidOrBootstrapItem(dataTypeUuid);
+         
+         if (dataTypeUuid == orp.model.World.UUID.TYPE_CONNECTION) {
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/util/RandomUuid.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -81,10 +81,9 @@
+         orp.lang.assert(false);
+       }
+     }
+-    // orp.lang.assert(dojo.lang.isString(uuidString));
+     orp.lang.assertType(uuidString, String);
+-    orp.lang.assert(uuidString.length == 36);
+     this._uuidString = uuidString;
++    orp.lang.assert(this.isValid());
+   } else {
+     this._uuidString = this._generateUuidString();
+   }
+@@ -95,6 +94,28 @@
+ 
+ 
+ // -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns true if the UUID was initialized with a valid value. 
++ *
++ * @scope    public instance method
++ * @return   True if the UUID is valid, or false if it is not.
++ */
++orp.util.RandomUuid.prototype.isValid = function() {
++  try {
++    orp.lang.assert(orp.util.Uuid.prototype.isValid.call(this));
++    orp.lang.assert(this.getVersion() == orp.util.Uuid.Version.RANDOM);
++    orp.lang.assert(this.getVariant() == orp.util.Uuid.Variant.DCE);
++    return true;
++  } catch (e) {
++    return false;
++  }
++};
++
++
++// -------------------------------------------------------------------
+ // Private class methods
+ // -------------------------------------------------------------------
+ 
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -86,7 +86,7 @@
+   if (namedParameters) {
+     if (dojo.lang.isString(namedParameters)) {
+       uuidString = namedParameters;
+-      orp.lang.assert(uuidString.length == 36);
++      // orp.lang.assert(uuidString.length == 36);
+       this._uuidString = uuidString;
+     } else {
+       if (dojo.lang.isObject(namedParameters)) {
+@@ -99,7 +99,7 @@
+         orp.lang.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;, &quot;node&quot;, &quot;pseudoNode&quot;, &quot;hardwareNode&quot;]));
+         if (uuidString) {
+           orp.lang.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
+-          orp.lang.assert(uuidString.length == 36);
++          // orp.lang.assert(uuidString.length == 36);
+           this._uuidString = uuidString;
+         }
+         if (node || pseudoNode || hardwareNode) {
+@@ -118,6 +118,7 @@
+         orp.lang.assert(false);
+       }
+     }
++    orp.lang.assert(this.isValid());
+   } else {
+     this._uuidString = this._generateUuidString();
+   }
+@@ -154,6 +155,24 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Returns true if the UUID was initialized with a valid value. 
++ *
++ * @scope    public instance method
++ * @return   True if the UUID is valid, or false if it is not.
++ */
++orp.util.TimeBasedUuid.prototype.isValid = function() {
++  try {
++    orp.lang.assert(orp.util.Uuid.prototype.isValid.call(this));
++    orp.lang.assert(this.getVersion() == orp.util.Uuid.Version.TIME_BASED);
++    orp.lang.assert(this.getVariant() == orp.util.Uuid.Variant.DCE);
++    return true;
++  } catch (e) {
++    return false;
++  }
++};
++
++
++/**
+  * Returns a 12-character string with the &quot;node&quot; or &quot;pseudonode&quot; portion of 
+  * the UUID, which is the rightmost 12 characters.
+  * 
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/util/Util.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -331,6 +331,7 @@
+  * @return   A boolean value. True if value is a UUID object.
+  */
+ orp.util.isUuid = function(value) {
++  dj_deprecated(&quot;orp.util.isUuid() is deprecated. Use orp.util.Uuid.prototype.isValid().&quot;);
+   // return (value instanceof orp.util.Uuid);
+   return true; // PENDING: FIXME.
+ };
+@@ -346,6 +347,7 @@
+  * @return   A boolean value. True if value is a UUID.
+  */
+ orp.util.isUuidValue = function(value) {
++  dj_deprecated(&quot;orp.util.isUuidValue() is deprecated. Use orp.util.Uuid.prototype.isValid().&quot;);
+   if (orp.util.isUuid(value)) {
+     return true;
+   }
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/source/util/Uuid.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -71,9 +71,10 @@
+         // Check for typos in parameter names
+         orp.lang.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;]));
+       } else {
+-        orp.lang.assert(false);
++        orp.lang.assert(false, &quot;The orp.util.Uuid() constructor must be initializated with a UUID string.&quot;);
+       }
+     }
++    orp.lang.assert(this.isValid());
+   }
+ };
+ 
+@@ -117,10 +118,8 @@
+   if (dojo.lang.isString(namedParameters)) {
+     uuidString = namedParameters;
+   } else {
+-    // orp.util.assert(dojo.lang.isObject(namedParameters));
+     orp.lang.assertType(namedParameters, Object);
+     uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
+-    // orp.util.assert(dojo.lang.isString(uuidString));
+     orp.lang.assertType(uuidString, String);
+     
+     // Check for typos in parameter names
+@@ -163,6 +162,35 @@
+ 
+ 
+ /**
++ * Returns true if the UUID was initialized with a valid value. 
++ *
++ * @scope    public instance method
++ * @return   True if the UUID is valid, or false if it is not.
++ */
++orp.util.Uuid.prototype.isValid = function() {
++  try {
++    orp.lang.assertType(this._uuidString, String);
++    orp.lang.assert(this._uuidString.length == 36);
++    var arrayOfParts = this._uuidString.split(&quot;-&quot;);
++    orp.lang.assert(arrayOfParts.length == 5);   
++    orp.lang.assert(arrayOfParts[0].length == 8);
++    orp.lang.assert(arrayOfParts[1].length == 4);
++    orp.lang.assert(arrayOfParts[2].length == 4);
++    orp.lang.assert(arrayOfParts[3].length == 4);
++    orp.lang.assert(arrayOfParts[4].length == 12);
++    for (var i in arrayOfParts) {
++      var part = arrayOfParts[i];
++      var integer = parseInt(part, orp.util.Uuid.HEX_RADIX);
++      orp.lang.assert(isFinite(integer));
++    }
++    return true;
++  } catch (e) {
++    return false;
++  }
++};
++
++
++/**
+  * Returns a version number that indicates what type of UUID this is. 
+  * For example:
+  * &lt;pre&gt;
+
+Modified: trunk/tests/model/MockUuidGenerator.js
+===================================================================
+--- trunk/tests/model/MockUuidGenerator.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/tests/model/MockUuidGenerator.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -39,7 +39,8 @@
+     return &quot;00000000-0000-0000-0000-000000000000&quot;;
+   }
+   var uuidString = mockUuidGenerator.queueOfUuids.shift();
+-  var uuid = new orp.util.TimeBasedUuid(uuidString);
++  var uuid = new orp.util.TimeBasedUuid();
++  uuid._uuidString = uuidString;
+   return uuid;
+ }
+ 
+
+Modified: trunk/tests/util/UuidTest.js
+===================================================================
+--- trunk/tests/util/UuidTest.js	2005-09-27 01:39:06 UTC (rev 342)
++++ trunk/tests/util/UuidTest.js	2005-09-27 19:52:23 UTC (rev 343)
+@@ -283,6 +283,41 @@
+   checkUuidValidity(uuid4);
+ }
+ 
++function testInvalidUuids() {
++  var uuidStrings = [];
++  uuidStrings.push(&quot;Hello world!&quot;);    // not a UUID
++  uuidStrings.push(&quot;3B12F1DF-5232-1804-897E-917BF39761&quot;);    // too short
++  uuidStrings.push(&quot;3B12F1DF-5232-1804-897E-917BF39761-8A&quot;); // extra '-'
++  uuidStrings.push(&quot;3B12F1DF-5232-1804-897E917BF39761-8A&quot;);  // last '-' in wrong place
++  uuidStrings.push(&quot;HB12F1DF-5232-1804-897E-917BF397618A&quot;);  // &quot;HB12F1DF&quot; is not a hex string
++  
++  var numberOfFailures = 0;
++  for (var i in uuidStrings) {
++    var uuidString = uuidStrings[i];
++    try {
++      new Uuid(uuidString);
++    } catch (e) {
++      ++numberOfFailures;
++    }
++  }
++  assertTrue('All of the &quot;new Uuid()&quot; calls failed', (numberOfFailures == uuidStrings.length));  
++
++  
++  uuidStrings.push(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);  // valid UUID, but not a time based UUID
++  uuidStrings.push(&quot;3B12F1DF-5232-1804-F97E-917BF397618A&quot;);  // valid UUID, but not a DCE variant
++  numberOfFailures = 0;
++  for (i in uuidStrings) {
++    uuidString = uuidStrings[i];
++    try {
++      new TimeBasedUuid(uuidString);
++    } catch (e) {
++      ++numberOfFailures;
++    }
++  }
++  assertTrue('All of the &quot;new TimeBasedUuid()&quot; calls failed', (numberOfFailures == uuidStrings.length));  
++}
++
++
+ function testUuidFactory() {
+   // Time-based UUIDs
+   var uuid1 = Uuid.newUuid({uuidString: &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;});
+@@ -336,6 +371,7 @@
+   assertTrue('Section 3 has 4 characters', (arrayOfParts[3].length == 4));
+   assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+   
++  // check to see that the &quot;UUID variant code&quot; starts with the binary bits '10'
+   var section3 = arrayOfParts[3];
+   var hex3 = parseInt(section3, orp.util.Uuid.HEX_RADIX);
+   var binaryString = hex3.toString(2);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000325.html">[openrecord-svn] r342 - in trunk: source/model tests/model
+</A></li>
+	<LI>Next message: <A HREF="000327.html">[openrecord-svn] r344 - in trunk: . source source/util source/view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#326">[ date ]</a>
+              <a href="thread.html#326">[ thread ]</a>
+              <a href="subject.html#326">[ subject ]</a>
+              <a href="author.html#326">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

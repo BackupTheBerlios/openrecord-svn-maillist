@@ -1,0 +1,1538 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r62 - in trunk: documentation source source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r62%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200505172334.j4HNYhJm018333%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000053.html">
+   <LINK REL="Next"  HREF="000055.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r62 - in trunk: documentation source source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r62%20-%20in%20trunk%3A%20documentation%20source%20source/model&In-Reply-To=%3C200505172334.j4HNYhJm018333%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r62 - in trunk: documentation source source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed May 18 01:34:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000053.html">[openrecord-svn] r61 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000055.html">[openrecord-svn] r65 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-18 01:34:37 +0200 (Wed, 18 May 2005)
+New Revision: 62
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/ItemView.js
+   trunk/source/LintTest.html
+   trunk/source/LintTest.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/PageView.js
+   trunk/source/Rectangle.js
+   trunk/source/RootView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/TextView.js
+   trunk/source/Util.js
+   trunk/source/View.js
+   trunk/source/demo_page.html
+   trunk/source/demo_page.js
+   trunk/source/model/BigLumpVirtualServer.js
+   trunk/source/model/Item.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Started switching the view code over so that it uses the new data model.  This is work in progress: using this version you can read and edit data, but you can't save changes.  And I've only tested this when loading the page using &quot;<A HREF="file:///">file:///</A>&quot;, not &quot;<A HREF="http://">http://</A>&quot;.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/documentation/release_planning.txt	2005-05-17 23:34:37 UTC (rev 62)
+@@ -77,7 +77,7 @@
+ Mignon |  High    | 1   iwd | UI for creating a new category
+ Mignon |  High    | 1   iwd | UI for deleting a row from a table 
+  Chao  |  High    | 1.5 iwd | UI for logging in and logging out; cookies and auto-login; display of who you're logged in as
+- Chao  |  High    | 0.5 iwd | UI to sort a table when you click on a column header
++ Chao  |   done   | 0.5 iwd | UI to sort a table when you click on a column header
+ Brian  |   done   | 1   iwd | Data model: change &quot;Value&quot; to &quot;Entry&quot;; refactor entries to be per-attribute
+ Brian  |  High    | 2   iwd | Convert UI code to use new data model
+        |  High    |         | UI for entering a number literal (instead of a string literal) in a table
+@@ -283,27 +283,26 @@
+     place, rather than relying on client JavaScript to do all
+     the work.
+ ---------------------------------------------------
+-+ Rationalize CSS style sheets
++ + Rationalize CSS style sheets
+     Need to figure out a consistent &quot;style&quot; for using style sheets applicable
+     to the way we architect our view widgets
+ ---------------------------------------------------
+-+ Bug: Figure out why swapping between editField and textNode is causing slight visual padding
++ + Bug: Figure out why swapping between editField and textNode is causing slight visual padding
+ ---------------------------------------------------
+-+ Q: Should we consider subclassing from DOM objects? e.g. TablePlugin can be subclassed from HTMLTableElement?
++ + Q: Should we consider subclassing from DOM objects? e.g. TablePlugin can be subclassed from HTMLTableElement?
+ ---------------------------------------------------
+-+ Q: Should getListofContentItems() in superview be replaced by an argument into plugin's constructor
+-  Also, should plugin get a CSS class?
++ + Q: Should getListofContentItems() in superview be replaced by an argument into plugin's constructor
++   Also, should plugin get a CSS class?
+ ---------------------------------------------------
+-+ Q: Should we decouple plugins from SectionView? in general, should we make objects less tightly coupled?
+-  Parent objects can know about children objects, but not vice versa.
++ + Q: Should we decouple plugins from SectionView? in general, should we make objects less tightly coupled?
++   Parent objects can know about children objects, but not vice versa.
+ ---------------------------------------------------
+-+ Q: How exactly should entering new items UI work? Not clear when an item is saved
++ + Q: How exactly should entering new items UI work? Not clear when an item is saved
+ ---------------------------------------------------
+-+ Bug: up down arrows not working for table editing. Not sure why
+----------------------------------------------------
+ 
+ 
+ 
++
+    
+ 
+ 
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/BarChartPlugin.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   SectionView.js
+ //   PageView.js
+ //   Util.js
+@@ -81,27 +81,35 @@
+   var listOfStrings = [];
+ 
+   var contentItem = null;
+-  var attributeUuid = null;
+-  var hashTableOfNumericValueIncidenceKeyedByAttributeUuid = {};
++  var attribute = null;
++  var listOfEntries;
++  var attributeKey;
++  var hashTableOfNumericValueIncidenceKeyedByAttributeKey = {};
++  var hashTableOfAttributesKeyedByAttributeKey = {};
+   
+   // for each attribute, count the number of items where that attribute has a numeric value
+   // PENDING: how do we know our superview responds to getListOfContentItems()? 
+   var listOfContentItems = this.getSuperview().getListOfContentItems();
+   for (var iKey in listOfContentItems) {
+     contentItem = listOfContentItems[iKey];
+-    var listOfAttributesForItem = contentItem.getListOfAttributeUuids();
+-    for (var attributeKey in listOfAttributesForItem) {
+-      attributeUuid = listOfAttributesForItem[attributeKey];
+-      var valueList = contentItem.getValueListFromAttribute(attributeUuid);
+-      if (valueList) {
+-        var value = valueList[0];
+-        if (Util.isNumber(value)) {
+-          var count = hashTableOfNumericValueIncidenceKeyedByAttributeUuid[attributeUuid];
+-          if (!count) {
+-            count = 0;
++    var listOfAttributesForItem = contentItem.getAttributes();
++    for (attributeKey in listOfAttributesForItem) {
++      attribute = listOfAttributesForItem[attributeKey];
++      var attributeKeyString = attribute.getUniqueKeyString();
++      hashTableOfAttributesKeyedByAttributeKey[attributeKeyString] = attribute;
++      listOfEntries = contentItem.getEntriesForAttribute(attribute);
++      if (listOfEntries) {
++        var firstEntry = listOfEntries[0];
++        if (firstEntry) {
++          var value = firstEntry.getValue();
++          if (Util.isNumber(value)) {
++            var count = hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKeyString];
++            if (!count) {
++              count = 0;
++            }
++            count += 1;
++            hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKeyString] = count;
+           }
+-          count += 1;
+-          hashTableOfNumericValueIncidenceKeyedByAttributeUuid[attributeUuid] = count;
+         }
+       }
+     }
+@@ -110,10 +118,10 @@
+   // find the attribute for which most of the items have a numeric value 
+   var maxIncidence = 0;
+   var selectedAttribute = null;
+-  for (attributeUuid in hashTableOfNumericValueIncidenceKeyedByAttributeUuid) {
+-    var incidence = hashTableOfNumericValueIncidenceKeyedByAttributeUuid[attributeUuid];
++  for (attributeKey in hashTableOfNumericValueIncidenceKeyedByAttributeKey) {
++    var incidence = hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKey];
+     if (incidence &gt; maxIncidence) {
+-      selectedAttribute = this.getStevedore().getItemFromUuid(attributeUuid);
++      selectedAttribute = hashTableOfAttributesKeyedByAttributeKey[attributeKey];
+       maxIncidence = incidence;
+     }
+   }
+@@ -123,18 +131,21 @@
+     var maxValue = 0;
+     for (var jkey in listOfContentItems) {
+       contentItem = listOfContentItems[jkey];
+-      var nextValueList = contentItem.getValueListFromAttribute(selectedAttribute);
+-      var nextValue = nextValueList[0];
+-      if (Util.isNumber(nextValue)) {
+-        maxValue = Math.max(maxValue, nextValue);
+-      }     
++      listOfEntries = contentItem.getEntriesForAttribute(selectedAttribute);
++      if (listOfEntries &amp;&amp; listOfEntries[0]) {
++        var nextEntry = listOfEntries[0];
++        var nextValue = nextEntry.getValue();
++        if (Util.isNumber(nextValue)) {
++          maxValue = Math.max(maxValue, nextValue);
++        }     
++      }
+     }
+   }
+ 
+   // add the table header row(s)
+   listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + SectionView.ELEMENT_CLASS_SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
+   listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+-  var attributeCalledName = this.getStevedore().getItemFromUuid(Stevedore.UUID_FOR_ATTRIBUTE_NAME);
++  var attributeCalledName = this.getWorld().getAttributeCalledName();
+   listOfStrings.push(&quot;&lt;th&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/th&gt;&quot;);
+   if (selectedAttribute) {
+     listOfStrings.push(&quot;&lt;th&gt;&quot; + selectedAttribute.getDisplayName() + &quot;&lt;/th&gt;&quot;);
+@@ -150,13 +161,15 @@
+     listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_PLAIN + &quot;\&quot;&gt;&quot; + contentItem.getDisplayName(&quot;{no name}&quot;) + &quot;&lt;/td&gt;&quot;);
+     var numericValue = 0;
+     if (selectedAttribute) {
+-      var listOfValues = contentItem.getValueListFromAttribute(selectedAttribute);
+-      var firstValue = listOfValues[0];
+-      if (Util.isNumber(firstValue)) {
+-        numericValue = firstValue;
++      listOfEntries = contentItem.getEntriesForAttribute(selectedAttribute);
++      if (listOfEntries &amp;&amp; listOfEntries[0]) {
++        var firstEntry = listOfEntries[0];
++        var firstValue = firstEntry.getValue();
++        if (Util.isNumber(firstValue)) {
++          numericValue = firstValue;
++        }
+       }
+     }
+-    // listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_PLAIN + &quot;\&quot;&gt;&quot; + displayValue + &quot;&lt;/td&gt;&quot;);
+     var width = 0;
+     if (maxValue &gt; 0) {
+       width = (numericValue / maxValue) * 100; // 100 Percent
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/DetailPlugin.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   SectionView.js
+ //   Util.js
+ // -------------------------------------------------------------------
+@@ -116,25 +116,23 @@
+   Util.assert(inItem instanceof Item);
+   
+   var listOfStrings = [];
+-  var stevedore = this.getStevedore();
+-  var attributeCalledName = stevedore.getItemFromUuid(Stevedore.UUID_FOR_ATTRIBUTE_NAME);
++  var attributeCalledName = this.getWorld().getAttributeCalledName();
+   
+   listOfStrings.push(&quot;&lt;table class=\&quot;&quot; + SectionView.ELEMENT_CLASS_SIMPLE_TABLE + &quot;\&quot;&gt;&quot;);
+   listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+   listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_LABEL + &quot; &quot; + SectionView.ELEMENT_CLASS_TITLE + &quot;\&quot;&gt;&quot; + attributeCalledName.getDisplayName() + &quot;&lt;/td&gt;&quot;);
+   listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_TITLE + &quot;\&quot;&gt;&quot; + inItem.getDisplayName() + &quot;&lt;/td&gt;&quot;);
+   listOfStrings.push(&quot;&lt;/tr&gt;&quot;);
+-  var listOfAttributeUuids = inItem.getListOfAttributeUuids();
+-  for (var key in listOfAttributeUuids) { 
+-    var attributeUuid = listOfAttributeUuids[key];
+-    if (attributeUuid != attributeCalledName.getUuid()) {
++  var listOfAttributes = inItem.getAttributes();
++  for (var key in listOfAttributes) { 
++    var attribute = listOfAttributes[key];
++    if (attribute != attributeCalledName) {
+       listOfStrings.push(&quot;&lt;tr&gt;&quot;);
+-      var attribute = stevedore.getItemFromUuid(attributeUuid);
+       listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_LABEL + &quot;\&quot;&gt;&quot; + attribute.getDisplayName() + &quot;&lt;/td&gt;&quot;);
+-      var valueList = inItem.getValueListFromAttribute(attributeUuid); 
++      var listOfEntries = inItem.getEntriesForAttribute(attribute); 
+       listOfStrings.push(&quot;&lt;td class=\&quot;&quot; + SectionView.ELEMENT_CLASS_PLAIN + &quot;\&quot;&gt;&quot;);
+-      for (var j = 0; j &lt; valueList.length; ++j) {
+-        listOfStrings.push(SectionView.getStringForValue(valueList[j]) + &quot;&lt;br/&gt;&quot;);
++      for (var j = 0; j &lt; listOfEntries.length; ++j) {
++        listOfStrings.push(listOfEntries[j].getDisplayString() + &quot;&lt;br/&gt;&quot;);
+       }
+       listOfStrings.push(&quot;&lt;/td&gt;&quot;);
+       listOfStrings.push(&quot;&lt;/tr&gt;&quot;);
+
+Modified: trunk/source/ItemView.js
+===================================================================
+--- trunk/source/ItemView.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/ItemView.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   Util.js
+ //   RootView.js
+ //   DetailPlugin.js
+@@ -90,7 +90,8 @@
+  * @return   A string that gives the name of the page.
+  */
+ ItemView.prototype.getPageTitle = function () {
+-  return this.myItem.getShortName();
++  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
++  return this.myItem.getSingleStringValueFromAttribute(attributeCalledShortName);
+ };
+ 
+ 
+@@ -102,13 +103,15 @@
+  */
+ ItemView.prototype.refresh = function () {
+   Util.assert(this.myItem instanceof Item);
++  
++  // PENDING: this needs to be changed from DOM level 0 to DOM level 2.
+   var listOfStrings = [];
+ 
+   // add an &lt;h1&gt; heading with the name of the page
+-  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this.myItem.getUuid() + &quot;\&quot;&gt;&quot; + this.myItem.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
++  listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + RootView.URL_ITEM_PREFIX + this.myItem._getUuid() + &quot;\&quot;&gt;&quot; + this.myItem.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+ 
+   // add a &lt;div&gt; element for the detail plugin
+-  var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this.myItem.getUuid();
++  var detailDivId = ItemView.ELEMENT_ID_DETAIL_DIV_PREFIX + this.myItem._getUuid();
+   listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + detailDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+ 
+   // write out all the new content 
+
+Modified: trunk/source/LintTest.html
+===================================================================
+--- trunk/source/LintTest.html	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/LintTest.html	2005-05-17 23:34:37 UTC (rev 62)
+@@ -26,8 +26,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DetailPlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;BarChartPlugin.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Stevedore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;datastore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/source/LintTest.js
+===================================================================
+--- trunk/source/LintTest.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/LintTest.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -125,8 +125,6 @@
+     &quot;DetailPlugin.js&quot;,
+     &quot;BarChartPlugin.js&quot;,
+     &quot;demo_page.js&quot;,
+-    &quot;Item.js&quot;,
+-    &quot;Stevedore.js&quot;,
+     &quot;UtilTest.js&quot;];
+   for (var key in listOfSourceCodeFiles) {
+     var fileName = listOfSourceCodeFiles[key];
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/OutlinePlugin.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   SectionView.js
+ // -------------------------------------------------------------------
+ 
+@@ -85,7 +85,12 @@
+     var liElement = View.createAndAppendElement(ulElement, &quot;li&quot;);
+     View.createAndAppendTextNode(liElement, contentItem.getDisplayName(&quot;{no name}&quot;) + &quot; &quot;);
+     var anchorElement = View.createAndAppendElement(liElement, &quot;a&quot;, SectionView.ELEMENT_CLASS_MORE_LINK);
+-    anchorElement.setAttribute(&quot;href&quot;, RootView.URL_HASH_ITEM_PREFIX + contentItem.getUuid());
++
++    // PENDING: 
++    //  We shouldn't call the private method _getUuid()
++    //  We need a better way to get the URL for a content item
++    anchorElement.setAttribute(&quot;href&quot;, RootView.URL_HASH_ITEM_PREFIX + contentItem._getUuid());
++
+     // View.createAndAppendTextNode(anchorElement, &quot;(more &#8658;)&quot;);
+     anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
+     Util.addEventListener(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink);
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/PageView.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   Util.js
+ //   SectionView.js
+ //   TextView.js
+@@ -45,7 +45,9 @@
+ PageView.ELEMENT_ID_SECTION_DIV_MIDFIX = &quot;_in_page_&quot;;
+ PageView.ELEMENT_ID_SUMMARY_VIEW_DIV_PREFIX = &quot;_summary_view_for_page_&quot;;
+ 
++PageView.UUID_FOR_ATTRIBUTE_SECTION = 108;
+ 
++
+ /**
+  * The RootView uses an instance of a PageView to display a Page in the
+  * browser window.
+@@ -80,7 +82,8 @@
+  * @return   A string that gives the name of the page.
+  */
+ PageView.prototype.getPageTitle = function () {
+-  return this.myPage.getShortName();
++  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
++  return this.myPage.getSingleStringValueFromAttribute(attributeCalledShortName);
+ };
+ 
+   
+@@ -113,22 +116,27 @@
+ PageView.prototype.doInitialDisplay = function () {
+   Util.assert(this.getHTMLElement() instanceof HTMLElement);
+   
++  var attributeCalledName = this.getWorld().getAttributeCalledName();
++  var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
++
+   var pageDivElement = this.getHTMLElement();
+   
+   var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
+   this._myHeaderText = new TextView(this, headerElement, this.myPage,
+-    Stevedore.UUID_FOR_ATTRIBUTE_NAME, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++    attributeCalledName, SectionView.ELEMENT_CLASS_TEXT_VIEW);
+ 
+   var summaryViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+   this._myPageSummaryView = new TextView(this, summaryViewDiv, this.myPage,
+-    Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
++    attributeCalledSummary, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+ 
+   // add &lt;div&gt; elements for each of the sections on the page
+   // and create a new SectionView for each section
+-  var listOfSections = this.myPage.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_SECTION);
++  var attributeCalledSection = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTION);
++  var listOfEntriesForSections = this.myPage.getEntriesForAttribute(attributeCalledSection);
+   var sectionNumber = 0;
+-  for (var key in listOfSections) {
+-    var section = listOfSections[key];
++  for (var key in listOfEntriesForSections) {
++    var entryForSection = listOfEntriesForSections[key];
++    var section = entryForSection.getValue();
+     var sectionViewDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;);
+     var sectionView = new SectionView(this, sectionViewDiv, section, sectionNumber);
+     sectionNumber += 1;
+
+Modified: trunk/source/Rectangle.js
+===================================================================
+--- trunk/source/Rectangle.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/Rectangle.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -5,13 +5,13 @@
+ //    + jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
+ //    + do not use &quot;with&quot;
+ //    + do not use &quot;new Function&quot;
+-//    + do not use ++ and --
++//    + use ++i and --i instead of i++ and i-- (prefix instead of postfix)
+ // 
+ // + naming conventions
+ //    + capitalization
+ //       + classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
+ //       + all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
+-//       + acronyms appear in initial caps: &quot;myHtmlString&quot;, not &quot;myHTMLString&quot;
++//       + acronyms appear in initial caps: &quot;htmlString&quot;, not &quot;HTMLString&quot;
+ //       + constants are all caps, with underscores: FILL_PATTERN_SOLID
+ //    + file names
+ //       + each file has just one public class
+@@ -23,17 +23,18 @@
+ //       + example: Book.js has unit test files BookTest.html and BookTest.js
+ //    + variable scoping prefixes
+ //       + class variables are prefixed with &quot;our&quot;
+-//       + instance variables are prefixed with &quot;my&quot;
++//       + [DEPRECATED: instance variables are prefixed with &quot;my&quot;]
+ //       + global variables are prefixed with &quot;window.global&quot;
+ //       + locally scoped variables are not prefixed
+-//       + function input parameters are prefixed with &quot;in&quot;
+-//       + private variables and methods are prefixed with &quot;__&quot;
+-//       + protected variables and methods are prefixed with &quot;_&quot;
++//       + non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
++//       + [DEPRECATED: function input parameters are prefixed with &quot;in&quot;]
++//       + [DEPRECATED: private variables and methods are prefixed with &quot;__&quot;]
++//       + [DEPRECATED: protected variables and methods are prefixed with &quot;_&quot;]
+ //    + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
+-//    + array variables are prefixed with &quot;ListOf&quot; or &quot;HashTableOf&quot; or &quot;ArrayOf&quot;
+-//       + var myListOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
+-//       + var myHashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
+-//       + var myArrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number array[23] = &quot;Apple&quot;
++//    + array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
++//       + var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
++//       + var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
++//       + var arrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number arrayOfFruit[23] = &quot;Apple&quot;
+ //    + accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
+ //       + any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
+ //       + any method that does change an object's state should be a &quot;set&quot; method
+@@ -41,7 +42,7 @@
+ //
+ // + compatiblity with other browsers and other JavaScript libraries 
+ //    + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
+-//    + add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
++//    + [DEPRECATED: add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...]
+ //
+ // + indenting, tabs, and line ending characters
+ //    + 2-space indenting
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/RootView.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -32,7 +32,7 @@
+ // -------------------------------------------------------------------
+ // Dependencies:
+ //   PageView.js
+-//   Stevedore.js
++//   World.js
+ //   Util.js
+ // -------------------------------------------------------------------
+ 
+@@ -55,7 +55,11 @@
+ RootView.COOKIE_NAME = &quot;user&quot;;
+ RootView.CONTROL_SPAN_CLASS = &quot;control_span&quot;;
+ 
++RootView.UUID_FOR_HOME_PAGE = 2000;
++RootView.UUID_FOR_CATEGORY_PAGE = 145;
++RootView.UUID_FOR_CATEGORY_SECTION = 146;  // PENDING: not used?
+ 
++
+ // -------------------------------------------------------------------
+ // RootView class properties
+ // -------------------------------------------------------------------
+@@ -70,13 +74,13 @@
+  * @scope    public instance constructor
+  * @syntax   var rootView = new RootView()
+  */
+-function RootView(inStevedore) {
++function RootView(inWorld) {
+   RootView.ourSingleInstance = this;
+    
+-  Util.assert(inStevedore instanceof Stevedore);
++  Util.assert(inWorld instanceof World);
+ 
+   // instance properties
+-  this._myStevedore = inStevedore;
++  this._myWorld = inWorld;
+   this.myEditMode = false;
+   this.myNumberOfCallsToDebug = 0;
+   this.myDebugTextarea = null;
+@@ -88,11 +92,11 @@
+   this._myCurrentContentView = null;
+   
+   this.myHashTableOfPagesKeyedByUuid = {};
+-  var categoryPage = this._myStevedore.getItemFromUuid(Stevedore.UUID_FOR_CATEGORY_PAGE);
+-  var listOfPages = this._myStevedore.getListOfItemsInCategory(categoryPage);
++  var categoryCalledPage = this._myWorld.getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
++  var listOfPages = this._myWorld.getItemsInCategory(categoryCalledPage);
+   for (var key in listOfPages) {
+     var page = listOfPages[key];
+-    this.myHashTableOfPagesKeyedByUuid[page.getUuid()] = page; 
++    this.myHashTableOfPagesKeyedByUuid[page._getUuid()] = page; 
+   }
+ 
+   window.document.body.innerHTML = &quot;&quot;;
+@@ -101,7 +105,7 @@
+   for (var uuid in this.myHashTableOfPagesKeyedByUuid) {
+     var aPage = this.myHashTableOfPagesKeyedByUuid[uuid];
+     var anchor = View.createAndAppendElement(rootDiv, &quot;a&quot;);
+-    anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + aPage.getUuid());
++    anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + aPage._getUuid());
+   }
+   
+   var headerP = View.createAndAppendElement(rootDiv, &quot;p&quot;, &quot;header&quot;);
+@@ -141,13 +145,13 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Returns the Stevedore instance that this RootView is using.
++ * Returns the World instance that this RootView is using.
+  *
+  * @scope    public instance method
+- * @return   A Stevedore object. 
++ * @return   A World object. 
+  */
+-RootView.prototype.getStevedore = function () {
+-  return this._myStevedore;
++RootView.prototype.getWorld = function () {
++  return this._myWorld;
+ };
+ 
+ 
+@@ -163,6 +167,17 @@
+ 
+   
+ /**
++ * Returns the page item to be used as the home page.
++ *
++ * @scope    public instance method
++ * @return   A page item.
++ */
++RootView.prototype.getHomePage = function () {
++  return this.getWorld().getItemFromUuid(RootView.UUID_FOR_HOME_PAGE);
++};
++
++
++/**
+  * Gets the browser URL from window.location, finds or creates a corresponding
+  * PageView or ItemView, and sets the current content view to the newly selected
+  * PageView or ItemView.
+@@ -187,7 +202,7 @@
+         uuidNumber = parseInt(uuidText);
+         contentViewToSwitchTo = this._myHashTableOfItemViewsKeyedByUuid[uuidNumber];
+         if (!contentViewToSwitchTo) {
+-          itemFromUuid = this._myStevedore.getItemFromUuid(uuidNumber);
++          itemFromUuid = this._myWorld.getItemFromUuid(uuidNumber);
+           if (itemFromUuid) {
+             divElement = window.document.createElement(&quot;div&quot;); 
+             this._myContentViewDivElement.appendChild(divElement);
+@@ -215,13 +230,13 @@
+   }
+   
+   if (!contentViewToSwitchTo) {
+-    var page = this._myStevedore.getHomePage();
+-    contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[page.getUuid()];
++    var page = this.getHomePage();
++    contentViewToSwitchTo = this._myHashTableOfPageViewsKeyedByUuid[page._getUuid()];
+     if (!contentViewToSwitchTo) {
+       divElement = window.document.createElement(&quot;div&quot;); 
+       this._myContentViewDivElement.appendChild(divElement);
+       contentViewToSwitchTo = new PageView(this, divElement, page);
+-      this._myHashTableOfPageViewsKeyedByUuid[page.getUuid()] = contentViewToSwitchTo;
++      this._myHashTableOfPageViewsKeyedByUuid[page._getUuid()] = contentViewToSwitchTo;
+     }
+   }
+   if (this._myCurrentContentView) {
+@@ -341,14 +356,15 @@
+ RootView.prototype.displayNavbar = function () {
+   Util.assert(this.myNavbarDivElement instanceof HTMLDivElement);
+ 
++  var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+   var listOfStrings = [];
+ 
+   listOfStrings.push(&quot;&lt;ul class=\&quot;menu\&quot;&gt;&quot;);
+   
+   for (var uuid in this.myHashTableOfPagesKeyedByUuid) {
+     var page = this.myHashTableOfPagesKeyedByUuid[uuid];
+-    var menuText = page.getShortName();
+-    var menuUrl = RootView.URL_HASH_PAGE_PREFIX + page.getUuid();
++    var menuText = page.getSingleStringValueFromAttribute(attributeCalledShortName);
++    var menuUrl = RootView.URL_HASH_PAGE_PREFIX + page._getUuid();
+     listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
+   }
+ 
+@@ -501,20 +517,20 @@
+ 
+ RootView.prototype.setEditMode = function (newVal) {
+   if (newVal != this.myEditMode) {
+-    var stevedore = this.getStevedore();
++    var world = this.getWorld();
+     if (this.myEditMode) {
+-      stevedore.endTransaction();
++      world.endTransaction();
+       window.document.body.style.cursor = &quot;auto&quot;;
+     } else {
+-      stevedore.beginTransaction();
++      world.beginTransaction();
+       window.document.body.style.cursor = &quot;crosshair&quot;;
+     }
+     this.myEditMode = !this.myEditMode;
+     this.display();
+     // this.displayTextInDebugTextarea(this.myEditMode);
+-    if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
+-      RootView.displayTextInDebugTextarea(stevedore._getJsonStringRepresentingAllItems());
+-    }
++    // if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
++    //  RootView.displayTextInDebugTextarea(world._getJsonStringRepresentingAllItems());
++    // }
+   }
+ };
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/SectionView.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,7 +31,7 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   Util.js
+ //   PageView.js
+ //   TablePlugin.js
+@@ -69,6 +69,7 @@
+ SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER = &quot;section_number&quot;;
+ SectionView.ELEMENT_ATTRIBUTE_CELL_NUMBER = &quot;cell_number&quot;;
+ 
++SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME = 113;
+ 
+ // -------------------------------------------------------------------
+ // SectionView class properties
+@@ -99,8 +100,7 @@
+   this.setHTMLElement(inHTMLElement);
+   this.mySection = inSection;
+   this.mySectionNumber = inSectionNumber;
+-  var query = inSection.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY)[0];
+-  this.myListOfContentItems = this.getStevedore().getListOfResultItemsForQuery(query); 
++  this.myListOfContentItems = this.getListOfContentItems();
+ 
+   this._myPlugin = null;
+   this._myPluginDiv = null;
+@@ -120,6 +120,7 @@
+  * @param    inValue    A string or an Item. 
+  * @return   A string.
+  */
++ /* DEPRECATED: instead use Entry.prototype.getDisplayString
+ SectionView.getStringForValue = function (inValue) {
+   var string = &quot;&quot;;
+   if (Util.isString(inValue)) {
+@@ -130,8 +131,8 @@
+   }
+   return string;
+ };
++*/
+ 
+-
+ // -------------------------------------------------------------------
+ // Public instance methods
+ // -------------------------------------------------------------------
+@@ -165,8 +166,14 @@
+  * @return   A list of content items.
+  */
+ SectionView.prototype.getListOfContentItems = function () {
+-  var query = this.mySection.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY)[0];
+-  this.myListOfContentItems = this.getStevedore().getListOfResultItemsForQuery(query); 
++  var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
++  var listOfEntries = this.mySection.getEntriesForAttribute(attributeCalledQuery);
++  if (listOfEntries &amp;&amp; listOfEntries[0]) {
++    var query = listOfEntries[0].getValue();
++    this.myListOfContentItems = this.getWorld().getResultItemsForQuery(query); 
++  } else {
++    this.myListOfContentItems = [];
++  }
+   return this.myListOfContentItems;
+ };
+ 
+@@ -199,9 +206,9 @@
+   if (!this.getHTMLElement()) {
+     return;
+   }
+-  var selectedPluginName = this.mySection.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_PLUGIN_NAME)[0];
+-  var query = this.mySection.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY)[0];
+-  this.myListOfContentItems = this.getStevedore().getListOfResultItemsForQuery(query); 
++  var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
++  var selectedPluginName = this.mySection.getSingleStringValueFromAttribute(attributeCalledPluginName);
++  this.myListOfContentItems = this.getListOfContentItems();
+   if (!this.myListOfContentItems) {
+     return;
+   }
+@@ -209,15 +216,18 @@
+   var sectionDiv = this.getHTMLElement();
+   var outerDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;, SectionView.ELEMENT_CLASS_SECTION);
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
++  var attributeCalledName = this.getWorld().getAttributeCalledName();
++  var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+   this._myHeaderView = new TextView(this, headerH2, this.mySection,
+-    Stevedore.UUID_FOR_ATTRIBUTE_NAME, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++    attributeCalledName, SectionView.ELEMENT_CLASS_TEXT_VIEW);
+   var summaryDiv = View.createAndAppendElement(outerDiv, &quot;div&quot;);
+   this._mySectionSummaryView = new TextView(this, summaryDiv, this.mySection,
+-    Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
++    attributeCalledSummary, SectionView.ELEMENT_CLASS_TEXT_VIEW, true);
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+   // create the plugin editing controls, if we're in edit mode
+-  var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this.mySection.getUuid();
++  // PENDING: We shouldn't call the private method _getUuid()
++  var selectMenuId = SectionView.ELEMENT_ID_SELECT_MENU_PREFIX + this.mySection._getUuid();
+   var selectElement = View.createAndAppendElement(outerDiv, &quot;select&quot;, SectionView.ELEMENT_CLASS_SECTION_PLUGIN_MENU, selectMenuId);
+   selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+   selectElement.setAttribute(SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER, this.mySectionNumber);
+@@ -258,15 +268,20 @@
+   
+   var selectElement = optionElement.parentNode;
+   var newChoiceName = optionElement.value;
+-
++  var attributeCalledPluginName = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+  
+   if (this._myPlugin.getPluginName() == newChoiceName) {
+     return;
+   } else {
+     this._myPlugin.endOfLife();
+     this._myPlugin = this.getPluginFromPluginName(newChoiceName, this._myPluginDiv);
+-    this.mySection.clear(Stevedore.UUID_FOR_ATTRIBUTE_PLUGIN_NAME);
+-    this.mySection.assign(Stevedore.UUID_FOR_ATTRIBUTE_PLUGIN_NAME, newChoiceName);
++    var pluginNameEntries = this.mySection.getEntriesForAttribute(attributeCalledPluginName);
++    if (pluginNameEntries &amp;&amp; pluginNameEntries[0]) {
++      var oldEntry = pluginNameEntries[0];
++      this.mySection.replaceEntry(oldEntry, newChoiceName);
++    } else {
++      this.mySection.addEntryForAttribute(attributeCalledPluginName, newChoiceName);
++    }
+     this.refresh();
+   }
+ };
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/TablePlugin.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -2,7 +2,9 @@
+  TablePlugin.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -31,7 +33,7 @@
+  
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   Stevedore.js
++//   World.js
+ //   SectionView.js
+ //   PageView.js
+ //   Util.js
+@@ -84,43 +86,67 @@
+   return SectionView.PLUGIN_TABLE;
+ };
+ 
++
+ /**
+-  * Comparison function to sort table
+-  */
+-TablePlugin.prototype.compareItemByAttribute = function (a,b) {
++ * Comparison function to sort items.
++ *
++ * @scope    public instance method
++ * @param    itemA    One of the two items to be compared. 
++ * @param    itemB    One of the two items to be compared. 
++ * @return   This method returns 0 if the items are comparable. If _ascendingOrder is true, itemA is less than itemB, this method returns -1, otherwise it returns +1. 
++ */
++TablePlugin.prototype.compareItemByAttribute = function (itemA, itemB) {
+   Util.assert(this._sortAttribute !== null);
+-  var strA = a.getSingleValueFromAttribute(this._sortAttribute).toLowerCase();
+-  var strB = b.getSingleValueFromAttribute(this._sortAttribute).toLowerCase();
++  var strA = itemA.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
++  var strB = itemB.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+   var ascendingInt = this._ascendingOrder ? -1 : 1;
+   if (strA &lt; strB) {return ascendingInt;}
+   if (strA == strB) {return 0;}
+   return -ascendingInt;
+ };
+ 
++
++/**
++ * Gets the list of content items to display.
++ *
++ * @scope    PENDING
++ */
+ TablePlugin.prototype.fetchItems = function() {
+   // PENDING: how do we know our superview responds to getthis._listOfItems()? 
+   this._listOfItems = this.getSuperview().getListOfContentItems();
+ };
+ 
++
++/**
++ * Creates a hashtable containing all the attributes of the content items 
++ * in this table.  Finds the union of the attribute lists of all the content items.
++ *
++ * @scope    private instance method
++ */
+ TablePlugin.prototype._buildAttributeHash = function() {
+-// create a hashtable consisting of all the attributes of the content items in this table
+-  // find the union of the attribute lists of all the content items
+-  var hashTableOfAttributesKeyedByUuid = {};
++  var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
++  var hashTableOfAttributes = {};
+   for (var iKey in this._listOfItems) {
+     contentItem = this._listOfItems[iKey];
+-    var listOfAttributesForItem = contentItem.getListOfAttributeUuids();
++    var listOfAttributesForItem = contentItem.getAttributes();
+     for (var attributeKey in listOfAttributesForItem) {
+-      var attributeUuid = listOfAttributesForItem[attributeKey];
+-      if (attributeUuid != Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY) {
+-        hashTableOfAttributesKeyedByUuid[attributeUuid] = this.getStevedore().getItemFromUuid(attributeUuid);
++      var attribute = listOfAttributesForItem[attributeKey];
++      if (attribute != attributeCalledCategory) {
++        var attributeKey = attribute.getUniqueKeyString();
++        hashTableOfAttributes[attributeKey] = attribute;
+       }
+     }
+   }
+-  this._attributesKeyedByUuid = hashTableOfAttributesKeyedByUuid;
++  this._hashTableOfAttributes = hashTableOfAttributes;
+ };
+ 
++
++/**
++ * Constructs the table body 
++ *
++ * @scope    private instance method
++ */
+ TablePlugin.prototype._buildTableBody = function() {  
+-// constructs the table body
+   // add all the table body rows
+   var numRows = 1; // start from 1 to account for header row
+   for (var kKey in this._listOfItems) {
+@@ -128,21 +154,26 @@
+     var aRow = this.myTable.insertRow(numRows); 
+     ++numRows;
+     var columnCount = 0;
+-    for (var lKey in this._attributesKeyedByUuid) {
+-      var attribute = this._attributesKeyedByUuid[lKey];
+-      this._insertCell(aRow,columnCount,contentItem,attribute);
++    for (var lKey in this._hashTableOfAttributes) {
++      var attribute = this._hashTableOfAttributes[lKey];
++      this._insertCell(aRow, columnCount, contentItem, attribute);
+       columnCount += 1;
+     }
+   }  
+ };
+ 
+-// construct the table header
++
++/**
++ * Constructs the table header 
++ *
++ * @scope    private instance method
++ */
+ TablePlugin.prototype._buildHeader = function() {
+   // add header row
+   var headerRow = this.myTable.insertRow(0);
+   var numCols = 0;
+-  for (var jKey in this._attributesKeyedByUuid) {
+-    var attribute = this._attributesKeyedByUuid[jKey];
++  for (var jKey in this._hashTableOfAttributes) {
++    var attribute = this._hashTableOfAttributes[jKey];
+     if (!this._sortAttribute) {this._sortAttribute = attribute;}
+     var aCell = document.createElement(&quot;th&quot;);
+     var headerStr = attribute.getDisplayName();
+@@ -157,6 +188,13 @@
+   this._numberOfColumns = numCols;
+ };
+ 
++
++/**
++ * Re-creates all the HTML for the TablePlugin, and hands the HTML to the 
++ * browser to be re-drawn.
++ *
++ * @scope    public instance method
++ */
+ TablePlugin.prototype.doInitialDisplay = function() {
+   // get list of items and attributes
+   this.fetchItems();
+@@ -180,6 +218,7 @@
+   this._myHTMLElement.appendChild(this.myTable);
+ };
+ 
++
+ /**
+  * Re-creates all the HTML for the TablePlugin, and hands the HTML to the 
+  * browser to be re-drawn.
+@@ -195,19 +234,29 @@
+   }
+ };
+ 
++
+ /**
+-  * returns the right image name for the header column that is being sorted
+-  */
++ * Returns an HTML image element for the header column that is being sorted.
++ *
++ * @scope    public instance method
++ * @return   An HTML image element
++ */
+ TablePlugin.prototype.getSortIcon = function () {
+   var imageName = this._ascendingOrder ? TablePlugin.ASCENDING_GIF : TablePlugin.DESCENDING_GIF;
+-  var image =  Util.getImage(imageName);
++  var image =  Util.createImageElement(imageName);
+   image.align = &quot;middle&quot;;
+   return image;
+ };
+ 
+-// Insert a table cell into table's row &amp; col, with data from a given item and attribute
+-// Each table cell is displayed with a TextView object
+-// The HTML table cell links to the TextView object with the attribute &quot;or_textView&quot;
++
++/**
++ * Inserts a table cell into table's row &amp; col, with data from a given item and
++ * attribute. Each table cell is displayed with a TextView object.  The HTML 
++ * table cell links to the TextView object with the attribute &quot;or_textView&quot;
++ *
++ * @scope    public instance method
++ * @return   An HTML image element
++ */
+ TablePlugin.prototype._insertCell = function(row, col, item, attribute) {
+   var aCell = row.insertCell(col);
+   aCell.className = this.myCellClass;
+@@ -221,6 +270,7 @@
+   }
+ };
+ 
++
+ /**
+  * Does final clean-up.
+  *
+@@ -230,6 +280,7 @@
+   this.getHTMLElement().innerHTML = &quot;&quot;;
+ };
+ 
++
+ /**
+  * Called when the user clicks on table header. Resorts table accordingly.
+  * 
+@@ -245,6 +296,7 @@
+   this.doInitialDisplay();
+ };
+   
++
+ /**
+  * Called when the user types a character when editing a table cell. 
+  *
+@@ -253,6 +305,7 @@
+  * to call this method directly.
+  * 
+  * @scope    public class method
++ * @return   Returns true if the keyPress is a letter, or false if the keyPress is an arrow key or a key that moves the cursor to another cell. 
+  */
+ TablePlugin.prototype.keyPressOnEditField = function (inEventObject, aTextView) {
+   var eventObject = inEventObject;
+@@ -289,7 +342,7 @@
+       break;
+   }
+   
+-if (move) {
++  if (move) {
+     Util.isNumber(this._numberOfColumns);
+     Util.isArray(this._listOfItems);
+     var cellElement = aTextView.getHTMLElement();
+
+Modified: trunk/source/TextView.js
+===================================================================
+--- trunk/source/TextView.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/TextView.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -2,8 +2,9 @@
+  TextView.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+- and Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -63,12 +64,12 @@
+   
+   this.setSuperview(theSuperview);
+   this.setHTMLElement(theElement);
+-  this.textItem = theItem;
+-  this.attribute = theAttribute;
+-  this.editField = null;
+-  this.classType = theClassType;
+-  this.isMultiLine = isMultiLine;
+-  this.isEditing = false;
++  this._item = theItem;
++  this._attribute = theAttribute;
++  this._editField = null;
++  this._classType = theClassType;
++  this._isMultiLine = isMultiLine;
++  this._isEditing = false;
+   this._proxyOnKeyFunction = null;
+ }
+ 
+@@ -83,8 +84,8 @@
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+-  // if (weHaveBeenNotifiedOfChangesTo(this.textItem)) {
+-  //   var newText = getNewValueFrom(this.textItem);
++  // if (weHaveBeenNotifiedOfChangesTo(this._item)) {
++  //   var newText = getNewValueFrom(this._item);
+   //   this.textNode.data = newText;
+   // }
+   }
+@@ -100,7 +101,7 @@
+ TextView.prototype.doInitialDisplay = function() {
+   var htmlElement = this.getHTMLElement();
+   
+-  var textString = this.textItem.getSingleValueFromAttribute(this.attribute);
++  var textString = this._item.getSingleStringValueFromAttribute(this._attribute);
+   // PENDING: need to deal with multi valued attrs
+   // for (var i in textList) {
+   //   textString = textList[i] + &quot;\n&quot; + textString;
+@@ -121,18 +122,18 @@
+  * @scope    public instance method
+  */
+ TextView.prototype.startEditing = function() {
+-  if (!this.isEditing) {
+-    var editField = this.editField;
++  if (!this._isEditing) {
++    var editField = this._editField;
+     if (!editField) {
+-      if (this.isMultiLine) {
+-        editField = this.editField = document.createElement(&quot;textarea&quot;);
++      if (this._isMultiLine) {
++        editField = this._editField = document.createElement(&quot;textarea&quot;);
+       }
+       else {
+         editField = document.createElement(&quot;input&quot;);
+         editField.type = 'text';
+       }
+-      this.editField = editField;
+-      editField.className = this.classType;
++      this._editField = editField;
++      editField.className = this._classType;
+       var listener = this; 
+       editField.onblur = this.onBlur.bindAsEventListener(this);
+       editField.onkeypress = this.onKeyPress.bindAsEventListener(this);
+@@ -143,7 +144,7 @@
+     this.getHTMLElement().replaceChild(editField, this.textNode);
+     editField.select();
+     //editField.focus();
+-    this.isEditing = true;
++    this._isEditing = true;
+   }
+ };
+ 
+@@ -180,14 +181,28 @@
+   this.stopEditing();
+ };
+ 
++
++/**
++ * Called when it's time to stop editing and save the changes.
++ *
++ * @scope    public instance method
++ */
+ TextView.prototype.stopEditing = function() {
+-  if (this.isEditing) {
+-    var newText = this.editField.value;
+-    this.textItem.clear(this.attribute);
+-    this.textItem.assign(this.attribute, newText); // PENDING: need to deal with multi valued attrs
++  if (this._isEditing) {
++    var newText = this._editField.value;
++    
++    // PENDING: need to properly handle multi-valued attributes
++    var listOfEntries = this._item.getEntriesForAttribute(this._attribute);
++    if (listOfEntries &amp;&amp; listOfEntries[0]) {
++      var oldEntry = listOfEntries[0];
++      this._item.replaceEntry(oldEntry, newText);
++    } else {
++      this._item.addEntryForAttribute(this._attribute, newText);
++    }
++    
+     this.textNode.data = newText;
+-    this.getHTMLElement().replaceChild(this.textNode, this.editField);
+-    this.isEditing = false;
++    this.getHTMLElement().replaceChild(this.textNode, this._editField);
++    this._isEditing = false;
+   }
+ };
+ 
+@@ -202,6 +217,7 @@
+   this._keyPressFunction = keyPressFunction;
+ };
+ 
++
+ /**
+  * Called when the user types in editField
+  *
+@@ -212,7 +228,7 @@
+   if (this._keyPressFunction &amp;&amp; this._keyPressFunction(inEventObject, this)) {
+     return true;
+   }
+-  var editField = this.editField;
++  var editField = this._editField;
+ 
+   // PENDING: 
+   // Here are some failed attempts at trying to get the editField to 
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/Util.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -2,7 +2,9 @@
+  Util.js
+  
+ ******************************************************************************
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Chih-Chao Lam &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">chao at cs.stanford.edu</A>&gt;
+   
+  Copyright rights relinquished under the Creative Commons  
+  Public Domain Dedication:
+@@ -210,6 +212,18 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Returns true if the given value is a function.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a function.
++ */
++Util.isFunction = function (inValue) {
++  return ((typeof inValue) == &quot;function&quot;);
++};
++
++
++/**
+  * Returns true if the given value is a string.
+  *
+  * @scope    public class method
+@@ -478,7 +492,6 @@
+  * @param    inUrl    A string with the URL of a file containing JavaScript code. 
+  * @return   A string containing the contents of the file.
+  */
+-// PENDING: move this up into Util.js
+ Util.getStringContentsOfFileAtURL = function (inUrl) {
+   var anXMLHttpRequestObject = new XMLHttpRequest();
+   anXMLHttpRequestObject.open(&quot;GET&quot;, inUrl, false);
+@@ -513,11 +526,20 @@
+   }
+ };
+ 
+-Util.getImage = function(imageName) {
+-  var image = document.createElement(&quot;img&quot;);
+-  image.src = &quot;images/&quot; + imageName;
+-  return image;
++
++/**
++ * Given the filename of an image, returns an HTML img element.
++ * 
++ * @scope    public class method
++ * @return   An HTML &quot;img&quot; element.
++ */
++Util.createImageElement = function (imageFileName) {
++  var imagesDirectory = &quot;images/&quot;; // PENDING: this shouldn't be hard-coded in Util
++  var imageElement = document.createElement(&quot;img&quot;);
++  imageElement.src = imagesDirectory + imageFileName;
++  return imageElement;
+ };
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/View.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -100,13 +100,13 @@
+ 
+ 
+ /**
+- * Returns the Stevedore instance that this view is using.
++ * Returns the World instance that this view is using.
+  *
+  * @scope    public instance method
+- * @return   A Stevedore object. 
++ * @return   A World object. 
+  */
+-View.prototype.getStevedore = function () {
+-  return this._mySuperview.getStevedore();
++View.prototype.getWorld = function () {
++  return this._mySuperview.getWorld();
+ };
+ 
+ 
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/demo_page.html	2005-05-17 23:34:37 UTC (rev 62)
+@@ -14,8 +14,9 @@
+     &lt;title&gt;openrecord.org - Demo Page&lt;/title&gt;
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;base_style.css&quot; /&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Cookie.js&quot;&gt;&lt;/script&gt;
++
+     &lt;script type=&quot;text/javascript&quot; src=&quot;View.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Cookie.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;RootView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ItemView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
+@@ -25,10 +26,17 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;OutlinePlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DetailPlugin.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;BarChartPlugin.js&quot;&gt;&lt;/script&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/Ordinal.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/Vote.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/IdentifiedRecord.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/Item.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/World.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/StubVirtualServer.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;model/BigLumpVirtualServer.js&quot;&gt;&lt;/script&gt;
++    
+     &lt;script type=&quot;text/javascript&quot; src=&quot;demo_page.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Item.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Stevedore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;datastore.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Modified: trunk/source/demo_page.js
+===================================================================
+--- trunk/source/demo_page.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/demo_page.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -31,8 +31,8 @@
+ 
+ // -------------------------------------------------------------------
+ // Dependencies:
+-//   repository.js
+-//   root_view.js
++//   World.js
++//   RootView.js
+ // -------------------------------------------------------------------
+ 
+ /**
+@@ -42,10 +42,18 @@
+  * @scope    global function
+  */
+ window.doOnloadActions = function() {  
++  var fileName = &quot;test_data_2005_april_chronological_lump.json&quot;;
++  // var fileName = &quot;test_data_2005_march_item_centric_list.json&quot;;
++  var url = &quot;model/&quot; + fileName;
++  var fileContentString = Util.getStringContentsOfFileAtURL(url);
+   
+-  var stevedore = new Stevedore();
+-  stevedore._loadItemsFromList(Stevedore._ourRepositoryInJsonFormat);
+-  window.rootView = new RootView(stevedore);
++  // Create a World and a BigLumpVirtualServer, and have the 
++  // BigLumpVirtualServer rehydrate all the dehydrated items 
++  // contained in the fileContentString.  
++  var bigLumpVirtualServer = new BigLumpVirtualServer(fileContentString);
++  var world = new World(bigLumpVirtualServer);
++  window.rootView = new RootView(world);
++  
+   Util.setTargetsForExternalLinks();
+ };
+ 
+@@ -57,7 +65,7 @@
+  * @scope    global function
+  */
+ window.doOnunloadActions = function() {
+-  // stevedore.saveChanges();
++  // world.saveChanges();
+ };
+ 
+ window.doOnfocusActions = function() {
+
+Modified: trunk/source/model/BigLumpVirtualServer.js
+===================================================================
+--- trunk/source/model/BigLumpVirtualServer.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/model/BigLumpVirtualServer.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -95,6 +95,8 @@
+  */
+ BigLumpVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
+   this.__initialize(inWorld);
++  // var shortString = this.__myDehydratedWorld.substring(0, 200);
++  // alert(shortString);
+   this.__loadWorldFromJsonString(this.__myDehydratedWorld);
+ };
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/model/Item.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -374,7 +374,7 @@
+  * @scope    public instance method
+  * @return   A list of the entries assigned to the &quot;name&quot; attribute.
+  */
+-Item.prototype.getNameEntries = function (inDefaultString) {
++Item.prototype.getNameEntries = function () {
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   return this.getEntriesForAttribute(attributeCalledName);
+ };
+@@ -386,13 +386,32 @@
+  * @scope    public instance method
+  * @return   A list of the entries assigned to the &quot;short name&quot; attribute.
+  */
+-Item.prototype.getShortNameEntries = function (inDefaultString) {
++Item.prototype.getShortNameEntries = function () {
+   var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+   return this.getEntriesForAttribute(attributeCalledShortName);
+ };
+ 
+ 
+ /**
++ * Returns just the first value of an item's attribute.
++ *
++ * @scope    public instance method
++ * @return   A string with a description of the item.
++ */
++Item.prototype.getSingleStringValueFromAttribute = function (inAttribute) {
++  var listOfEntries = this.getEntriesForAttribute(inAttribute);
++  var singleStringValue = &quot;&quot;;
++  if (listOfEntries) {
++    firstEntry = listOfEntries[0];
++    if (firstEntry) {
++      singleStringValue = firstEntry.getDisplayString();
++    }
++  }
++  return singleStringValue;
++};
++
++
++/**
+  * Returns a string describing the item.
+  *
+  * @scope    public instance method
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/model/StubVirtualServer.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -533,11 +533,11 @@
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY] = &quot;Category&quot;;
+   // hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_USERSTAMP] = &quot;Userstamp&quot;;
+   // hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_TIMESTAMP] = &quot;Timestamp&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SECTION] = &quot;Section&quot;;
++  // hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SECTION] = &quot;Section&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY] = &quot;Query&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = &quot;Matching Category&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = &quot;Matching Item&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_PLUGIN_NAME] = &quot;Plugin Name&quot;;
++  // hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_PLUGIN_NAME] = &quot;Plugin Name&quot;;
+   hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED] = &quot;Unfiled Entry&quot;;
+ 
+   // create all the Item objects for the attributes
+@@ -549,8 +549,8 @@
+   var hashTableOfCategoryNamesKeyedByUuid = {};
+   hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_ATTRIBUTE] = &quot;Attribute&quot;;
+   hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_CATEGORY] = &quot;Category&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_PAGE] = &quot;Page&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_SECTION] = &quot;Section&quot;;
++  // hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_PAGE] = &quot;Page&quot;;
++  // hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_SECTION] = &quot;Section&quot;;
+   hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_QUERY] = &quot;Query&quot;;
+ 
+   // create all the Item objects for the categories
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-05-17 05:15:17 UTC (rev 61)
++++ trunk/source/model/World.js	2005-05-17 23:34:37 UTC (rev 62)
+@@ -788,46 +788,6 @@
+   return observerWasRemoved;
+ };
+ 
+-
+ // -------------------------------------------------------------------
+-// Code that should move up into the view layer
+-// -------------------------------------------------------------------
+-
+-World.UUID_FOR_ATTRIBUTE_SECTION = 108;
+-World.UUID_FOR_ATTRIBUTE_PLUGIN_NAME = 113;
+-
+-World.UUID_FOR_CATEGORY_PAGE = 145;
+-World.UUID_FOR_CATEGORY_SECTION = 146;
+-
+-World.UUID_FOR_HOME_PAGE = 2000;
+-
+-/**
+- * Returns the page item to be used as the home page.
+- *
+- * @scope    public instance method
+- * @return   A page item.
+- */
+-// PENDING: 
+-// We should move this method up into the view code.
+-// It shouldn't be down here in the model layer.
+-World.prototype.getHomePage = function () {
+-  return this.getItemFromUuid(World.UUID_FOR_HOME_PAGE);
+-};
+-
+-
+-/**
+- * Returns true if the given value is a function.
+- *
+- * @scope    public class method
+- * @param    inValue    Any object or literal value. 
+- * @return   A boolean value. True if inValue is a function.
+- */
+-// PENDING: 
+-// Need to move this up into Util.js.
+-Util.isFunction = function (inValue) {
+-  return ((typeof inValue) == &quot;function&quot;);
+-};
+-
+-// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000053.html">[openrecord-svn] r61 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000055.html">[openrecord-svn] r65 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#54">[ date ]</a>
+              <a href="thread.html#54">[ thread ]</a>
+              <a href="subject.html#54">[ subject ]</a>
+              <a href="author.html#54">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

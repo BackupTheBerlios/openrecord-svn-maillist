@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r294 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-August/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r294%20-%20trunk/source&In-Reply-To=%3C200508171908.j7HJ8qEP015729%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000278.html">
+   <LINK REL="Next"  HREF="000280.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r294 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r294%20-%20trunk/source&In-Reply-To=%3C200508171908.j7HJ8qEP015729%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r294 - trunk/source">skinner at berlios.de
+       </A><BR>
+    <I>Wed Aug 17 21:08:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000278.html">[openrecord-svn] r293 - trunk/repositories
+</A></li>
+        <LI>Next message: <A HREF="000280.html">[openrecord-svn] r295 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#279">[ date ]</a>
+              <a href="thread.html#279">[ thread ]</a>
+              <a href="subject.html#279">[ subject ]</a>
+              <a href="author.html#279">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-08-17 21:08:52 +0200 (Wed, 17 Aug 2005)
+New Revision: 294
+
+Modified:
+   trunk/source/TablePlugin.js
+Log:
+minor speed improvement in TablePlugin.js
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-08-17 07:01:56 UTC (rev 293)
++++ trunk/source/TablePlugin.js	2005-08-17 19:08:52 UTC (rev 294)
+@@ -459,7 +459,14 @@
+   View.removeChildrenOfElement(viewDivElement);
+   this._buildAttributeEditor();
+   
+-  this._table = View.appendNewElement(viewDivElement, &quot;table&quot;, this._cssClassForTable);
++  // We could do use View.appendNewElement() here, but we seem to get a 20%
++  // speed improvement by instead using View.newElement() and then making our 
++  // own call to viewDivElement.appendChild(this._table) 10 lines further down.
++  // If there is a real 20% speed-up, it's probably because we prevent the 
++  // browser from trying to re-render the table until we call appendChild()
++  // 
++  // this._table = View.appendNewElement(viewDivElement, &quot;table&quot;, this._cssClassForTable);
++  this._table = View.newElement(&quot;table&quot;, this._cssClassForTable);
+   
+   this._buildHeader();
+ 
+@@ -469,6 +476,7 @@
+   this._listOfItems.sort(function(a,b) {return staticThis.compareItemsBySortAttribute(a,b);}); // need to sort after header row added because default sort attribute is set there
+ 
+   this._buildTableBody();
++  viewDivElement.appendChild(this._table);
+   
+   this._buildFileImportTool();
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000278.html">[openrecord-svn] r293 - trunk/repositories
+</A></li>
+	<LI>Next message: <A HREF="000280.html">[openrecord-svn] r295 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#279">[ date ]</a>
+              <a href="thread.html#279">[ thread ]</a>
+              <a href="subject.html#279">[ subject ]</a>
+              <a href="author.html#279">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

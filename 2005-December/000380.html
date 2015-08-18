@@ -1,0 +1,339 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r398 - trunk/tests/transcribers
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-December/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r398%20-%20trunk/tests/transcribers&In-Reply-To=%3C200512130233.jBD2XNWd022722%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000379.html">
+   <LINK REL="Next"  HREF="000381.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r398 - trunk/tests/transcribers</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r398%20-%20trunk/tests/transcribers&In-Reply-To=%3C200512130233.jBD2XNWd022722%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r398 - trunk/tests/transcribers">skinner at berlios.de
+       </A><BR>
+    <I>Tue Dec 13 03:33:23 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000379.html">[openrecord-svn] r397 - in trunk: documentation source source/transcribers source/util tests tests/transcribers tests/util
+</A></li>
+        <LI>Next message: <A HREF="000381.html">[openrecord-svn] r399 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#380">[ date ]</a>
+              <a href="thread.html#380">[ thread ]</a>
+              <a href="subject.html#380">[ subject ]</a>
+              <a href="author.html#380">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-12-13 03:33:18 +0100 (Tue, 13 Dec 2005)
+New Revision: 398
+
+Added:
+   trunk/tests/transcribers/XmlImporterTest.js
+Removed:
+   trunk/tests/transcribers/XmlConverterTest.js
+Modified:
+   trunk/tests/transcribers/XmlImporterTest.html
+Log:
+Renamed XmlConverterTest.js to be XmlImporterTest.js
+
+Deleted: trunk/tests/transcribers/XmlConverterTest.js
+===================================================================
+--- trunk/tests/transcribers/XmlConverterTest.js	2005-12-13 02:30:06 UTC (rev 397)
++++ trunk/tests/transcribers/XmlConverterTest.js	2005-12-13 02:33:18 UTC (rev 398)
+@@ -1,233 +0,0 @@
+-/*****************************************************************************
+- XmlImporterTest.js
+- 
+-******************************************************************************
+- Written in 2005 by Mignon Belongie.
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+-
+-var world;
+-var xmlImporter;
+-
+-// -------------------------------------------------------------------
+-// setUp and tearDown
+-// -------------------------------------------------------------------
+-
+-function setUp() {
+-  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+-  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-rev1759/src&quot;);
+-  dojo.require(&quot;orp.transcribers.XmlImporter&quot;);
+-  dojo.require(&quot;orp.util.Util&quot;);
+-  dojo.require(&quot;orp.archive.StubArchive&quot;);
+-  dojo.require(&quot;orp.model.World&quot;);
+-
+-  XmlTextNodeToAttributeSpecifier = orp.transcribers.XmlTextNodeToAttributeSpecifier;
+-  XmlAttributeToAttributeSpecifier = orp.transcribers.XmlAttributeToAttributeSpecifier;
+-  XmlImporter = orp.transcribers.XmlImporter;
+-
+-  // var pathToTrunkDirectoryFromThisFile = &quot;../../../&quot;;
+-  pathToTrunkDirectoryFromThisFile = &quot;../..&quot;;
+-  
+-  var archive = new orp.archive.StubArchive(pathToTrunkDirectoryFromThisFile);  
+-  world = new orp.model.World(archive);
+-  var annsPassword = &quot;Ann's password&quot;;
+-  var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+-  world.login(userAnn, annsPassword);
+-  var xmlFile = &quot;../../../tests/util/food.xml&quot;;
+-  xmlImporter = new XmlImporter(world, xmlFile, &quot;food&quot;, &quot;Record&quot;);
+-}
+-
+-function tearDown() {
+-  world.logout();
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Test functions
+-// -------------------------------------------------------------------
+-
+-function testDefaultConversionOfTagsToAttributes() {
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile();
+-  assertTrue('3 items should have been created', listOfItems.length == 3);
+-  var expectedNewCategory = null;
+-  var listOfCategories = world.getCategories();
+-  for (var i in listOfCategories) {
+-    if (listOfCategories[i].getDisplayName() == &quot;food:Record&quot;) {
+-      expectedNewCategory = listOfCategories[i];
+-      break;
+-    }
+-  }
+-  assertFalse('A category named &quot;food:Record&quot; should have been created', expectedNewCategory == null);  
+-  for (var i in listOfItems) {
+-    var item = listOfItems[i];
+-    assertTrue('Each item should be in the category &quot;food:Record&quot;.', item.isInCategory(expectedNewCategory));
+-    var listOfAttributes = item.getAttributes();
+-    assertTrue('Each item should have 4 attributes.', listOfAttributes.length == 4);
+-    var names = [];
+-    for (var j in listOfAttributes) {
+-      names.push(listOfAttributes[j].getDisplayName());
+-    }
+-    hasAll = orp.util.areObjectsInSet([&quot;food:name&quot;, &quot;food:color&quot;, &quot;food:flavor&quot;], names);
+-    assertTrue('Each item should have attributes called &quot;food:name&quot;, &quot;food:color&quot; and &quot;food:flavor&quot;.', hasAll);  
+-  }
+-}
+-
+-function testSimpleXmlToAttributeSpecifiers() {
+-  var xmlToAttributeSpecifiers = new Array();
+-  xmlToAttributeSpecifiers.push(new orp.transcribers.XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;flavor&quot;], world.newAttribute(&quot;Flavor&quot;)));
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+-  assertTrue('3 items should have been created', listOfItems.length == 3);
+-  var expectedNewCategory = null;
+-  var listOfCategories = world.getCategories();
+-  for (var i in listOfCategories) {
+-    if (listOfCategories[i].getDisplayName() == &quot;food:Record&quot;) {
+-      expectedNewCategory = listOfCategories[i];
+-      break;
+-    }
+-  }
+-  assertFalse('A category named &quot;food:Record&quot; should have been created', expectedNewCategory == null);
+-  for (var i in listOfItems) {
+-    var item = listOfItems[i];
+-    assertTrue('Each item should be in the category &quot;food:Record&quot;.', item.isInCategory(expectedNewCategory));
+-    var listOfAttributes = item.getAttributes();
+-    assertTrue('Each item should have 3 attributes.', listOfAttributes.length == 3);
+-    var names = [];
+-    for (var j in listOfAttributes) {
+-      names.push(listOfAttributes[j].getDisplayName());
+-    }
+-    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Flavor&quot;.', orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Flavor&quot;], names));
+-  }
+-}
+-
+-function testMultipleValuesForAnAttribute() {
+-  var xmlToAttributeSpecifiers = new Array();
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+-  var flavorAttribute = world.newAttribute(&quot;Flavor&quot;);
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;flavor&quot;], flavorAttribute));
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+-  assertTrue('3 items should have been created', listOfItems.length == 3);
+-  for (var i in listOfItems) {
+-    var item = listOfItems[i];
+-    if (item.getDisplayName() == 'cheese puff') {
+-      var cheesePuff = item;
+-    } else if (item.getDisplayName() == 'carrot') {
+-      var carrot = item;
+-    }
+-  }
+-  var listOfFlavors = carrot.getEntriesForAttribute(flavorAttribute);
+-  assertTrue(&quot;'carrot' should have exactly one flavor.&quot;, listOfFlavors.length == 1);
+-  listOfFlavors = cheesePuff.getEntriesForAttribute(flavorAttribute);
+-  assertTrue(&quot;'cheese puff' should have 2 flavors.&quot;, listOfFlavors.length == 2);
+-  var flavorNames = [listOfFlavors[0].getValue(), listOfFlavors[1].getValue()];
+-  assertTrue(&quot;'cheese puff' should have flavors called 'salty' and 'cheesy'.&quot;, orp.util.areObjectsInSet(['salty', 'cheesy'], flavorNames));
+-}
+-
+-function testNestedXmlConversion() {
+-  var xmlToAttributeSpecifiers = new Array();
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;vitamins&quot;, &quot;C&quot;], world.newAttribute(&quot;Vitamin C&quot;)));
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+-  assertTrue('3 items should have been created', listOfItems.length == 3);
+-  for (var i in listOfItems) {
+-    var item = listOfItems[i];
+-    var listOfAttributes = item.getAttributes();
+-    assertTrue('Each item should have 3 attributes.', listOfAttributes.length == 3);
+-    var names = [];
+-    for (var j in listOfAttributes) {
+-      names.push(listOfAttributes[j].getDisplayName());
+-    }
+-    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Vitamin C&quot;.', orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Vitamin C&quot;], names));
+-  }
+-}
+-
+-function testXmlAttributeConversion() {
+-  var xmlToAttributeSpecifiers = new Array();
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+-  var xmlAttributeToAttributeSpecifiers = new Array();
+-  xmlAttributeToAttributeSpecifiers.push(new XmlAttributeToAttributeSpecifier(&quot;food_id&quot;, world.newAttribute(&quot;Food ID&quot;)));
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile(xmlToAttributeSpecifiers,
+-                                                      xmlAttributeToAttributeSpecifiers);
+-  assertTrue('3 items should have been created', listOfItems.length == 3);
+-  var listOfIds = [];
+-  for (var i in listOfItems) {
+-    var item = listOfItems[i];
+-    var listOfAttributes = item.getAttributes();
+-    assertTrue('Each item should have 3 attributes.', listOfAttributes.length == 3);
+-    var names = [];
+-    for (var j in listOfAttributes) {
+-      names.push(listOfAttributes[j].getDisplayName());
+-      if (listOfAttributes[j].getDisplayName() == &quot;Food ID&quot;) {
+-        listOfIds.push(item.getSingleEntryFromAttribute(listOfAttributes[j]).getValue());
+-      }
+-    }
+-    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Food ID&quot;.', orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Food ID&quot;], names));
+-  }
+-  assertTrue('Values of the &quot;Food ID&quot; attribute should include &quot;32&quot;, &quot;47&quot; and &quot;114&quot;.', orp.util.areObjectsInSet([&quot;32&quot;, &quot;47&quot;, &quot;114&quot;], listOfIds));
+-}
+-
+-function testExpectedType() {
+-  var xmlToAttributeSpecifiers = new Array();
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+-  var colorAttribute = world.newAttribute(&quot;Color&quot;);
+-  var foodColorCategory = world.newCategory(&quot;Food color&quot;);
+-  colorAttribute.addEntry({attribute:world.getAttributeCalledExpectedType(), value:foodColorCategory});
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;color&quot;], colorAttribute));
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+-  assertTrue('3 items should have been created', listOfItems.length == 3);
+-  for (var i in listOfItems) {
+-    var item = listOfItems[i];
+-    var entryForColorAttribute = item.getSingleEntryFromAttribute(colorAttribute);
+-    var valueOfColorAttribute = entryForColorAttribute.getValue();
+-    assertTrue(&quot;The values of the color attribute should be in the category 'Food color'.&quot;, valueOfColorAttribute.isInCategory(foodColorCategory));
+-  }
+-}
+-
+-function testInverseAttribute() {
+-  var xmlToAttributeSpecifiers = new Array();
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+-  var colorAttribute = world.newAttribute(&quot;Color&quot;);
+-  var foodColorCategory = world.newCategory(&quot;Food Color&quot;);
+-  colorAttribute.addEntry({attribute:world.getAttributeCalledExpectedType(), value:foodColorCategory});
+-  var foodsOfThisColorCategory = world.newCategory(&quot;Foods of this color&quot;);
+-  colorAttribute.addEntry({attribute:world.getAttributeCalledInverseAttribute(), value:foodsOfThisColorCategory});
+-  xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;color&quot;], colorAttribute));
+-  var listOfItems = xmlImporter.makeItemsFromXmlFile(xmlToAttributeSpecifiers);
+-  var colorCategories = world.getItemsInCategory(foodColorCategory);
+-  assertTrue('2 color categories should have been created', colorCategories.length == 2);
+-  var red = colorCategories[0].getDisplayName() == 'red'? colorCategories[0] : colorCategories[1].getDisplayName() == 'red'? colorCategories[1] : null;
+-  assertFalse('A color category named &quot;red&quot; should have been created', red == null);
+-  var orange = colorCategories[0].getDisplayName() == 'orange'? colorCategories[0] : colorCategories[1].getDisplayName() == 'orange'? colorCategories[1] : null;
+-  assertFalse('A color category named &quot;orange&quot; should have been created', orange == null);
+-  var redFoods = red.getEntriesForAttribute(foodsOfThisColorCategory);
+-  assertTrue('There should be one red food.', redFoods.length == 1);
+-  var orangeFoods = orange.getEntriesForAttribute(foodsOfThisColorCategory);
+-  assertTrue('There should be two orange foods.', orangeFoods.length == 2);
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/tests/transcribers/XmlImporterTest.html
+===================================================================
+--- trunk/tests/transcribers/XmlImporterTest.html	2005-12-13 02:30:06 UTC (rev 397)
++++ trunk/tests/transcribers/XmlImporterTest.html	2005-12-13 02:33:18 UTC (rev 398)
+@@ -11,15 +11,15 @@
+ --&gt;
+ 
+   &lt;head&gt;
+-    &lt;title&gt;Unit tests for XmlConverter.js&lt;/title&gt;
++    &lt;title&gt;Unit tests for XmlImporter.js&lt;/title&gt;
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverterTest.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;XmlImporterTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+-    &lt;h1&gt;Unit tests for XmlConverter.js&lt;/h1&gt;
++    &lt;h1&gt;Unit tests for XmlImporter.js&lt;/h1&gt;
+ 
+     &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+     OpenRecord project.&lt;/p&gt;
+
+Copied: trunk/tests/transcribers/XmlImporterTest.js (from rev 397, trunk/tests/transcribers/XmlConverterTest.js)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000379.html">[openrecord-svn] r397 - in trunk: documentation source source/transcribers source/util tests tests/transcribers tests/util
+</A></li>
+	<LI>Next message: <A HREF="000381.html">[openrecord-svn] r399 - trunk/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#380">[ date ]</a>
+              <a href="thread.html#380">[ thread ]</a>
+              <a href="subject.html#380">[ subject ]</a>
+              <a href="author.html#380">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

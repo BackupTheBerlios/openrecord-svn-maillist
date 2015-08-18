@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r345 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r345%20-%20trunk/source&In-Reply-To=%3C200509280724.j8S7Ofvb003719%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000327.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r345 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r345%20-%20trunk/source&In-Reply-To=%3C200509280724.j8S7Ofvb003719%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r345 - trunk/source">skinner at berlios.de
+       </A><BR>
+    <I>Wed Sep 28 09:24:41 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000327.html">[openrecord-svn] r344 - in trunk: . source source/util source/view
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#328">[ date ]</a>
+              <a href="thread.html#328">[ thread ]</a>
+              <a href="subject.html#328">[ subject ]</a>
+              <a href="author.html#328">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-28 09:24:38 +0200 (Wed, 28 Sep 2005)
+New Revision: 345
+
+Modified:
+   trunk/source/CodingConventions.js
+Log:
+updates to the CodingConventions.js doc
+
+Modified: trunk/source/CodingConventions.js
+===================================================================
+--- trunk/source/CodingConventions.js	2005-09-28 01:22:19 UTC (rev 344)
++++ trunk/source/CodingConventions.js	2005-09-28 07:24:38 UTC (rev 345)
+@@ -9,21 +9,55 @@
+ 
+ Differences
+ 
+-  Here's a list of the OpenRecord conventions that differ from the Dojo conventions:
++  Here's a list of the six OpenRecord conventions that differ from the Dojo conventions:
+   
+   + constants
+      + Dojo uses either UpperLower or UPPER_UPPER capitalization
+      + OpenRecord always uses UPPER_UPPER capitalization
+-     + for an example, in DateValue.js see orp.util.DateValue.Month
++     + for an example, see orp.util.DateValue.Month in DateValue.js 
+   
+   + private class variables (instance variables)
+      + Dojo says private class variables (instance variables) MAY have a leading underscore
+-     + OpenRecord 
++     + OpenRecord always uses a leading underscore.  For example: this._foo = 3;
++  
++  + class-per-file
++     + Dojo says &quot;Class or object-per-file guidelines are not yet determined&quot;
++     + OpenRecord strives to have a one-to-one mapping between classes and files
++     
++  + tabs and spaces
++     + Dojo uses tab characters for indentation, with tabs set to four spaces
++     + OpenRecord uses spaces for indentation, with two spaces per indentation level.
++     + In OpenRecord, tabs are forbidden, and files with tabs will not pass the unit tests.
++     
++  + incomplete lines
++     + Dojo offers these examples:
++       var someExpression = Expression1
++           + Expression2
++           + Expression3 ;
++       var o = someObject.get(
++               Expression1,
++               Expression2,
++               Expression3
++           );
++     + OpenRecord does it slightly differently, so as to pass the JSLint tests:
++       var someExpression = Expression1 + 
++           Expression2 + 
++           Expression3 ;
++       var o = someObject.get(
++               Expression1,
++               Expression2,
++               Expression3 );
++     
++  + for loops
++     + Dojo tends to use this style:  for (var i=0; i &lt; bar.length; i++)
++     + OpenRecord tends to do this:   for (var i in bar)
++     
++Additions
+ 
+-
++  OpenRecord has a number of additional conventions.  See below...
+    
+-   
+ 
++
+ -----------------------------------------------------------------------------
+ OpenRecord Conventions
+ 
+@@ -51,14 +85,9 @@
+       + example: Book.js has unit test files BookTest.html and BookTest.js
+    + variable scoping prefixes
+       + class variables are prefixed with &quot;our&quot;
+-      + [DEPRECATED: instance variables are prefixed with &quot;my&quot;]
+       + global variables are prefixed with &quot;window.global&quot;
+       + locally scoped variables are not prefixed
+       + non-public variables and methods are prefixed with &quot;_&quot; (use &quot;_&quot; for private, protected, or package)
+-      + [DEPRECATED: function input parameters are prefixed with &quot;in&quot;]
+-      + [DEPRECATED: private variables and methods are prefixed with &quot;__&quot;]
+-      + [DEPRECATED: protected variables and methods are prefixed with &quot;_&quot;]
+-   + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
+    + array variables are prefixed with &quot;listOf&quot; or &quot;hashTableOf&quot; or &quot;arrayOf&quot;
+       + var listOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
+       + var hashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
+@@ -70,7 +99,7 @@
+ 
+ + compatiblity with other browsers and other JavaScript libraries 
+    + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
+-   + [DEPRECATED: add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...]
++   + add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
+    + do *not* extend Object.prototype
+      (see <A HREF="http://erik.eae.net/archives/2005/06/06/22.13.54/">http://erik.eae.net/archives/2005/06/06/22.13.54/</A>)
+      (see <A HREF="http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297">http://sourceforge.net/forum/forum.php?thread_id=1315559&amp;forum_id=379297</A>)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000327.html">[openrecord-svn] r344 - in trunk: . source source/util source/view
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#328">[ date ]</a>
+              <a href="thread.html#328">[ thread ]</a>
+              <a href="subject.html#328">[ subject ]</a>
+              <a href="author.html#328">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

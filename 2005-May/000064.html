@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r75 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r75%20-%20trunk/source/model&In-Reply-To=%3C200505242045.j4OKj1TD001432%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000063.html">
+   <LINK REL="Next"  HREF="000065.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r75 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r75%20-%20trunk/source/model&In-Reply-To=%3C200505242045.j4OKj1TD001432%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r75 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Tue May 24 22:45:01 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000063.html">[openrecord-svn] r74 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000065.html">[openrecord-svn] r76 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-24 22:45:00 +0200 (Tue, 24 May 2005)
+New Revision: 75
+
+Modified:
+   trunk/source/model/Item.js
+Log:
+Made isInCategory() no longer do a transitive search.
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-05-24 20:24:50 UTC (rev 74)
++++ trunk/source/model/Item.js	2005-05-24 20:45:00 UTC (rev 75)
+@@ -382,10 +382,6 @@
+  * Given a category, returns &quot;true&quot; if the item has been assigned to 
+  * that category.
+  *
+- * Also returns true if the item has been assigned to some category which is in
+- * turn assigned to the given category, and so on, up the chain of category 
+- * assignments.
+- *
+  * @scope    public instance method
+  * @return   A boolean.  True if the item has been assigned to the category.
+  */
+@@ -394,18 +390,21 @@
+ 
+   var categoryAttribute = this.getWorld().getAttributeCalledCategory();
+   var entryList = this.getEntriesForAttribute(categoryAttribute);
+-  var key;
+-  var entry;
+   
+-  // look at all the categories this item is assigned to, and see if one of them is &quot;inCategory&quot;
+-  for (key in entryList) {
+-    entry = entryList[key];
++  // look at all the categories this item is assigned to, 
++  // and see if one of them is &quot;inCategory&quot;
++  for (var key in entryList) {
++    var entry = entryList[key];
+     if (entry.getValue() == inCategory) {
+       return true;
+     }
+   }
+   
+   /*
++   * Also returns true if the item has been assigned to some category which is in
++   * turn assigned to the given category, and so on, up the chain of category 
++   * assignments.
++   *
+   // look at all the categories this item is assigned to, and see if one of them
+   // is in turn in the category &quot;inCategory&quot;
+   for (key in entryList) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000063.html">[openrecord-svn] r74 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000065.html">[openrecord-svn] r76 - in trunk: documentation source source/model source/repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#64">[ date ]</a>
+              <a href="thread.html#64">[ thread ]</a>
+              <a href="subject.html#64">[ subject ]</a>
+              <a href="author.html#64">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

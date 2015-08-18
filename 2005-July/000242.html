@@ -1,0 +1,663 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r257 - in trunk: documentation source source/model third_party third_party/gtd_tiddlywiki
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r257%20-%20in%20trunk%3A%20documentation%20source%20source/model%20third_party%20third_party/gtd_tiddlywiki&In-Reply-To=%3C200507220244.j6M2iKN9015139%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000241.html">
+   <LINK REL="Next"  HREF="000243.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r257 - in trunk: documentation source source/model third_party third_party/gtd_tiddlywiki</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r257%20-%20in%20trunk%3A%20documentation%20source%20source/model%20third_party%20third_party/gtd_tiddlywiki&In-Reply-To=%3C200507220244.j6M2iKN9015139%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r257 - in trunk: documentation source source/model third_party third_party/gtd_tiddlywiki">skinner at berlios.de
+       </A><BR>
+    <I>Fri Jul 22 04:44:20 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000241.html">[openrecord-svn] r256 - in trunk: . documentation source source/util
+</A></li>
+        <LI>Next message: <A HREF="000243.html">[openrecord-svn] r258 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#242">[ date ]</a>
+              <a href="thread.html#242">[ thread ]</a>
+              <a href="subject.html#242">[ subject ]</a>
+              <a href="author.html#242">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-22 04:44:16 +0200 (Fri, 22 Jul 2005)
+New Revision: 257
+
+Added:
+   trunk/source/model/HttpSaver.js
+   trunk/third_party/gtd_tiddlywiki/
+   trunk/third_party/gtd_tiddlywiki/FileSaver.js
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/OpenRecordLoader.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/LintTest.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+Added support for saving changes to the repository when a document is loaded from a &quot;<A HREF="file:///">file:///</A>&quot; type URL.  Built our local-save implementation on top of code from the GTDTiddlyWiki project.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/documentation/release_planning.txt	2005-07-22 02:44:16 UTC (rev 257)
+@@ -270,7 +270,7 @@
+        |          |         | 24. Deal with \n in page name or summary fields
+        |          |         | 25. BUG: need to encode reserved characters(&lt;&amp;&gt;\n&quot;') back at client-server layer
+ brian  |          | 0.25    |     Be able to make html files with just one &lt;script&gt; element, not dozens 
+-       |          |       &gt;&gt;|     Be able to easily create new documents that are empty
++brian  |          |       &gt;&gt;|     Be able to easily create new documents that are empty
+        |          |       &gt;&gt;|     Create a dozen demo documents (quotes, dictionary, movies, books, oil-change, etc.)
+        |          |       &gt;&gt;|     Have different documents use different style-sheets
+ brian  | 1    IED | 0.75    |     Add a DateValue class that supports dates like &quot;2005&quot;
+@@ -290,7 +290,7 @@
+        |          |         | 32. Convert UI code from DOM level 0 to DOM level 2
+        |          |         | 33. Rationalize the View api and document public api
+        |          |       &gt;&gt;| 34. Improve and document the Data model public api
+-       |          |       &gt;&gt;| 35. Add support for saving content when used from a <A HREF="file://">file://</A> URL
++brian  |          | 0.5     | 35. Add support for saving content when used from a <A HREF="file://">file://</A> URL
+        |          |         | 36. Do refactoring wherever needed (e.g. SuggestionBox and AttributeSuggestionBox)
+        |          |         | 37. improve UI for setting the expected data type of an attribute
+        |          |         | 38. improve UI for creating a new category
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/source/OpenRecordLoader.js	2005-07-22 02:44:16 UTC (rev 257)
+@@ -95,6 +95,7 @@
+     &quot;third_party/scriptaculous/prototype.js&quot;,
+     &quot;third_party/scriptaculous/effects.js&quot;,
+     &quot;third_party/scriptaculous/dragdrop.js&quot;,
++    &quot;third_party/gtd_tiddlywiki/FileSaver.js&quot;,
+     &quot;source/util/Uuid.js&quot;,
+     &quot;source/util/Util.js&quot;,
+     &quot;source/util/Cookie.js&quot;,
+@@ -124,7 +125,8 @@
+     &quot;source/model/QueryRunner.js&quot;,
+     &quot;source/model/World.js&quot;,
+     &quot;source/model/StubVirtualServer.js&quot;,
+-    &quot;source/model/DeltaVirtualServer.js&quot;];
++    &quot;source/model/DeltaVirtualServer.js&quot;,
++    &quot;source/model/HttpSaver.js&quot;];
+   for (var i in listOfSourceCodeFiles) {
+     var fileName = listOfSourceCodeFiles[i];
+     var url = path + fileName;
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/source/model/DeltaVirtualServer.js	2005-07-22 02:44:16 UTC (rev 257)
+@@ -39,6 +39,12 @@
+ // -------------------------------------------------------------------
+ 
+ 
++// -------------------------------------------------------------------
++// DeltaVirtualServer public class constants
++// -------------------------------------------------------------------
++DeltaVirtualServer.PATH_TO_REPOSITORY_DIRECTORY = &quot;repositories&quot;;
++
++
+ /**
+  * The DeltaVirtualServer is a datastore that loads and saves
+  * an entire World of items as a single monolithic JSON string.
+@@ -75,15 +81,15 @@
+   // this._buildTypeHashTable();
+   this._loadAxiomaticItemsFromFileAtURL(this._dehydratedAxiomFileURL);
+ 
+-  var pathToRepositoryDirectory = &quot;repositories/&quot;;
+   var repositoryFileName = this._repositoryName + &quot;.json&quot;;
+-  var repositoryUrl = this._pathToTrunkDirectory + pathToRepositoryDirectory + repositoryFileName;
++  var repositoryUrl = this._pathToTrunkDirectory + DeltaVirtualServer.PATH_TO_REPOSITORY_DIRECTORY + &quot;/&quot; + repositoryFileName;
+   var repositoryContentString = Util.getStringContentsOfFileAtURL(repositoryUrl);
+   repositoryContentString += &quot; ] }&quot;;
+ 
+   this._loadWorldFromJsonString(repositoryContentString);
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // Private Methods
+ // -------------------------------------------------------------------
+@@ -356,16 +362,15 @@
+     return listOfChangesMade;
+   }
+   
+-  var saveChanges = false;
+-  if (window.location) {
+-    if (window.location.protocol == &quot;http:&quot;) {
+-      saveChanges = true;
+-    }
+-    if (window.location.protocol == &quot;file:&quot;) {
+-      if (!this._hasEverFailedToSaveFlag) {
+-        window.alert(&quot;I can't save changes to server, because this page was loaded from a \&quot;<A HREF="file:///\">file:///\</A>&quot; location, not a real \&quot;<A HREF="http://\">http://\</A>&quot; location.  Sorry.&quot;); 
+-        this._hasEverFailedToSaveFlag = true;
++  if (!this._saverObject) {
++    if (window.location) {
++      if (window.location.protocol == &quot;http:&quot;) {
++        this._saverObject = new HttpSaver(this._pathToTrunkDirectory, this._repositoryName);
+       }
++      if (window.location.protocol == &quot;file:&quot;) {
++        // var fileName = this._repositoryName + &quot;.json&quot;;
++        this._saverObject = new FileSaver(this._repositoryName);
++      }
+     }
+   }
+   
+@@ -376,22 +381,14 @@
+     this._chronologicalListOfRecords.push(newRecord);
+   }
+ 
+-  if (saveChanges) {
+-    var url = this._pathToTrunkDirectory + &quot;source/model/append_to_repository_file.php?file=&quot; + this._repositoryName;
++  if (this._saverObject) {
+     var textToAppend = &quot;,\n&quot; + this._getJsonStringRepresentingTransaction(currentTransaction);
+-    var asynchronous;
+-    asynchronous = true;
+-    
+-    // PENDING: 
+-    // It might be more efficient to re-use the XMLHttpRequestObject,
+-    // rather than creating a new one for new request.  But re-using 
+-    // them is complicated, because the requests are asynchronous, so
+-    // we need to check to see if the last request is done before we 
+-    // can start a new request.
+-    var newXMLHttpRequestObject = this.__newXMLHttpRequestObject();
+-    newXMLHttpRequestObject.open(&quot;POST&quot;, url, asynchronous);
+-    newXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
+-    newXMLHttpRequestObject.send(textToAppend);
++    this._saverObject.appendText(textToAppend);
++  } else {
++    if (!this._hasEverFailedToSaveFlag) {
++      window.alert(&quot;I can't save changes to server, because this page was loaded from a \&quot;<A HREF="file:///\">file:///\</A>&quot; location, not a real \&quot;<A HREF="http://\">http://\</A>&quot; location.  Sorry.&quot;); 
++      this._hasEverFailedToSaveFlag = true;
++    }
+   }
+   
+   this._currentTransaction = null;
+@@ -399,37 +396,6 @@
+ };
+ 
+ 
+-/**
+- * Returns a newly created XMLHttpRequest object.
+- *
+- * @scope    private instance method
+- * @return   A newly created XMLHttpRequest object. 
+- */
+-DeltaVirtualServer.prototype.__newXMLHttpRequestObject = function() {
+-  var newXMLHttpRequestObject = null;
+-  if (window.XMLHttpRequest) {
+-    newXMLHttpRequestObject = new XMLHttpRequest();
+-  } else {
+-    if (window.ActiveXObject) {
+-      newXMLHttpRequestObject = new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);
+-    }
+-  }
+-  if (newXMLHttpRequestObject) {
+-    newXMLHttpRequestObject.onreadystatechange = function() {
+-      var statusText = newXMLHttpRequestObject.statusText;
+-      if (statusText != &quot;OK&quot;) {
+-        window.alert(&quot;onreadystatechange:\n&quot; +
+-          &quot;readyState: &quot; + newXMLHttpRequestObject.readyState + &quot;\n&quot; +
+-          &quot;status: &quot; + newXMLHttpRequestObject.status + &quot;\n&quot; +
+-          &quot;statusText: &quot; + newXMLHttpRequestObject.statusText + &quot;\n&quot; +
+-          &quot;responseText: &quot; + newXMLHttpRequestObject.responseText + &quot;\n&quot;);
+-      }
+-    };
+-  }
+-  return newXMLHttpRequestObject;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Added: trunk/source/model/HttpSaver.js
+===================================================================
+--- trunk/source/model/HttpSaver.js	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/source/model/HttpSaver.js	2005-07-22 02:44:16 UTC (rev 257)
+@@ -0,0 +1,102 @@
++/*****************************************************************************
++ HttpSaver.js
++  
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++/**
++ * The HttpSaver class knows how to save content to a server by using
++ * XMLHttpRequest to call a PHP script.
++ *
++ * @scope    public instance constructor
++ */
++function HttpSaver(pathToTrunkDirectory, repositoryName) {
++  this._pathToTrunkDirectory = pathToTrunkDirectory;
++  this._repositoryName = repositoryName;
++}
++
++
++/**
++ * Returns a newly created XMLHttpRequest object.
++ *
++ * @scope    public instance method
++ * @return   A newly created XMLHttpRequest object. 
++ */
++HttpSaver.prototype.appendText = function(textToAppend) {
++    var url = this._pathToTrunkDirectory + &quot;source/model/append_to_repository_file.php?file=&quot; + this._repositoryName;
++  
++  // PENDING: 
++  // It might be more efficient to re-use the XMLHttpRequestObject,
++  // rather than creating a new one for new request.  But re-using 
++  // them is complicated, because the requests are asynchronous, so
++  // we need to check to see if the last request is done before we 
++  // can start a new request.
++  var newXMLHttpRequestObject = this._newXMLHttpRequestObject();
++  var asynchronous = true;
++  newXMLHttpRequestObject.open(&quot;POST&quot;, url, asynchronous);
++  newXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
++  newXMLHttpRequestObject.send(textToAppend);
++};
++  
++  
++  
++/**
++ * Returns a newly created XMLHttpRequest object.
++ *
++ * @scope    private instance method
++ * @return   A newly created XMLHttpRequest object. 
++ */
++HttpSaver.prototype._newXMLHttpRequestObject = function() {
++  var newXMLHttpRequestObject = null;
++  if (window.XMLHttpRequest) {
++    newXMLHttpRequestObject = new XMLHttpRequest();
++  } else {
++    if (window.ActiveXObject) {
++      newXMLHttpRequestObject = new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);
++    }
++  }
++  if (newXMLHttpRequestObject) {
++    newXMLHttpRequestObject.onreadystatechange = function() {
++      var statusText = newXMLHttpRequestObject.statusText;
++      if (statusText != &quot;OK&quot;) {
++        window.alert(&quot;onreadystatechange:\n&quot; +
++          &quot;readyState: &quot; + newXMLHttpRequestObject.readyState + &quot;\n&quot; +
++          &quot;status: &quot; + newXMLHttpRequestObject.status + &quot;\n&quot; +
++          &quot;statusText: &quot; + newXMLHttpRequestObject.statusText + &quot;\n&quot; +
++          &quot;responseText: &quot; + newXMLHttpRequestObject.responseText + &quot;\n&quot;);
++      }
++    };
++  }
++  return newXMLHttpRequestObject;
++};
++
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/source/model/LintTest.js	2005-07-22 02:44:16 UTC (rev 257)
+@@ -49,7 +49,8 @@
+     &quot;QueryRunner.js&quot;,
+     &quot;World.js&quot;,
+     &quot;StubVirtualServer.js&quot;,
+-    &quot;DeltaVirtualServer.js&quot;];
++    &quot;DeltaVirtualServer.js&quot;,
++    &quot;HttpSaver.js&quot;];
+   var prefix = &quot;../../../source/model/&quot;;
+   var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
+   var message = &quot;Lint check \n&quot; + errorReport;
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/source/model/StubVirtualServer.js	2005-07-22 02:44:16 UTC (rev 257)
+@@ -38,7 +38,7 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// DeltaVirtualServer public class constants
++// StubVirtualServer public class constants
+ // -------------------------------------------------------------------
+ StubVirtualServer.JSON_MEMBER_FORMAT = &quot;format&quot;;
+ StubVirtualServer.JSON_MEMBER_RECORDS = &quot;records&quot;;
+
+Added: trunk/third_party/gtd_tiddlywiki/FileSaver.js
+===================================================================
+--- trunk/third_party/gtd_tiddlywiki/FileSaver.js	2005-07-21 18:06:18 UTC (rev 256)
++++ trunk/third_party/gtd_tiddlywiki/FileSaver.js	2005-07-22 02:44:16 UTC (rev 257)
+@@ -0,0 +1,267 @@
++/*****************************************************************************
++ FileSaver.js
++ 
++******************************************************************************
++ The code in this file is a heavily modified version of code that was copied
++ from the TiddlyWiki and GTDTiddlyWiki code base.
++ 
++ The original code is Copyright (c) Osmosoft Limited.  The original copyright 
++ notice is included below, along with the license conditions and disclaimer.  
++ 
++ OpenRecord modifications by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++
++ For the OpenRecord modifications, the Copyright rights are relinquished under  
++ the Creative Commons Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++
++******************************************************************************
++TiddlyWiki 1.2.6 by Jeremy Ruston, (jeremy [at] osmosoft [dot] com)
++Incorporating improvements by Isao Sonobe, <A HREF="http://www-gauge.scphys.kyoto-u.ac.jp/~sonobe/OgreKit/OgreKitWiki.html">http://www-gauge.scphys.kyoto-u.ac.jp/~sonobe/OgreKit/OgreKitWiki.html</A>
++GTDTiddlyWiki modification by Nathan Bowers, (wiki [at] snapgrid [dot] com)
++Safari Compatability by Jonathan Paisley at <A HREF="http://www.dcs.gla.ac.uk/~jp/">http://www.dcs.gla.ac.uk/~jp/</A>
++
++Copyright (c) Osmosoft Limited, 14 April 2005
++
++All rights reserved.
++
++Redistribution and use in source and binary forms, with or without modification,
++are permitted provided that the following conditions are met:
++
++Redistributions of source code must retain the above copyright notice, this
++list of conditions and the following disclaimer.
++
++Redistributions in binary form must reproduce the above copyright notice, this
++list of conditions and the following disclaimer in the documentation and/or other
++materials provided with the distribution.
++
++Neither the name of the Osmosoft Limited nor the names of its contributors may be
++used to endorse or promote products derived from this software without specific
++prior written permission.
++
++THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS &quot;AS IS&quot; AND ANY
++EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
++SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
++INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
++TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
++BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
++CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
++ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
++DAMAGE.
++*****************************************************************************/
++
++
++/**
++ * The FileSaver class knows how to save text to local file.
++ *
++ * @scope    public instance constructor
++ */
++function FileSaver(repositoryName) {
++  this._repositoryName = repositoryName;
++}
++
++
++/**
++ * Appends text to a file.
++ *
++ * @scope    public instance method
++ */
++FileSaver.prototype.appendText = function(textToAppend) {
++  // Step 1: Build the fileUrl
++  // 
++  // Our saveTextToFile() method needs a fileUrl that looks like this:
++  //   fileUrl = &quot;K:\\www\\htdocs\\openrecord\\demo\\current\\trunk\\repositories\\demo_page.json&quot;;
++  // 
++  // We start with a value in this._repositoryName that looks like this:
++  //   this._repositoryName == &quot;demo_page&quot;
++
++  // URLs like these don't work:
++  //   fileUrl = &quot;repositories/demo_page.json&quot;;
++  //   fileUrl = &quot;repositories\\demo_page.json&quot;;
++  //   fileUrl = &quot;\\repositories\\demo_page.json&quot;;
++  //   fileUrl = &quot;K:/www/htdocs/openrecord/demo/current/trunk/repositories/demo_page.json&quot;;
++
++  var listOfAdditions = [];
++  listOfAdditions.push(DeltaVirtualServer.PATH_TO_REPOSITORY_DIRECTORY);
++  listOfAdditions.push(this._repositoryName + &quot;.json&quot;);
++  var fileUrl = this.getLocalPathFromWindowLocation(listOfAdditions);
++  
++  var append = true;
++  this.saveTextToFile(textToAppend, fileUrl, append);
++};
++  
++
++/**
++ * Save the text to the file at the given URL.
++ *
++ * @scope    public instance method
++ * @return   Returns true if the text was saved.
++ */
++FileSaver.prototype.saveTextToFile = function(text, fileUrl, append) {
++  // Make sure we were loaded from a &quot;file:&quot; URL
++  if (window.location.protocol != &quot;file:&quot;) {
++    Util.assert(false, 'FileSaver.js can only be used for pages loaded from a &quot;<A HREF="file:///">file:///</A>&quot; location');
++  }
++
++  var success = this.mozillaSaveToFile(text, fileUrl, append);
++  if (!success) {
++    success = this.ieSaveToFile(text, fileUrl, append);
++  }
++  return(success);
++};
++
++
++/**
++ * Save the text to the file at the given filePath.
++ *
++ * @scope    public instance method
++ * @return   Returns true if the text was saved, false if there was an error, or null if we couldn't even try.
++ */
++FileSaver.prototype.mozillaSaveToFile = function(text, filePath, append) {
++  if (window.Components) {
++    try {
++      netscape.security.PrivilegeManager.enablePrivilege(&quot;UniversalXPConnect&quot;);
++      var file = Components.classes[&quot;@mozilla.org/file/local;1&quot;].createInstance(Components.interfaces.nsILocalFile);
++      file.initWithPath(filePath);
++      if (!file.exists()) {
++        file.create(0, 0664);
++      }
++      var outputStream = Components.classes[&quot;@mozilla.org/network/file-output-stream;1&quot;].createInstance(Components.interfaces.nsIFileOutputStream);
++      if (append) {
++        outputStream.init(file, 0x10 | 0x02, 00004, null);
++      } else {
++        outputStream.init(file, 0x20 | 0x02, 00004, null);
++      }
++      outputStream.write(text, text.length);
++      outputStream.flush();
++      outputStream.close();
++      return true;
++    }
++    catch(exception) {
++      alert(&quot;Exception while attempting to save\n\n&quot; + exception);
++      return false;
++    }
++  } else {
++    alert(&quot;window.Components == null&quot;);
++  }
++  return null;
++};
++
++
++/**
++ * Save the text to the file at the given filePath.
++ *
++ * @scope    public instance method
++ * @return   Returns true if the text was saved, or false if there was an error.
++ */
++FileSaver.prototype.ieSaveToFile = function(text, filePath, append) {
++  try {
++    var fileSystemObject = new ActiveXObject(&quot;Scripting.FileSystemObject&quot;);
++  }
++  catch(exception) {
++    alert(&quot;Exception while attempting to save\n\n&quot; + exception.toString());
++    return false;
++  }
++  if (append) {
++    Util.assert(false, &quot;PENDING: still need to write code for this&quot;);
++  } else {
++    var file = fileSystemObject.OpenTextFile(filePath, 2, -1, 0);
++  }
++  file.Write(text);
++  file.Close();
++  return true;
++};
++
++
++/**
++ * This method looks at the URL value in the window.location property,
++ * strips the filename off the end, appends any given path elements,
++ * converts the whole thing to a format that is compatible with the 
++ * local file system, and returns the new local path.
++ *
++ * @scope    public instance method
++ * @return   Returns a full local pathname.
++ */
++FileSaver.prototype.getLocalPathFromWindowLocation = function(listOfAdditions) {
++  // Example location:
++  //   location.href     == <A HREF="file:///D:/amy/openrecord/foo.html#bar">file:///D:/amy/openrecord/foo.html#bar</A>
++  //   location.protocol == file:
++  //   location.pathname ==        /D:/amy/openrecord/foo.html
++  //   location.hash     ==                                   #bar
++
++  // Get the URL of the document
++  var pathname = window.location.pathname;
++  
++  
++  // Step 1: Make the requested additions to the pathname
++  var arrayOfParts = pathname.split('/');
++  arrayOfParts.pop();  // get rid of the final &quot;/foo.html&quot; part
++  for (var i in listOfAdditions) {
++    var additionalPart = listOfAdditions[i];
++    arrayOfParts.push(additionalPart);
++  }
++  pathname = arrayOfParts.join('/');
++
++  
++  // Step 2: Figure out what type of URL we're working with
++  // Constants
++  var PATH_TYPE_LOCAL_PC        = &quot;PATH_TYPE_LOCAL_PC&quot;;        // &quot;<A HREF="file:///x:/path/path...">file:///x:/path/path...</A>&quot; 
++  var PATH_TYPE_LOCAL_UNIX_MAC  = &quot;PATH_TYPE_LOCAL_UNIX_MAC&quot;;  // &quot;<A HREF="file:///path/path...">file:///path/path...</A>&quot;
++  var PATH_TYPE_NETWORK_PC      = &quot;PATH_TYPE_NETWORK_PC&quot;;      // &quot;<A HREF="file://server/share/path/path...">file://server/share/path/path...</A>&quot;
++  var PATH_TYPE_NETWORK_FIREFOX = &quot;PATH_TYPE_NETWORK_FIREFOX&quot;; // &quot;<A HREF="file://///server/share/path/path...">file://///server/share/path/path...</A>&quot;
++  // &quot;<A HREF="file:///x:/path/path...">file:///x:/path/path...</A>&quot;             == PATH_TYPE_LOCAL_PC        --&gt; &quot;x:\path\path...&quot;
++  // &quot;<A HREF="file:///path/path...">file:///path/path...</A>&quot;                == PATH_TYPE_LOCAL_UNIX_MAC  --&gt; &quot;/path/path...&quot;
++  // &quot;<A HREF="file://server/share/path/path...">file://server/share/path/path...</A>&quot;    == PATH_TYPE_NETWORK_PC      --&gt; &quot;\\server\share\path\path...&quot;
++  // &quot;<A HREF="file://///server/share/path/path...">file://///server/share/path/path...</A>&quot; == PATH_TYPE_NETWORK_FIREFOX --&gt; &quot;\\server\share\path\path...&quot;
++
++  var pathType = null;
++  if (pathname.charAt(2) == &quot;:&quot;) {
++    pathType = PATH_TYPE_LOCAL_PC;
++  } else if (pathname.indexOf(&quot;///&quot;) === 0) {
++    pathType = PATH_TYPE_NETWORK_FIREFOX;
++  } else if (pathname.indexOf(&quot;/&quot;) === 0) {
++    pathType = PATH_TYPE_LOCAL_UNIX_MAC;
++  } else {
++    pathType = PATH_TYPE_NETWORK_PC;
++  }
++
++
++  // Step 3: Convert the URL to a file path
++  var localPath = pathname;
++  switch (pathType) {
++    case PATH_TYPE_LOCAL_PC:
++      // example: &quot;/x:/path/path...&quot;
++      localPath = localPath.substring(1);  // get rid of initial '/'
++      localPath = unescape(localPath);
++      localPath = localPath.replace(new RegExp(&quot;/&quot;,&quot;g&quot;),&quot;\\&quot;);
++      // result: &quot;x:\path\path...&quot;
++      break;
++    case PATH_TYPE_LOCAL_UNIX_MAC:         
++    // example: &quot;/path/path...&quot;
++      localPath = unescape(localPath);
++      // result: &quot;/path/path...&quot;
++      break;
++    case PATH_TYPE_NETWORK_FIREFOX:
++      // example: &quot;///server/share/path/path...&quot;
++      localPath = localPath.substring(3);  // get rid of initial '///'
++      localPath = unescape(localPath);
++      localPath = localPath.replace(new RegExp(&quot;/&quot;,&quot;g&quot;),&quot;\\&quot;);
++      localPath = &quot;\\\\&quot; + localPath;      
++      // result: &quot;\\server\share\path\path...&quot;
++      break;
++    case PATH_TYPE_NETWORK_PC:
++      // example: &quot;server/share/path/path...&quot;
++      localPath = unescape(localPath);
++      localPath = localPath.replace(new RegExp(&quot;/&quot;,&quot;g&quot;),&quot;\\&quot;);
++      localPath = &quot;\\\\&quot; + localPath;      
++      // result: &quot;\\server\share\path\path...&quot;
++      break;
++  }
++
++  return localPath;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000241.html">[openrecord-svn] r256 - in trunk: . documentation source source/util
+</A></li>
+	<LI>Next message: <A HREF="000243.html">[openrecord-svn] r258 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#242">[ date ]</a>
+              <a href="thread.html#242">[ thread ]</a>
+              <a href="subject.html#242">[ subject ]</a>
+              <a href="author.html#242">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

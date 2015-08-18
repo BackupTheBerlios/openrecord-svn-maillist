@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r33 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r33%20-%20trunk/source&In-Reply-To=%3C200504150319.j3F3JtJL006480%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000025.html">
+   <LINK REL="Next"  HREF="000027.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r33 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r33%20-%20trunk/source&In-Reply-To=%3C200504150319.j3F3JtJL006480%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r33 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Apr 15 05:19:55 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000025.html">[openrecord-svn] r32 - in trunk: . source third_party third_party/jsunit third_party/jsunit/jsunit2_1 third_party/jsunit/jsunit2_1/app third_party/jsunit/jsunit2_1/licenses
+</A></li>
+        <LI>Next message: <A HREF="000027.html">[openrecord-svn] r34 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-15 05:19:53 +0200 (Fri, 15 Apr 2005)
+New Revision: 33
+
+Modified:
+   trunk/source/TestSuite.html
+   trunk/source/UtilTest.html
+Log:
+Messed with the path names in the html files for the Unit tests. It's all ugly, but at least now the testRunner page and the unit test pages have some hope of finding each other, provided they're always placed in exactly the right places in the file system.
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-04-14 23:39:11 UTC (rev 32)
++++ trunk/source/TestSuite.html	2005-04-15 03:19:53 UTC (rev 33)
+@@ -23,7 +23,7 @@
+       
+       function openRecordTestSuite() {
+         var testSuite = new window.top.jsUnitTestSuite();
+-        testSuite.addTestPage(&quot;../../subversive/trunk/source/UtilTest.html&quot;);
++        testSuite.addTestPage(&quot;../../current/trunk/source/UtilTest.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+@@ -44,23 +44,31 @@
+     same name as this one, except with a .js extension instead of a .html
+     extension.&lt;/p&gt;
+  
+-    &lt;p&gt;To run the tests, you need to use the 
++    &lt;p&gt;The unit tests are set up to run in the
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+     written by 
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+ 
+-    &lt;p&gt;To run these unit tests over the internet, go to 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/runner/testRunner.html">http://www.edwardh.com/jsunit/runner/testRunner.html</A>&quot; rel=&quot;external&quot;&gt;<A HREF="http://www.edwardh.com/jsunit/runner/testRunner.html&lt;/a">http://www.edwardh.com/jsunit/runner/testRunner.html&lt;/a</A>&gt;,
+-    enter the URL of this page, and hit the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+ 
+     &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+     
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
+     &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+     rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain Dedication&lt;/a&gt;.&lt;/p&gt;
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
+ 
+ &lt;!-- Creative Commons metadata for Public Domain License 
+ 
+
+Modified: trunk/source/UtilTest.html
+===================================================================
+--- trunk/source/UtilTest.html	2005-04-14 23:39:11 UTC (rev 32)
++++ trunk/source/UtilTest.html	2005-04-15 03:19:53 UTC (rev 33)
+@@ -33,23 +33,31 @@
+     same name as this one, except with a .js extension instead of a .html
+     extension.&lt;/p&gt;
+  
+-    &lt;p&gt;To run the tests, you need to use the 
++    &lt;p&gt;The unit tests are set up to run in the
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+     written by 
+     &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+ 
+-    &lt;p&gt;To run these unit tests over the internet, go to 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/runner/testRunner.html">http://www.edwardh.com/jsunit/runner/testRunner.html</A>&quot; rel=&quot;external&quot;&gt;<A HREF="http://www.edwardh.com/jsunit/runner/testRunner.html&lt;/a">http://www.edwardh.com/jsunit/runner/testRunner.html&lt;/a</A>&gt;,
+-    enter the URL of this page, and hit the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+ 
+     &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+     
+     &lt;p&gt;&nbsp;&lt;/p&gt;
+     &lt;hr/&gt;
+     &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+     rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain Dedication&lt;/a&gt;.&lt;/p&gt;
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
+ 
+ &lt;!-- Creative Commons metadata for Public Domain License 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000025.html">[openrecord-svn] r32 - in trunk: . source third_party third_party/jsunit third_party/jsunit/jsunit2_1 third_party/jsunit/jsunit2_1/app third_party/jsunit/jsunit2_1/licenses
+</A></li>
+	<LI>Next message: <A HREF="000027.html">[openrecord-svn] r34 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#26">[ date ]</a>
+              <a href="thread.html#26">[ thread ]</a>
+              <a href="subject.html#26">[ subject ]</a>
+              <a href="author.html#26">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

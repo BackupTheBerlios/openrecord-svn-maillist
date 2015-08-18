@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r110 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r110%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506020356.j523uHeF005003%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000096.html">
+   <LINK REL="Next"  HREF="000098.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r110 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r110%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506020356.j523uHeF005003%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r110 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  2 05:56:17 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000096.html">[openrecord-svn] r109 - trunk/source/repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000098.html">[openrecord-svn] r111 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#97">[ date ]</a>
+              <a href="thread.html#97">[ thread ]</a>
+              <a href="subject.html#97">[ subject ]</a>
+              <a href="author.html#97">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-02 05:56:11 +0200 (Thu, 02 Jun 2005)
+New Revision: 110
+
+Modified:
+   trunk/source/NavbarView.js
+   trunk/source/RootView.js
+   trunk/source/model/World.js
+Log:
+Minor change so that nav-bar menu names reflect page names for new pages.
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-06-02 01:40:48 UTC (rev 109)
++++ trunk/source/NavbarView.js	2005-06-02 03:56:11 UTC (rev 110)
+@@ -89,6 +89,9 @@
+   for (var key in listOfPages) {
+     var page = listOfPages[key];
+     var menuText = page.getSingleStringValueFromAttribute(attributeCalledShortName);
++    if (!menuText) {
++      menuText = page.getDisplayName();
++    }
+     var menuUrl = rootView.getUrlForItem(page);
+     listOfStrings.push(&quot;&lt;li class=\&quot;menu_item\&quot;&gt;&lt;a href=\&quot;&quot; + menuUrl + &quot;\&quot; onclick=\&quot;RootView.clickOnLocalLink(event)\&quot;&gt;&quot; + menuText + &quot;&lt;/a&gt;&lt;/li&gt;&quot;);
+   }
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-06-02 01:40:48 UTC (rev 109)
++++ trunk/source/RootView.js	2005-06-02 03:56:11 UTC (rev 110)
+@@ -352,7 +352,7 @@
+ RootView.prototype.newPage = function () {
+   this.getWorld().beginTransaction();
+   var newPage = this.getWorld().newItem(&quot;New Page&quot;);
+-  var shortName = this.getWorld().getAttributeCalledShortName();
++  // var shortName = this.getWorld().getAttributeCalledShortName();
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var attributeCalledQuery = this.getWorld().getAttributeCalledQuery();
+   var categoryCalledQuery = this.getWorld().getCategoryCalledQuery();
+@@ -361,7 +361,7 @@
+   var attributeCalledSection = this.getWorld().getItemFromUuid(PageView.UUID_FOR_ATTRIBUTE_SECTION);
+   var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   var categoryCalledSection = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_SECTION);
+-  newPage.addEntryForAttribute(shortName, &quot;New Page&quot;);
++  // newPage.addEntryForAttribute(shortName, &quot;New Page&quot;);
+   newPage.addEntryForAttribute(attributeCalledCategory, categoryCalledPage);
+   newPage.addEntryForAttribute(attributeCalledSummary, &quot;This is a new page.&quot;);
+   var newSection = this.getWorld().newItem(&quot;New Section&quot;);
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-02 01:40:48 UTC (rev 109)
++++ trunk/source/model/World.js	2005-06-02 03:56:11 UTC (rev 110)
+@@ -46,29 +46,6 @@
+ World.RETRIEVAL_FILTER_UNABRIDGED = &quot;RETRIEVAL_FILTER_UNABRIDGED&quot;;
+ 
+ // World.UUID_FOR_ATTRIBUTE_UUID = 100;
+-/*
+-World.UUID_FOR_USER_AMY = 100;
+-
+-World.UUID_FOR_ATTRIBUTE_NAME = 102;
+-World.UUID_FOR_ATTRIBUTE_SHORT_NAME = 101;
+-World.UUID_FOR_ATTRIBUTE_SUMMARY = 103;
+-World.UUID_FOR_ATTRIBUTE_BODY = 104;
+-World.UUID_FOR_ATTRIBUTE_CATEGORY = 105;
+-World.UUID_FOR_ATTRIBUTE_ORDINAL = 113;
+-World.UUID_FOR_ATTRIBUTE_USERSTAMP = 106;
+-World.UUID_FOR_ATTRIBUTE_TIMESTAMP = 107;
+-World.UUID_FOR_ATTRIBUTE_QUERY = 109;
+-World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY = 110;
+-World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM = 111;
+-World.UUID_FOR_ATTRIBUTE_UNFILED = 112;
+-
+-World.UUID_FOR_CATEGORY_BOOK = 141;      // here as an example only
+-World.UUID_FOR_CATEGORY_MOVIE = 142;     // here as an example only
+-World.UUID_FOR_CATEGORY_ATTRIBUTE = 143;
+-World.UUID_FOR_CATEGORY_CATEGORY = 144;
+-World.UUID_FOR_CATEGORY_QUERY = 147;
+-*/
+-
+ // &quot;00000000-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ World.UUID_FOR_USER_AMY              = &quot;00000100-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000096.html">[openrecord-svn] r109 - trunk/source/repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000098.html">[openrecord-svn] r111 - in trunk/source: . model repositories/demo_page
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#97">[ date ]</a>
+              <a href="thread.html#97">[ thread ]</a>
+              <a href="subject.html#97">[ subject ]</a>
+              <a href="author.html#97">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r201 - in trunk: . source source/model source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r201%20-%20in%20trunk%3A%20.%20source%20source/model%20source/util&In-Reply-To=%3C200506302214.j5UME4S2011534%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000188.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r201 - in trunk: . source source/model source/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r201%20-%20in%20trunk%3A%20.%20source%20source/model%20source/util&In-Reply-To=%3C200506302214.j5UME4S2011534%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r201 - in trunk: . source source/model source/util">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul  1 00:14:04 CEST 2005</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000188.html">[openrecord-svn] r202 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-01 00:14:03 +0200 (Fri, 01 Jul 2005)
+New Revision: 201
+
+Added:
+   trunk/source/util/
+   trunk/source/util/LintTest.html
+   trunk/source/util/LintTest.js
+   trunk/source/util/Uuid.js
+Modified:
+   trunk/dashboard.html
+   trunk/demo_page.html
+   trunk/dogfood.html
+   trunk/source/TestSuite.html
+   trunk/source/Util.js
+   trunk/source/UtilTest.html
+   trunk/source/UtilTest.js
+   trunk/source/base_style.css
+   trunk/source/model/ModelTest.html
+   trunk/source/model/Record.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+Created a &quot;util&quot; directory for utility code.  Broke the UUID methods out of Util.js and moved them into a new Uuid.js file in the util directory.  Updated other code as necessary.
+
+Modified: trunk/dashboard.html
+===================================================================
+--- trunk/dashboard.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/dashboard.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -14,6 +14,8 @@
+     &lt;title&gt;Dashboard Demo Page&lt;/title&gt;
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;source/base_style.css&quot; /&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+
+Modified: trunk/demo_page.html
+===================================================================
+--- trunk/demo_page.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/demo_page.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -14,6 +14,8 @@
+     &lt;title&gt;openrecord.org - Demo Page&lt;/title&gt;
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;source/base_style.css&quot; /&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+
+Modified: trunk/dogfood.html
+===================================================================
+--- trunk/dogfood.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/dogfood.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -14,6 +14,8 @@
+     &lt;title&gt;openrecord.org - Dogfood Page&lt;/title&gt;
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;source/base_style.css&quot; /&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    
++    &lt;script type=&quot;text/javascript&quot; src=&quot;source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;source/Cookie.js&quot;&gt;&lt;/script&gt;
+ 
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/TestSuite.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -26,6 +26,7 @@
+         testSuite.addTestPage(&quot;../../../source/UtilTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestSuite.html&quot;);
++        testSuite.addTestPage(&quot;../../../source/util/LintTest.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/Util.js	2005-06-30 22:14:03 UTC (rev 201)
+@@ -37,6 +37,7 @@
+ /*global window, document, hex_md5 */
+ // -------------------------------------------------------------------
+ 
++
+ /**
+  * The Util class offers general utility methods that might
+  * be useful in a wide variety of applications.
+@@ -71,20 +72,9 @@
+ Util.ASCII_VALUE_FOR_RIGHT_ARROW = 39; // 124
+ Util.ASCII_VALUE_FOR_DOWN_ARROW = 40;  // 125
+ 
+-// Number of seconds between October 15, 1582 and January 1, 1970
+-// Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
+-Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
+ 
+-Util.HEX_RADIX = 16;
+ 
+ // -------------------------------------------------------------------
+-// Util global class variables
+-// -------------------------------------------------------------------
+-Util._ourUuidClockSeqString = null;
+-Util._ourDateValueOfPreviousUuid = null;
+-Util._ourNextIntraMillisecondIncrement = 0;
+-
+-// -------------------------------------------------------------------
+ // String manipulation methods
+ // -------------------------------------------------------------------
+ 
+@@ -525,226 +515,7 @@
+ };
+ 
+ 
+-// -------------------------------------------------------------------
+-// Methods for working with UUIDs
+-// -------------------------------------------------------------------
+ 
+-Util.getRandom32bitNumber = function () {
+-  return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
+-};
+-
+-
+-Util.getRandomEightCharacterHexString = function () {
+-  // PENDING: 
+-  // This isn't really random.  We should find some source of real 
+-  // randomness, and feed it to an MD5 hash algorithm.     
+-  var eightCharacterString = Util.getRandom32bitNumber().toString(Util.HEX_RADIX);
+-  while (eightCharacterString.length &lt; 8) {
+-    eightCharacterString = &quot;0&quot; + eightCharacterString;
+-  }
+-  return eightCharacterString;
+-};
+-
+-
+-/**
+- * Generates a random UUID, meaning a &quot;version 4&quot; UUID.  Hopefully this 
+- * implementation conforms to the existing standards for UUIDs and GUIDs.  
+- * For more info, see 
+- * <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
+- * 
+- * @scope    public class method
+- * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;.
+- */
+-Util.generateRandomUuid = function () {
+-  var hyphen = &quot;-&quot;;
+-  var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;; // 8 == binary2hex(&quot;0100&quot;)
+-  var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
+-  var a = Util.getRandomEightCharacterHexString();
+-  var b = Util.getRandomEightCharacterHexString();
+-  b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
+-  var c = Util.getRandomEightCharacterHexString();
+-  c = variantCodeForDCEUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
+-  var d = Util.getRandomEightCharacterHexString();
+-  var result = a + hyphen + b + hyphen + c + d;
+-  
+-  return result;
+-};
+-
+-Util.carry = function(a) {
+-  a[2] += a[3] &gt;&gt;&gt; 16;
+-  a[3] &amp;= 0xFFFF;
+-  a[1] += a[2] &gt;&gt;&gt; 16;
+-  a[2] &amp;= 0xFFFF;
+-  a[0] += a[1] &gt;&gt;&gt; 16;
+-  a[1] &amp;= 0xFFFF;
+-  Util.assert((a[0] &gt;&gt;&gt; 16) === 0);
+-};
+-
+-Util.get64bitArrayFromFloat = function(x) {
+-  var result = new Array(0, 0, 0, 0);
+-  result[3] = x % 0x10000;
+-  x -= result[3];
+-  x /= 0x10000;
+-  result[2] = x % 0x10000;
+-  x -= result[2];
+-  x /= 0x10000;
+-  result[1] = x % 0x10000;
+-  x -= result[1];
+-  x /= 0x10000;
+-  result[0] = x;
+-  return result;
+-};
+-
+-Util.addTwo64bitArrays = function(a, b) {
+-  Util.assert(Util.isArray(a));
+-  Util.assert(a.length == 4);
+-  Util.assert(Util.isArray(b));
+-  Util.assert(b.length == 4);
+-  var result = new Array(0, 0, 0, 0);
+-  result[3] = a[3] + b[3];
+-  result[2] = a[2] + b[2];
+-  result[1] = a[1] + b[1];
+-  result[0] = a[0] + b[0];
+-  Util.carry(result);
+-  return result;
+-};
+-
+-Util.multiplyTwo64bitArrays = function(a, b) {
+-  Util.assert(Util.isArray(a));
+-  Util.assert(a.length == 4);
+-  Util.assert(Util.isArray(b));
+-  Util.assert(b.length == 4);
+-  var overflow = false;
+-  if (a[0] * b[0] !== 0) { overflow = true; }
+-  if (a[0] * b[1] !== 0) { overflow = true; }
+-  if (a[0] * b[2] !== 0) { overflow = true; }
+-  if (a[1] * b[0] !== 0) { overflow = true; }
+-  if (a[1] * b[1] !== 0) { overflow = true; }
+-  if (a[2] * b[0] !== 0) { overflow = true; }
+-  Util.assert(!overflow);
+-  
+-  var result = new Array(0, 0, 0, 0);
+-  result[0] += a[0] * b[3];
+-  Util.carry(result);
+-  result[0] += a[1] * b[2];
+-  Util.carry(result);
+-  result[0] += a[2] * b[1];
+-  Util.carry(result);
+-  result[0] += a[3] * b[0];
+-  Util.carry(result);
+-  result[1] += a[1] * b[3];
+-  Util.carry(result);
+-  result[1] += a[2] * b[2];
+-  Util.carry(result);
+-  result[1] += a[3] * b[1];
+-  Util.carry(result);
+-  result[2] += a[2] * b[3];
+-  Util.carry(result);
+-  result[2] += a[3] * b[2];
+-  Util.carry(result);
+-  result[3] += a[3] * b[3];
+-  Util.carry(result);
+-  return result;
+-};
+-
+-Util.padWithLeadingZeros = function(string, desiredLength) {
+-  while (string.length &lt; desiredLength) {
+-    string = &quot;0&quot; + string;
+-  }
+-  return string;
+-};
+-
+-/**
+- * Generates a time-based UUID, meaning a &quot;version 1&quot; UUID.  JavaScript
+- * code running in a browser doesn't have access to the IEEE 802.3 address
+- * of the computer, so we generate a random pseudonode value instead.
+- * Hopefully this implementation conforms to the existing standards for 
+- * UUIDs and GUIDs.  
+- * 
+- * For more info, see 
+- *   <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
+- *   <A HREF="http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm">http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm</A>
+- *   <A HREF="http://kruithof.xs4all.nl/uuid/uuidgen">http://kruithof.xs4all.nl/uuid/uuidgen</A>
+- *   <A HREF="http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20">http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20</A>
+- *   <A HREF="http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html">http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html</A>
+- *
+- * @scope    public class method
+- * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
+- */
+-Util.generateTimeBasedUuid = function(pseudoNode) {
+-  Util.assert(!pseudoNode || Util.isString(pseudoNode));  
+-  if (pseudoNode) {
+-    Util.assert(pseudoNode.length == 12);  
+-  }
+-  else {
+-    var pseudoNodeIndicatorBit = 0x8000;
+-    var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
+-    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Util.HEX_RADIX);
+-    pseudoNode = leftmost4HexCharacters + Util.getRandomEightCharacterHexString();
+-  }
+-  if (!Util._ourUuidClockSeqString) {
+-    var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
+-    var random14bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 14) );
+-    Util._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(Util.HEX_RADIX);
+-  }
+-
+-  // Maybe someday think about trying to make the code more readable to
+-  // newcomers by creating a class called &quot;WholeNumber&quot; that encapsulates
+-  // the methods and data structures for working with these arrays that 
+-  // hold 4 16-bit numbers?  And then these variables below have names  
+-  // like &quot;wholeSecondsPerHour&quot; rather than &quot;arraySecondsPerHour&quot;?
+-  var now = new Date();
+-  var nowArray = Util.get64bitArrayFromFloat(now.valueOf());
+-  var arraySecondsPerHour = Util.get64bitArrayFromFloat(60 * 60);
+-  var arrayHoursBetween1582and1970 = Util.get64bitArrayFromFloat(Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS);
+-  var arraySecondsBetween1582and1970 = Util.multiplyTwo64bitArrays(arrayHoursBetween1582and1970, arraySecondsPerHour);
+-  var arrayMillisecondsPerSecond = Util.get64bitArrayFromFloat(1000);
+-  var arrayMillisecondsBetween1582and1970 = Util.multiplyTwo64bitArrays(arraySecondsBetween1582and1970, arrayMillisecondsPerSecond);
+-  var arrayMillisecondsSince1970 = nowArray;
+-  var arrayMillisecondsSince1582 = Util.addTwo64bitArrays(arrayMillisecondsBetween1582and1970, arrayMillisecondsSince1970);
+-  var arrayMicrosecondsPerMillisecond = Util.get64bitArrayFromFloat(1000);
+-  var arrayMicrosecondsSince1582 = Util.multiplyTwo64bitArrays(arrayMillisecondsSince1582, arrayMicrosecondsPerMillisecond);
+-  var arrayHundredNanosecondIntervalsPerMicrosecond = Util.get64bitArrayFromFloat(10);
+-  var arrayHundredNanosecondIntervalsSince1582 = Util.multiplyTwo64bitArrays(arrayMicrosecondsSince1582, arrayHundredNanosecondIntervalsPerMicrosecond);
+-  
+-  if (now.valueOf() == Util._ourDateValueOfPreviousUuid) {
+-    arrayHundredNanosecondIntervalsSince1582[3] += Util._ourNextIntraMillisecondIncrement;
+-    Util.carry(arrayHundredNanosecondIntervalsSince1582);
+-    Util._ourNextIntraMillisecondIncrement += 1;
+-    if (Util._ourNextIntraMillisecondIncrement == 10000) {
+-      // If we've gotten to here, it means we've already generated 10,000
+-      // UUIDs in this single milliseconds, which is the most that the UUID
+-      // timestamp field allows for.  So now we'll just sit here and wait
+-      // for a fraction of a millisecond, so as to ensure that the next 
+-      // time this method is called there will be a different millisecond 
+-      // value in the timestamp field.
+-      while (now.valueOf() == Util._ourDateValueOfPreviousUuid) {
+-        now = new Date();
+-      }
+-    }
+-  }
+-  else {
+-    Util._ourDateValueOfPreviousUuid = now.valueOf();
+-    Util._ourNextIntraMillisecondIncrement = 1;
+-  }
+-  
+-  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(Util.HEX_RADIX);
+-  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(Util.HEX_RADIX);
+-  var hexTimeLow = Util.padWithLeadingZeros(hexTimeLowLeftHalf, 4) + Util.padWithLeadingZeros(hexTimeLowRightHalf, 4);
+-  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(Util.HEX_RADIX);
+-  hexTimeMid = Util.padWithLeadingZeros(hexTimeMid, 4);
+-  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(Util.HEX_RADIX);
+-  hexTimeHigh = Util.padWithLeadingZeros(hexTimeHigh, 3);
+-  var hyphen = &quot;-&quot;;
+-  var versionCodeForTimeBasedUuids = &quot;1&quot;; // binary2hex(&quot;0001&quot;)
+-  var resultUuid = hexTimeLow + hyphen + hexTimeMid + hyphen +
+-        versionCodeForTimeBasedUuids + hexTimeHigh + hyphen +
+-        Util._ourUuidClockSeqString + hyphen + pseudoNode;
+-//alert(resultUuid);
+-  return resultUuid;
+-};
+-
+-
+ // -------------------------------------------------------------------
+ // Methods that deal with event handling
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/UtilTest.html
+===================================================================
+--- trunk/source/UtilTest.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/UtilTest.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -16,6 +16,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/source/UtilTest.js
+===================================================================
+--- trunk/source/UtilTest.js	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/UtilTest.js	2005-06-30 22:14:03 UTC (rev 201)
+@@ -78,7 +78,7 @@
+ 
+ function testGet64bitArrayFromFloat() {
+   var x = Math.pow(2, 63) + Math.pow(2, 15);
+-  var result = Util.get64bitArrayFromFloat(x);
++  var result = Uuid._get64bitArrayFromFloat(x);
+   assertTrue(&quot;result[0] == 0x8000&quot;, result[0] === 0x8000);
+   assertTrue(&quot;result[1] == 0x0000&quot;, result[1] === 0x0000);
+   assertTrue(&quot;result[2] == 0x0000&quot;, result[2] === 0x0000);
+@@ -86,7 +86,7 @@
+   
+   var date = new Date();
+   x = date.valueOf();
+-  result = Util.get64bitArrayFromFloat(x);
++  result = Uuid._get64bitArrayFromFloat(x);
+   var reconstructedFloat = result[0];
+   reconstructedFloat *= 0x10000;
+   reconstructedFloat += result[1];
+@@ -101,7 +101,7 @@
+ function testAddTwo64bitArrays() {
+   var a = [0x0000, 0x0000, 0x0000, 0x0001];
+   var b = [0x0FFF, 0xFFFF, 0xFFFF, 0xFFFF];
+-  var result = Util.addTwo64bitArrays(a, b);
++  var result = Uuid._addTwo64bitArrays(a, b);
+   assert(result[0] === 0x1000);
+   assert(result[1] === 0x0000);
+   assert(result[2] === 0x0000);
+@@ -109,7 +109,7 @@
+   
+   a = [0x4000, 0x8000, 0x8000, 0x8000];
+   b = [0x8000, 0x8000, 0x8000, 0x8000];
+-  result = Util.addTwo64bitArrays(a, b);
++  result = Uuid._addTwo64bitArrays(a, b);
+   assert(result[0] === 0xC001);
+   assert(result[1] === 0x0001);
+   assert(result[2] === 0x0001);
+@@ -117,7 +117,7 @@
+   
+   a = [7, 6, 2, 5];
+   b = [1, 0, 3, 4];
+-  result = Util.addTwo64bitArrays(a, b);
++  result = Uuid._addTwo64bitArrays(a, b);
+   assert(result[0] === 8);
+   assert(result[1] === 6);
+   assert(result[2] === 5);
+@@ -127,7 +127,7 @@
+ function testMultiplyTwo64bitArrays() {
+   var a = [     0, 0x0000, 0x0000, 0x0003];
+   var b = [0x1111, 0x1234, 0x0000, 0xFFFF];
+-  var result = Util.multiplyTwo64bitArrays(a, b);
++  var result = Uuid._multiplyTwo64bitArrays(a, b);
+   assert(result[0] === 0x3333);
+   assert(result[1] === 0x369C);
+   assert(result[2] === 0x0002);
+@@ -135,7 +135,7 @@
+   
+   a = [0, 0, 0, 5];
+   b = [0, 0, 0, 4];
+-  result = Util.multiplyTwo64bitArrays(a, b);
++  result = Uuid._multiplyTwo64bitArrays(a, b);
+   assert(result[0] === 0);
+   assert(result[1] === 0);
+   assert(result[2] === 0);
+@@ -143,7 +143,7 @@
+   
+   a = [0, 0, 2, 5];
+   b = [0, 0, 3, 4];
+-  result = Util.multiplyTwo64bitArrays(a, b);
++  result = Uuid._multiplyTwo64bitArrays(a, b);
+   assert(result[0] === 0);
+   assert(result[1] === 6);
+   assert(result[2] === 23);
+@@ -171,7 +171,7 @@
+   assertTrue('Section 4 has 8 characters', (arrayOfParts[4].length == 12));
+   
+   var section3 = arrayOfParts[3];
+-  var hex3 = parseInt(section3, Util.HEX_RADIX);
++  var hex3 = parseInt(section3, Uuid.HEX_RADIX);
+   var binaryString = hex3.toString(2);
+   // alert(&quot;section3 = &quot; + section3 + &quot;\n binaryString = &quot; + binaryString);
+   assertTrue('section 3 has 16 bits', binaryString.length == 16);
+@@ -181,8 +181,8 @@
+ }
+ 
+ function testMethodsForWorkingWithRandomUuids() {
+-  var uuid1 = Util.generateRandomUuid();
+-  var uuid2 = Util.generateRandomUuid();
++  var uuid1 = Uuid.generateRandomUuid();
++  var uuid2 = Uuid.generateRandomUuid();
+   // alert(uuid1 + &quot;\n&quot; + uuid2);
+   subtestOnUuid(uuid1);
+   subtestOnUuid(uuid2);
+@@ -195,9 +195,9 @@
+ }
+ 
+ function testMethodsForWorkingWithTimeBasedUuids() {
+-  var uuid1 = Util.generateTimeBasedUuid();
+-  var uuid2 = Util.generateTimeBasedUuid();
+-  var uuid3 = Util.generateTimeBasedUuid();
++  var uuid1 = Uuid.generateTimeBasedUuid();
++  var uuid2 = Uuid.generateTimeBasedUuid();
++  var uuid3 = Uuid.generateTimeBasedUuid();
+   
+   subtestOnUuid(uuid1);
+   subtestOnUuid(uuid2);
+@@ -212,7 +212,7 @@
+ 
+   var section4 = arrayOfParts[4];
+   var firstChar = section4.charAt(0);
+-  var hexFirstChar = parseInt(firstChar, Util.HEX_RADIX);
++  var hexFirstChar = parseInt(firstChar, Uuid.HEX_RADIX);
+   binaryString = hexFirstChar.toString(2);
+   var firstBit;
+   if (binaryString.length == 4) {
+@@ -224,7 +224,7 @@
+   //      &quot;\n in binary = &quot; + binaryString + &quot;\n first bit = &quot; + firstBit);
+   assertTrue(&quot;first bit of section 4 is 1&quot;, firstBit == '1');
+ 
+-  var uuid4 = Util.generateTimeBasedUuid(&quot;123456789ABC&quot;);
++  var uuid4 = Uuid.generateTimeBasedUuid(&quot;123456789ABC&quot;);
+   subtestOnUuid(uuid4);
+   arrayOfParts = uuid4.split(&quot;-&quot;);
+   section4 = arrayOfParts[4];
+@@ -239,30 +239,30 @@
+   while (now.valueOf() == then.valueOf()) {
+     then = new Date();
+   }
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
+-  array.push(Util.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
++  array.push(Uuid.generateTimeBasedUuid());
+   alert(array[0] + &quot;\n&quot; + 
+         array[1] + &quot;\n&quot; + 
+         array[2] + &quot;\n&quot; + 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/base_style.css	2005-06-30 22:14:03 UTC (rev 201)
+@@ -338,7 +338,9 @@
+   width: 100%;
+   font-family: Arial, Verdana, sans-serif;
+   font-weight: bold;
+-  border: none; 
++  border-width: thin;
++  border-style: solid;
++  border-color: rgb(70%, 70%, 70%);
+   padding: 0pt;
+ }
+ 
+@@ -347,7 +349,9 @@
+   background: rgb(100%, 100%, 40%);
+   width: 100%;
+   font-family: Arial, Verdana, sans-serif;
+-  border: none; 
++  border-width: thin;
++  border-style: solid;
++  border-color: rgb(70%, 70%, 70%);
+   padding: 0pt;
+   margin: 0px;
+ }
+@@ -619,10 +623,10 @@
+ }
+ 
+ .textViewItem {
+-	background-color:#DEE7F8;
+-	padding: 1px;
+-	border: thin solid #A4BDEC;	
+-	-moz-border-radius: 6px; //WARNING: Mozilla only attribute. This just makes a rect, a rounded-rect
++  background-color:#DEE7F8;
++  padding: 1px;
++  border: thin solid #A4BDEC;	
++  -moz-border-radius: 6px; // WARNING: Mozilla only attribute. This just makes a rect, a rounded-rect
+ }
+ 
+ /* obsolete? 
+
+Modified: trunk/source/model/ModelTest.html
+===================================================================
+--- trunk/source/model/ModelTest.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/model/ModelTest.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -16,6 +16,7 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Record.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Ordinal.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Vote.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/model/Record.js	2005-06-30 22:14:03 UTC (rev 201)
+@@ -110,9 +110,9 @@
+     return this._creationUserstamp;
+   }
+   var allUsers = this._world.getUsers();
+-  var myPseudonode = this._uuid.split('-')[4];
++  var myPseudonode = Uuid.getNodeFromUuid(this._uuid);
+   for (var key in allUsers) {
+-    var usersPseudonode = allUsers[key]._getUuid().split('-')[4];
++    var usersPseudonode = Uuid.getNodeFromUuid(allUsers[key]._getUuid());
+     if (usersPseudonode == myPseudonode) {
+       this._creationUserstamp = allUsers[key];
+       return this._creationUserstamp;
+@@ -129,38 +129,10 @@
+  * @return   ???.
+  */
+ Record.prototype.getTimestamp = function() {
+-  if (this._creationTimestamp) {
+-    return this._creationTimestamp;
++  if (!this._creationTimestamp) {
++    this._creationTimestamp = this.getGetCreationDate().valueOf();
+   }
+-  var hexTimeLow = this._uuid.split('-')[0];
+-  var hexTimeMid = this._uuid.split('-')[1];
+-  var hexTimeHigh = this._uuid.split('-')[2];
+-  var timeLow = parseInt(hexTimeLow, Util.HEX_RADIX);
+-  var timeMid = parseInt(hexTimeMid, Util.HEX_RADIX);
+-  var timeHigh = parseInt(hexTimeHigh, Util.HEX_RADIX);
+-  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
+-  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
+-  hundredNanosecondIntervalsSince1582 += timeMid;
+-  // What we really want to do next is shift left 32 bits, but the result will be too big
+-  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
+-  hundredNanosecondIntervalsSince1582 *= 0x100000000;
+-  hundredNanosecondIntervalsSince1582 += timeLow;
+-  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
+-
+-  // Again, this will be a floating point approximation.
+-  // We can make things exact later if we need to.
+-  var secondsPerHour = 60 * 60;
+-  var hoursBetween1582and1970 = Util.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
+-  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
+-  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
+-
+-  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
+-
+-  // PENDING: 
+-  // Do we want this to return a Date object rather than a floating point
+-  // value?
+-  this._creationTimestamp = millisecondsSince1970;
+-  return millisecondsSince1970;
++  return this._creationTimestamp;
+ };
+ 
+ 
+@@ -171,8 +143,10 @@
+  * @return   A Date object.
+  */
+ Record.prototype.getGetCreationDate = function() {
+-  var date = new Date(this.getTimestamp());
+-  return date;
++  if (!this._creationDate) {
++    this._creationDate = Uuid.getDateFromUuid(this._uuid);
++  }
++  return this._creationDate;
+ };
+ 
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/model/StubVirtualServer.js	2005-06-30 22:14:03 UTC (rev 201)
+@@ -694,10 +694,10 @@
+     var uuidOfCurrentUser = this._currentUser._getUuid();
+     var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
+     var pseudoNodeOfCurrentUser = arrayOfParts[4];//&quot;0123456789AB&quot;;
+-    newUuid = Util.generateTimeBasedUuid(pseudoNodeOfCurrentUser);
++    newUuid = Uuid.generateTimeBasedUuid(pseudoNodeOfCurrentUser);
+   }
+   else {
+-    newUuid = Util.generateTimeBasedUuid();
++    newUuid = Uuid.generateTimeBasedUuid();
+   }
+   return newUuid;
+ };
+
+Added: trunk/source/util/LintTest.html
+===================================================================
+--- trunk/source/util/LintTest.html	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/util/LintTest.html	2005-06-30 22:14:03 UTC (rev 201)
+@@ -0,0 +1,86 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests using jslint&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../LintTool.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests using jslint&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/util/LintTest.js
+===================================================================
+--- trunk/source/util/LintTest.js	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/util/LintTest.js	2005-06-30 22:14:03 UTC (rev 201)
+@@ -0,0 +1,55 @@
++/*****************************************************************************
++ LintTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global LintTool, assertTrue, setUp, tearDown */
++// -------------------------------------------------------------------
++
++function setUp() {
++}
++
++function testJsLintOnOpenRecordCode() {
++  var listOfSourceCodeFiles = [
++    &quot;Uuid.js&quot;];
++  var prefix = &quot;../../../source/util/&quot;;
++  var errorReport = LintTool.getErrorReportFromListOfFilesnames(listOfSourceCodeFiles, prefix);
++  var message = &quot;Lint check \n&quot; + errorReport;
++  assertTrue(message, !errorReport);
++}
++
++function tearDown() {
++}
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-06-30 18:19:00 UTC (rev 200)
++++ trunk/source/util/Uuid.js	2005-06-30 22:14:03 UTC (rev 201)
+@@ -0,0 +1,380 @@
++/*****************************************************************************
++ Uuid.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++/*global Util  */
++// -------------------------------------------------------------------
++
++
++/**
++ * The Uuid class offers methods for generating UUIDs and 
++ * inspecting existing UUIDs.
++ * 
++ * There is no need to ever call this constructor.  All the Uuid
++ * methods are class methods, not instance methods, and the only 
++ * reason this constructor exists is to cause the name &quot;Uuid&quot;
++ * to be a globally-scoped class name, which the class methods 
++ * can then be attached to.
++ *
++ * @scope    public instance constructor
++ * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ */
++function Uuid() {
++  throw new Error(&quot;Uuid is a static class. You can't create instances of it.&quot;);
++}
++
++
++// -------------------------------------------------------------------
++// Uuid public class constants
++// -------------------------------------------------------------------
++// Number of seconds between October 15, 1582 and January 1, 1970
++// Util.GREGORIAN_CHANGE_OFFSET_IN_SECONDS = 12219292800;
++Uuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS = 3394248;
++Uuid.HEX_RADIX = 16;
++
++
++// -------------------------------------------------------------------
++// Uuid private global class variables
++// -------------------------------------------------------------------
++Uuid._ourUuidClockSeqString = null;
++Uuid._ourDateValueOfPreviousUuid = null;
++Uuid._ourNextIntraMillisecondIncrement = 0;
++
++
++// -------------------------------------------------------------------
++// Public methods for working with UUIDs
++// -------------------------------------------------------------------
++
++/**
++ * Generates a time-based UUID, meaning a &quot;version 1&quot; UUID.  JavaScript
++ * code running in a browser doesn't have access to the IEEE 802.3 address
++ * of the computer, so we generate a random pseudonode value instead.
++ * Hopefully this implementation conforms to the existing standards for 
++ * UUIDs and GUIDs.  
++ * 
++ * For more info, see 
++ *   <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
++ *   <A HREF="http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm">http://www.infonuovo.com/dma/csdocs/sketch/instidid.htm</A>
++ *   <A HREF="http://kruithof.xs4all.nl/uuid/uuidgen">http://kruithof.xs4all.nl/uuid/uuidgen</A>
++ *   <A HREF="http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20">http://www.opengroup.org/onlinepubs/009629399/apdxa.htm#tagcjh_20</A>
++ *   <A HREF="http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html">http://jakarta.apache.org/commons/sandbox/id/apidocs/org/apache/commons/id/uuid/clock/Clock.html</A>
++ *
++ * @scope    public class method
++ * @param    pseudoNode    Optional. A 12-character string to use as the node in the new UUID.
++ * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-1804-897E-917BF397618A&quot;.
++ */
++Uuid.generateTimeBasedUuid = function(pseudoNode) {
++  Util.assert(!pseudoNode || Util.isString(pseudoNode));  
++  if (pseudoNode) {
++    Util.assert(pseudoNode.length == 12);  
++  }
++  else {
++    var pseudoNodeIndicatorBit = 0x8000;
++    var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
++    var leftmost4HexCharacters = (pseudoNodeIndicatorBit | random15bitNumber).toString(Uuid.HEX_RADIX);
++    pseudoNode = leftmost4HexCharacters + Uuid._getRandomEightCharacterHexString();
++  }
++  if (!Uuid._ourUuidClockSeqString) {
++    var variantCodeForDCEUuids = 0x8000; // 10--------------, i.e. uses only first two of 16 bits.
++    var random14bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 14) );
++    Uuid._ourUuidClockSeqString = (variantCodeForDCEUuids | random14bitNumber).toString(Uuid.HEX_RADIX);
++  }
++
++  // Maybe someday think about trying to make the code more readable to
++  // newcomers by creating a class called &quot;WholeNumber&quot; that encapsulates
++  // the methods and data structures for working with these arrays that 
++  // hold 4 16-bit numbers?  And then these variables below have names  
++  // like &quot;wholeSecondsPerHour&quot; rather than &quot;arraySecondsPerHour&quot;?
++  var now = new Date();
++  var nowArray = Uuid._get64bitArrayFromFloat(now.valueOf());
++  var arraySecondsPerHour = Uuid._get64bitArrayFromFloat(60 * 60);
++  var arrayHoursBetween1582and1970 = Uuid._get64bitArrayFromFloat(Uuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS);
++  var arraySecondsBetween1582and1970 = Uuid._multiplyTwo64bitArrays(arrayHoursBetween1582and1970, arraySecondsPerHour);
++  var arrayMillisecondsPerSecond = Uuid._get64bitArrayFromFloat(1000);
++  var arrayMillisecondsBetween1582and1970 = Uuid._multiplyTwo64bitArrays(arraySecondsBetween1582and1970, arrayMillisecondsPerSecond);
++  var arrayMillisecondsSince1970 = nowArray;
++  var arrayMillisecondsSince1582 = Uuid._addTwo64bitArrays(arrayMillisecondsBetween1582and1970, arrayMillisecondsSince1970);
++  var arrayMicrosecondsPerMillisecond = Uuid._get64bitArrayFromFloat(1000);
++  var arrayMicrosecondsSince1582 = Uuid._multiplyTwo64bitArrays(arrayMillisecondsSince1582, arrayMicrosecondsPerMillisecond);
++  var arrayHundredNanosecondIntervalsPerMicrosecond = Uuid._get64bitArrayFromFloat(10);
++  var arrayHundredNanosecondIntervalsSince1582 = Uuid._multiplyTwo64bitArrays(arrayMicrosecondsSince1582, arrayHundredNanosecondIntervalsPerMicrosecond);
++  
++  if (now.valueOf() == Uuid._ourDateValueOfPreviousUuid) {
++    arrayHundredNanosecondIntervalsSince1582[3] += Uuid._ourNextIntraMillisecondIncrement;
++    Uuid._carry(arrayHundredNanosecondIntervalsSince1582);
++    Uuid._ourNextIntraMillisecondIncrement += 1;
++    if (Uuid._ourNextIntraMillisecondIncrement == 10000) {
++      // If we've gotten to here, it means we've already generated 10,000
++      // UUIDs in this single milliseconds, which is the most that the UUID
++      // timestamp field allows for.  So now we'll just sit here and wait
++      // for a fraction of a millisecond, so as to ensure that the next 
++      // time this method is called there will be a different millisecond 
++      // value in the timestamp field.
++      while (now.valueOf() == Uuid._ourDateValueOfPreviousUuid) {
++        now = new Date();
++      }
++    }
++  }
++  else {
++    Uuid._ourDateValueOfPreviousUuid = now.valueOf();
++    Uuid._ourNextIntraMillisecondIncrement = 1;
++  }
++  
++  var hexTimeLowLeftHalf  = arrayHundredNanosecondIntervalsSince1582[2].toString(Uuid.HEX_RADIX);
++  var hexTimeLowRightHalf = arrayHundredNanosecondIntervalsSince1582[3].toString(Uuid.HEX_RADIX);
++  var hexTimeLow = Uuid._padWithLeadingZeros(hexTimeLowLeftHalf, 4) + Uuid._padWithLeadingZeros(hexTimeLowRightHalf, 4);
++  var hexTimeMid = arrayHundredNanosecondIntervalsSince1582[1].toString(Uuid.HEX_RADIX);
++  hexTimeMid = Uuid._padWithLeadingZeros(hexTimeMid, 4);
++  var hexTimeHigh = arrayHundredNanosecondIntervalsSince1582[0].toString(Uuid.HEX_RADIX);
++  hexTimeHigh = Uuid._padWithLeadingZeros(hexTimeHigh, 3);
++  var hyphen = &quot;-&quot;;
++  var versionCodeForTimeBasedUuids = &quot;1&quot;; // binary2hex(&quot;0001&quot;)
++  var resultUuid = hexTimeLow + hyphen + hexTimeMid + hyphen +
++        versionCodeForTimeBasedUuids + hexTimeHigh + hyphen +
++        Uuid._ourUuidClockSeqString + hyphen + pseudoNode;
++  return resultUuid;
++};
++
++
++/**
++ * Generates a random UUID, meaning a &quot;version 4&quot; UUID.  Hopefully this 
++ * implementation conforms to the existing standards for UUIDs and GUIDs.  
++ * For more info, see 
++ * <A HREF="http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt">http://www.webdav.org/specs/draft-leach-uuids-guids-01.txt</A>
++ * 
++ * @scope    public class method
++ * @return   Returns a 36 character string, which will look something like &quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;.
++ */
++Uuid.generateRandomUuid = function() {
++  var hyphen = &quot;-&quot;;
++  var versionCodeForRandomlyGeneratedUuids = &quot;4&quot;; // 8 == binary2hex(&quot;0100&quot;)
++  var variantCodeForDCEUuids = &quot;8&quot;; // 8 == binary2hex(&quot;1000&quot;)
++  var a = Uuid._getRandomEightCharacterHexString();
++  var b = Uuid._getRandomEightCharacterHexString();
++  b = b.substring(0, 4) + hyphen + versionCodeForRandomlyGeneratedUuids + b.substring(5, 8);
++  var c = Uuid._getRandomEightCharacterHexString();
++  c = variantCodeForDCEUuids + c.substring(1, 4) + hyphen + c.substring(4, 8);
++  var d = Uuid._getRandomEightCharacterHexString();
++  var result = a + hyphen + b + hyphen + c + d;
++  
++  return result;
++};
++
++
++/**
++ * Given a 36-character UUID string, this method returns the &quot;node&quot; or 
++ * &quot;pseudonode&quot; portion of the UUID, which is the rightmost 12 characters.
++ * 
++ * @scope    public class method
++ * @param    uuid    A 36-character UUID string.
++ * @return   Returns a 12-character string, which will look something like &quot;917BF397618A&quot;.
++ */
++Uuid.getNodeFromUuid = function(uuid) {
++  var arrayOfStrings = uuid.split('-');
++  var nodeString = arrayOfStrings[4];
++  return nodeString;
++};
++
++
++/**
++ * Given a 36-character UUID string for a time-based UUID, this method 
++ * returns a JavaScript Date object.
++ * 
++ * @scope    public class method
++ * @param    uuid    A 36-character UUID string for a time-based UUID.
++ * @return   Returns a JavaScript Date objects
++ */
++Uuid.getDateFromUuid = function(uuid) {
++  var hexTimeLow = uuid.split('-')[0];
++  var hexTimeMid = uuid.split('-')[1];
++  var hexTimeHigh = uuid.split('-')[2];
++  var timeLow = parseInt(hexTimeLow, Uuid.HEX_RADIX);
++  var timeMid = parseInt(hexTimeMid, Uuid.HEX_RADIX);
++  var timeHigh = parseInt(hexTimeHigh, Uuid.HEX_RADIX);
++  var hundredNanosecondIntervalsSince1582 = timeHigh &amp; 0x0FFF;
++  hundredNanosecondIntervalsSince1582 &lt;&lt;= 16;
++  hundredNanosecondIntervalsSince1582 += timeMid;
++  // What we really want to do next is shift left 32 bits, but the result will be too big
++  // to fit in an int, so we'll multiply by 2^32, and the result will be a floating point approximation.
++  hundredNanosecondIntervalsSince1582 *= 0x100000000;
++  hundredNanosecondIntervalsSince1582 += timeLow;
++  var millisecondsSince1582 = hundredNanosecondIntervalsSince1582 / 10000;
++
++  // Again, this will be a floating point approximation.
++  // We can make things exact later if we need to.
++  var secondsPerHour = 60 * 60;
++  var hoursBetween1582and1970 = Uuid.GREGORIAN_CHANGE_OFFSET_IN_HOURS;
++  var secondsBetween1582and1970 = hoursBetween1582and1970 * secondsPerHour;
++  var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
++
++  var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
++
++  var date = new Date(millisecondsSince1970);
++  return date;
++};
++
++
++// -------------------------------------------------------------------
++// Private methods
++// -------------------------------------------------------------------
++
++/**
++ * 
++ */
++Uuid._getRandom32bitNumber = function() {
++  return Math.floor( (Math.random() % 1) * Math.pow(2, 32) );
++};
++
++
++/**
++ * 
++ */
++Uuid._getRandomEightCharacterHexString = function() {
++  // PENDING: 
++  // This isn't really random.  We should find some source of real 
++  // randomness, and feed it to an MD5 hash algorithm.     
++  var eightCharacterString = Uuid._getRandom32bitNumber().toString(Uuid.HEX_RADIX);
++  while (eightCharacterString.length &lt; 8) {
++    eightCharacterString = &quot;0&quot; + eightCharacterString;
++  }
++  return eightCharacterString;
++};
++
++
++/**
++ * 
++ */
++Uuid._carry = function(a) {
++  a[2] += a[3] &gt;&gt;&gt; 16;
++  a[3] &amp;= 0xFFFF;
++  a[1] += a[2] &gt;&gt;&gt; 16;
++  a[2] &amp;= 0xFFFF;
++  a[0] += a[1] &gt;&gt;&gt; 16;
++  a[1] &amp;= 0xFFFF;
++  Util.assert((a[0] &gt;&gt;&gt; 16) === 0);
++};
++
++
++/**
++ * 
++ */
++Uuid._get64bitArrayFromFloat = function(x) {
++  var result = new Array(0, 0, 0, 0);
++  result[3] = x % 0x10000;
++  x -= result[3];
++  x /= 0x10000;
++  result[2] = x % 0x10000;
++  x -= result[2];
++  x /= 0x10000;
++  result[1] = x % 0x10000;
++  x -= result[1];
++  x /= 0x10000;
++  result[0] = x;
++  return result;
++};
++
++
++/**
++ * 
++ */
++Uuid._addTwo64bitArrays = function(a, b) {
++  Util.assert(Util.isArray(a));
++  Util.assert(a.length == 4);
++  Util.assert(Util.isArray(b));
++  Util.assert(b.length == 4);
++  var result = new Array(0, 0, 0, 0);
++  result[3] = a[3] + b[3];
++  result[2] = a[2] + b[2];
++  result[1] = a[1] + b[1];
++  result[0] = a[0] + b[0];
++  Uuid._carry(result);
++  return result;
++};
++
++
++/**
++ * 
++ */
++Uuid._multiplyTwo64bitArrays = function(a, b) {
++  Util.assert(Util.isArray(a));
++  Util.assert(a.length == 4);
++  Util.assert(Util.isArray(b));
++  Util.assert(b.length == 4);
++  var overflow = false;
++  if (a[0] * b[0] !== 0) { overflow = true; }
++  if (a[0] * b[1] !== 0) { overflow = true; }
++  if (a[0] * b[2] !== 0) { overflow = true; }
++  if (a[1] * b[0] !== 0) { overflow = true; }
++  if (a[1] * b[1] !== 0) { overflow = true; }
++  if (a[2] * b[0] !== 0) { overflow = true; }
++  Util.assert(!overflow);
++  
++  var result = new Array(0, 0, 0, 0);
++  result[0] += a[0] * b[3];
++  Uuid._carry(result);
++  result[0] += a[1] * b[2];
++  Uuid._carry(result);
++  result[0] += a[2] * b[1];
++  Uuid._carry(result);
++  result[0] += a[3] * b[0];
++  Uuid._carry(result);
++  result[1] += a[1] * b[3];
++  Uuid._carry(result);
++  result[1] += a[2] * b[2];
++  Uuid._carry(result);
++  result[1] += a[3] * b[1];
++  Uuid._carry(result);
++  result[2] += a[2] * b[3];
++  Uuid._carry(result);
++  result[2] += a[3] * b[2];
++  Uuid._carry(result);
++  result[3] += a[3] * b[3];
++  Uuid._carry(result);
++  return result;
++};
++
++
++/**
++ * 
++ */
++Uuid._padWithLeadingZeros = function(string, desiredLength) {
++  while (string.length &lt; desiredLength) {
++    string = &quot;0&quot; + string;
++  }
++  return string;
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000188.html">[openrecord-svn] r202 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#187">[ date ]</a>
+              <a href="thread.html#187">[ thread ]</a>
+              <a href="subject.html#187">[ subject ]</a>
+              <a href="author.html#187">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

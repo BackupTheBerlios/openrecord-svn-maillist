@@ -1,0 +1,1856 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r210 - in trunk/source: . view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r210%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507022256.j62Mu6iI024400%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000195.html">
+   <LINK REL="Next"  HREF="000197.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r210 - in trunk/source: . view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r210%20-%20in%20trunk/source%3A%20.%20view&In-Reply-To=%3C200507022256.j62Mu6iI024400%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r210 - in trunk/source: . view">skinner at berlios.de
+       </A><BR>
+    <I>Sun Jul  3 00:56:06 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000195.html">[openrecord-svn] r209 - in trunk: documentation source
+</A></li>
+        <LI>Next message: <A HREF="000197.html">[openrecord-svn] r211 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#196">[ date ]</a>
+              <a href="thread.html#196">[ thread ]</a>
+              <a href="subject.html#196">[ subject ]</a>
+              <a href="author.html#196">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-03 00:55:58 +0200 (Sun, 03 Jul 2005)
+New Revision: 210
+
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/DetailPlugin.js
+   trunk/source/ItemView.js
+   trunk/source/LoginView.js
+   trunk/source/MultiEntriesView.js
+   trunk/source/NavbarView.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/PageView.js
+   trunk/source/PluginView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/View.js
+   trunk/source/view/EntryView.js
+Log:
+compulsive cleaning-up
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/BarChartPlugin.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -44,18 +44,21 @@
+ BarChartPlugin.UUID_FOR_PLUGIN_VIEW_BAR_CHART = &quot;00040304-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.registerPlugin(BarChartPlugin);
+ 
++
+ /**
+  * A BarChartPlugin displays a set of content items for a SectionView. 
+  *
+  * @scope    public instance constructor
+- * @extends  View
+- * @param    inSectionView    The SectionView that serves as the superview for this view. 
+- * @param    inHTMLElement    The HTMLElement to display this view in. 
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    ???. 
+  * @syntax   var barChart = new BarChartPlugin()
+  */
+-BarChartPlugin.prototype = new PluginView();  // makes BarChartPlugin be a subclass of View
+-function BarChartPlugin(inSuperview, inHTMLElement,inQuery,inLayout) {
+-  PluginView.call(this,inSuperview,inHTMLElement,inQuery,inLayout);
++BarChartPlugin.prototype = new PluginView();  // makes BarChartPlugin be a subclass of PluginView
++function BarChartPlugin(superview, htmlElement, querySpec, layoutItem) {
++  PluginView.call(this, superview, htmlElement, querySpec, layoutItem);
+ }
+ 
+ 
+@@ -69,7 +72,7 @@
+  * @scope    public class method
+  * @return   The UUID of the item that represents this class of plugin
+  */
+-BarChartPlugin.getPluginItemUuid = function () {
++BarChartPlugin.getPluginItemUuid = function() {
+   return BarChartPlugin.UUID_FOR_PLUGIN_VIEW_BAR_CHART;
+ };
+ 
+@@ -84,7 +87,7 @@
+  * @scope    public instance method
+  * @return   A JavaScript class. 
+  */
+-BarChartPlugin.prototype.getClass = function () {
++BarChartPlugin.prototype.getClass = function() {
+   return BarChartPlugin;
+ };
+ 
+@@ -95,7 +98,7 @@
+  *
+  * @scope    public instance method
+  */
+-BarChartPlugin.prototype.refresh = function () {
++BarChartPlugin.prototype.refresh = function() {
+   var listOfStrings = [];
+ 
+   var contentItem = null;
+@@ -199,7 +202,7 @@
+     
+   // return all the new content   
+   var finalString = listOfStrings.join(&quot;&quot;);
+-  this.getHTMLElement().innerHTML = finalString;
++  this.getHtmlElement().innerHTML = finalString;
+ };
+ 
+ 
+
+Modified: trunk/source/DetailPlugin.js
+===================================================================
+--- trunk/source/DetailPlugin.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/DetailPlugin.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -50,14 +50,16 @@
+  * A DetailPlugin display one or more content items. 
+  *
+  * @scope    public instance constructor
+- * @extends  View
+- * @param    inSuperView    The superview for this view. 
+- * @param    inHTMLElement    The HTMLElement to display this view in. 
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    ???. 
+  * @syntax   var detailPlugin = new DetailPlugin()
+  */
+-DetailPlugin.prototype = new PluginView();  // makes DetailPlugin be a subclass of View
+-function DetailPlugin(inSuperView, inHTMLElement, inQuery, inLayout) {
+-  PluginView.call(this, inSuperView, inHTMLElement, inQuery, inLayout);
++DetailPlugin.prototype = new PluginView();  // makes DetailPlugin be a subclass of PluginView
++function DetailPlugin(superview, htmlElement, querySpec, layoutItem) {
++  PluginView.call(this, superview, htmlElement, querySpec, layoutItem);
+ }
+ 
+ 
+@@ -110,7 +112,7 @@
+ 
+   // take all the HTML and put it together
+   var finalString = listOfStrings.join(&quot;&quot;);
+-  this.getHTMLElement().innerHTML = finalString;
++  this.getHtmlElement().innerHTML = finalString;
+ };
+ 
+ 
+
+Modified: trunk/source/ItemView.js
+===================================================================
+--- trunk/source/ItemView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/ItemView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -52,20 +52,19 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inRootView    The RootView that this ItemView is nested in. 
+- * @param    inHTMLElement    The HTMLElement to display the HTML in. 
+- * @param    inItem    The item to be displayed by this view. 
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display the HTML in. 
++ * @param    item    The item to be displayed by this view. 
+  */
+ ItemView.prototype = new View();  // makes ItemView be a subclass of View
+-function ItemView(inRootView, inHTMLElement, inItem) {
+-  Util.assert(inItem instanceof Item);
+-  Util.assert(inHTMLElement instanceof HTMLElement);
+-  Util.assert(inRootView instanceof RootView);
++function ItemView(superview, htmlElement, item) {
++  Util.assert(htmlElement instanceof HTMLElement);
++  Util.assert(item instanceof Item);
+ 
++  View.call(this, superview, htmlElement);
++
+   // instance properties
+-  this.setSuperview(inRootView);
+-  this.setHTMLElement(inHTMLElement);
+-  this._item = inItem;
++  this._item = item;
+   this._pluginView = null;
+ }
+ 
+@@ -76,7 +75,7 @@
+  * @scope    public instance method
+  * @return   A string that gives the name of the page.
+  */
+-ItemView.prototype.getPageTitle = function () {
++ItemView.prototype.getPageTitle = function() {
+   var pageTitle = this._item.getDisplayString();
+   return pageTitle;
+ };
+@@ -88,7 +87,7 @@
+  *
+  * @scope    public instance method
+  */
+-ItemView.prototype.refresh = function () {
++ItemView.prototype.refresh = function() {
+   Util.assert(this._item instanceof Item);
+   
+   // PENDING: this needs to be changed from DOM level 0 to DOM level 2.
+@@ -103,7 +102,7 @@
+ 
+   // write out all the new content 
+   var finalString = listOfStrings.join(&quot;&quot;);
+-  this.getHTMLElement().innerHTML = finalString;
++  this.getHtmlElement().innerHTML = finalString;
+ 
+   // let the detailPlugin add its own content
+   var detailPluginElement = document.getElementById(detailDivId);
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/LoginView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -53,14 +53,14 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inSuperView    The view that this LoginView is nested in. 
+- * @param    inHTMLElement    The HTMLElement to display the HTML in. 
++ * @param    superview    The view that this LoginView is nested in. 
++ * @param    htmlElement    The HTMLElement to display the HTML in. 
+  */
+ LoginView.prototype = new View();  // makes LoginView be a subclass of View
+-function LoginView(inSuperView, inHTMLElement) {
++function LoginView(superview, htmlElement) {
++  View.call(this, superview, htmlElement);
++
+   // instance properties
+-  this.setSuperview(inSuperView);
+-  this.setHTMLElement(inHTMLElement);
+   this._isCreatingNewAccount = false;
+   var tenYearCookieExpiration = 10*365*24;   // PENDING: hardcode expiration to 10yrs
+   this._cookie = new Cookie(document, LoginView.COOKIE_NAME, tenYearCookieExpiration);
+@@ -78,7 +78,7 @@
+  *
+  * @scope    public instance method
+  */
+-LoginView.prototype.refresh = function () {
++LoginView.prototype.refresh = function() {
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this._rebuildView();
+   }
+@@ -95,8 +95,8 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._rebuildView = function () {
+-  var mySpan = this.getHTMLElement();
++LoginView.prototype._rebuildView = function() {
++  var mySpan = this.getHtmlElement();
+   
+   View.removeChildrenOfElement(mySpan);
+   
+@@ -221,7 +221,7 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._clickOnSignoutLink = function(inEventObject) {
++LoginView.prototype._clickOnSignoutLink = function(eventObject) {
+   if (this.isInEditMode()) {
+     this.getRootView().setEditMode(false);
+   }
+@@ -239,7 +239,7 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._signinPasswordFocus = function(inEventObject) {
++LoginView.prototype._signinPasswordFocus = function(eventObject) {
+   this.passwordInput.value = &quot;&quot;;
+ };
+ 
+@@ -249,10 +249,10 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._signinPasswordKeyPress = function(inEventObject) {
++LoginView.prototype._signinPasswordKeyPress = function(eventObject) {
+   // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+-  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
+-    this._clickOnSignInButton(inEventObject);
++  if (eventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++    this._clickOnSignInButton(eventObject);
+   }
+ };
+ 
+@@ -262,10 +262,10 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._createAccountPasswordKeyPress = function(inEventObject) {
++LoginView.prototype._createAccountPasswordKeyPress = function(eventObject) {
+   // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+-  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
+-    this._clickOnNewAcctButton(inEventObject);
++  if (eventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++    this._clickOnNewAcctButton(eventObject);
+   }
+ };
+ 
+@@ -275,7 +275,7 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._clickOnCreateAccountLink = function(inEventObject) {
++LoginView.prototype._clickOnCreateAccountLink = function(eventObject) {
+   this._isCreatingNewAccount = true;
+   this._rebuildView();
+ };
+@@ -286,7 +286,7 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._clickOnNewAcctButton = function(inEventObject) {
++LoginView.prototype._clickOnNewAcctButton = function(eventObject) {
+   var username = this.usernameInput.value;
+   var password = this.passwordInput.value;
+   if (password === null) {
+@@ -303,7 +303,7 @@
+  *
+  * @scope    private instance method
+  */
+-LoginView.prototype._clickOnSignInButton = function(inEventObject) {
++LoginView.prototype._clickOnSignInButton = function(eventObject) {
+ 
+   var listOfUsers = this.getWorld().getUsers();
+   var userNameEntered = this.usernameInput.value;
+@@ -336,9 +336,9 @@
+  * Called when the user clicks on the &quot;Edit&quot; button.
+  *
+  * @scope    private instance method
+- * @param    inEventObject    An event object. 
++ * @param    eventObject    An event object. 
+  */
+-LoginView.prototype._clickOnShowToolsButton = function (inEventObject) {
++LoginView.prototype._clickOnShowToolsButton = function(eventObject) {
+   this.getRootView().setShowToolsMode(!this.getRootView().isInShowToolsMode());
+   this._rebuildView();
+ };
+@@ -348,7 +348,10 @@
+ // Private helper methods
+ // -------------------------------------------------------------------
+ 
+-LoginView.prototype._loginUser = function (user, password) {
++/**
++ *
++ */
++LoginView.prototype._loginUser = function(user, password) {
+   var loginSuccess = this.getWorld().login(user, password); 
+   if (loginSuccess) {
+     var userUuid = user._getUuid();
+@@ -363,11 +366,14 @@
+ };
+ 
+ 
+-LoginView.prototype._reportError = function (errorStr) {
+-  var newErrorNode = document.createTextNode(errorStr);
+-  var mySpan = this.getHTMLElement();
++/**
++ *
++ */
++LoginView.prototype._reportError = function(errorString) {
++  var newErrorNode = document.createTextNode(errorString);
++  var mySpan = this.getHtmlElement();
+   if (this.errorNode) {
+-    mySpan.replaceChild(newErrorNode,this.errorNode);
++    mySpan.replaceChild(newErrorNode, this.errorNode);
+   } else {
+     mySpan.appendChild(newErrorNode); 
+   }
+@@ -375,7 +381,10 @@
+ };
+ 
+ 
+-LoginView.prototype._createNewUser = function (username, password) {
++/**
++ *
++ */
++LoginView.prototype._createNewUser = function(username, password) {
+   function isValidUsername(username) {
+     // PENDING: hard coded to validate for alphanumeric usernames of 3 or more characters
+     if (!username) {return false;}
+@@ -394,26 +403,41 @@
+ // -------------------------------------------------------------------
+ // Suggestion box methods
+ // -------------------------------------------------------------------
+-function UserSuggestionBox(inHTMLInputField, inListOfEntries, inNextHTMLField) {
+-  this._myInputField = inHTMLInputField;
+-  this._myListOfEntries = inListOfEntries.sort(UserSuggestionBox.compareEntryDisplayNames);
+-  this._myNextField = inNextHTMLField;
++
++/**
++ * PENDING: 
++ * 
++ * We wrote this UserSuggestionBox code back before we had the general
++ * /view/SuggestionBox.js class.  The SuggestionBox.js class is better,
++ * because it allows you to use the arrow keys to scroll through the
++ * options.  We shouldn't be trying to maintain this UserSuggestionBox
++ * too.  Instead, we should make SuggestionBox.js generic enough that
++ * we can just use it instead of UserSuggestionBox.
++ */
++function UserSuggestionBox(htmlInputField, listOfEntries, nextHtmlField) {
++  this._inputField = htmlInputField;
++  this._listOfEntries = listOfEntries.sort(UserSuggestionBox.compareEntryDisplayNames);
++  this._nextField = nextHtmlField;
+   
+-  this._myUserSuggestionBoxDivElement = document.createElement('div');
+-  // this._myUserSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
+-  this._myUserSuggestionBoxDivElement.style.zIndex = 11;
+-  this._myUserSuggestionBoxDivElement.style.display = &quot;none&quot;;
+-  document.body.appendChild(this._myUserSuggestionBoxDivElement);
++  this._userSuggestionBoxDivElement = document.createElement('div');
++  // this._userSuggestionBoxDivElement.style.visibility = &quot;hidden&quot;;
++  this._userSuggestionBoxDivElement.style.zIndex = 11;
++  this._userSuggestionBoxDivElement.style.display = &quot;none&quot;;
++  document.body.appendChild(this._userSuggestionBoxDivElement);
+   
+-  this._myInputField.onkeyup = this._keyPressOnInputField.bindAsEventListener(this);
+-  this._myInputField.onfocus = this._focusOnInputField.bindAsEventListener(this);
+-  this._myInputField.onblur = this._blurOnInputField.bindAsEventListener(this);
++  this._inputField.onkeyup = this._keyPressOnInputField.bindAsEventListener(this);
++  this._inputField.onfocus = this._focusOnInputField.bindAsEventListener(this);
++  this._inputField.onblur = this._blurOnInputField.bindAsEventListener(this);
+   this._keyPressOnInputField();
+ }
+ 
+-UserSuggestionBox.compareEntryDisplayNames = function (inEntryOne, inEntryTwo) {
+-  var displayNameOne = inEntryOne.getDisplayName();
+-  var displayNameTwo = inEntryTwo.getDisplayName();
++
++/**
++ *
++ */
++UserSuggestionBox.compareEntryDisplayNames = function(entryOne, entryTwo) {
++  var displayNameOne = entryOne.getDisplayName();
++  var displayNameTwo = entryTwo.getDisplayName();
+   if (displayNameOne == displayNameTwo) {
+     return 0;
+   } else {
+@@ -421,36 +445,52 @@
+   }
+ };
+ 
+-UserSuggestionBox.prototype._focusOnInputField = function (inEventObject) {
+-  this._myInputField.value = &quot;&quot;;
++
++/**
++ *
++ */
++UserSuggestionBox.prototype._focusOnInputField = function(eventObject) {
++  this._inputField.value = &quot;&quot;;
+   this._redisplayUserSuggestionBox();
+ };
+ 
+ 
+-UserSuggestionBox.prototype._keyPressOnInputField = function (inEventObject) {
++/**
++ *
++ */
++UserSuggestionBox.prototype._keyPressOnInputField = function(eventObject) {
+   this._redisplayUserSuggestionBox();
+ };
+ 
+ 
+-UserSuggestionBox.prototype._blurOnInputField = function (inEventObject) {
++/**
++ *
++ */
++UserSuggestionBox.prototype._blurOnInputField = function(eventObject) {
+   // make the suggestion box disappear
+-  this._myUserSuggestionBoxDivElement.style.display = &quot;none&quot;;
++  this._userSuggestionBoxDivElement.style.display = &quot;none&quot;;
+ };
+ 
+ 
+-UserSuggestionBox.prototype._clickOnSelection = function (inEventObject, inString) {
+-  this._myInputField.value = inString;
+-  this._myNextField.select();
++/**
++ *
++ */
++UserSuggestionBox.prototype._clickOnSelection = function(eventObject, string) {
++  this._inputField.value = string;
++  this._nextField.select();
+ };
+ 
+ 
+-UserSuggestionBox.prototype._redisplayUserSuggestionBox = function () {
+-  var partialInputString = this._myInputField.value;
++/**
++ *
++ */
++UserSuggestionBox.prototype._redisplayUserSuggestionBox = function() {
++  var partialInputString = this._inputField.value;
+   var listOfMatchingStrings = [];
+   var key;
+   
+-  for (key in this._myListOfEntries) {
+-    var entry = this._myListOfEntries[key];
++  for (key in this._listOfEntries) {
++    var entry = this._listOfEntries[key];
+     var lowerCaseEntryString = entry.getDisplayName().toLowerCase();
+     var lowerCaseInputString = partialInputString.toLowerCase();
+     var numberOfCharactersToCompare = lowerCaseInputString.length;
+@@ -463,9 +503,9 @@
+   
+   if (listOfMatchingStrings.length === 0) {
+     // make the suggestion box disappear
+-    this._myUserSuggestionBoxDivElement.style.display = &quot;none&quot;;
++    this._userSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   } else {
+-    View.removeChildrenOfElement(this._myUserSuggestionBoxDivElement);
++    View.removeChildrenOfElement(this._userSuggestionBoxDivElement);
+     var table = document.createElement('table');
+     var rowNumber = 0;
+     var columnNumber = 0;
+@@ -478,20 +518,20 @@
+       cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, string);
+       rowNumber += 1;
+     }
+-    this._myUserSuggestionBoxDivElement.appendChild(table);
++    this._userSuggestionBoxDivElement.appendChild(table);
+     
+     // set-up the suggestion box to open just below the input field it comes from
+-    var suggestionBoxTop = Util.getOffsetTopFromElement(this._myInputField) + this._myInputField.offsetHeight;
+-    var suggestionBoxLeft = Util.getOffsetLeftFromElement(this._myInputField);
+-    this._myUserSuggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
+-    this._myUserSuggestionBoxDivElement.style.left = suggestionBoxLeft + &quot;px&quot;;
+-    // alert(this._myInputField.offsetWidth);
+-    this._myUserSuggestionBoxDivElement.style.width = (this._myInputField.offsetWidth - 2)+ &quot;px&quot;;
++    var suggestionBoxTop = Util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
++    var suggestionBoxLeft = Util.getOffsetLeftFromElement(this._inputField);
++    this._userSuggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
++    this._userSuggestionBoxDivElement.style.left = suggestionBoxLeft + &quot;px&quot;;
++    // alert(this._inputField.offsetWidth);
++    this._userSuggestionBoxDivElement.style.width = (this._inputField.offsetWidth - 2)+ &quot;px&quot;;
+     
+-    // this._myUserSuggestionBoxDivElement.style.zIndex = 11;
+-    this._myUserSuggestionBoxDivElement.className = &quot;suggestion_box&quot;;
+-    this._myUserSuggestionBoxDivElement.style.visibility = &quot;visible&quot;;
+-    this._myUserSuggestionBoxDivElement.style.display = &quot;block&quot;;
++    // this._userSuggestionBoxDivElement.style.zIndex = 11;
++    this._userSuggestionBoxDivElement.className = &quot;suggestion_box&quot;;
++    this._userSuggestionBoxDivElement.style.visibility = &quot;visible&quot;;
++    this._userSuggestionBoxDivElement.style.display = &quot;block&quot;;
+   }
+ };
+ 
+
+Modified: trunk/source/MultiEntriesView.js
+===================================================================
+--- trunk/source/MultiEntriesView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/MultiEntriesView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -55,23 +55,25 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    theSuperview    The view that this view is nested in. 
+- * @param    theItem         The Item to be displayed and edited by this view. 
+- * @param    theAttribute    The attribute of the item to be displayed.
+- * @param    theElement      The HTMLElement to display the HTML in. 
+- * @param    theClassType    A string that gives a class name to assign to the HTML element. 
++ * @param    superview    The view that this view is nested in. 
++ * @param    htmlElement      The HTMLElement to display the HTML in. 
++ * @param    item         The Item to be displayed and edited by this view. 
++ * @param    attribute    The attribute of the item to be displayed.
++ * @param    cssClass     A string that gives a CSS class name to assign to the HTML element. 
+  * @param    isMultiLine     a boolean indicating if text view is single line or multi-line
+  */
+ MultiEntriesView.prototype = new View();  // makes MultiEntriesView be a subclass of View
+-function MultiEntriesView(theSuperview, theElement, theItem, theAttribute, theClassType) {
+-  Util.assert(theItem instanceof Item);
+-  //Util.assert(theAttribute instanceof Attribute); PENDING need to check that attribute is an attribute
++function MultiEntriesView(superview, htmlElement, item, attribute, cssClass) {
++  View.call(this, superview, htmlElement);
++
++  Util.assert(item instanceof Item);
++  Util.assert(attribute instanceof Item); // PENDING need to check that attribute is an attribute
+   
+-  this.setSuperview(theSuperview);
+-  this.setHTMLElement(theElement);
+-  this._item = theItem;
+-  this._attribute = theAttribute;
+-  this._className = theClassType;
++  this._item = item;
++  this._attribute = attribute;
++  this._className = cssClass;
++  this._entryViews = null;
++  this._listOfSuggestions = null;
+ }
+ 
+ 
+@@ -115,8 +117,9 @@
+  */
+ MultiEntriesView.prototype.noLongerProvisional = function() {
+   Util.assert(this._entryViews.length == 1); // provisional item should only have one entry
+-  for (var i=0; i &lt; this._entryViews.length; ++i) {
+-    this._entryViews[i].noLongerProvisional();
++  for (var key in this._entryViews) {
++    var entry = this._entryViews[key];
++    entry.noLongerProvisional();
+   }
+ };
+ 
+@@ -124,8 +127,8 @@
+ /**
+  *
+  */
+-MultiEntriesView.prototype.select = function(inSelectFirst) {
+-  var index = inSelectFirst ? 0 : this._entryViews.length - 1;
++MultiEntriesView.prototype.select = function(selectFirst) {
++  var index = selectFirst ? 0 : this._entryViews.length - 1;
+   this._entryViews[index].startEditing();
+ };
+ 
+@@ -133,10 +136,11 @@
+ /**
+  *
+  */
+-MultiEntriesView.prototype.setSuggestions = function(suggestionList) {
+-  this._suggestions = suggestionList;
+-  for (var i=0; i &lt; this._entryViews.length; ++i) {
+-    this._entryViews[i].setSuggestions(suggestionList);
++MultiEntriesView.prototype.setSuggestions = function(listOfSuggestions) {
++  this._listOfSuggestions = listOfSuggestions;
++  for (var key in this._entryViews) {
++    var entry = this._entryViews[key];
++    entry.setSuggestions(listOfSuggestions);
+   }
+ };
+ 
+@@ -154,19 +158,19 @@
+  * Sets a function to be used when onclick is called to the EntryView
+  *
+  * @scope    public instance method
+- * @param    inEventObject    An event object. 
++ * @param    onClickFunction    A function to call. 
+  */
+-MultiEntriesView.prototype.setClickFunction = function(inClickFunction) {
+-  Util.assert(inClickFunction instanceof Function);
+-  this._clickFunction = inClickFunction;
++MultiEntriesView.prototype.setClickFunction = function(onClickFunction) {
++  Util.assert(onClickFunction instanceof Function);
++  this._clickFunction = onClickFunction;
+ };
+ 
+ 
+ /**
+  *
+  */
+-MultiEntriesView.prototype._handleClick = function(inEvent, inEntryView) {
+-  if (this._clickFunction &amp;&amp; this._clickFunction(inEvent, inEntryView)) {
++MultiEntriesView.prototype._handleClick = function(eventObject, entryView) {
++  if (this._clickFunction &amp;&amp; this._clickFunction(eventObject, entryView)) {
+     return true;
+   }
+   return false;
+@@ -176,51 +180,51 @@
+ /**
+  *
+  */
+-MultiEntriesView.prototype._handleOwnClick = function(inEvent) {
++MultiEntriesView.prototype._handleOwnClick = function(eventObject) {
+   var lastEntry = this._entryViews[this._entryViews.length-1];
+-  if (this._handleClick(inEvent, lastEntry)) {return true;}
+-  if (inEvent.target == this.getHTMLElement()) {lastEntry.startEditing();}
++  if (this._handleClick(eventObject, lastEntry)) {return true;}
++  if (eventObject.target == this.getHtmlElement()) {lastEntry.startEditing();}
+ };
+ 
+ 
+ /**
+  *
+  */
+-MultiEntriesView.prototype._keyPressOnEditField = function(inEvent, inEntryView) {
+-  Util.assert(inEntryView instanceof EntryView);
+-  var asciiValueOfKey = inEvent.keyCode;
++MultiEntriesView.prototype._keyPressOnEditField = function(eventObject, entryView) {
++  Util.assert(entryView instanceof EntryView);
++  var asciiValueOfKey = eventObject.keyCode;
+   var move, doCreateNewEntry;
+   switch (asciiValueOfKey) {
+     case Util.ASCII_VALUE_FOR_LEFT_ARROW: move = -1; break;
+     case Util.ASCII_VALUE_FOR_RIGHT_ARROW: move = 1; break;
+     case Util.ASCII_VALUE_FOR_RETURN:
+-      if (inEvent.altKey) {
++      if (eventObject.altKey) {
+         doCreateNewEntry = true;
+         break;
+       }
+-      if (inEntryView != this._entryViews[this._entryViews.length-1]) {move=1;}
++      if (entryView != this._entryViews[this._entryViews.length-1]) {move=1;}
+       break;
+     default: 
+       move = 0; 
+       break;
+   }
+   if (doCreateNewEntry) {
+-    inEntryView.stopEditing();
++    entryView.stopEditing();
+     this._addSeparator();
+     this._addEntryView(null).startEditing();
+     return true;
+   }
+   if (move !== 0) {
+-    var index = Util.getArrayIndex(this._entryViews, inEntryView);
++    var index = Util.getArrayIndex(this._entryViews, entryView);
+     Util.assert(index != -1);
+     index += move;
+     if (index &gt;= 0 &amp;&amp; index &lt; this._entryViews.length) {
+-      inEntryView.stopEditing();
++      entryView.stopEditing();
+       this._entryViews[index].startEditing();
+       return true;
+     }
+   }
+-  if (this._keyPressFunction &amp;&amp; this._keyPressFunction(inEvent, inEntryView)) {
++  if (this._keyPressFunction &amp;&amp; this._keyPressFunction(eventObject, entryView)) {
+     return true;
+   }
+   return false;
+@@ -230,16 +234,16 @@
+ /**
+  *
+  */
+-MultiEntriesView.prototype._addEntryView = function(inEntry) {
+-  var spanElt = document.createElement(&quot;span&quot;);
+-  spanElt.style.width = '100%';
+-  var anEntryView = new EntryView(this, spanElt, this._item, this._attribute, inEntry, this._className);
++MultiEntriesView.prototype._addEntryView = function(entry) {
++  var spanElement = document.createElement(&quot;span&quot;);
++  spanElement.style.width = '100%';
++  var anEntryView = new EntryView(this, spanElement, this._item, this._attribute, entry, this._className);
+   this._entryViews.push(anEntryView);
+-  this.getHTMLElement().appendChild(spanElt);
++  this.getHtmlElement().appendChild(spanElement);
+   anEntryView.refresh();
+   if (this.isInEditMode()) {
+     var listener = this;
+-    anEntryView.setSuggestions(this._suggestions);
++    anEntryView.setSuggestions(this._listOfSuggestions);
+     anEntryView.setKeyPressFunction(function (evt, entryView) {return listener._keyPressOnEditField(evt, entryView);});
+     anEntryView.setClickFunction(function (evt, entryView) {return listener._handleClick(evt, entryView);});
+   }
+@@ -251,11 +255,11 @@
+  *
+  */
+ MultiEntriesView.prototype._addSeparator = function() {
+-  var spanElt = document.createElement(&quot;span&quot;);
+-  spanElt.appendChild(document.createTextNode(MultiEntriesView.SEPARATOR));
+-  spanElt.style.color = MultiEntriesView.SEPARATOR_COLOR;
+-  this.getHTMLElement().appendChild(spanElt);
+-  return spanElt;
++  var spanElement = document.createElement(&quot;span&quot;);
++  spanElement.appendChild(document.createTextNode(MultiEntriesView.SEPARATOR));
++  spanElement.style.color = MultiEntriesView.SEPARATOR_COLOR;
++  this.getHtmlElement().appendChild(spanElement);
++  return spanElement;
+ };
+ 
+ 
+@@ -266,7 +270,7 @@
+  * @scope    public instance method
+  */
+ MultiEntriesView.prototype._buildView = function() {
+-  var htmlElement = this.getHTMLElement();
++  var htmlElement = this.getHtmlElement();
+   View.removeChildrenOfElement(htmlElement);
+   this._entryViews = [];
+   
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/NavbarView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -52,13 +52,12 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    superView    The view that this LoginView is nested in. 
++ * @param    superview    The view that serves as the superview for this view. 
+  * @param    htmlElement    The HTMLElement to display the HTML in. 
+  */
+ NavbarView.prototype = new View();  // makes NavbarView be a subclass of View
+-function NavbarView(superView, htmlElement, htmlElementForAnchors) {
+-  this.setSuperview(superView);
+-  this.setHTMLElement(htmlElement);
++function NavbarView(superview, htmlElement, htmlElementForAnchors) {
++  View.call(this, superview, htmlElement);
+   this._htmlElementForAnchors = htmlElementForAnchors;
+ }
+ 
+@@ -101,7 +100,7 @@
+     anchor.setAttribute(&quot;name&quot;, RootView.URL_PAGE_PREFIX + page._getUuid());
+   }
+   
+-  var divElement = this.getHTMLElement();
++  var divElement = this.getHtmlElement();
+   View.removeChildrenOfElement(divElement); 
+   var ulElement = View.createAndAppendElement(divElement, &quot;ul&quot;, NavbarView.CSS_CLASS_MENU);
+   var rootView = this.getRootView();
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/OutlinePlugin.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -50,14 +50,16 @@
+  * An OutlinePlugin displays a set of content items for a SectionView. 
+  *
+  * @scope    public instance constructor
+- * @extends  View
+- * @param    inSectionView    The SectionView that serves as the superview for this view. 
+- * @param    inHTMLElement    The HTMLElement to display this view in. 
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    ???. 
+  * @syntax   var outline = new OutlinePlugin()
+  */
+-OutlinePlugin.prototype = new PluginView();  // makes OutlinePlugin be a subclass of View
+-function OutlinePlugin(inSectionView, inHTMLElement, inQuery, inLayout) {
+-  PluginView.call(this, inSectionView, inHTMLElement, inQuery, inLayout);
++OutlinePlugin.prototype = new PluginView();  // makes OutlinePlugin be a subclass of PluginView
++function OutlinePlugin(superview, htmlElement, querySpec, layoutItem) {
++  PluginView.call(this, superview, htmlElement, querySpec, layoutItem);
+ }
+ 
+ 
+@@ -71,7 +73,7 @@
+  * @scope    public class method
+  * @return   The UUID of the item that represents this class of plugin
+  */
+-OutlinePlugin.getPluginItemUuid = function () {
++OutlinePlugin.getPluginItemUuid = function() {
+   return OutlinePlugin.UUID_FOR_PLUGIN_VIEW_OUTLINE;
+ };
+ 
+@@ -86,7 +88,7 @@
+  * @scope    public instance method
+  * @return   A JavaScript class. 
+  */
+-OutlinePlugin.prototype.getClass = function () {
++OutlinePlugin.prototype.getClass = function() {
+   return OutlinePlugin;
+ };
+ 
+@@ -97,9 +99,9 @@
+  *
+  * @scope    public instance method
+  */
+-OutlinePlugin.prototype.refresh = function () {
++OutlinePlugin.prototype.refresh = function() {
+   var listOfContentItems = this.fetchItems();
+-  var outlineDiv = this.getHTMLElement();
++  var outlineDiv = this.getHtmlElement();
+   View.removeChildrenOfElement(outlineDiv);
+   var ulElement = View.createAndAppendElement(outlineDiv, &quot;ul&quot;);
+   for (var contentItemKey in listOfContentItems) {
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/PageView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -55,7 +55,7 @@
+  * @scope    public class method
+  * @param    inPage    The Page Item to insert the new section into
+  */
+-PageView.newSection = function (repository, inPage) {
++PageView.newSection = function(repository, inPage) {
+   var attributeCalledQuerySpec = repository.getAttributeCalledQuerySpec();
+   var categoryCalledQuery = repository.getCategoryCalledQuery();
+   var attributeCalledPluginView = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+@@ -85,20 +85,19 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inRootView    The RootView that this PageView is nested in. 
+- * @param    inHTMLElement The HTMLElement to display the HTML in. 
+- * @param    inPage        The page item to be displayed by this view. 
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    pageItem        The page item to be displayed by this view. 
+  */
+ PageView.prototype = new View();  // makes PageView be a subclass of View
+-function PageView(inRootView, inHTMLElement, inPage) {
+-  Util.assert(inRootView instanceof RootView);
+-  Util.assert(inHTMLElement instanceof HTMLElement);
+-  Util.assert(inPage instanceof Item);
++function PageView(superview, htmlElement, pageItem) {
++  Util.assert(htmlElement instanceof HTMLElement);
++  Util.assert(pageItem instanceof Item);
+ 
++  View.call(this, superview, htmlElement);
++
+   // instance properties
+-  this.setSuperview(inRootView);
+-  this.setHTMLElement(inHTMLElement);
+-  this._pageItem = inPage;
++  this._pageItem = pageItem;
+   
+   this._pageSummaryView = null;
+   this._headerText = null;
+@@ -112,7 +111,7 @@
+  * @scope    public instance method
+  * @return   A string that gives the name of the page.
+  */
+-PageView.prototype.getPageTitle = function () {
++PageView.prototype.getPageTitle = function() {
+   var pageTitle = this._pageItem.getDisplayString();
+   return pageTitle;
+ };
+@@ -124,7 +123,7 @@
+  *
+  * @scope    public instance method
+  */
+-PageView.prototype.refresh = function () {
++PageView.prototype.refresh = function() {
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+@@ -144,13 +143,13 @@
+  *
+  * @scope    public instance method
+  */
+-PageView.prototype.doInitialDisplay = function () {
+-  Util.assert(this.getHTMLElement() instanceof HTMLElement);
++PageView.prototype.doInitialDisplay = function() {
++  Util.assert(this.getHtmlElement() instanceof HTMLElement);
+   
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+ 
+-  var pageDivElement = this.getHTMLElement();
++  var pageDivElement = this.getHtmlElement();
+   
+   var headerElement = View.createAndAppendElement(pageDivElement, &quot;h1&quot;);
+   this._headerText = new EntryView(this, headerElement, this._pageItem, attributeCalledName,
+@@ -187,9 +186,9 @@
+  * @param    insertBeforeElement    Optional. The HTML element that this new section view should come before on the page.
+  */
+ PageView.prototype._buildNewSection = function(sectionItem, insertBeforeElement) {
+-  var pageDivElement = this.getHTMLElement();
++  var pageDivElement = this.getHtmlElement();
+   var sectionViewDiv = document.createElement(&quot;div&quot;);
+-  var sectionView = new SectionView(this, sectionViewDiv, sectionItem, this._listOfSectionViews.length);
++  var sectionView = new SectionView(this, sectionViewDiv, sectionItem);
+   if (insertBeforeElement) {
+     pageDivElement.insertBefore(sectionViewDiv, insertBeforeElement);
+   }
+@@ -219,7 +218,7 @@
+  */
+ PageView.prototype._buildEditControls = function() {
+   if (!this._editModeDiv) {
+-    var pageDivElement = this.getHTMLElement();
++    var pageDivElement = this.getHtmlElement();
+     var cssClass = SectionView.CSS_CLASS_SECTION + &quot; &quot; + RootView.CSS_CLASS_EDIT_TOOL;
+     this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, cssClass);
+     View.createAndAppendElement(this._editModeDiv, &quot;br&quot;);
+
+Modified: trunk/source/PluginView.js
+===================================================================
+--- trunk/source/PluginView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/PluginView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -42,19 +42,21 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inSuperView    The superview for this view. 
+- * @param    inHTMLElement    The HTMLElement to display this view in. 
+- * @param    inQuery    The Query item that provides the items for this PluginView to display
++ * @param    superview    The superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    ???. 
+  * @syntax   var PluginView = new PluginView()
+  */
+ PluginView.prototype = new View();  // makes PluginView be a subclass of View
+-function PluginView(inSuperView, inHTMLElement, inQuery, inLayout) {
+-  if (!inSuperView) {return;} // initial call that subclasses of PluginViews make without parameters
+-  this.setSuperview(inSuperView);
+-  this.setHTMLElement(inHTMLElement);
+-  this._querySpec = inQuery;
++function PluginView(superview, htmlElement, querySpec, layoutItem) {
++  if (!superview) {return;} // initial call that subclasses of PluginViews make without parameters
++
++  View.call(this, superview, htmlElement);
++
++  this._querySpec = querySpec;
+   this._queryRunner = this.getWorld().newQueryRunner(this._querySpec, this);
+-  this._layout = inLayout;
++  this._layout = layoutItem;
+   this._pluginItem = null;
+ }
+ 
+@@ -69,7 +71,7 @@
+  * @scope    public instance method
+  * @return   A string.
+  */
+-PluginView.prototype.getPluginItem = function () {
++PluginView.prototype.getPluginItem = function() {
+   if (!this._pluginItem) {
+     var pluginClass = this.getClass();
+     // alert(pluginClass);
+@@ -97,7 +99,7 @@
+  * @scope    public instance method
+  * @return   A query spec item.
+  */
+-PluginView.prototype.getQuerySpec = function () {
++PluginView.prototype.getQuerySpec = function() {
+   return this._querySpec;
+ };
+ 
+@@ -107,8 +109,8 @@
+  *
+  * @scope    public instance method
+  */
+-PluginView.prototype.endOfLife = function () {
+-  View.removeChildrenOfElement(this.getHTMLElement());
++PluginView.prototype.endOfLife = function() {
++  View.removeChildrenOfElement(this.getHtmlElement());
+ };
+ 
+ 
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/SectionView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -60,8 +60,6 @@
+ 
+ SectionView.ELEMENT_ID_SELECT_MENU_PREFIX = &quot;select_menu_&quot;;
+ 
+-// SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER = &quot;section_number&quot;;
+-
+ SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW       = &quot;00040101-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA       = &quot;00040102-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN = &quot;00040103-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+@@ -87,23 +85,18 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    inPageView    The PageView that serves as the superview for this view. 
+- * @param    inHTMLElement The HTMLElement to display the HTML in. 
+- * @param    inSection    The Section item to be displayed in by this view. 
+- * @param    inSectionNumber    The number of the section on the page (1, 2, 3, 4...). 
++ * @param    superview    The view that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display the HTML in. 
++ * @param    sectionItem    The Section item to be displayed in by this view. 
+  * @syntax   var sectionView = new SectionView()
+  */
+ SectionView.prototype = new View();  // makes SectionView be a subclass of View
+-function SectionView(inPageView, inHTMLElement, inSection, inSectionNumber) {
+-  Util.assert(inPageView instanceof PageView);
+-  Util.assert(inSection instanceof Item);
+-  
++function SectionView(superview, htmlElement, sectionItem) {
++  View.call(this, superview, htmlElement);
++
+   // instance properties
+-  // PENDING: these should all be private
+-  this.setSuperview(inPageView);
+-  this.setHTMLElement(inHTMLElement);
+-  this._section = inSection;
+-  this._sectionNumber = inSectionNumber;
++  Util.assert(sectionItem instanceof Item);
++  this._section = sectionItem;
+ 
+   this._pluginView = null;
+   this._pluginDiv = null;
+@@ -154,7 +147,7 @@
+  * @param    pluginDiv    The HTMLDivElement to display the plugin in. 
+  * @return   A newly created plugin object, initialized to be the plugin for this section.
+  */
+-SectionView.prototype.getPluginInstanceFromPluginItem = function (pluginItem, pluginDiv) {
++SectionView.prototype.getPluginInstanceFromPluginItem = function(pluginItem, pluginDiv) {
+   Util.assert(pluginItem instanceof Item);
+   
+   var newPlugin = null;
+@@ -175,7 +168,7 @@
+  * @scope    public instance method
+  * @return   query associated to this section.
+  */
+-SectionView.prototype.getQuerySpec = function () {
++SectionView.prototype.getQuerySpec = function() {
+   var attributeCalledQuerySpec = this.getWorld().getAttributeCalledQuerySpec();
+   var queryEntry = this._section.getSingleEntryFromAttribute(attributeCalledQuerySpec);
+   if (queryEntry) {
+@@ -191,7 +184,7 @@
+  *
+  * @scope    public instance method
+  */
+-SectionView.prototype.refresh = function () {
++SectionView.prototype.refresh = function() {
+   if (!this._myHasEverBeenDisplayedFlag) {
+     this.doInitialDisplay();
+   } else {
+@@ -210,8 +203,8 @@
+  *
+  * @scope    public instance method
+  */
+-SectionView.prototype.doInitialDisplay = function () {
+-  if (!this.getHTMLElement()) {
++SectionView.prototype.doInitialDisplay = function() {
++  if (!this.getHtmlElement()) {
+     return;
+   }
+   var attributeCalledPluginView = this.getWorld().getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_PLUGIN_VIEW);
+@@ -225,7 +218,7 @@
+     selectedPluginClass = TablePlugin; 
+   }
+   
+-  var sectionDiv = this.getHTMLElement();
++  var sectionDiv = this.getHtmlElement();
+   var outerDiv = View.createAndAppendElement(sectionDiv, &quot;div&quot;, SectionView.CSS_CLASS_SECTION);
+   var headerH2 = View.createAndAppendElement(outerDiv, &quot;h2&quot;);
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+@@ -249,7 +242,6 @@
+   var optionElement;
+   var listener;
+   selectElement.setAttribute(&quot;name&quot;, selectMenuId);
+-  // selectElement.setAttribute(SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER, this._sectionNumber);
+   for (var key in SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid) {
+     var pluginClass = SectionView._ourHashTableOfPluginClassesKeyedByPluginItemUuid[key];
+     optionElement = View.createAndAppendElement(selectElement, &quot;option&quot;);
+@@ -280,20 +272,20 @@
+  * Returns layout data of this section for a particular plugin
+  * Creates a the layout data item if doesn't exist
+  *
+- * @param    inPluginType    The name of plugin
++ * @param    pluginTypeItem    An item representing a class of plugin
+  * @return    layout data of this section for a particular plugin
+  */
+-SectionView.prototype._getLayoutDataForPlugin = function (inPluginType) {
++SectionView.prototype._getLayoutDataForPlugin = function(pluginTypeItem) {
+   var repository = this.getWorld();
+-  var attrLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA);
+-  var entriesLayoutData = this._section.getEntriesForAttribute(attrLayoutData);
+-  var attrAppliesToPlugin = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN);
++  var attributeLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_LAYOUT_DATA);
++  var entriesLayoutData = this._section.getEntriesForAttribute(attributeLayoutData);
++  var attributeAppliesToPlugin = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_APPLIES_TO_PLUGIN);
+   if (entriesLayoutData) {
+     for (var i=0; i &lt; entriesLayoutData.length; ++i) {
+       var layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
+-      var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attrAppliesToPlugin);
++      var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attributeAppliesToPlugin);
+       Util.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
+-      if (entriesAppliesToPlugin[0].getValue() == inPluginType) {
++      if (entriesAppliesToPlugin[0].getValue() == pluginTypeItem) {
+         return layoutItem;
+       }
+     }
+@@ -303,11 +295,11 @@
+   var categoryCalledLayoutData = repository.getItemFromUuid(SectionView.UUID_FOR_CATEGORY_LAYOUT_DATA);
+   var attributeCalledSectionThisLayoutDataBelongsTo = repository.getItemFromUuid(SectionView.UUID_FOR_ATTRIBUTE_SECTION_THIS_LAYOUT_DATA_BELONGS_TO);
+   repository.beginTransaction();
+-  layoutItem = repository.newItem(&quot;Layout data for &quot; + inPluginType.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
++  layoutItem = repository.newItem(&quot;Layout data for &quot; + pluginTypeItem.getDisplayString() + &quot; of &quot; + this._section.getDisplayString());
+   layoutItem.assignToCategory(categoryCalledLayoutData);
+-  layoutItem.addEntryForAttribute(attrAppliesToPlugin, inPluginType);
+-  // this._section.addEntryForAttribute(attrLayoutData, layoutItem, repository.getTypeCalledItem());
+-  this._section.addConnectionEntry(attrLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
++  layoutItem.addEntryForAttribute(attributeAppliesToPlugin, pluginTypeItem);
++  // this._section.addEntryForAttribute(attributeLayoutData, layoutItem, repository.getTypeCalledItem());
++  this._section.addConnectionEntry(attributeLayoutData, layoutItem, attributeCalledSectionThisLayoutDataBelongsTo);
+   repository.endTransaction();
+   return layoutItem;
+ };
+@@ -318,7 +310,7 @@
+  * browser to be re-drawn.
+  *
+  */
+-SectionView.prototype._refreshQueryEditSpan = function () {
++SectionView.prototype._refreshQueryEditSpan = function() {
+   View.removeChildrenOfElement(this._queryEditSpan);
+   
+   var myQuery = this.getQuerySpec();
+@@ -412,8 +404,8 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-SectionView.prototype.clickOnPluginSelectionMenu = function (inEventObject) {
+-  var eventObject = inEventObject || window.event;
++SectionView.prototype.clickOnPluginSelectionMenu = function(eventObject) {
++  eventObject = eventObject || window.event;
+   var optionElement = Util.getTargetFromEvent(eventObject);
+   // PENDING: We could replace the lines above with &quot;var optionElement = this;&quot;
+   // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
+@@ -456,8 +448,8 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-SectionView.prototype.clickOnAttributeMenu = function (inEventObject) {
+-  var eventObject = inEventObject || window.event;
++SectionView.prototype.clickOnAttributeMenu = function(eventObject) {
++  eventObject = eventObject || window.event;
+   var optionElement = Util.getTargetFromEvent(eventObject);
+   // PENDING: We could replace the lines above with &quot;var optionElement = this;&quot;
+   // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/TablePlugin.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -61,13 +61,15 @@
+  * HTML table.
+  *
+  * @scope    public instance constructor
+- * @extends  View
+- * @param    inSectionView    The SectionView that this TablePlugin will appears in. 
+- * @param    inHTMLElement    The HTMLElement to display this view in. 
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    ???. 
+  */
+-TablePlugin.prototype = new PluginView();  // makes TablePlugin be a subclass of View
+-function TablePlugin(inSectionView, inHTMLElement, inQuery, inLayout) {
+-  PluginView.call(this, inSectionView, inHTMLElement, inQuery, inLayout);
++TablePlugin.prototype = new PluginView();  // makes TablePlugin be a subclass of PluginView
++function TablePlugin(superview, htmlElement, querySpec, layoutItem) {
++  PluginView.call(this, superview, htmlElement, querySpec, layoutItem);
+ 
+   // PENDING should probably make this independent of sectionview
+   this._cssClass = SectionView.CSS_CLASS_SIMPLE_TABLE;
+@@ -88,7 +90,7 @@
+  * @scope    public class method
+  * @return   The UUID of the item that represents this class of plugin
+  */
+-TablePlugin.getPluginItemUuid = function () {
++TablePlugin.getPluginItemUuid = function() {
+   return TablePlugin.UUID_FOR_PLUGIN_VIEW_TABLE;
+ };
+ 
+@@ -103,7 +105,7 @@
+  * @scope    public instance method
+  * @return   A JavaScript class. 
+  */
+-TablePlugin.prototype.getClass = function () {
++TablePlugin.prototype.getClass = function() {
+   return TablePlugin;
+ };
+ 
+@@ -116,7 +118,7 @@
+  * @param    itemB    One of the two items to be compared. 
+  * @return   This method returns 0 if the items are comparable. If _ascendingOrder is true, itemA is less than itemB, this method returns -1, otherwise it returns +1. 
+  */
+-TablePlugin.prototype.compareItemByAttribute = function (itemA, itemB) {
++TablePlugin.prototype.compareItemByAttribute = function(itemA, itemB) {
+   Util.assert(this._sortAttribute !== null);
+   var strA = itemA.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+   var strB = itemB.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+@@ -164,7 +166,6 @@
+  *
+  */
+ TablePlugin.prototype._buildAttributeHashFromScratch = function() {
+-  // var PENDING__JUNE_1_EXPERIMENT_BY_BRIAN = true;
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var hashTableOfAttributes = {};
+   var hashTableOfEntries = {};
+@@ -197,7 +198,7 @@
+  * @scope    private instance method
+  */
+ TablePlugin.prototype._buildAttributeEditor = function() {
+-  var htmlElement = this.getHTMLElement();
++  var htmlElement = this.getHtmlElement();
+   View.createAndAppendElement(htmlElement, &quot;br&quot;);
+   var selectElt = View.createAndAppendElement(htmlElement, &quot;select&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   var listOfAttributes = this.getWorld().getAttributes();
+@@ -342,18 +343,19 @@
+ /**
+  * Re-creates all the HTML for the TablePlugin, and hands the HTML to the 
+  * browser to be re-drawn.
+- * @param inDontRebuildHas, if true does not refetch query and rebuild attribute hash table
++ *
++ * @param    doNotRebuildHash    If true, this method does not refetch query and rebuild attribute hash table
+  * @scope    public instance method
+  */
+-TablePlugin.prototype._buildTable = function(inDontRebuildHash) {
++TablePlugin.prototype._buildTable = function(doNotRebuildHash) {
+   // get list of items and attributes
+-  if (!inDontRebuildHash) {
++  if (!doNotRebuildHash) {
+     this.fetchItems();
+     this._buildAttributes();
+   }
+   
+   //create new table, remove old table if already exists
+-  View.removeChildrenOfElement(this.getHTMLElement());
++  View.removeChildrenOfElement(this.getHtmlElement());
+   this._table = document.createElement(&quot;table&quot;);
+   this._table.className = this._cssClass;
+   
+@@ -366,7 +368,7 @@
+ 
+   this._buildTableBody();
+   
+-  this.getHTMLElement().appendChild(this._table);
++  this.getHtmlElement().appendChild(this._table);
+   
+   // if (this.isInEditMode()) {this._buildAttributeEditor();}
+   this._buildAttributeEditor();
+@@ -379,7 +381,7 @@
+  *
+  * @scope    public instance method
+  */
+-TablePlugin.prototype.refresh = function () {
++TablePlugin.prototype.refresh = function() {
+   // PENDING new table is constantly rebuilt currently
+   // PENDING new content model with observable queries
+   this._buildTable();
+@@ -392,7 +394,7 @@
+  * @scope    public instance method
+  * @return   An HTML image element
+  */
+-TablePlugin.prototype.getSortIcon = function () {
++TablePlugin.prototype.getSortIcon = function() {
+   var imageName = this._ascendingOrder ? TablePlugin.ASCENDING_GIF : TablePlugin.DESCENDING_GIF;
+   var image =  Util.createImageElement(imageName);
+   image.align = &quot;middle&quot;;
+@@ -428,7 +430,7 @@
+  * 
+  * @scope    public class method
+  */
+-TablePlugin.prototype.clickOnHeader = function (event, clickAttribute) {
++TablePlugin.prototype.clickOnHeader = function(event, clickAttribute) {
+   if (clickAttribute == this._sortAttribute) {
+     this._ascendingOrder = !this._ascendingOrder;
+   }
+@@ -444,7 +446,7 @@
+  * 
+  * @scope    public class method
+  */
+-TablePlugin.prototype.selectRow = function (rowElement) {
++TablePlugin.prototype.selectRow = function(rowElement) {
+   Util.assert(rowElement instanceof HTMLTableRowElement);
+   if (rowElement != this._lastSelectedRow) {
+     if (this._lastSelectedRow) {
+@@ -463,7 +465,7 @@
+ /**
+  * 
+  */
+-TablePlugin.prototype._importData = function (inEventObject, fileButton) {
++TablePlugin.prototype._importData = function(eventObject, fileButton) {
+   // Returns null if it can't do it, false if there's an error, or a string of the content if successful
+ /*  function mozillaLoadFile(filePath)
+   {
+@@ -507,8 +509,8 @@
+  * 
+  * @scope    private class method
+  */
+-TablePlugin.prototype._attributeEditorChanged = function (inEventObject) {
+-  var attributeUuid = inEventObject.target.value;
++TablePlugin.prototype._attributeEditorChanged = function(eventObject) {
++  var attributeUuid = eventObject.target.value;
+   if (attributeUuid) {
+     var repository = this.getWorld();
+     var attrTableColumns = repository.getItemFromUuid(TablePlugin.UUID_FOR_ATTRIBUTE_TABLE_COLUMNS);
+@@ -547,8 +549,8 @@
+ /**
+  * 
+  */
+-TablePlugin.prototype._handleClick = function (inEventObject, anEntryView) {
+-  var rowElement = anEntryView.getSuperview().getHTMLElement().parentNode; // entryView -&gt; multiEntriesView -&gt; cellElment -&gt; rowElement
++TablePlugin.prototype._handleClick = function(eventObject, anEntryView) {
++  var rowElement = anEntryView.getSuperview().getHtmlElement().parentNode; // entryView -&gt; multiEntriesView -&gt; cellElment -&gt; rowElement
+   return this.selectRow(rowElement);
+ };
+ 
+@@ -563,8 +565,7 @@
+  * @scope    public class method
+  * @return   Returns true if the keyPress is a letter, or false if the keyPress is an arrow key or a key that moves the cursor to another cell. 
+  */
+-TablePlugin.prototype.keyPressOnEditField = function (inEventObject, anEntryView) {
+-  var eventObject = inEventObject;
++TablePlugin.prototype.keyPressOnEditField = function(eventObject, anEntryView) {
+   var asciiValueOfKey = eventObject.keyCode;
+   var shiftKeyPressed = eventObject.shiftKey;
+   
+@@ -606,7 +607,7 @@
+     // to become a &quot;real&quot; one thereby  creating new row for the next provisional item, e.g. this._listOfItems changes
+     anEntryView.stopEditing();
+ 
+-    var cellElement = anEntryView.getSuperview().getHTMLElement(); // entryView's multiEntriesView's
++    var cellElement = anEntryView.getSuperview().getHtmlElement(); // entryView's multiEntriesView's
+     var userHitReturnInLastRow = false;
+     var shiftBy;
+     var numCols = this._numberOfColumns;
+
+Modified: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/View.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -41,59 +41,36 @@
+  * The View class serves as an abstract superclass for other view classes.
+  *
+  * @scope    public instance constructor
++ * @param    superview    The superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
+-function View() {
+-  this._superview = null;
+-  this._htmlElement = null;
++function View(superview, htmlElement) {
++  if (!superview) {return;} // initial call that subclasses of PluginViews make without parameters
++  this._superview = superview;
++  this._htmlElement = htmlElement;
+   this._myHasEverBeenDisplayedFlag = false; // PENDING: this is accessed directly by subclasses, which is bad
+ }
+ 
+ 
+ /**
+- * Tells the View who its parent is in the view hierarchy.
+- *
+- * @scope    public instance method
+- * @param    inSuperview    The superview for this view. 
+- */
+-View.prototype.setSuperview = function (inSuperview) {
+-  // Util.assert(ViewInterface.isImplementedBy(inSuperview));
+-
+-  this._superview = inSuperview;
+-};
+-
+-
+-/**
+  * Returns the parent view in the view hierarchy.
+  *
+  * @scope    public instance method
+  * @return   A View object. 
+  */
+-View.prototype.getSuperview = function () {
++View.prototype.getSuperview = function() {
+   return this._superview;
+ };
+ 
+ 
+ /**
+- * Tells the View what HTMLElement to display itself in.
+- *
+- * @scope    public instance method
+- * @param    inHTMLElement    The HTMLDivElement to display the view in. 
+- */
+-View.prototype.setHTMLElement = function (inHTMLElement) {
+-  Util.assert(inHTMLElement instanceof HTMLElement);
+-
+-  this._htmlElement = inHTMLElement;
+-};
+-
+-
+-/**
+  * Returns the HTMLElement that the view displays itself in.
+  *
+  * @scope    public instance method
+  * @return   An HTMLElement. 
+  */
+-View.prototype.getHTMLElement = function () {
++View.prototype.getHtmlElement = function() {
+   return this._htmlElement;
+ };
+ 
+@@ -104,7 +81,7 @@
+  * @scope    public instance method
+  * @return   A World object. 
+  */
+-View.prototype.getWorld = function () {
++View.prototype.getWorld = function() {
+   return this._superview.getWorld();
+ };
+ 
+@@ -130,7 +107,7 @@
+  * @scope    public instance method
+  * @return   A boolean value. True if we are in Edit Mode.
+  */
+-View.prototype.isInEditMode = function () {
++View.prototype.isInEditMode = function() {
+   return this._superview.isInEditMode();
+ };
+ 
+@@ -141,7 +118,7 @@
+  * @scope    public instance method
+  * @return   A boolean value. True if the view has ever been displayed.
+  */
+-View.prototype.hasEverBeenDisplayed = function () {
++View.prototype.hasEverBeenDisplayed = function() {
+   return this._myHasEverBeenDisplayedFlag;
+ };
+ 
+@@ -152,7 +129,7 @@
+  *
+  * @scope    public instance method
+  */
+-View.prototype.refresh = function () {
++View.prototype.refresh = function() {
+   if (!this.hasEverBeenDisplayed()) {
+     // generate HTML elements for the view
+     this._myHasEverBeenDisplayedFlag = true;
+@@ -167,12 +144,12 @@
+  * off-screen.
+  *
+  * @scope    public instance method
+- * @param    inBoolean    True if the view should be visible on screen. False if the view should be hidden off screen.
++ * @param    visibleFlag    True if the view should be visible on screen. False if the view should be hidden off screen.
+  */
+-View.prototype.includeOnScreen = function (inBoolean) {
+-  Util.assert(Util.isBoolean(inBoolean));
++View.prototype.includeOnScreen = function(visibleFlag) {
++  Util.assert(Util.isBoolean(visibleFlag));
+ 
+-  if (inBoolean) {
++  if (visibleFlag) {
+     this.refresh();
+     this._htmlElement.style.display = &quot;block&quot;;
+   } else {
+@@ -204,26 +181,26 @@
+  * element to the given element.
+  *
+  * @scope    public class method
+- * @param    inElement    The existing element that we should append the new element to. 
+- * @param    inTagName    The HTML tag for the element (&quot;div&quot;, &quot;p&quot;, &quot;span&quot;, etc.). 
+- * @param    inClassName    Optional. The HTML/CSS class to assign to the new element. 
+- * @param    inId    Optional. The HTML id to assign to the new element. 
++ * @param    parentElement    The existing element that we should append the new element to. 
++ * @param    tagName    The HTML tag for the element (&quot;div&quot;, &quot;p&quot;, &quot;span&quot;, etc.). 
++ * @param    cssClassName    Optional. The HTML/CSS class to assign to the new element. 
++ * @param    elementId    Optional. The HTML id to assign to the new element. 
+  * @return   The newly created HTML element.
+  */
+-View.createAndAppendElement = function (inElement, inTagName, inClassName, inId) {
+-  Util.assert(inElement instanceof HTMLElement);
+-  Util.assert(Util.isString(inTagName));
+-  Util.assert(!inClassName || Util.isString(inClassName));
+-  Util.assert(!inId || Util.isString(inId));
++View.createAndAppendElement = function(parentElement, tagName, cssClassName, elementId) {
++  Util.assert(parentElement instanceof HTMLElement);
++  Util.assert(Util.isString(tagName));
++  Util.assert(!cssClassName || Util.isString(cssClassName));
++  Util.assert(!elementId || Util.isString(elementId));
+ 
+-  var newElement = window.document.createElement(inTagName);
+-  if (inClassName) {
+-    newElement.className = inClassName;
++  var newElement = window.document.createElement(tagName);
++  if (cssClassName) {
++    newElement.className = cssClassName;
+   }
+-  if (inId) {
+-    newElement.id = inId;
++  if (elementId) {
++    newElement.id = elementId;
+   }
+-  inElement.appendChild(newElement);
++  parentElement.appendChild(newElement);
+   return newElement;
+ };
+ 
+@@ -234,16 +211,16 @@
+  * text node to the given element.
+  *
+  * @scope    public class method
+- * @param    inElement    The existing element that we should append the new element to. 
+- * @param    inText    The text string to put in the text node.
++ * @param    parentElement    The existing element that we should append the new element to. 
++ * @param    textString    The text string to put in the text node.
+  * @return   The newly created text node.
+  */
+-View.createAndAppendTextNode = function (inElement, inText) {
+-  Util.assert(inElement instanceof HTMLElement);
+-  Util.assert(Util.isString(inText));
++View.createAndAppendTextNode = function(parentElement, textString) {
++  Util.assert(parentElement instanceof HTMLElement);
++  Util.assert(Util.isString(textString));
+ 
+-  var newTextNode = window.document.createTextNode(inText);
+-  inElement.appendChild(newTextNode);
++  var newTextNode = window.document.createTextNode(textString);
++  parentElement.appendChild(newTextNode);
+   return newTextNode;
+ };
+ 
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-02 20:59:35 UTC (rev 209)
++++ trunk/source/view/EntryView.js	2005-07-02 22:55:58 UTC (rev 210)
+@@ -55,39 +55,39 @@
+  *
+  * @scope    public instance constructor
+  * @extends  View
+- * @param    theSuperview    The view that this view is nested in. 
+- * @param    theItem         The Item to be displayed and edited by this view. 
+- * @param    theAttribute    The attribute of the item to be displayed.
+- * @param    theElement      The HTMLElement to display the HTML in. 
+- * @param    theClassType    A string that gives a class name to assign to the HTML element. 
++ * @param    superview    The view that this view is nested in. 
++ * @param    htmlElement      The HTMLElement to display the HTML in. 
++ * @param    item         The Item to be displayed and edited by this view. 
++ * @param    attribute    The attribute of the item to be displayed.
++ * @param    cssClassName    A string that gives a class name to assign to the HTML element. 
++ * @param    entry    The entry that this EntryView displays. 
+  * @param    isMultiLine     a boolean indicating if text view is single line or multi-line
+  */
+ EntryView.prototype = new View();  // makes EntryView be a subclass of View
+-function EntryView(theSuperview, inElement, inItem, inAttribute, inEntry, inClassName, isMultiLine) {
+-  Util.assert((!inEntry) || inEntry instanceof Entry);
+-  Util.assert(inItem instanceof Item);
+-  Util.assert(inAttribute instanceof Item);
+-  //Util.assert(theAttribute instanceof Attribute); PENDING need to check that attribute is an attribute
++function EntryView(superview, htmlElement, item, attribute, entry, cssClassName, isMultiLine) {
++  Util.assert((!entry) || entry instanceof Entry);
++  Util.assert(item instanceof Item);
++  Util.assert(attribute instanceof Item); // PENDING need to check that attribute is an attribute
+   
+-  this.setSuperview(theSuperview);
+-  this.setHTMLElement(inElement);
+-  inElement.style.width = &quot;100%&quot;;
+-  inElement.style.height = &quot;100%&quot;; // make this element expand to fill parent element where possible
+-  this._item = inItem;
+-  this._attribute = inAttribute;
+-  this._entry = inEntry;
++  View.call(this, superview, htmlElement);
++
++  htmlElement.style.width = &quot;100%&quot;;
++  htmlElement.style.height = &quot;100%&quot;; // make this element expand to fill parent element where possible
++  this._item = item;
++  this._attribute = attribute;
++  this._entry = entry;
+   this._editField = null;
+-  this._className = inClassName;
++  this._className = cssClassName;
+   this._isMultiLine = isMultiLine;
+   this._isEditing = false;
+   this._proxyOnKeyFunction = null;
+   this._alwaysUseEditField = null;
+   
+-  this._isProvisional = inItem.isProvisional();
++  this._isProvisional = item.isProvisional();
+   if (this._isProvisional) {
+-    this._provisionalText = inAttribute.getDisplayString();
++    this._provisionalText = attribute.getDisplayString();
+   }
+-  else if (inEntry &amp;&amp; inEntry.getValue(this._item) instanceof Item) {
++  else if (entry &amp;&amp; entry.getValue(this._item) instanceof Item) {
+     this._valueIsItem = true;
+   }
+ }
+@@ -124,8 +124,8 @@
+ /**
+  *
+  */
+-EntryView.prototype.setAutoWiden = function(inAutoWiden) {
+-  this._autoWiden = inAutoWiden;
++EntryView.prototype.setAutoWiden = function(autoWiden) {
++  this._autoWiden = autoWiden;
+ };
+ 
+ /**
+@@ -143,9 +143,9 @@
+ /**
+  *
+  */
+-EntryView.prototype.setSuggestions = function(suggestionList) {
+-  if (suggestionList) {Util.assert(Util.isArray(suggestionList));}
+-  this._suggestions = suggestionList;
++EntryView.prototype.setSuggestions = function(listOfSuggestions) {
++  if (listOfSuggestions) {Util.assert(Util.isArray(listOfSuggestions));}
++  this._suggestions = listOfSuggestions;
+ };
+ 
+ 
+@@ -182,7 +182,7 @@
+  * @scope    private instance method
+  */
+ EntryView.prototype._buildView = function() {
+-  var htmlElement = this.getHTMLElement();
++  var htmlElement = this.getHtmlElement();
+   View.removeChildrenOfElement(htmlElement);
+   
+   var textString = this._getText();
+@@ -240,11 +240,11 @@
+       editField.size = 5; //editField.defaultValue.length+1;
+     }
+     
+-    //editField.style.width = this.getHTMLElement().offsetWidth + &quot;px&quot;;  
+-    if (this._isMultiLine) {editField.style.height = (this.getHTMLElement().offsetHeight) + &quot;px&quot;;}  
++    //editField.style.width = this.getHtmlElement().offsetWidth + &quot;px&quot;;  
++    if (this._isMultiLine) {editField.style.height = (this.getHtmlElement().offsetHeight) + &quot;px&quot;;}  
+     
+     this._setupSuggestionBox();
+-    this.getHTMLElement().replaceChild(editField, this._textNode);
++    this.getHtmlElement().replaceChild(editField, this._textNode);
+     if (!dontSelect) {editField.select();}
+     this._isEditing = true;
+   }
+@@ -266,7 +266,7 @@
+       newValue = this._editField.value;
+     }
+     var stillProvisional = this._isProvisional &amp;&amp; !newValue;
+-    var htmlElement = this.getHTMLElement();
++    var htmlElement = this.getHtmlElement();
+ 
+ 
+     if (this._suggestionBox) {
+@@ -286,7 +286,7 @@
+       }
+       this._textNode.data = newValueDisplayString;
+       this._suggestionBox = null;
+-      this.getHTMLElement().replaceChild(this._textNode, this._editField);
++      this.getHtmlElement().replaceChild(this._textNode, this._editField);
+     }
+ 
+     // we need this _writeValue() to be after all display related code, because this may trigger an observer call
+@@ -384,7 +384,7 @@
+       }
+       if (value instanceof Item) {
+         this._valueIsItem = true;
+-        var htmlElement = this.getHTMLElement();
++        var htmlElement = this.getHtmlElement();
+         if (this._isLozenge() &amp;&amp; !htmlElement.className.match(EntryView.CSS_CLASS_VALUE_IS_ITEM)) {
+           htmlElement.className += &quot; &quot; + EntryView.CSS_CLASS_VALUE_IS_ITEM;
+         }
+@@ -433,11 +433,11 @@
+  * Sets a function to be used when onclick is called to the EntryView
+  *
+  * @scope    public instance method
+- * @param    inEventObject    An event object. 
++ * @param    onClickFunction    A function to call. 
+  */
+-EntryView.prototype.setClickFunction = function(inClickFunction) {
+-  Util.assert(inClickFunction instanceof Function);
+-  this._clickFunction = inClickFunction;
++EntryView.prototype.setClickFunction = function(onClickFunction) {
++  Util.assert(onClickFunction instanceof Function);
++  this._clickFunction = onClickFunction;
+ };
+ 
+ 
+@@ -447,10 +447,10 @@
+  * Handles the mouse click event on text view. Called by listener.
+  *
+  * @scope    public instance method
+- * @param    inEventObject    An event object. 
++ * @param    eventObject    An event object. 
+  */
+-EntryView.prototype.onClick = function(inEventObject) {
+-  if (this._clickFunction &amp;&amp; this._clickFunction(inEventObject, this)) {
++EntryView.prototype.onClick = function(eventObject) {
++  if (this._clickFunction &amp;&amp; this._clickFunction(eventObject, this)) {
+     return true;
+   }
+   if (this.isInEditMode()) {
+@@ -462,9 +462,9 @@
+ /**
+  *
+  */
+-EntryView.prototype.onFocus = function(inEventObject) {
++EntryView.prototype.onFocus = function(eventObject) {
+   if (this._suggestionBox) {
+-    this._suggestionBox._focusOnInputField(inEventObject);
++    this._suggestionBox._focusOnInputField(eventObject);
+   }
+ };
+ 
+@@ -478,7 +478,7 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-EntryView.prototype.onBlur = function(inEventObject) {
++EntryView.prototype.onBlur = function(eventObject) {
+   this.stopEditing();
+ };
+ 
+@@ -497,9 +497,9 @@
+ /**
+  *
+  */
+-EntryView.prototype.onKeyUp = function(inEventObject) {
++EntryView.prototype.onKeyUp = function(eventObject) {
+   if (this._suggestionBox) {
+-    this._suggestionBox._keyUpOnInputField(inEventObject);
++    this._suggestionBox._keyUpOnInputField(eventObject);
+   }
+ };
+ 
+@@ -510,15 +510,15 @@
+  * @scope    public instance method
+  * @param    inEventObject    An event object. 
+  */
+-EntryView.prototype.onKeyPress = function(inEventObject) {
+-  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_ESCAPE) {
++EntryView.prototype.onKeyPress = function(eventObject) {
++  if (eventObject.keyCode == Util.ASCII_VALUE_FOR_ESCAPE) {
+     this._restoreText();
+     return true;
+   }
+-  if (this._suggestionBox &amp;&amp; this._suggestionBox._keyPressOnInputField(inEventObject)) {
++  if (this._suggestionBox &amp;&amp; this._suggestionBox._keyPressOnInputField(eventObject)) {
+     return true;
+   }
+-  if (this._keyPressFunction &amp;&amp; this._keyPressFunction(inEventObject, this)) {
++  if (this._keyPressFunction &amp;&amp; this._keyPressFunction(eventObject, this)) {
+     return true;
+   }
+   var editField = this._editField;
+@@ -571,7 +571,7 @@
+ EntryView.prototype.noLongerProvisional = function() {
+   if (this._isProvisional) {
+     this._isProvisional = false;
+-    this.getHTMLElement().style.color = this._oldColor;
++    this.getHtmlElement().style.color = this._oldColor;
+     // need to set line below because _writeValue() hasn't returned an entry yet
+     this._entry = this._item.getSingleEntryFromAttribute(this._attribute); 
+     this._buildView();
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000195.html">[openrecord-svn] r209 - in trunk: documentation source
+</A></li>
+	<LI>Next message: <A HREF="000197.html">[openrecord-svn] r211 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#196">[ date ]</a>
+              <a href="thread.html#196">[ thread ]</a>
+              <a href="subject.html#196">[ subject ]</a>
+              <a href="author.html#196">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r421 - in trunk: documentation source source/plugins
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r421%20-%20in%20trunk%3A%20documentation%20source%20source/plugins&In-Reply-To=%3C200601030055.k030thpl008943%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000401.html">
+   <LINK REL="Next"  HREF="000403.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r421 - in trunk: documentation source source/plugins</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r421%20-%20in%20trunk%3A%20documentation%20source%20source/plugins&In-Reply-To=%3C200601030055.k030thpl008943%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r421 - in trunk: documentation source source/plugins">skinner at berlios.de
+       </A><BR>
+    <I>Tue Jan  3 01:55:43 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000401.html">[openrecord-svn] r420 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000403.html">[openrecord-svn] r422 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#402">[ date ]</a>
+              <a href="thread.html#402">[ thread ]</a>
+              <a href="subject.html#402">[ subject ]</a>
+              <a href="author.html#402">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-01-03 01:55:34 +0100 (Tue, 03 Jan 2006)
+New Revision: 421
+
+Added:
+   trunk/source/plugins/ButtonView.js
+Modified:
+   trunk/documentation/to_do_list.txt
+   trunk/source/OpenRecordLoaderStepThree.js
+Log:
+Created the source/plugins/ButtonView.js plugin, which is our first simple example of using dojo widgets within OpenRecord.
+
+Modified: trunk/documentation/to_do_list.txt
+===================================================================
+--- trunk/documentation/to_do_list.txt	2006-01-03 00:31:34 UTC (rev 420)
++++ trunk/documentation/to_do_list.txt	2006-01-03 00:55:34 UTC (rev 421)
+@@ -56,7 +56,8 @@
+        |          |         | 110. Rationalize the View API and document public API
+        |          |         | 111. Refactor our observer notification API (and implementation)
+ (soon) |          |         | 112. Try using Ant and the Dojo build system to build OpenRecord into a single-file 
+-       |          |         | 113. (new task...)
++       |          |         | 113. BUG: in plugins, dojo.require() statements don't do anything 
++       |          |         | 114. (new task...)
+ -------+----------+---------+----------------------------------------------
+ 
+ 
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-01-03 00:31:34 UTC (rev 420)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-01-03 00:55:34 UTC (rev 421)
+@@ -33,6 +33,21 @@
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.view.RootView&quot;);
+ 
++// FIXME:
++// These dojo.require() statements are needed in order to 
++// get plugins/ButtonView.js to work.  Someday we should 
++// delete these next six lines, and instead just have the
++// identical lines in ButtonView.js.  But, for now we can't
++// do that because dojo.require() statements don't work
++// within plugins (see bug #113 in the to_do_list.txt file).
++dojo.require(&quot;dojo.widget.*&quot;);
++dojo.require(&quot;dojo.widget.Button&quot;);
++dojo.require(&quot;dojo.widget.html.Button&quot;);
++dojo.require(&quot;dojo.widget.Button2&quot;);
++dojo.require(&quot;dojo.widget.html.Button2&quot;);
++dojo.require(&quot;dojo.widget.Menu2&quot;);
++
++
+ if (djConfig.debugAtAllCosts) {
+   dojo.hostenv.writeIncludes(); // needed when using &quot;debugAtAllCosts: true&quot;
+ }
+
+Added: trunk/source/plugins/ButtonView.js
+===================================================================
+--- trunk/source/plugins/ButtonView.js	2006-01-03 00:31:34 UTC (rev 420)
++++ trunk/source/plugins/ButtonView.js	2006-01-03 00:55:34 UTC (rev 421)
+@@ -0,0 +1,156 @@
++/*****************************************************************************
++ ButtonView.js
++
++******************************************************************************
++ Created in 2006 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">skinner at dojotoolkit.org</A>&gt;
++
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++*****************************************************************************/
++
++// Dojo Package System &quot;provide&quot; and &quot;require&quot; statements
++dojo.provide(&quot;orp.plugins.ButtonView&quot;);
++dojo.require(&quot;orp.view.PluginView&quot;);
++
++dojo.require(&quot;dojo.widget.*&quot;);
++dojo.require(&quot;dojo.widget.Button&quot;);
++dojo.require(&quot;dojo.widget.html.Button&quot;);
++dojo.require(&quot;dojo.widget.Button2&quot;);
++dojo.require(&quot;dojo.widget.html.Button2&quot;);
++dojo.require(&quot;dojo.widget.Menu2&quot;);
++
++/**
++ * The ButtonView view displays a set of content items. 
++ *
++ * @scope    public instance constructor
++ * @extends  PluginView
++ * @param    superview    The View that serves as the superview for this view. 
++ * @param    htmlElement    The HTMLElement to display this view in. 
++ * @param    querySpec    The Query Spec item that provides the items for this PluginView to display
++ * @param    layoutItem    An item that can be used to store layout data (like table column order). 
++ */
++orp.plugins.ButtonView = function(superview, htmlElement, querySpec, layoutItem) {
++  orp.view.PluginView.call(this, superview, htmlElement, querySpec, layoutItem, &quot;ButtonView&quot;);
++};
++
++dojo.inherits(orp.plugins.ButtonView, orp.view.PluginView);  // makes ButtonView be a subclass of PluginView
++
++
++// -------------------------------------------------------------------
++// Register this plugin in the SectionView registry
++// -------------------------------------------------------------------
++orp.plugins.ButtonView.UUID = &quot;b8344e10-7bdf-11da-a86a-0011111f4abe&quot;;
++orp.view.SectionView.registerPlugin(orp.plugins.ButtonView);
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item that represents this class of plugin.
++ *
++ * @scope    public class method
++ * @return   The UUID of the item that represents this class of plugin.
++ */
++orp.plugins.ButtonView.getPluginItemUuid = function() {
++  return orp.plugins.ButtonView.UUID;
++};
++
++/**
++ * Returns a list of anonymous objects representing Entries that describe the plugin.
++ *
++ * @scope    public class method
++ * @return   A list of anonymous objects representing Entries that describe the plugin.
++ */
++orp.plugins.ButtonView.getEntriesForItemRepresentingPluginClass = function(pluginItem, world) {
++  return [
++    { uuid: &quot;b8344e11-7bdf-11da-a86a-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledName(),
++      value: &quot;Dojo Button&quot; },
++    { uuid: &quot;b8344e12-7bdf-11da-a86a-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledShortName(),
++      value: &quot;ButtonView&quot; },
++    { uuid: &quot;b8344e13-7bdf-11da-a86a-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledClassName(),
++      value: &quot;ButtonView&quot; },
++    { uuid: &quot;b8344e14-7bdf-11da-a86a-0011111f4abe&quot;,
++      item: pluginItem,
++      attribute: world.getAttributeCalledCategory(),
++      inverseAttribute: world.getAttributeCalledItemsInCategory(),
++      value: world.getItemFromUuid(orp.view.SectionView.UUID.CATEGORY_PLUGIN_VIEW) }
++  ];
++};
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the class of this instance.
++ *
++ * @scope    public instance method
++ * @return   A JavaScript class. 
++ */
++orp.plugins.ButtonView.prototype.getClass = function() {
++  return orp.plugins.ButtonView;
++};
++
++/**
++ * This method is called whenever the ButtonView plugin is used to
++ * display the results of a query.
++ *
++ * @scope    public instance method
++ */
++orp.plugins.ButtonView.prototype.refresh = function() {
++  var listOfContentItems = this.fetchItems();
++  var outlineDiv = this.getHtmlElement();
++
++  orp.view.View.removeChildrenOfElement(outlineDiv);
++  var divElement = orp.view.View.appendNewElement(outlineDiv, &quot;div&quot;);
++  
++  // This doesn't work yet:
++  // var popupMenu = dojo.widget.fromScript(&quot;PopupMenu2&quot;, {toggle: &quot;wipe&quot;}, divElement, &quot;last&quot;);
++  // var menuItemA = dojo.widget.fromScript(&quot;MenuItem2&quot;, {caption: &quot;Save&quot;, accelKey: &quot;Ctrl+S&quot;}, divElement, &quot;last&quot;);
++  // var menuItemB = dojo.widget.fromScript(&quot;MenuItem2&quot;, {caption: &quot;Save As&quot;, accelKey: &quot;Ctrl+A&quot;}, divElement, &quot;last&quot;);
++  
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
++    var button = dojo.widget.fromScript(&quot;Button&quot;, {label: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(button, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++  }
++  orp.view.View.appendNewElement(divElement, &quot;p&quot;);
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
++    var button2 = dojo.widget.fromScript(&quot;Button2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(button2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++  }
++  orp.view.View.appendNewElement(divElement, &quot;p&quot;);
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
++    var dropdown2 = dojo.widget.fromScript(&quot;DropDownButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(dropdown2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++  }
++  orp.view.View.appendNewElement(divElement, &quot;p&quot;);
++  for (var i in listOfContentItems) {
++    var contentItem = listOfContentItems[i];
++    var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
++    var combo2 = dojo.widget.fromScript(&quot;ComboButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(combo2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++  }
++
++};
++
++orp.plugins.ButtonView.prototype.buttonClick = function(clickEvent) {
++  var htmlButtonElement = clickEvent.target;
++  var textNode = htmlButtonElement.firstChild;
++  alert(textNode.nodeValue);
++};
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000401.html">[openrecord-svn] r420 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000403.html">[openrecord-svn] r422 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#402">[ date ]</a>
+              <a href="thread.html#402">[ thread ]</a>
+              <a href="subject.html#402">[ subject ]</a>
+              <a href="author.html#402">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

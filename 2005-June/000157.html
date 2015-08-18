@@ -1,0 +1,871 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r171 - in trunk/source: . model repositories/demo_page
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r171%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506222232.j5MMWFfG011205%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000156.html">
+   <LINK REL="Next"  HREF="000158.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r171 - in trunk/source: . model repositories/demo_page</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r171%20-%20in%20trunk/source%3A%20.%20model%20repositories/demo_page&In-Reply-To=%3C200506222232.j5MMWFfG011205%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r171 - in trunk/source: . model repositories/demo_page">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 23 00:32:15 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000156.html">[openrecord-svn] r170 - in trunk: documentation source
+</A></li>
+        <LI>Next message: <A HREF="000158.html">[openrecord-svn] r172 - in trunk: documentation source source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-23 00:32:12 +0200 (Thu, 23 Jun 2005)
+New Revision: 171
+
+Removed:
+   trunk/source/model/replace_user_file.php
+   trunk/source/repositories/demo_page/2005_may_user_list.json
+Modified:
+   trunk/source/demo_page.js
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+Changed the JSON file format so that we record user and password information in the same file as the rest of the records, and deleted the separate user file. This fixes the bug that we had where the user file would get wiped out if we called the PHP server code with no POST data.
+
+Modified: trunk/source/demo_page.js
+===================================================================
+--- trunk/source/demo_page.js	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/demo_page.js	2005-06-22 22:32:12 UTC (rev 171)
+@@ -50,9 +50,9 @@
+   var repositoryContentString = Util.getStringContentsOfFileAtURL(repositoryUrl);
+   repositoryContentString += &quot; ] }&quot;;
+   
+-  var userListFileName = &quot;2005_may_user_list.json&quot;;
+-  var userListUrl = pathToDemoRepository + userListFileName;
+-  var userListContentString = Util.getStringContentsOfFileAtURL(userListUrl);
++  // var userListFileName = &quot;2005_may_user_list.json&quot;;
++  // var userListUrl = pathToDemoRepository + userListFileName;
++  // var userListContentString = Util.getStringContentsOfFileAtURL(userListUrl);
+   
+   // Create a World and a DeltaVirtualServer, and have the 
+   // DeltaVirtualServer rehydrate all the dehydrated items 
+@@ -60,7 +60,7 @@
+   var axiomaticItemsFileName = &quot;2005_june_axiomatic_items.json&quot;;
+   var axiomaticItemsUrl = &quot;model/&quot; + axiomaticItemsFileName;
+   
+-  var deltaVirtualServer = new DeltaVirtualServer(axiomaticItemsUrl, repositoryContentString, userListContentString);
++  var deltaVirtualServer = new DeltaVirtualServer(axiomaticItemsUrl, repositoryContentString);
+   var world = new World(deltaVirtualServer);
+   window.rootView = new RootView(world);
+   
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-06-22 22:32:12 UTC (rev 171)
+@@ -917,6 +917,11 @@
+              &quot;uuid&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;User&quot;: {                                               // Brian Douglas Skinner
++             &quot;user&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot;,
++         &quot;password&quot;: &quot;92eb5ffee6ae2fec3ad71c777531578f&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Brian Douglas Skinner
+              &quot;uuid&quot;: &quot;2c4fa781-dde4-11d9-9c71-8022ab6bc8ae&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -932,6 +937,11 @@
+              &quot;uuid&quot;: &quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;User&quot;: {                                               // Chih-Chao Lam
++             &quot;user&quot;: &quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot;,
++         &quot;password&quot;: null }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Chih-Chao Lam
+              &quot;uuid&quot;: &quot;90e02171-dde4-11d9-9c71-e24829d2f59b&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -947,6 +957,11 @@
+              &quot;uuid&quot;: &quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;User&quot;: {                                               // Mignon Belongie
++             &quot;user&quot;: &quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot;,
++         &quot;password&quot;: null }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Mignon Belongie
+              &quot;uuid&quot;: &quot;97d040f1-dde4-11d9-9c71-c103016080e1&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -962,6 +977,11 @@
+              &quot;uuid&quot;: &quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;User&quot;: {                                               // Mimi Yin
++             &quot;user&quot;: &quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
++         &quot;password&quot;: null }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Mimi Yin
+              &quot;uuid&quot;: &quot;9c3596e1-dde4-11d9-9c71-b6ac85cc6d5f&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+@@ -977,6 +997,11 @@
+              &quot;uuid&quot;: &quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;User&quot;: {                                               // Marty Betz
++             &quot;user&quot;: &quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot;,
++         &quot;password&quot;: null }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Marty Betz
+              &quot;uuid&quot;: &quot;a00bf341-dde4-11d9-9c71-dae11c269bc7&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-22 22:32:12 UTC (rev 171)
+@@ -46,13 +46,11 @@
+  *
+  * @scope    public instance constructor
+  * @param    inJsonRepositoryString    A JSON string literal representing the world of items. 
+- * @param    inJsonUserList    A JSON string literal listing user UUIDs and passwords. 
+  */
+ DeltaVirtualServer.prototype = new StubVirtualServer();  // makes DeltaVirtualServer be a subclass of StubVirtualServer
+-function DeltaVirtualServer(inJsonAxiomsFileURL, inJsonRepositoryString, inJsonUserList) {
++function DeltaVirtualServer(inJsonAxiomsFileURL, inJsonRepositoryString) {
+   this._myDehydratedAxiomFileURL = inJsonAxiomsFileURL;
+   this._myDehydratedWorld = inJsonRepositoryString;
+-  this._myDehydratedUserList = inJsonUserList;
+   this._myHasEverFailedToSaveFlag = false;
+ }
+ 
+@@ -68,7 +66,7 @@
+   this._initialize(inWorld);
+   this._buildTypeHashTable();
+   this._loadAxiomaticItemsFromFileAtURL(this._myDehydratedAxiomFileURL);
+-  this._loadWorldFromJsonStrings(this._myDehydratedWorld, this._myDehydratedUserList);
++  this._loadWorldFromJsonString(this._myDehydratedWorld);
+ };
+ 
+ // -------------------------------------------------------------------
+@@ -83,9 +81,8 @@
+  * 
+  * @scope    private instance method
+  * @param    inJsonRepositoryString    A JSON string literal representing the world of items. 
+- * @param    inJsonUserList    A JSON string literal listing user UUIDs and passwords. 
+  */
+-DeltaVirtualServer.prototype._loadWorldFromJsonStrings = function (inJsonRepositoryString, inJsonUserList) {
++DeltaVirtualServer.prototype._loadWorldFromJsonString = function (inJsonRepositoryString) {
+ 
+   // load the list of records
+   Util.assert(Util.isString(inJsonRepositoryString));
+@@ -97,42 +94,9 @@
+   var listOfRecords = dehydratedRecords[StubVirtualServer.JSON_MEMBER_RECORDS];
+   Util.assert(Util.isArray(listOfRecords));
+   
+-  // load the list of users
+-  Util.assert(Util.isString(inJsonUserList));
+-  var dehydratedUserList = null;
+-  eval(&quot;dehydratedUserList = &quot; + inJsonUserList + &quot;;&quot;);
+-  Util.assert(Util.isObject(dehydratedUserList));
+-  var userListFormat = dehydratedUserList[StubVirtualServer.JSON_MEMBER_FORMAT];
+-  Util.assert(userListFormat == StubVirtualServer.JSON_FORMAT_2005_MAY_USERS);
+-  var listOfUsers = dehydratedUserList[StubVirtualServer.JSON_MEMBER_USERS];
+-  Util.assert(Util.isArray(listOfUsers));
+-
+-  this.__loadWorldFromListOfRecordsAndUsers(listOfRecords, listOfUsers);
+-};
++  var listOfUsers = null;
+   
+-
+-/**
+- * Loads a world of items from a dehydrated list of entries, where those
+- * entries may represent items, entries, votes, or ordinal settings.
+- *
+- * @scope    private instance method
+- * @param    inListOfRecords    A list of dehydrated records. 
+- * @param    inListOfUsers    A list of dehydrated users. 
+- */
+-DeltaVirtualServer.prototype.__loadWorldFromListOfRecordsAndUsers = function (inListOfRecords, inListOfUsers) {
+-  this._rehydrateRecords(inListOfRecords);
+-  
+-  for (var key in inListOfUsers) {
+-    var dehydratedUserData = inListOfUsers[key];
+-    var userUuid = dehydratedUserData[StubVirtualServer.JSON_MEMBER_UUID];
+-    var userPassword = dehydratedUserData[StubVirtualServer.JSON_MEMBER_PASSWORD];
+-    
+-    var user = this.getItemFromUuid(userUuid);
+-    if (user) {
+-      this.__myListOfUsers.push(user);
+-      this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()] = userPassword;
+-    }
+-  }
++  this._rehydrateRecords(listOfRecords);
+ };
+   
+ 
+@@ -204,6 +168,7 @@
+   var firstContentRecord = true;
+   var itemDisplayNameSubstring;
+   var entryDisplayNameSubstring;
++  var listOfUsers = null;
+ 
+   for (key in inListOfRecords) {
+     var record = inListOfRecords[key];
+@@ -213,13 +178,36 @@
+       listOfStrings.push(',\n');
+     }
+     listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
++
+     if (record instanceof Item) {
+       var item = record;
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ' + '{');
+       itemDisplayNameSubstring = this.truncateString(item.getDisplayName());
+       listOfStrings.push('                                               // ' + itemDisplayNameSubstring + '\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + item._getUuid() + '&quot;');
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
++     
++      if (!listOfUsers) {
++        listOfUsers = this.getUsers();
++      }
++      if (Util.isObjectInSet(item, listOfUsers)) {
++        var user = item;
++        var password = this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
++        var passwordString = &quot;null&quot;;
++        if (password) {
++          passwordString = '&quot;' + password + '&quot;';
++        }
++        listOfStrings.push(',\n');
++        listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
++        listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_USER_CLASS + '&quot;: ' + '{');
++        listOfStrings.push('                                               // ' + itemDisplayNameSubstring + '\n');
++        listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_USER + '&quot;: &quot;' + user._getUuid() + '&quot;,\n');
++        listOfStrings.push(indent + '     &quot;' + StubVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }\n');
++        listOfStrings.push(indent + '}');
++      }
+     }
++
+     if (record instanceof Vote) {
+       var vote = record;
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{');
+@@ -229,14 +217,20 @@
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + vote._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getContentRecord()._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '   &quot;' + StubVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
+     }
++
+     if (record instanceof Ordinal) {
+       var ordinal = record;
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + ordinal._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER + '&quot;: &quot;' + ordinal.getOrdinalNumber() + '&quot;');
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
+     }
++
+     if (record instanceof Entry) {
+       var entry = record;
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ENTRY_CLASS + '&quot;: ' + '{');
+@@ -291,12 +285,13 @@
+         }
+         listOfStrings.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString + '');
+       }
++      listOfStrings.push('  }\n');
++      listOfStrings.push(indent + '}');
+     }
+-    listOfStrings.push('  }');
++    
+     // var userDisplayName = record.getUserstamp().getDisplayName();
+     // var userDisplayNameSubstring = this.truncateString(userDisplayName);
+     // listOfStrings.push('  // by (' + userDisplayNameSubstring + ')\n');
+-    listOfStrings.push(indent + '}');
+   }
+   
+   var finalString = listOfStrings.join(&quot;&quot;);
+@@ -305,84 +300,6 @@
+ 
+ 
+ /**
+- * Returns a string containing a JavaScript &quot;object literal&quot; with a list of
+- * all the user UUIDs and passwords.
+- *
+- * @scope    private instance method
+- * @param    inChromeFlag    True if the return string should contain &quot;chrome&quot;.
+- * @return   A JSON string literal with a list of user UUIDs and passwords. 
+- */
+-DeltaVirtualServer.prototype.__getJsonStringRepresentingUserList = function (inChromeFlag) {
+-  var listOfStrings = [];
+-  var key;
+-
+-  if (inChromeFlag) {
+-    listOfStrings.push('// User list, in JSON format' + '\n');
+-    listOfStrings.push('{ ');
+-    listOfStrings.push('&quot;' + StubVirtualServer.JSON_MEMBER_FORMAT + '&quot;: &quot;' + StubVirtualServer.JSON_FORMAT_2005_MAY_USERS + '&quot;, ' + '\n');    
+-  }
+-  
+-  listOfStrings.push('  &quot;' + StubVirtualServer.JSON_MEMBER_USERS + '&quot;: ' + '[\n');
+-  var firstContentRecord = true;
+-  for (key in this.__myListOfUsers) {
+-    var user = this.__myListOfUsers[key];
+-    if (firstContentRecord) {
+-      firstContentRecord = false;
+-    } else {
+-      listOfStrings.push(',\n');
+-    }
+-    var password = this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
+-    var passwordString = &quot;null&quot;;
+-    if (password) {
+-      passwordString = '&quot;' + password + '&quot;';
+-    }
+-    listOfStrings.push('    { &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + user._getUuid() + '&quot;, ');
+-    listOfStrings.push('&quot;' + StubVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }');
+-  }
+-  listOfStrings.push(&quot; ]\n&quot;);
+-  
+-  if (inChromeFlag) {
+-    listOfStrings.push('}\n');
+-  }
+-  
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  return finalString;
+-};
+-
+-
+-/**
+- * Returns a huge string, containing a JavaScript &quot;object literal&quot;
+- * representation of the entire world.
+- *
+- * @scope    private instance method
+- * @return   A JSON string literal, representing all the items in the world. 
+- */
+-DeltaVirtualServer.prototype.__getJsonStringRepresentingEntireWorld = function () {
+-  var listOfStrings = [];
+-  
+-  listOfStrings.push('// Repository dump, in JSON format' + '\n');
+-  listOfStrings.push('{ ');
+-  listOfStrings.push('&quot;' + StubVirtualServer.JSON_MEMBER_FORMAT + '&quot;: &quot;' + StubVirtualServer.JSON_FORMAT_2005_APRIL + '&quot;, ' + '\n');
+-  listOfStrings.push('  &quot;' + StubVirtualServer.JSON_MEMBER_DATA + '&quot;: ' + '[' + '\n');
+-
+-  var indent = &quot;  &quot;;
+-  var jsonStringForRecords = this._getJsonStringRepresentingRecords(this.__myChronologicalListOfRecords, indent);
+-  listOfStrings.push(jsonStringForRecords);
+-
+-  listOfStrings.push(&quot;  ], \n&quot;);
+-  
+-  // write out the list of users
+-  var withChrome = false;
+-  var jsonStringForUserList = this.__getJsonStringRepresentingUserList(withChrome);
+-  listOfStrings.push(jsonStringForUserList);
+-  
+-  listOfStrings.push(&quot;}\n&quot;);
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  return finalString;
+-};
+-
+-
+-/**
+  * Sends all the changes to the server, so that the server can record the
+  * changes.
+  *
+@@ -416,30 +333,10 @@
+     newRecord = listOfChangesMade[key];
+     this.__myChronologicalListOfRecords.push(newRecord);
+   }
+-  
+-  var saveListOfUsers = false;
+-  var listOfUsers = this.getUsers();
+-  for (key in listOfChangesMade) {
+-    newRecord = listOfChangesMade[key];
+-    if (Util.isObjectInSet(newRecord, listOfUsers)) {
+-      saveListOfUsers = true;
+-      break;
+-    }
+-  }
+- 
++
+   if (saveChanges) {
+-    var url;
+-    var textToAppend;
+-    
+-    // OLD: used for saving a the entire world as one lump
+-    // url = &quot;model/save_lump.php&quot;;
+-    // this.__myXMLHttpRequestObject.open(&quot;POST&quot;, url, true);
+-    // this.__myXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
+-    // this.__myXMLHttpRequestObject.send(this.__getJsonStringRepresentingEntireWorld());
+-    
+-    // NEW: used for saving just the changes
+-    url = &quot;model/append_to_repository_file.php&quot;;
+-    textToAppend = &quot;,\n&quot; + this._getJsonStringRepresentingTransaction(currentTransaction);
++    var url = &quot;model/append_to_repository_file.php&quot;;
++    var textToAppend = &quot;,\n&quot; + this._getJsonStringRepresentingTransaction(currentTransaction);
+     var asynchronous;
+     asynchronous = true;
+     
+@@ -453,26 +350,6 @@
+     this.__myXMLHttpRequestObject.open(&quot;POST&quot;, url, asynchronous);
+     this.__myXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
+     this.__myXMLHttpRequestObject.send(textToAppend);
+-    
+-    // NEW: used for saving just the user list
+-    if (saveListOfUsers) {
+-      url = &quot;model/replace_user_file.php&quot;;
+-      var withChrome = true;
+-      textToAppend = this.__getJsonStringRepresentingUserList(withChrome);
+-      asynchronous = true;
+-      
+-      // PENDING: 
+-      // It might be more efficient to re-use the XMLHttpRequestObject,
+-      // rather than creating a new one for new request.  But re-using 
+-      // them is complicated, because the requests are asynchronous, so
+-      // we need to check to see if the last request is done before we 
+-      // can start a new request.
+-      this._myUserListXMLHttpRequestObject = this.__newXMLHttpRequestObject();
+-      
+-      this._myUserListXMLHttpRequestObject.open(&quot;POST&quot;, url, asynchronous);
+-      this._myUserListXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
+-      this._myUserListXMLHttpRequestObject.send(textToAppend);
+-    }
+   }
+   
+   this._currentTransaction = null;
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/model/ModelTest.js	2005-06-22 22:32:12 UTC (rev 171)
+@@ -636,70 +636,7 @@
+   var receivedEntry = anEmail.addEntryForAttribute(dateReceivedAttribute, new Date(&quot;6/8/05&quot;));
+   var numAttachmentsEntry = anEmail.addEntryForAttribute(noOfAttachments, 4);
+ }
+-/*
+-function testBigLumpVirtualServerStringOutput() {
+-  var fileName = &quot;test_data_2005_april_chronological_lump.json&quot;;
+-  var url = &quot;../../../source/model/&quot; + fileName;
+-  var fileContentString = Util.getStringContentsOfFileAtURL(url);
+-  var bigLumpVirtualServer = new BigLumpVirtualServer(fileContentString);
+-  var world = new World(bigLumpVirtualServer);
+-  var reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
+-  // var beginMismatch = 0;
+-  // for (var i = 0; i &lt; fileContentString.length; ++i) {
+-  //   if (fileContentString.charAt(i) != reconstructedString.charAt(i)) {
+-  //     beginMismatch = i;
+-  //     break;
+-  //   }
+-  // }
+-  // alert(&quot;beginMismatch = &quot; + beginMismatch);
+-  // alert(&quot;testBigLumpVirtualServerStringOutput\n&quot; + 
+-  //  fileContentString.substring(beginMismatch, (beginMismatch + 500)) + &quot;\n&quot; +
+-  //  reconstructedString.substring(beginMismatch, (beginMismatch + 500)));
+-  assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
+-  
+-  var guestUser = world.getItemFromUuid(1502);
+-  var loginSuccess = world.login(guestUser, &quot;abracadabra&quot;);
+-  assertTrue('Can log in as Guest', loginSuccess);
+-  var newItem = world.newProvisionalItem();
+-  reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
+-  assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
+-  // var attributeCalledName = world.getAttributeCalledName();
+-  // newItem.addEntryForAttribute(attributeCalledName, &quot;Jimmy Carter&quot;);
+-  // reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
+-  // assert(&quot;reconstructed string no longer equals original string&quot;, fileContentString != reconstructedString);
+-  
+-}
+-*/
+ 
+-/*
+-function testBigLumpVirtualServer() {
+-  var fileName = &quot;test_data_2005_march_item_centric_list.json&quot;;
+-  var url = &quot;../../../source/model/&quot; + fileName;
+-  var fileContentString = Util.getStringContentsOfFileAtURL(url);
+-  
+-  // Create a World and a BigLumpVirtualServer, and have the 
+-  // BigLumpVirtualServer rehydrate all the dehydrated items 
+-  // contained in the fileContentString.  This tests whether
+-  // the BigLumpVirtualServer bombs out when it tries to read
+-  // the data from a 2005_MARCH_ITEM_CENTRIC_LIST
+-  var bigLumpVirtualServer = new BigLumpVirtualServer(fileContentString);
+-  var world = new World(bigLumpVirtualServer);
+-  
+-  // See if the BigLumpVirtualServer can save items to a
+-  // string containing dehydrated items in the 
+-  // format of a 2005_APRIL_CHRONOLOGICAL_LIST
+-  var dehydratedWorld = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld();
+-  
+-  // See if the BigLumpVirtualServer can rehydrate all the
+-  // dehydrated items from an 2005_APRIL_CHRONOLOGICAL_LIST
+-  // PENDING:
+-  // var secondBigLumpVirtualServer = new BigLumpVirtualServer(dehydratedWorld);
+-  // var secondWorld = new World(secondBigLumpVirtualServer);
+-  
+-  // bigLumpVirtualServer.saveChangesToServer(true);
+-}
+-*/
+-
+ function tearDown() {
+   ModelTestVars = null;
+ }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/model/StubVirtualServer.js	2005-06-22 22:32:12 UTC (rev 171)
+@@ -45,23 +45,23 @@
+ // DeltaVirtualServer public class constants
+ // -------------------------------------------------------------------
+ StubVirtualServer.JSON_MEMBER_FORMAT = &quot;format&quot;;
+-StubVirtualServer.JSON_MEMBER_TIMESTAMP = &quot;timestamp&quot;;
+-StubVirtualServer.JSON_MEMBER_DATA = &quot;data&quot;;
++// StubVirtualServer.JSON_MEMBER_TIMESTAMP = &quot;timestamp&quot;;
++// StubVirtualServer.JSON_MEMBER_DATA = &quot;data&quot;;
+ StubVirtualServer.JSON_MEMBER_RECORDS = &quot;records&quot;;
+-StubVirtualServer.JSON_MEMBER_USERS = &quot;users&quot;;
++// StubVirtualServer.JSON_MEMBER_USERS = &quot;users&quot;;
+ 
+-StubVirtualServer.JSON_FORMAT_2005_MARCH = &quot;2005_MARCH_ITEM_CENTRIC_LIST&quot;;
+-StubVirtualServer.JSON_FORMAT_2005_APRIL = &quot;2005_APRIL_CHRONOLOGICAL_LIST&quot;;
+-StubVirtualServer.JSON_FORMAT_2005_MAY_RECORDS = &quot;2005_MAY_CHRONOLOGICAL_LIST&quot;;
+-StubVirtualServer.JSON_FORMAT_2005_MAY_USERS = &quot;2005_MAY_USER_LIST&quot;;
++// StubVirtualServer.JSON_FORMAT_2005_MARCH = &quot;2005_MARCH_ITEM_CENTRIC_LIST&quot;;
++// StubVirtualServer.JSON_FORMAT_2005_APRIL = &quot;2005_APRIL_CHRONOLOGICAL_LIST&quot;;
++// StubVirtualServer.JSON_FORMAT_2005_MAY_RECORDS = &quot;2005_MAY_CHRONOLOGICAL_LIST&quot;;
++// StubVirtualServer.JSON_FORMAT_2005_MAY_USERS = &quot;2005_MAY_USER_LIST&quot;;
+ StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS = &quot;2005_JUNE_CHRONOLOGICAL_LIST&quot;;
+ 
+ StubVirtualServer.JSON_MEMBER_TYPE = &quot;type&quot;;
+ StubVirtualServer.JSON_MEMBER_VALUE = &quot;value&quot;;
+ 
+ StubVirtualServer.JSON_TYPE_TEXT_VALUE = &quot;TextValue&quot;;
+-StubVirtualServer.JSON_TYPE_UUID = &quot;Uuid&quot;;
+-StubVirtualServer.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
++// StubVirtualServer.JSON_TYPE_UUID = &quot;Uuid&quot;;
++// StubVirtualServer.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
+ StubVirtualServer.JSON_TYPE_RELATED_UUID = &quot;RelatedUuid&quot;;
+ StubVirtualServer.JSON_TYPE_NUMBER_VALUE = &quot;NumberValue&quot;;
+ StubVirtualServer.JSON_TYPE_DATE_VALUE = &quot;DateValue&quot;;
+@@ -70,17 +70,19 @@
+ StubVirtualServer.JSON_TYPE_CONNECTION = &quot;Connection&quot;;
+ 
+ StubVirtualServer.JSON_MEMBER_UUID = &quot;uuid&quot;;
++StubVirtualServer.JSON_MEMBER_USER = &quot;user&quot;;
+ StubVirtualServer.JSON_MEMBER_PASSWORD = &quot;password&quot;;
+ 
+ StubVirtualServer.JSON_MEMBER_ITEM_CLASS = &quot;Item&quot;;
+ StubVirtualServer.JSON_MEMBER_ENTRY_CLASS = &quot;Entry&quot;;
+ StubVirtualServer.JSON_MEMBER_VOTE_CLASS = &quot;Vote&quot;;
+ StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS = &quot;Ordinal&quot;;
++StubVirtualServer.JSON_MEMBER_USER_CLASS = &quot;User&quot;;
+ StubVirtualServer.JSON_MEMBER_TRANSACTION_CLASS = &quot;Transaction&quot;;
+ 
+ StubVirtualServer.JSON_MEMBER_ATTRIBUTE = &quot;attribute&quot;;
+ StubVirtualServer.JSON_MEMBER_PREVIOUS_VALUE = &quot;previousEntry&quot;;
+-StubVirtualServer.JSON_MEMBER_USERSTAMP = &quot;userstamp&quot;;
++// StubVirtualServer.JSON_MEMBER_USERSTAMP = &quot;userstamp&quot;;
+ StubVirtualServer.JSON_MEMBER_RECORD = &quot;record&quot;;
+ StubVirtualServer.JSON_MEMBER_ITEM = &quot;item&quot;;
+ StubVirtualServer.JSON_MEMBER_RETAIN_FLAG = &quot;retainFlag&quot;;
+@@ -560,8 +562,6 @@
+   // implement this method such that it saves changes to the server
+   var listOfChangesMade = this._currentTransaction.getRecords();
+   this._currentTransaction = null;
+-  // var listOfChangesMade = this.__myChronologicalListOfNewlyCreatedRecords;
+-  // this.__myChronologicalListOfNewlyCreatedRecords = [];
+   return listOfChangesMade;
+ };
+   
+@@ -773,7 +773,6 @@
+     item._initialize();
+     this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
+     this._currentTransaction.addRecord(item);
+-    // this.__myChronologicalListOfNewlyCreatedRecords.push(item);
+   }
+   return item;
+ };
+@@ -800,131 +799,6 @@
+   Util.assert(Util.isArray(listOfRecords));
+   
+   this._rehydrateRecords(listOfRecords);
+-  
+-/* PENDING  
+-  var uuid;
+-  var name;
+-  var item;
+-  var entry;
+-  var key;
+-  
+-  this.__myWorld.beginTransaction();
+-  var axiomaticUser = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_USER_AMY);
+-  this.__myListOfUsers.push(axiomaticUser);
+-  this.__myHashTableOfUserAuthenticationInfo[axiomaticUser.getUniqueKeyString()] = null;
+-  this.__myCurrentUser = axiomaticUser;
+-  
+-  // associate display names with the UUIDs of all the attributes
+-  var hashTableOfAttributeNamesKeyedByUuid = {};
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_NAME]          = &quot;Name&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SHORT_NAME]    = &quot;Short Name&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SUMMARY]       = &quot;Summary&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY]          = &quot;Body&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY]      = &quot;Category&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY]         = &quot;Query&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE] = &quot;Matching Value&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE] = &quot;Matching Attribute&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED]       = &quot;Unfiled Entry&quot;;
+-  hashTableOfAttributeNamesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE] = &quot;Expected Type&quot;;
+-
+-  // create all the Item objects for the attributes
+-  for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
+-    this._getItemFromUuidOrCreateNewItem(uuid);
+-  }
+-  
+-  // associate display names with the UUIDs of all the categories
+-  var hashTableOfCategoryNamesKeyedByUuid = {};
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_ATTRIBUTE] = &quot;Attribute&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_CATEGORY]  = &quot;Category&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_QUERY]     = &quot;Query&quot;;
+-  hashTableOfCategoryNamesKeyedByUuid[World.UUID_FOR_CATEGORY_TYPE]      = &quot;Type&quot;;
+-
+-  // create all the Item objects for the categories
+-  for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
+-    this._getItemFromUuidOrCreateNewItem(uuid);
+-  }
+- 
+-  // associate display names with the UUIDs of all the types
+-  var hashTableOfTypeNamesKeyedByUuid = {};
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_TEXT]       = &quot;Text&quot;;
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_NUMBER]     = &quot;Number&quot;;
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_DATE]       = &quot;Date&quot;;
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_CHECK_MARK] = &quot;Check Mark&quot;;
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_URL]        = &quot;Url&quot;;
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_ITEM]       = &quot;Item&quot;;
+-  hashTableOfTypeNamesKeyedByUuid[World.UUID_FOR_TYPE_ANYTHING]   = &quot;Anything&quot;;
+-  
+-  // create all the Item objects for the types
+-  for (uuid in hashTableOfTypeNamesKeyedByUuid) {
+-    this._getItemFromUuidOrCreateNewItem(uuid);
+-  }
+-  
+-  // associate expected data types with the UUIDs of some of the attributes
+-  var hashTableOfExpectedTypesKeyedByUuid = {};
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_NAME]          = [World.UUID_FOR_TYPE_TEXT];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SHORT_NAME]    = [World.UUID_FOR_TYPE_TEXT];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_SUMMARY]       = [World.UUID_FOR_TYPE_TEXT];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_BODY]          = [World.UUID_FOR_TYPE_TEXT];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_CATEGORY]      = [World.UUID_FOR_CATEGORY_CATEGORY];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY]         = [World.UUID_FOR_CATEGORY_QUERY];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_VALUE] = [World.UUID_FOR_CATEGORY_CATEGORY];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ATTRIBUTE] = [World.UUID_FOR_TYPE_ITEM];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_UNFILED]       = [World.UUID_FOR_TYPE_ANYTHING];
+-  hashTableOfExpectedTypesKeyedByUuid[World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE] = [World.UUID_FOR_CATEGORY_TYPE, World.UUID_FOR_CATEGORY_CATEGORY];
+-
+-  var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-
+-  // set the name of the axiomaticUser
+-  axiomaticUser.addEntryForAttribute(attributeCalledName, &quot;Amy ex machina&quot;);
+-  
+-  // set the names of all the attributes, 
+-  // and put them in the category called &quot;Attribute&quot;
+-  // and set their expected data types
+-  var categoryCalledAttribute = this.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+-  var attributeCalledCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_CATEGORY);
+-  var attributeCalledExpectedType = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_EXPECTED_TYPE);
+-  for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
+-    item = this.getItemFromUuid(uuid);
+-    name = hashTableOfAttributeNamesKeyedByUuid[uuid];
+-    item.addEntryForAttribute(attributeCalledName, name);
+-    item.addEntryForAttribute(attributeCalledCategory, categoryCalledAttribute);
+-    var listOfExpectedTypes = hashTableOfExpectedTypesKeyedByUuid[uuid];
+-    for (key in listOfExpectedTypes) {
+-      var uuidOfExpectedType = listOfExpectedTypes[key];
+-      expectedType = this.getItemFromUuid(uuidOfExpectedType);
+-      item.addEntryForAttribute(attributeCalledExpectedType, expectedType);
+-    }
+-  }
+-  
+-  // set the names of all the categories, and put them in the category called &quot;Category&quot;
+-  var categoryCalledCategory = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_CATEGORY);
+-  for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
+-    item = this.getItemFromUuid(uuid);
+-    name = hashTableOfCategoryNamesKeyedByUuid[uuid];
+-    item.addEntryForAttribute(attributeCalledName, name);
+-    item.addEntryForAttribute(attributeCalledCategory, categoryCalledCategory);
+-  }
+-
+-  // set the names of all the types, and put them in the category called &quot;Type&quot;
+-  var categoryCalledType = this._getItemFromUuidOrCreateNewItem(World.UUID_FOR_CATEGORY_TYPE);
+-  for (uuid in hashTableOfTypeNamesKeyedByUuid) {
+-    item = this.getItemFromUuid(uuid);
+-    name = hashTableOfTypeNamesKeyedByUuid[uuid];
+-    item.addEntryForAttribute(attributeCalledName, name);
+-    item.addEntryForAttribute(attributeCalledCategory, categoryCalledType);
+-  }
+-
+-  this.__myCurrentUser = null;
+-
+-  var listOfNewlyCreatedRecords = this._currentTransaction.getRecords();
+-  for (key in listOfNewlyCreatedRecords) {
+-    var newRecord = listOfNewlyCreatedRecords[key];
+-    this.__myChronologicalListOfRecords.push(newRecord);
+-  }
+-  this._currentTransaction._listOfRecords = [];
+-  this.__myWorld.endTransaction();
+-  return listOfNewlyCreatedRecords;
+- */
+ };
+ 
+ 
+@@ -1033,7 +907,7 @@
+   var item;
+   var contentRecordUuid;
+   var contentRecord;
+-  
++
+   for (key in inListOfRecords) {
+     var dehydratedRecord = inListOfRecords[key];
+ 
+@@ -1043,17 +917,25 @@
+       this._rehydrateRecords(listOfRecordsInTransaction);
+     } else {
+       var dehydratedItem = dehydratedRecord[StubVirtualServer.JSON_MEMBER_ITEM_CLASS];
++      var dehydratedUser = dehydratedRecord[StubVirtualServer.JSON_MEMBER_USER_CLASS];
+       var dehydratedVote = dehydratedRecord[StubVirtualServer.JSON_MEMBER_VOTE_CLASS];
+       var dehydratedOrdinal = dehydratedRecord[StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS];
+       var dehydratedEntry = dehydratedRecord[StubVirtualServer.JSON_MEMBER_ENTRY_CLASS];
+-  
+-      var contents = dehydratedItem || dehydratedVote || dehydratedOrdinal || dehydratedEntry;
+-      
++        
+       if (dehydratedItem) {
+         itemUuid = dehydratedItem[StubVirtualServer.JSON_MEMBER_UUID];
+         item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
+         this.__myChronologicalListOfRecords.push(item);
+       }
++      
++      if (dehydratedUser) {
++        var userUuid = dehydratedUser[StubVirtualServer.JSON_MEMBER_USER];
++        var userPasswordHash = dehydratedUser[StubVirtualServer.JSON_MEMBER_PASSWORD];
++        var user = this.__getItemFromUuidOrBootstrapItem(userUuid);
++        this.__myListOfUsers.push(user);
++        this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()] = userPasswordHash;
++      }
++      
+       if (dehydratedVote) {
+         var voteUuid = dehydratedVote[StubVirtualServer.JSON_MEMBER_UUID];
+         var retainFlagString = dehydratedVote[StubVirtualServer.JSON_MEMBER_RETAIN_FLAG];
+@@ -1070,6 +952,7 @@
+         var vote = new Vote(this.getWorld(), voteUuid, contentRecord, retainFlag);
+         this.__myChronologicalListOfRecords.push(vote);
+       }
++      
+       if (dehydratedOrdinal) {
+         var ordinalUuid = dehydratedOrdinal[StubVirtualServer.JSON_MEMBER_UUID];
+         var ordinalNumber = dehydratedOrdinal[StubVirtualServer.JSON_MEMBER_ORDINAL_NUMBER];
+@@ -1078,6 +961,7 @@
+         var ordinal = new Ordinal(this.getWorld(), ordinalUuid, contentRecord, ordinalNumber);
+         this.__myChronologicalListOfRecords.push(ordinal);
+       }
++      
+       if (dehydratedEntry) {
+         var entryUuid = dehydratedEntry[StubVirtualServer.JSON_MEMBER_UUID];
+         var entry = this.__getEntryFromUuidOrBootstrapEntry(entryUuid);
+@@ -1137,6 +1021,7 @@
+         }
+         this.__myChronologicalListOfRecords.push(entry);
+       }
++      
+     }
+   }
+ };
+
+Deleted: trunk/source/model/replace_user_file.php
+===================================================================
+--- trunk/source/model/replace_user_file.php	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/model/replace_user_file.php	2005-06-22 22:32:12 UTC (rev 171)
+@@ -1,22 +0,0 @@
+-&lt;?php
+-$filename = &quot;../repositories/demo_page/2005_may_user_list.json&quot;;
+-$contentToWrite = &quot;&quot; . $HTTP_RAW_POST_DATA . &quot;&quot;;
+-if (is_writable($filename)) {
+-  echo &quot;$filename is writable.&quot;;
+-  if ($fileHandle = fopen($filename, &quot;wb&quot;)) { /* wb == write in binary mode */
+-    if (fwrite($fileHandle, $contentToWrite)) {
+-      echo &quot;Replaced contents of file ($filename)&quot;;
+-      fclose($fileHandle);
+-    } else {
+-      echo &quot;Unable to write to file ($filename)&quot;;
+-      exit;
+-    }
+-  } else {
+-    echo &quot;Unable to open file: $filename&quot;;
+-    exit(&quot;Unable to open file.&quot;); 
+-  }
+-} else {
+-  echo &quot;The file $filename is not writable.&quot;;
+-}
+-?&gt;
+-
+
+Deleted: trunk/source/repositories/demo_page/2005_may_user_list.json
+===================================================================
+--- trunk/source/repositories/demo_page/2005_may_user_list.json	2005-06-22 05:00:23 UTC (rev 170)
++++ trunk/source/repositories/demo_page/2005_may_user_list.json	2005-06-22 22:32:12 UTC (rev 171)
+@@ -1,9 +0,0 @@
+-// User list, in JSON format
+-{ &quot;format&quot;: &quot;2005_MAY_USER_LIST&quot;, 
+-  &quot;users&quot;: [
+-    { &quot;uuid&quot;: &quot;2c4fa780-dde4-11d9-9c71-8022ab6bc8ae&quot;, &quot;password&quot;: &quot;92eb5ffee6ae2fec3ad71c777531578f&quot; },
+-    { &quot;uuid&quot;: &quot;90e02170-dde4-11d9-9c71-e24829d2f59b&quot;, &quot;password&quot;: null },
+-    { &quot;uuid&quot;: &quot;97d040f0-dde4-11d9-9c71-c103016080e1&quot;, &quot;password&quot;: null },
+-    { &quot;uuid&quot;: &quot;9c3596e0-dde4-11d9-9c71-b6ac85cc6d5f&quot;, &quot;password&quot;: null },
+-    { &quot;uuid&quot;: &quot;a00bf340-dde4-11d9-9c71-dae11c269bc7&quot;, &quot;password&quot;: null } ]
+-}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000156.html">[openrecord-svn] r170 - in trunk: documentation source
+</A></li>
+	<LI>Next message: <A HREF="000158.html">[openrecord-svn] r172 - in trunk: documentation source source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#157">[ date ]</a>
+              <a href="thread.html#157">[ thread ]</a>
+              <a href="subject.html#157">[ subject ]</a>
+              <a href="author.html#157">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

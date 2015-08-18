@@ -1,0 +1,668 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r355 - in trunk/source: archive model util view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-October/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r355%20-%20in%20trunk/source%3A%20archive%20model%20util%20view&In-Reply-To=%3C200510110210.j9B2AhPK016277%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000337.html">
+   <LINK REL="Next"  HREF="000339.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r355 - in trunk/source: archive model util view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r355%20-%20in%20trunk/source%3A%20archive%20model%20util%20view&In-Reply-To=%3C200510110210.j9B2AhPK016277%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r355 - in trunk/source: archive model util view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Oct 11 04:10:43 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000337.html">[openrecord-svn] r354 - in trunk: documentation source/model source/view
+</A></li>
+        <LI>Next message: <A HREF="000339.html">[openrecord-svn] r356 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#338">[ date ]</a>
+              <a href="thread.html#338">[ thread ]</a>
+              <a href="subject.html#338">[ subject ]</a>
+              <a href="author.html#338">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-10-11 04:10:40 +0200 (Tue, 11 Oct 2005)
+New Revision: 355
+
+Modified:
+   trunk/source/archive/DeltaArchive.js
+   trunk/source/archive/JsonDeserializer.js
+   trunk/source/archive/StubArchive.js
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/Record.js
+   trunk/source/model/World.js
+   trunk/source/util/LintTool.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/SectionView.js
+Log:
+New data model code that hopefully offers a simpler, easier Data Model API, at the expense of a more complicated implementation which introduces the ProxyEntry.js class.
+
+Modified: trunk/source/archive/DeltaArchive.js
+===================================================================
+--- trunk/source/archive/DeltaArchive.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/archive/DeltaArchive.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -88,7 +88,7 @@
+ 
+ /**
+  * Initializes the instance variables for a newly created DeltaArchive,
+- * and does the initial loading of at least the axiomatic items.
++ * and does the initial loading of the axiomatic items.
+  *
+  * @scope    public instance method
+  * @param    world    The world that we provide data for. 
+@@ -96,7 +96,17 @@
+ orp.archive.DeltaArchive.prototype.setWorldAndLoadAxiomaticItems = function(world) {
+   this._initialize(world);
+   this._loadAxiomaticItemsFromFileAtURL(this._axiomaticJsonFileURL);
++};
+ 
++
++/**
++ * Loads all the items in a repository. This method should only be called 
++ * after _loadAxiomaticItemsFromFileAtURL has been called, and after the 
++ * world has completely initialized itself. 
++ *
++ * @scope    public instance method
++ */
++orp.archive.DeltaArchive.prototype.loadRepository = function() {
+   var repositoryFileName = this._repositoryName + &quot;.json&quot;;
+   var repositoryUrl = &quot;&quot;;
+   if (this._needCompletePath) {
+
+Modified: trunk/source/archive/JsonDeserializer.js
+===================================================================
+--- trunk/source/archive/JsonDeserializer.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/archive/JsonDeserializer.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -214,9 +214,20 @@
+           var firstAttribute = archiveLoader.getItemFromUuidOrBootstrapItem(firstAttributeUuid);
+           var secondAttribute = archiveLoader.getItemFromUuidOrBootstrapItem(secondAttributeUuid);
+           
+-          var pairOfItems = [firstItem, secondItem];
+-          var pairOfAttributes = [firstAttribute, secondAttribute];
+-          entry._revive(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
++          var FIXME_OCT_7_2005_EXPERIMENT = true;
++          if (FIXME_OCT_7_2005_EXPERIMENT) {
++            /* 
++            if (entryUuid == &quot;e3320eb0-0c70-11da-beea-000c414ce854&quot;) {
++              alert(&quot;rehydrating Entry e3320eb0-0c70-11da-beea-000c414ce854&quot;);
++              // alert(&quot;dataType: &quot; + dataType.getDisplayString());
++            }
++            */
++            entry._reviveConnection(firstItem, firstAttribute, secondItem, secondAttribute, previousEntry);
++          } else {
++            var pairOfItems = [firstItem, secondItem];
++            var pairOfAttributes = [firstAttribute, secondAttribute];
++            entry._revive(pairOfItems, pairOfAttributes, null, previousEntry, dataType);
++          }
+         } else {
+           itemUuid = dehydratedEntry[JSON_MEMBER.ITEM];
+           item = archiveLoader.getItemFromUuidOrBootstrapItem(itemUuid);
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/archive/StubArchive.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -36,6 +36,7 @@
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.model.Entry&quot;);
++dojo.require(&quot;orp.model.ProxyEntry&quot;);
+ dojo.require(&quot;orp.model.Transaction&quot;);
+ dojo.require(&quot;orp.util.DateValue&quot;);
+ // dojo.require(&quot;orp.uuid.Uuid&quot;);
+@@ -306,11 +307,23 @@
+   var entry = new orp.model.Entry(this._world, uuid);
+   entry._initializeConnection(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
+ 
+-  itemOne._addEntryToListOfEntriesForAttribute(entry, attributeOne);
+-  itemTwo._addEntryToListOfEntriesForAttribute(entry, attributeTwo);
++  var FIXME_OCT_7_2005_EXPERIMENT = true;
++  if (FIXME_OCT_7_2005_EXPERIMENT) {
++    var proxyOne = new orp.model.ProxyEntry(entry, itemOne, attributeOne, itemTwo, attributeTwo);
++    var proxyTwo = new orp.model.ProxyEntry(entry, itemTwo, attributeTwo, itemOne, attributeOne);
++    itemOne._addEntryToListOfEntriesForAttribute(proxyOne, attributeOne);
++    itemTwo._addEntryToListOfEntriesForAttribute(proxyTwo, attributeTwo);
++  } else {
++    itemOne._addEntryToListOfEntriesForAttribute(entry, attributeOne);
++    itemTwo._addEntryToListOfEntriesForAttribute(entry, attributeTwo);
++  }
+ 
+   this._hashTableOfEntriesKeyedByUuid[uuid] = entry;
+   this._currentTransaction.addRecord(entry);
++  
++  if (FIXME_OCT_7_2005_EXPERIMENT) {
++    entry = proxyOne;
++  }
+   return entry;
+ };
+ 
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/model/ContentRecord.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -125,7 +125,7 @@
+  * Returns the ordinal number for this contentRecord. 
+  *
+  * @scope    public instance method
+- * @return   A number.
++ * @return   A hex string.
+  */
+ orp.model.ContentRecord.prototype.getOrdinalNumber = function() {
+   if (!this._setOfOrdinals || this._setOfOrdinals.length === 0) {
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/model/Entry.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -33,6 +33,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.model.Entry&quot;);
++dojo.require(&quot;orp.model.ProxyEntry&quot;);
+ dojo.require(&quot;orp.model.ContentRecord&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
+@@ -208,6 +209,43 @@
+ };
+ 
+ 
++/**
++ * Sets the properties of a newly deserialized Entry object.
++ *
++ * WARNING: This method should be called ONLY from an orp.archive
++ * implementation. This method should only be called from orp.archive
++ * code that is reviving serialized Entry objects. 
++ *
++ * @scope    protected instance method
++ * @param    firstItem    One of the two item connected by this entry.
++ * @param    firstAttribute    The attribute on firstItem to assign the entry to. 
++ * @param    secondItem    The item connected to firstItem by this entry.
++ * @param    secondAttribute    An attribute on secondItem to assign the entry to.
++ * @param    previousEntry    Optional. An old entry that this entry replaces. 
++ */
++orp.model.Entry.prototype._reviveConnection = function(firstItem, firstAttribute, secondItem, secondAttribute, previousEntry) {
++  var FIXME_OCT_7_2005_EXPERIMENT = true;
++  if (FIXME_OCT_7_2005_EXPERIMENT) {
++    if (previousEntry) {
++      this._previousEntry = previousEntry;
++      this._previousEntry._addSubsequentEntry(this);
++    } else {
++      this._previousEntry = null;
++    }
++    this._item = [firstItem, secondItem];
++    this._attribute = [firstAttribute, secondAttribute];
++    this._value = null;
++    this._type = this.getWorld().getTypeCalledConnection();
++    
++    var firstProxy = new orp.model.ProxyEntry(this, firstItem, firstAttribute, secondItem, secondAttribute);
++    var secondProxy = new orp.model.ProxyEntry(this, secondItem, secondAttribute, firstItem, firstAttribute);
++    firstItem._addRevivedEntry(firstProxy, firstAttribute);
++    secondItem._addRevivedEntry(secondProxy, secondAttribute);
++  }
++};
++
++
++
+ // -------------------------------------------------------------------
+ // Accessor methods
+ // -------------------------------------------------------------------
+@@ -266,18 +304,23 @@
+  * @return   An attribute item.
+  */
+ orp.model.Entry.prototype.getAttributeForItem = function(item) {
+-  if (this._item == item) {
+-    return this._attribute;
+-  }
+-  if (dojo.lang.isArray(this._item)) {
+-    if (this._item[0] == item) {
+-      return this._attribute[0];
++  var FIXME_OCT_7_2005_EXPERIMENT = true;
++  if (FIXME_OCT_7_2005_EXPERIMENT) {
++    orp.util.assert(false);  // we should never get called
++  } else {
++    if (this._item == item) {
++      return this._attribute;
+     }
+-    if (this._item[1] == item) {
+-      return this._attribute[1];
++    if (dojo.lang.isArray(this._item)) {
++      if (this._item[0] == item) {
++        return this._attribute[0];
++      }
++      if (this._item[1] == item) {
++        return this._attribute[1];
++      }
+     }
++    return null;
+   }
+-  return null;
+ };
+ 
+ 
+@@ -290,21 +333,26 @@
+  * @return   The item that is connected to the given item.
+  */
+ orp.model.Entry.prototype.getConnectedItem = function(item) {
+-  orp.lang.assert(item instanceof orp.model.Item);
+-  if (this._item == item) {
+-    if (this._type == this.getWorld().getTypeCalledItem()) {
+-      return this._value;
++  var FIXME_OCT_7_2005_EXPERIMENT = true;
++  if (FIXME_OCT_7_2005_EXPERIMENT) {
++    orp.util.assert(false);  // we should never get called
++  } else {
++    orp.lang.assert(item instanceof orp.model.Item);
++    if (this._item == item) {
++      if (this._type == this.getWorld().getTypeCalledItem()) {
++        return this._value;
++      }
+     }
+-  }
+-  if (dojo.lang.isArray(this._item)) {
+-    if (this._item[0] == item) {
+-      return this._item[1];
++    if (dojo.lang.isArray(this._item)) {
++      if (this._item[0] == item) {
++        return this._item[1];
++      }
++      if (this._item[1] == item) {
++        return this._item[0];
++      }
+     }
+-    if (this._item[1] == item) {
+-      return this._item[0];
+-    }
++    return null;
+   }
+-  return null;
+ };
+ 
+ 
+@@ -373,7 +421,6 @@
+       break;
+     case this.getWorld().getTypeCalledDate():
+       var aDate = this._value;
+-      // returnString = orp.util.getStringMonthDayYear(aDate);
+       returnString = aDate.toShortLocaleDateString();
+       break;
+     case this.getWorld().getTypeCalledItem():
+@@ -391,6 +438,10 @@
+         returnString = 'connection between &quot;' + firstItem.getDisplayString() + '&quot; and &quot;' + secondItem.getDisplayString() + '&quot;';
+       }
+       break;
++    default:
++      // alert(&quot;this is a bad sign&quot;);
++      orp.lang.assert(false); // we should never get here
++      break;
+   }
+   return returnString;
+ };
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/model/Item.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -212,7 +212,12 @@
+   
+   orp.lang.assert(dojo.lang.isObject(previousEntry));
+   if (!attribute) {
+-    attribute = previousEntry.getAttributeForItem(this);
++    var FIXME_OCT_7_2005_EXPERIMENT = true;
++    if (FIXME_OCT_7_2005_EXPERIMENT) {
++      attribute = previousEntry.getAttribute();
++    } else {
++      attribute = previousEntry.getAttributeForItem(this);
++    }
+   }
+   return this._createNewEntry(previousEntry, attribute, value, type);
+ };
+@@ -287,19 +292,34 @@
+   // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
+   // then don't even bother creating a new entry. 
+   if (previousEntry) {
+-    // var oldValue = previousEntry.getValue(this);
+-    var oldPairOfAttributes = previousEntry.getAttribute();
+-    var oldPairOfItems = previousEntry.getItem();
+-    if (dojo.lang.isArray(oldPairOfAttributes)) {
+-      orp.lang.assertType(oldPairOfAttributes, Array);
+-      orp.lang.assert(oldPairOfAttributes.length == 2);
+-      orp.lang.assert(oldPairOfItems.length == 2);
+-      if (((oldPairOfAttributes[0] == myAttribute) &amp;&amp;  (oldPairOfAttributes[1] == otherAttribute) &amp;&amp;
+-        oldPairOfItems[0] == this &amp;&amp; oldPairOfItems[1] == otherItem) ||
+-        ((oldPairOfAttributes[1] == myAttribute) &amp;&amp;  (oldPairOfAttributes[0] == otherAttribute) &amp;&amp;
+-        oldPairOfItems[1] == this &amp;&amp; oldPairOfItems[0] == otherItem)) {
+-        return null;
++    var FIXME_OCT_7_2005_EXPERIMENT = true;
++    if (FIXME_OCT_7_2005_EXPERIMENT) {
++      if (previousEntry.getType() == this.getWorld().getTypeCalledConnection()) {
++        var oldItem = previousEntry.getItem();
++        var oldAttribute = previousEntry.getAttribute();
++        var oldValue = previousEntry.getValue();
++        var oldInverseAttribute = previousEntry.getInverseAttribute();
++        if (((oldAttribute == myAttribute) &amp;&amp;  (oldInverseAttribute == otherAttribute) &amp;&amp;
++          oldItem == this &amp;&amp; oldValue == otherItem) ||
++          ((oldInverseAttribute == myAttribute) &amp;&amp;  (oldAttribute == otherAttribute) &amp;&amp;
++          oldValue == this &amp;&amp; oldItem == otherItem)) {
++          return null;
++        }
+       }
++    } else {
++      // var oldValue = previousEntry.getValue(this);
++      var oldPairOfAttributes = previousEntry.getAttribute();
++      var oldPairOfItems = previousEntry.getItem();
++      if (dojo.lang.isArray(oldPairOfAttributes)) {
++        orp.lang.assert(oldPairOfAttributes.length == 2);
++        orp.lang.assert(oldPairOfItems.length == 2);
++        if (((oldPairOfAttributes[0] == myAttribute) &amp;&amp;  (oldPairOfAttributes[1] == otherAttribute) &amp;&amp;
++          oldPairOfItems[0] == this &amp;&amp; oldPairOfItems[1] == otherItem) ||
++          ((oldPairOfAttributes[1] == myAttribute) &amp;&amp;  (oldPairOfAttributes[0] == otherAttribute) &amp;&amp;
++          oldPairOfItems[1] == this &amp;&amp; oldPairOfItems[0] == otherItem)) {
++          return null;
++        }
++      }
+     }
+   }
+ 
+@@ -321,14 +341,22 @@
+   this._noteChanges(null);
+   otherItem._noteChanges(null);
+   if (previousEntry) {
+-    var oldItemOrPairOfItems = previousEntry.getItem();
+-    if (oldItemOrPairOfItems instanceof orp.model.Item) {
+-      oldItemOrPairOfItems._noteChanges(null);
++    FIXME_OCT_7_2005_EXPERIMENT = true;
++    if (FIXME_OCT_7_2005_EXPERIMENT) {
++      previousEntry.getItem()._noteChanges(null);
++      if (previousEntry.getType() == this.getWorld().getTypeCalledConnection()) {
++        previousEntry.getValue()._noteChanges(null);
++      }
++    } else {
++      var oldItemOrPairOfItems = previousEntry.getItem();
++      if (oldItemOrPairOfItems instanceof orp.model.Item) {
++        oldItemOrPairOfItems._noteChanges(null);
++      }
++      if (dojo.lang.isArray(oldItemOrPairOfItems)) {
++        oldItemOrPairOfItems[0]._noteChanges(null);
++        oldItemOrPairOfItems[1]._noteChanges(null);
++      }
+     }
+-    if (dojo.lang.isArray(oldItemOrPairOfItems)) {
+-      oldItemOrPairOfItems[0]._noteChanges(null);
+-      oldItemOrPairOfItems[1]._noteChanges(null);
+-    }
+   }
+   return entry;  
+ };
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/model/Record.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -85,7 +85,7 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Returns the world that this item was created in.
++ * Returns the world that this record was created in.
+  *
+  * @scope    public instance method
+  * @return   A world object.
+@@ -96,7 +96,7 @@
+ 
+ 
+ /**
+- * Returns the item representing the user who created this item.
++ * Returns the item representing the user who created this record.
+  *
+  * @scope    public instance method
+  * @return   A user item.
+@@ -140,11 +140,6 @@
+  * @return   A Date object.
+  */
+ orp.model.Record.prototype.getCreationDate = function() {
+-  /* if (!this._creationDate) {
+-    this._creationDate = Uuid.getDateFromUuid(this._uuid.toString());
+-  }
+-  return this._creationDate;
+-  */
+   return this.getUuid().getDate();
+ };
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/model/World.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -85,6 +85,11 @@
+ 
+   this._archive.setWorldAndLoadAxiomaticItems(this);
+   this._loadAxiomaticItems();
++  
++  // FIXME: this is a hack
++  if (this._archive.loadRepository) {
++    this._archive.loadRepository();
++  }
+ };
+ 
+ 
+@@ -745,19 +750,16 @@
+   var attributeCalledQueryMatchingAttribute = this.getAttributeCalledQueryMatchingAttribute();
+   var attributeCalledQueryMatchingValue = this.getAttributeCalledQueryMatchingValue();
+   var matchingEntry;
+-  // item.addEntryForAttribute(attributeCalledQueryMatchingAttribute, matchingAttribute);
+   item.addEntry({attribute:attributeCalledQueryMatchingAttribute, value:matchingAttribute});
+   if (matchingEntryOrListOfEntries) {
+     if (dojo.lang.isArray(matchingEntryOrListOfEntries)) {
+       for (var key in matchingEntryOrListOfEntries) {
+         matchingEntry = matchingEntryOrListOfEntries[key];
+-        // item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
+         item.addEntry({attribute:attributeCalledQueryMatchingValue, value:matchingEntry});
+       }
+     }
+     else {
+       matchingEntry = matchingEntryOrListOfEntries;
+-      // item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
+       item.addEntry({attribute:attributeCalledQueryMatchingValue, value:matchingEntry});
+     }
+   }
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/util/LintTool.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -160,7 +160,6 @@
+ orp.util.LintTool.getErrorReportFromListOfFilesnames = function(listOfFilenames, path) {
+   orp.lang.assertType(listOfFilenames, Array);
+   if (path) {
+-    // orp.util.assert(dojo.lang.isString(path));
+     orp.lang.assertType(path, String);
+   } else {
+     path = &quot;&quot;;
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/view/EntryView.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -72,7 +72,12 @@
+   // orp.util.assert((!entry) || entry instanceof orp.model.Entry);
+   orp.lang.assert(item instanceof orp.model.Item);
+   orp.lang.assert(attribute instanceof orp.model.Item); // PENDING need to check that attribute is an attribute
+-  orp.lang.assertTypeForOptionalValue(entry, orp.model.Entry);
++  var FIXME_OCT_7_2005_EXPERIMENT = true;
++  if (FIXME_OCT_7_2005_EXPERIMENT) {
++    // could be an orp.model.Entry or an orp.model.ProxyEntry
++  } else {
++    orp.lang.assertTypeForOptionalValue(entry, orp.model.Entry);
++  }
+   
+   orp.view.View.call(this, superview, htmlElement, &quot;EntryView&quot;);
+ 
+@@ -365,10 +370,6 @@
+         editField.type = 'text';
+       }
+       var listener = this; 
+-      // editField.onblur = this.onBlur.orpBindAsEventListener(this);
+-      // editField.onkeypress = this.onKeyPress.orpBindAsEventListener(this);
+-      // editField.onkeyup = this.onKeyUp.orpBindAsEventListener(this);
+-      // editField.onfocus = this.onFocus.orpBindAsEventListener(this);
+       dojo.event.connect(editField, &quot;onblur&quot;, this, &quot;onBlur&quot;);
+       dojo.event.connect(editField, &quot;onkeypress&quot;, this, &quot;onKeyPress&quot;);
+       dojo.event.connect(editField, &quot;onkeyup&quot;, this, &quot;onKeyUp&quot;);
+@@ -471,7 +472,6 @@
+       var entry = listOfExpectedTypeEntries[i];
+       listOfTypes.push(entry.getValue());
+     }
+-    // return orp.view.EntryView._transformValueToExpectedType(world, value, listOfTypes);
+     return world.transformValueToExpectedType(value, listOfTypes);
+   }
+   return value;
+@@ -498,7 +498,6 @@
+         var inverseAttr = inverseAttributeEntry.getValue(this._attribute);
+         this._entry = this._item.replaceEntryWithConnection(this._entry, this._attribute, value, inverseAttr);
+       } else {
+-        // this._entry = this._item.replaceEntryWithEntryForAttribute(this._entry, this._attribute, value);
+         this._entry = this._item.replaceEntry({previousEntry:this._entry, attribute:this._attribute, value:value});
+       }
+       var superview = this.getSuperview();
+@@ -526,7 +525,13 @@
+     return this._provisionalText;
+   }
+   if (this._entry) {
+-    var text = this._item.getDisplayStringForEntry(this._entry);
++    var FIXME_OCT_7_2005_EXPERIMENT = true;
++    if (FIXME_OCT_7_2005_EXPERIMENT) {
++      var text = this._entry.getDisplayString();
++    } else {
++      // var text = this._item.getDisplayStringForEntry(this._entry);
++      text = this._item.getDisplayStringForEntry(this._entry);
++    }
+     if (useNonBreakingSpaces) {
+       var dataType = this._entry.getType();
+       if (dataType != this.getWorld().getTypeCalledText()) {
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/view/MultiEntriesView.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -240,12 +240,17 @@
+   if (!this.hasEntry(droppedEntry)) {
+     var newEntry;
+     if (droppedEntry.getType() == this.getWorld().getTypeCalledConnection()) {
+-      var otherItem = droppedEntry.getConnectedItem(draggedEntryView._item);
+-      var otherAttribute = droppedEntry.getAttributeForItem(otherItem);
+-      // newEntry = this._item.addConnectionEntry(this._attribute,otherItem,otherAttribute);
+-      newEntry = this._item.replaceEntryWithConnection(droppedEntry, this._attribute, otherItem, otherAttribute);
++      var FIXME_OCT_7_2005_EXPERIMENT = true;
++      if (FIXME_OCT_7_2005_EXPERIMENT) {
++        var inverseItem = droppedEntry.getValue();
++        var inverseAttribute = droppedEntry.getInverseAttribute();
++        newEntry = this._item.replaceEntryWithConnection(droppedEntry, this._attribute, inverseItem, inverseAttribute);
++      } else {
++        var otherItem = droppedEntry.getConnectedItem(draggedEntryView._item);
++        var otherAttribute = droppedEntry.getAttributeForItem(otherItem);
++        newEntry = this._item.replaceEntryWithConnection(droppedEntry, this._attribute, otherItem, otherAttribute);
++      }
+     } else {
+-      // newEntry = this._item.addNewEntryForAttribute(this._attribute,droppedEntry.getValue(),droppedEntry.getType());
+       newEntry = this._item.replaceEntry(droppedEntry, droppedEntry.getValue(), droppedEntry.getType());
+     }
+     this._addEntryView(newEntry);
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/view/PageView.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -203,7 +203,13 @@
+    
+   for (var key in listOfEntriesForSections) {
+     var entryForSection = listOfEntriesForSections[key];
+-    var section = entryForSection.getConnectedItem(this._pageItem);
++    var FIXME_OCT_7_2005_EXPERIMENT = true;
++    if (FIXME_OCT_7_2005_EXPERIMENT) {
++      var section = entryForSection.getValue();
++    } else {
++      // var section = entryForSection.getConnectedItem(this._pageItem);
++      section = entryForSection.getConnectedItem(this._pageItem);
++    }
+     if (section) {
+       if (PENDING_include_links_to_sections &amp;&amp; sectionNavigatorDiv) {
+         orp.view.View.appendNewElement(sectionNavigatorDiv, &quot;a&quot;, null, {'href' : '#' + section.getUuidString()}, section.getDisplayName());
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-10-07 03:35:47 UTC (rev 354)
++++ trunk/source/view/SectionView.js	2005-10-11 02:10:40 UTC (rev 355)
+@@ -211,7 +211,12 @@
+   var attributeCalledQuerySpec = this.getWorld().getAttributeCalledQuerySpec();
+   var queryEntry = this._section.getSingleEntryFromAttribute(attributeCalledQuerySpec);
+   if (queryEntry) {
+-    return queryEntry.getConnectedItem(this._section);
++    var FIXME_OCT_7_2005_EXPERIMENT = true;
++    if (FIXME_OCT_7_2005_EXPERIMENT) {
++      return queryEntry.getValue();
++    } else {
++      return queryEntry.getConnectedItem(this._section);
++    }
+   }
+   return null;
+ };
+@@ -308,7 +313,13 @@
+   var attributeAppliesToPlugin = repository.getItemFromUuid(orp.view.SectionView.UUID.ATTRIBUTE_APPLIES_TO_PLUGIN);
+   if (entriesLayoutData) {
+     for (var i=0; i &lt; entriesLayoutData.length; ++i) {
+-      var layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
++      var FIXME_OCT_7_2005_EXPERIMENT = true;
++      if (FIXME_OCT_7_2005_EXPERIMENT) {
++        var layoutItem = entriesLayoutData[i].getValue();
++      } else {
++        // var layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
++        layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
++      }
+       var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attributeAppliesToPlugin);
+       orp.lang.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
+       if (entriesAppliesToPlugin[0].getValue() == pluginTypeItem) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000337.html">[openrecord-svn] r354 - in trunk: documentation source/model source/view
+</A></li>
+	<LI>Next message: <A HREF="000339.html">[openrecord-svn] r356 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#338">[ date ]</a>
+              <a href="thread.html#338">[ thread ]</a>
+              <a href="subject.html#338">[ subject ]</a>
+              <a href="author.html#338">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

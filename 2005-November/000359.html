@@ -1,0 +1,422 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r377 - in trunk: source source/archive source/util tests/dojo tests/model tests/storage tests/util third_party third_party/dojo/dojo-rev1759/src/crypto
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-November/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r377%20-%20in%20trunk%3A%20source%20source/archive%20source/util%20tests/dojo%20tests/model%20tests/storage%20tests/util%20third_party%20third_party/dojo/dojo-rev1759/src/crypto&In-Reply-To=%3C200511170121.jAH1LrBN022858%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000358.html">
+   <LINK REL="Next"  HREF="000360.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r377 - in trunk: source source/archive source/util tests/dojo tests/model tests/storage tests/util third_party third_party/dojo/dojo-rev1759/src/crypto</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r377%20-%20in%20trunk%3A%20source%20source/archive%20source/util%20tests/dojo%20tests/model%20tests/storage%20tests/util%20third_party%20third_party/dojo/dojo-rev1759/src/crypto&In-Reply-To=%3C200511170121.jAH1LrBN022858%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r377 - in trunk: source source/archive source/util tests/dojo tests/model tests/storage tests/util third_party third_party/dojo/dojo-rev1759/src/crypto">skinner at berlios.de
+       </A><BR>
+    <I>Thu Nov 17 02:21:53 CET 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000358.html">[openrecord-svn] r376 - trunk/third_party/dojo
+</A></li>
+        <LI>Next message: <A HREF="000360.html">[openrecord-svn] r378 - trunk/web_pages/content
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#359">[ date ]</a>
+              <a href="thread.html#359">[ thread ]</a>
+              <a href="subject.html#359">[ subject ]</a>
+              <a href="author.html#359">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-11-17 02:21:21 +0100 (Thu, 17 Nov 2005)
+New Revision: 377
+
+Removed:
+   trunk/third_party/md5/
+Modified:
+   trunk/source/OpenRecordLoader.js
+   trunk/source/archive/StubArchive.js
+   trunk/source/util/Util.js
+   trunk/tests/dojo/SimpleDojoTest.js
+   trunk/tests/model/ModelTest.html
+   trunk/tests/model/RepositoryWritingTest.html
+   trunk/tests/model/TestReorderingForSpecialCases.html
+   trunk/tests/model/TestReorderingForTypicalOrdinals.html
+   trunk/tests/model/test_AfterLogin.html
+   trunk/tests/model/test_BeforeLogin.html
+   trunk/tests/model/test_SequentialUsers.html
+   trunk/tests/model/test_dependencies.html
+   trunk/tests/storage/DirectoryReadingTest.html
+   trunk/tests/storage/StorageTest.html
+   trunk/tests/util/UtilTest.html
+   trunk/tests/util/UtilTest.js
+   trunk/tests/util/XmlConverterMultiplePassesTest.html
+   trunk/tests/util/XmlConverterTest.html
+   trunk/tests/util/test_dependencies.html
+   trunk/third_party/dojo/dojo-rev1759/src/crypto/MD5.js
+Log:
+Removed the file third_party/md5/md5.js, and replaced our calls to that package with calls to dojo.crypto package.  Also changed a couple lines of the dojo crypto/MD5.js in order to apply the fix described in this bug report: <A HREF="http://dojotoolkit.org/trac/ticket/183">http://dojotoolkit.org/trac/ticket/183</A>
+
+Modified: trunk/source/OpenRecordLoader.js
+===================================================================
+--- trunk/source/OpenRecordLoader.js	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/source/OpenRecordLoader.js	2005-11-17 01:21:21 UTC (rev 377)
+@@ -95,7 +95,6 @@
+ orp.loader.loadStylesheet(&quot;source/base_style.css&quot;);
+ 
+ orp.loader.loadScript(&quot;third_party/dojo/dojo-rev1759/dojo.js&quot;);
+-orp.loader.loadScript(&quot;third_party/md5/md5.js&quot;);
+ orp.loader.loadScript(&quot;third_party/scriptaculous/prototype.js&quot;);
+ orp.loader.loadScript(&quot;third_party/scriptaculous/effects.js&quot;);
+ orp.loader.loadScript(&quot;third_party/scriptaculous/dragdrop.js&quot;);
+
+Modified: trunk/source/archive/StubArchive.js
+===================================================================
+--- trunk/source/archive/StubArchive.js	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/source/archive/StubArchive.js	2005-11-17 01:21:21 UTC (rev 377)
+@@ -33,6 +33,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.archive.StubArchive&quot;);
+ dojo.provide(&quot;orp.archive.ArchiveLoader&quot;);
++dojo.require(&quot;dojo.crypto.*&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.model.Entry&quot;);
+@@ -389,7 +390,8 @@
+   
+   var md5Authentication = null;
+   if (authentication) {
+-    md5Authentication = orp.util.hex_md5(authentication);
++    // md5Authentication = orp.util.hex_md5(authentication);
++    md5Authentication = dojo.crypto.toBinHex(dojo.crypto.MD5.compute(authentication));
+   }
+   this._hashTableOfUserAuthenticationInfo[newUser.getUuid()] = md5Authentication;
+ 
+@@ -460,7 +462,8 @@
+   
+   var md5hashOfPassword = null;
+   if (password) {
+-    md5hashOfPassword = orp.util.hex_md5(password);
++    // md5hashOfPassword = orp.util.hex_md5(password);
++    md5hashOfPassword = dojo.crypto.toBinHex(dojo.crypto.MD5.compute(password));
+   }
+   var realAuthentication = this.getAuthenticationInfoForUser(user);
+   var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/source/util/Util.js	2005-11-17 01:21:21 UTC (rev 377)
+@@ -388,17 +388,6 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Methods for doing encryption
+-// -------------------------------------------------------------------
+-
+-orp.util.hex_md5 = function(string) {
+-  // Calls the hex_md5() function in .../trunk/third_party/md5/md5.js
+-  return hex_md5(string);
+-};
+-
+-
+-
+-// -------------------------------------------------------------------
+ // Methods that deal with event handling
+ // -------------------------------------------------------------------
+ 
+
+Modified: trunk/tests/dojo/SimpleDojoTest.js
+===================================================================
+--- trunk/tests/dojo/SimpleDojoTest.js	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/dojo/SimpleDojoTest.js	2005-11-17 01:21:21 UTC (rev 377)
+@@ -78,6 +78,29 @@
+   assertTrue(&quot;b should be an instance of classA.&quot;, b instanceof classA);
+ }
+ 
++function testMD5() {
++  dojo.require(&quot;dojo.crypto.*&quot;);
++
++  var whenInTheCourse = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
++  var theQuickBrownFox = &quot;The quick brown fox jumps over the lazy dog&quot;;
++  var theRainInSpain = &quot;The rain in Spain falls mainly on the plain.&quot;;
++  assertTrue('md5 of &quot;&quot; is correct', (getHexMD5(&quot;&quot;) == &quot;d41d8cd98f00b204e9800998ecf8427e&quot;));
++  assertTrue('md5 of &quot;abc&quot; is correct', (getHexMD5(&quot;abc&quot;) == &quot;900150983cd24fb0d6963f7d28e17f72&quot;));
++  assertTrue('md5 of &quot;iggy&quot; is correct', (getHexMD5(&quot;iggy&quot;) == &quot;0e026f55a72c0861a93e750c2a5427b1&quot;));
++  assertTrue('md5 of &quot;The quick brown fox...&quot; is correct', (getHexMD5(theQuickBrownFox) == &quot;9e107d9d372bb6826bd81d3542a419d6&quot;));
++  assertTrue('md5 of &quot;When in the course...&quot; is correct', (getHexMD5(whenInTheCourse) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
++  assertTrue('md5 of &quot;The rain in Spain...&quot; is correct', (getHexMD5(theRainInSpain) == &quot;3948716d567532d9aee33c7d2f34b970&quot;));
++}
++
+ // -------------------------------------------------------------------
++// Helper functions
++// -------------------------------------------------------------------
++
++function getHexMD5(string) {
++  return dojo.crypto.toBinHex(dojo.crypto.MD5.compute(string));
++}
++
++
++// -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/model/ModelTest.html
+===================================================================
+--- trunk/tests/model/ModelTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/ModelTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ModelTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/RepositoryWritingTest.html
+===================================================================
+--- trunk/tests/model/RepositoryWritingTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/RepositoryWritingTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -13,7 +13,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;RepositoryWritingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/TestReorderingForSpecialCases.html
+===================================================================
+--- trunk/tests/model/TestReorderingForSpecialCases.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/TestReorderingForSpecialCases.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -13,7 +13,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForSpecialCases.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/TestReorderingForTypicalOrdinals.html
+===================================================================
+--- trunk/tests/model/TestReorderingForTypicalOrdinals.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/TestReorderingForTypicalOrdinals.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -13,7 +13,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;MockUuidGenerator.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;TestReorderingForTypicalOrdinals.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+
+Modified: trunk/tests/model/test_AfterLogin.html
+===================================================================
+--- trunk/tests/model/test_AfterLogin.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/test_AfterLogin.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_AfterLogin.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_BeforeLogin.html
+===================================================================
+--- trunk/tests/model/test_BeforeLogin.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/test_BeforeLogin.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_BeforeLogin.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_SequentialUsers.html
+===================================================================
+--- trunk/tests/model/test_SequentialUsers.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/test_SequentialUsers.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_SequentialUsers.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/test_dependencies.html
+===================================================================
+--- trunk/tests/model/test_dependencies.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/model/test_dependencies.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/storage/DirectoryReadingTest.html
+===================================================================
+--- trunk/tests/storage/DirectoryReadingTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/storage/DirectoryReadingTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -13,7 +13,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DirectoryReadingTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/storage/StorageTest.html
+===================================================================
+--- trunk/tests/storage/StorageTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/storage/StorageTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -13,7 +13,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;StorageTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/UtilTest.html
+===================================================================
+--- trunk/tests/util/UtilTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/util/UtilTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/UtilTest.js
+===================================================================
+--- trunk/tests/util/UtilTest.js	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/util/UtilTest.js	2005-11-17 01:21:21 UTC (rev 377)
+@@ -86,13 +86,6 @@
+   assertTrue('All members of setNumber2 are in setNumber2', orp.util.areObjectsInSet(setNumber2, setNumber2));
+ }
+ 
+-function testEncryptionMethods() {
+-  var longString = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
+-  assertTrue('md5 of &quot;&quot; is correct', (orp.util.hex_md5(&quot;&quot;) == &quot;d41d8cd98f00b204e9800998ecf8427e&quot;));
+-  assertTrue('md5 of &quot;iggy&quot; is correct', (orp.util.hex_md5(&quot;iggy&quot;) == &quot;0e026f55a72c0861a93e750c2a5427b1&quot;));
+-  assertTrue('md5 of longString is correct', (orp.util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
+-}
+-
+ function testIsEmpty() {
+   var canada = {name:&quot;Canada&quot;, provinces:8};
+   var atlantis = {};
+
+Modified: trunk/tests/util/XmlConverterMultiplePassesTest.html
+===================================================================
+--- trunk/tests/util/XmlConverterMultiplePassesTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/util/XmlConverterMultiplePassesTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverterMultiplePassesTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/XmlConverterTest.html
+===================================================================
+--- trunk/tests/util/XmlConverterTest.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/util/XmlConverterTest.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;XmlConverterTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/test_dependencies.html
+===================================================================
+--- trunk/tests/util/test_dependencies.html	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/tests/util/test_dependencies.html	2005-11-17 01:21:21 UTC (rev 377)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-rev1759/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;test_dependencies.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/third_party/dojo/dojo-rev1759/src/crypto/MD5.js
+===================================================================
+--- trunk/third_party/dojo/dojo-rev1759/src/crypto/MD5.js	2005-11-15 23:34:47 UTC (rev 376)
++++ trunk/third_party/dojo/dojo-rev1759/src/crypto/MD5.js	2005-11-17 01:21:21 UTC (rev 377)
+@@ -22,8 +22,19 @@
+ 	}
+ 	function roll(num,cnt) { return (num&lt;&lt;cnt)|(num&gt;&gt;&gt;(32-cnt)); }
+ 	this.compute=function(x,len) {
++  // -------------------------------------------------------
++  // FIXME
++  // 
++  // Brian Skinner changed these lines on 2005/11/16 to apply
++  // the fix supplied in the bug report created by <A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">wey at slupet.com</A> 
++  // for this bug:
++  //    <A HREF="http://dojotoolkit.org/trac/ticket/183">http://dojotoolkit.org/trac/ticket/183</A>
++  //
++    if (!len) var len=x.length*chrsz;
+ 		if (typeof(x)==&quot;string&quot;) x=dojo.crypto.toByteArray(x);
+-		if (!len) var len=x.length;
++	//	if (typeof(x)==&quot;string&quot;) x=dojo.crypto.toByteArray(x);
++  //	if (!len) var len=x.length;
++  // -------------------------------------------------------
+ 		x[len&gt;&gt;5]|=0x80&lt;&lt;((len)%32);
+ 		x[(((len+64)&gt;&gt;&gt;9)&lt;&lt;4)+14]=len;
+ 		var a= 1732584193;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000358.html">[openrecord-svn] r376 - trunk/third_party/dojo
+</A></li>
+	<LI>Next message: <A HREF="000360.html">[openrecord-svn] r378 - trunk/web_pages/content
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#359">[ date ]</a>
+              <a href="thread.html#359">[ thread ]</a>
+              <a href="subject.html#359">[ subject ]</a>
+              <a href="author.html#359">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

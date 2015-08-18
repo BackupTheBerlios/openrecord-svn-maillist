@@ -1,0 +1,400 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r4 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-March/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r4%20-%20trunk/source&In-Reply-To=%3C200503302017.j2UKHr14024870%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000002.html">
+   <LINK REL="Next"  HREF="000004.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r4 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r4%20-%20trunk/source&In-Reply-To=%3C200503302017.j2UKHr14024870%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r4 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Wed Mar 30 22:17:53 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000002.html">[openrecord-svn] r3 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000004.html">[openrecord-svn] r5 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-03-30 22:17:53 +0200 (Wed, 30 Mar 2005)
+New Revision: 4
+
+Modified:
+   trunk/source/base_style.css
+   trunk/source/page_view.js
+   trunk/source/section_view.js
+   trunk/source/text_view.js
+   trunk/source/util.js
+Log:
+Replaced tabs with double spaces, and did other minor clean up.
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-03-25 03:12:55 UTC (rev 3)
++++ trunk/source/base_style.css	2005-03-30 20:17:53 UTC (rev 4)
+@@ -511,11 +511,15 @@
+   color: white;
+ }
+ 
++
++/****************************************/
++/* Text view styles                     */
++
+ .text_view {
+-	height: 100%;
+-	width: 100%;
++  height: 100%;
++  width: 100%;
+   font-family: Arial, Verdana, sans-serif;
+-	color: red;
++  color: red;
+ }
+ 
+ 
+
+Modified: trunk/source/page_view.js
+===================================================================
+--- trunk/source/page_view.js	2005-03-25 03:12:55 UTC (rev 3)
++++ trunk/source/page_view.js	2005-03-30 20:17:53 UTC (rev 4)
+@@ -42,6 +42,7 @@
+ // -------------------------------------------------------------------
+ PageView.ELEMENT_ID_SECTION_DIV_PREFIX = &quot;section_view_&quot;;
+ PageView.ELEMENT_ID_SECTION_DIV_MIDFIX = &quot;_in_page_&quot;;
++PageView.ELEMENT_ID_SUMMARY_VIEW_DIV = &quot;summary_view&quot;;
+ 
+ PageView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
+ PageView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+@@ -132,7 +133,7 @@
+   // add an &lt;h1&gt; heading with the name of the page
+   listOfStrings.push(&quot;&lt;h1 id=\&quot;&quot; + CompleteView.URL_PAGE_PREFIX + this.myPage.getUuid() + &quot;\&quot;&gt;&quot; + this.myPage.getDisplayName() + &quot;&lt;/h1&gt;&quot;);
+   
+-	listOfStrings.push(&quot;&lt;div id=summaryView&gt;&lt;/div&gt;&quot;);
++  listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + PageView.ELEMENT_ID_SUMMARY_VIEW_DIV + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+   
+   // add &lt;div&gt; elements for each of the sections on the page
+   for (var jKey in this.myListOfSectionViews) {
+@@ -148,11 +149,11 @@
+   this.myDivElement.innerHTML = finalString;
+   this.myDivElement.style.display = &quot;block&quot;;
+ 
+-	// set up the summary text view
+-	var summaryElement = document.getElementById(&quot;summaryView&quot;);
+-	new MultiLineTextView(this.myPage, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, summaryElement,&quot;text_view&quot;);
++  // set up the summary text view
++  var summaryElement = document.getElementById(PageView.ELEMENT_ID_SUMMARY_VIEW_DIV);
++  new MultiLineTextView(this.myPage, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, summaryElement,&quot;text_view&quot;);
+ 
+-// let each of the sectionViews add their own content
++  // let each of the sectionViews add their own content
+   for (var divId in hashTableOfSectionViewsKeyedByDivId) {
+     var aSectionView = hashTableOfSectionViewsKeyedByDivId[divId];
+     var sectionDivElement = document.getElementById(divId);
+
+Modified: trunk/source/section_view.js
+===================================================================
+--- trunk/source/section_view.js	2005-03-25 03:12:55 UTC (rev 3)
++++ trunk/source/section_view.js	2005-03-30 20:17:53 UTC (rev 4)
+@@ -56,10 +56,12 @@
+ SectionView.ELEMENT_CLASS_TEXT_FIELD_IN_TABLE_CELL = &quot;text_field_in_table_cell&quot;;
+ SectionView.ELEMENT_CLASS_SELECTED = &quot;selected&quot;;
+ SectionView.ELEMENT_CLASS_MORE_LINK = &quot;more&quot;;
++SectionView.ELEMENT_CLASS_TEXT_VIEW = &quot;text_view&quot;;
+ 
+ SectionView.ELEMENT_ID_SELECT_MENU_SUFFIX = &quot;_select_menu&quot;;
+ SectionView.ELEMENT_ID_LAYOUT_DIV_SUFFIX = &quot;_layout_div&quot;;
+ SectionView.ELEMENT_ID_CELL_MIDFIX = &quot;_cell_&quot;;
++SectionView.ELEMENT_ID_SUMMARY_DIV_SUFFIX = &quot;_summary_div&quot;;
+ 
+ SectionView.ELEMENT_ATTRIBUTE_SECTION_NUMBER = &quot;section_number&quot;;
+ SectionView.ELEMENT_ATTRIBUTE_CELL_NUMBER = &quot;cell_number&quot;;
+@@ -177,9 +179,9 @@
+   listOfStrings.push(&quot;&lt;div class=\&quot;&quot; + SectionView.ELEMENT_CLASS_SECTION + &quot;\&quot;&gt;&quot;);
+   listOfStrings.push(&quot;&lt;h2&gt;&quot; + this.mySection.getDisplayName() + &quot;&lt;/h2&gt;&quot;);
+ 
+-	var summaryDivId = this.myDivElement.id + SectionView.ELEMENT_ID_SUMMARY_DIV_SUFFIX;
+-	listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + summaryDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
+-	
++  var summaryDivId = this.myDivElement.id + SectionView.ELEMENT_ID_SUMMARY_DIV_SUFFIX;
++  listOfStrings.push(&quot;&lt;div id=\&quot;&quot; + summaryDivId + &quot;\&quot;&gt;&lt;/div&gt;&quot;);
++  
+   // create the layout editing controls, if we're in edit mode
+   var selectMenuId = this.myDivElement.id + SectionView.ELEMENT_ID_SELECT_MENU_SUFFIX;
+   if (this.myPageView.isInEditMode()) {
+@@ -206,11 +208,11 @@
+     var selectElement = document.getElementById(selectMenuId);
+     selectElement.mysectionview = this;
+   }
+-	
+-	// set up the summary text view
+-	var summaryElement = document.getElementById(summaryDivId);
+-	new MultiLineTextView(this.mySection, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, summaryElement, &quot;text_view&quot;);
+-	
++  
++  // set up the summary text view
++  var summaryElement = document.getElementById(summaryDivId);
++  new MultiLineTextView(this.mySection, Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY, summaryElement, SectionView.ELEMENT_CLASS_TEXT_VIEW);
++  
+   var layoutDivElement = document.getElementById(layoutDivId);
+   this.myLayout.setDivElement(layoutDivElement);
+ };
+
+Modified: trunk/source/text_view.js
+===================================================================
+--- trunk/source/text_view.js	2005-03-25 03:12:55 UTC (rev 3)
++++ trunk/source/text_view.js	2005-03-30 20:17:53 UTC (rev 4)
+@@ -41,23 +41,23 @@
+  * to display and (if in edit mode) edit multi-lines of text
+  *
+  * @scope    public instance constructor
+- * @param    theItem   	  The Item to be displayed and edited by this view. 
++ * @param    theItem         The Item to be displayed and edited by this view. 
+  * @param    theAttribute    The attribute of the item to be displayed 
+  * @param    theDivElement   The HTMLDivElement to display the HTML in. 
+  */
+-function MultiLineTextView(theItem, theAttribute, theDivElement,classType) {
++function MultiLineTextView(theItem, theAttribute, theDivElement, classType) {
+   Util.assert(theItem instanceof Item);
+   //Util.assert(theAttribute instanceof Attribute); FIXME need to check that attribute is an attribute
+   //Util.assert(inDivElement instanceof HTMLDivElement);
+   
+   this.textItem = theItem;
+   this.attribute = theAttribute;
+-	this.editMode = true;
+-	this.editField = null;
+-	this.textObj = null;
+-	this.classType = classType;
+-	this.setDivElement(theDivElement);
+-	this.isEditing = false;
++  this.editMode = true;
++  this.editField = null;
++  this.textObj = null;
++  this.classType = classType;
++  this.setDivElement(theDivElement);
++  this.isEditing = false;
+ };
+ 
+ // -------------------------------------------------------------------
+@@ -65,81 +65,84 @@
+ //   public instance method
+ // -------------------------------------------------------------------
+ MultiLineTextView.prototype.setDivElement = function(theDivElement) {
+-	Util.assert(theDivElement instanceof HTMLDivElement);
+-	this.divElement = theDivElement;
+-	if (theDivElement) {
+-		var listener = this;
+-		theDivElement.addEventListener(&quot;click&quot;,
+-																	 function(event) {listener.onClick(event)},
+-																	 false);
+-		this.display();
+-	}
++  Util.assert(theDivElement instanceof HTMLDivElement);
++  this.divElement = theDivElement;
++  if (theDivElement) {
++    var listener = this;
++    theDivElement.addEventListener(&quot;click&quot;,
++      function(event) {listener.onClick(event)},
++      false);
++    this.display();
++  }
+ };
+ 
+ MultiLineTextView.prototype.display = function() {
+-	if (!this.divElement) return;
++  if (!this.divElement) return;
+   Util.assert(this.divElement instanceof HTMLDivElement);
+   
+-	var textList = this.textItem.getValueListFromAttribute(this.attribute);
+-	var textString = &quot;&quot;;
+-	for (var i in textList) {
+-		textString = textList[i] + &quot;\n&quot; + textString;
+-	};
+-	
+-	this.textNode = document.createTextNode(textString);
+-	this.divElement.appendChild(this.textNode);
++  var textList = this.textItem.getValueListFromAttribute(this.attribute);
++  var textString = &quot;&quot;;
++  for (var i in textList) {
++    textString = textList[i] + &quot;\n&quot; + textString;
++  };
++  
++  this.textNode = document.createTextNode(textString);
++  this.divElement.appendChild(this.textNode);
+ }
+-	
++  
+ // -------------------------------------------------------------------
+ // MultiLineTextView.onClick()
+ //  public instance method
+-//	handle mouse click on text view. Called by listener	 
++//  handle mouse click on text view. Called by listener   
+ // -------------------------------------------------------------------
+ MultiLineTextView.prototype.onClick = function(eventObj) {
+-	eventObj = eventObj || window.event;
+-	this.startEditing();
++  eventObj = eventObj || window.event;
++  this.startEditing();
+ }
+ 
+ // -------------------------------------------------------------------
+ // MultiLineTextView.onClick()
+ //  public instance method
+-//	Switch to edit text field for editing 
++//  Switch to edit text field for editing 
+ // -------------------------------------------------------------------
+ MultiLineTextView.prototype.startEditing = function() {
+-	if (!this.isEditing) {
+-		var editField = this.editField;
+-		if (!editField) {
+-			editField = this.editField = document.createElement(&quot;textarea&quot;);
+-			editField.className = this.classType;
+-			//editField.cols=80; now using css style sheet &quot;text_view&quot;
+-			var listener = this; 
+-			editField.addEventListener(&quot;blur&quot;,
+-																 function(evt) {listener.onBlur(evt)},
+-																 false);
+-			editField.defaultValue = this.textNode.data;
+-		}
+-		editField.style.height = this.divElement.offsetHeight + &quot;px&quot;;
+-		this.divElement.replaceChild(editField,this.textNode);
+-		editField.focus();
+-		editField.select();
+-		this.isEditing = true;
+-	}
++  if (!this.isEditing) {
++    var editField = this.editField;
++    if (!editField) {
++      editField = this.editField = document.createElement(&quot;textarea&quot;);
++      editField.className = this.classType;
++      //editField.cols=80; now using css style sheet &quot;text_view&quot;
++      var listener = this; 
++      editField.addEventListener(&quot;blur&quot;,
++        function(evt) {listener.onBlur(evt)},
++        false);
++      editField.defaultValue = this.textNode.data;
++    }
++    editField.style.height = this.divElement.offsetHeight + &quot;px&quot;;
++    this.divElement.replaceChild(editField,this.textNode);
++    editField.focus();
++    editField.select();
++    this.isEditing = true;
++  }
+ };
+ 
+ // -------------------------------------------------------------------
+ // MultiLineTextView.onClick()
+ //  public instance method
+-//	handles loss of focus for text view. Called by listener	 
++//  handles loss of focus for text view. Called by listener   
+ //  switches back to static text from editable text
+ // -------------------------------------------------------------------
+ MultiLineTextView.prototype.onBlur = function(eventObj) {
+-	var newText = this.editField.value;
+-	this.textItem.clear(this.attribute);
+-	this.textItem.assign(this.attribute,newText); //FIXME: need to deal with multi valued attrs
+-	this.textNode.data = newText;
+-	this.divElement.replaceChild(this.textNode,this.editField);
+-	this.isEditing = false;
++  var newText = this.editField.value;
++  this.textItem.clear(this.attribute);
++  this.textItem.assign(this.attribute,newText); //FIXME: need to deal with multi valued attrs
++  this.textNode.data = newText;
++  this.divElement.replaceChild(this.textNode,this.editField);
++  this.isEditing = false;
+ }
+ 
+ 
+-	
+\ No newline at end of file
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
++  
+\ No newline at end of file
+
+Modified: trunk/source/util.js
+===================================================================
+--- trunk/source/util.js	2005-03-25 03:12:55 UTC (rev 3)
++++ trunk/source/util.js	2005-03-30 20:17:53 UTC (rev 4)
+@@ -361,23 +361,25 @@
+   return true;
+ };
+ 
++
+ /**
+- * This function allows Views to register an event listener in an object-oriented manner,
+- * allowing a specific object's handleEvent() method to be called 
++ * This function allows Views to register an event listener in an 
++ * object-oriented manner, allowing a specific object's handleEvent() 
++ * method to be called. 
+  *
+- * @scope public function
+- * @param element		HTMLElement
+- * @param eventtype type of event e.g. &quot;mousedown&quot;, &quot;click&quot;
+- * @param view			Object whose handleEvent() method is to be called
+- * @param captures	should event be captured by this function
++ * @scope public class method
++ * @param inElement   An HTMLElement.
++ * @param inEventtype The type of event (e.g. &quot;mousedown&quot;, &quot;click&quot;).
++ * @param inView      The object whose handleEvent() method is to be called.
++ * @param inCaptures  True if the event should be captured by this function.
+  */
+-Util.registerObjectEventHandler = function(element, eventtype, view, captures) {
+-	element.addEventListener(eventtype,
+-													 function(event) { view.handleEvent(event);},
+-													 captures);
++Util.registerObjectEventHandler = function(inElement, inEventtype, inView, inCaptures) {
++  inElement.addEventListener(inEventtype,
++    function(event) { inView.handleEvent(event);},
++    inCaptures);
+ };
+ 
+-													 
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000002.html">[openrecord-svn] r3 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000004.html">[openrecord-svn] r5 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#3">[ date ]</a>
+              <a href="thread.html#3">[ thread ]</a>
+              <a href="subject.html#3">[ subject ]</a>
+              <a href="author.html#3">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

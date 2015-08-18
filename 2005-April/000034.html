@@ -1,0 +1,1175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r41 - in trunk/source: . model scrap_yard
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r41%20-%20in%20trunk/source%3A%20.%20model%20scrap_yard&In-Reply-To=%3C200504282112.j3SLCcXl000400%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000033.html">
+   <LINK REL="Next"  HREF="000035.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r41 - in trunk/source: . model scrap_yard</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r41%20-%20in%20trunk/source%3A%20.%20model%20scrap_yard&In-Reply-To=%3C200504282112.j3SLCcXl000400%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r41 - in trunk/source: . model scrap_yard">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Apr 28 23:12:38 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000033.html">[openrecord-svn] r40 - in trunk/source: . model
+</A></li>
+        <LI>Next message: <A HREF="000035.html">[openrecord-svn] r42 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-28 23:12:36 +0200 (Thu, 28 Apr 2005)
+New Revision: 41
+
+Added:
+   trunk/source/model/TestSuite.html
+   trunk/source/scrap_yard/
+   trunk/source/scrap_yard/Timestamp.js
+   trunk/source/scrap_yard/TimingTest.html
+   trunk/source/scrap_yard/TimingTest.js
+Modified:
+   trunk/source/model/Entry.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+Added new scrap_yard directory, for misc. code that we want to keep but that doesn't belong in the app itself.
+Added more unit tests for the data model code.
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/model/Entry.js	2005-04-28 21:12:36 UTC (rev 41)
+@@ -202,7 +202,8 @@
+  * @return   A number.
+  */
+ Entry.prototype.getOrdinalNumberAtCreation = function () {
+-  return (0 - this.__myCreationTimestamp.valueOf());
++  // return (0 - this.__myCreationTimestamp.valueOf());
++  return (0 - this.__myUuid);
+ };
+ 
+ 
+@@ -228,6 +229,14 @@
+   
+   switch (filter) {
+     case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      // APPROACH A: 
++      //   I tried this first, but it fails in the unit tests.
++      //   It fails because two objects will have identical timestamps if they
++      //   were created in the same millisecond.  One solution would be to
++      //   create a Timestamp class that offers sub-millisecond timestamp
++      //   resolution.  For example, see scrap_yard/Timestamp.js.  However,
++      //   for now the simplest thing to do is just move on to APPROACH B:
++      /*
+       var mostRecentOrdinal = this.__mySetOfOrdinals[0];
+       for (key in this.__mySetOfOrdinals) {
+         ordinal = this.__mySetOfOrdinals[key];
+@@ -235,7 +244,14 @@
+           mostRecentOrdinal = ordinal;
+         }
+       }
+-      ordinalNumber = !mostRecentOrdinal.getOrdinalNumber();
++      */
++      
++      // APPROACH B: 
++      //   This works, provided __mySetOfOrdinals is always initialized in
++      //   chronological order.
++      var mostRecentOrdinal = this.__mySetOfOrdinals[this.__mySetOfOrdinals.length - 1];
++
++      ordinalNumber = mostRecentOrdinal.getOrdinalNumber();
+       break;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+       // PENDING: This still needs to be implemented.
+@@ -276,6 +292,14 @@
+   
+   switch (filter) {
+     case World.RETRIEVAL_FILTER_LAST_EDIT_WINS:
++      // APPROACH A: 
++      //   I tried this first, but it fails in the unit tests.
++      //   It fails because two objects will have identical timestamps if they
++      //   were created in the same millisecond.  One solution would be to
++      //   create a Timestamp class that offers sub-millisecond timestamp
++      //   resolution.  For example, see scrap_yard/Timestamp.js.  However,
++      //   for now the simplest thing to do is just move on to APPROACH B:
++      /*
+       var mostRecentVote = this.__mySetOfVotes[0];
+       for (key in this.__mySetOfVotes) {
+         vote = this.__mySetOfVotes[key];
+@@ -283,6 +307,13 @@
+           mostRecentVote = vote;
+         }
+       }
++      */
++      
++      // APPROACH B: 
++      //   This works, provided __mySetOfVotes is always initialized in
++      //   chronological order.
++      var mostRecentVote = this.__mySetOfVotes[this.__mySetOfVotes.length - 1];
++      
+       hasBeenDeleted = !mostRecentVote.getRetainFlag();
+       break;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+@@ -318,15 +349,13 @@
+   var firstOrdinalNumber = null;
+   var secondOrdinalNumber = null;
+   var thirdOrdinalNumber = null;
+-  var arbitraryNumberToMoveUsUpOrDownSlightly = 100;
++  var arbitraryNumberToMoveUsUpOrDownSlightly = 0.01;
+   
+   if (inEntryFirst) {
+     firstOrdinalNumber = inEntryFirst.getOrdinalNumber();
+-    alert(&quot;firstOrdinalNumber:&quot; + firstOrdinalNumber);
+   }
+   if (inEntryThird) {
+     thirdOrdinalNumber = inEntryThird.getOrdinalNumber();
+-    alert(&quot;thirdOrdinalNumber:&quot; + thirdOrdinalNumber);
+   }
+   
+   if (firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+@@ -338,7 +367,7 @@
+   if (!firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+     secondOrdinalNumber = (firstOrdinalNumber + arbitraryNumberToMoveUsUpOrDownSlightly);
+   }
+-  
++
+   this.getWorld()._newOrdinal(this, secondOrdinalNumber);
+ };
+ 
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/model/ModelTest.js	2005-04-28 21:12:36 UTC (rev 41)
+@@ -281,42 +281,210 @@
+   assertTrue('Cupcake starts out second in the list&quot;', foodItems[1] == cupcake);
+   assertTrue('Brownie starts out second in the list&quot;', foodItems[2] == brownie);
+ 
+-  // PENDING: this doesn't work yet
+-  // 
+-  // brownie.reorderBetween(apple, cupcake);
+-  // foodItems = world.getListOfItemsInCategory(categoryCalledFood);
+-  // assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
+-  // assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
+-  // assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
++  brownie.reorderBetween(apple, cupcake);
++  foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
++  assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
++  assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
++
++  cupcake.reorderBetween(null, apple);
++  foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  assertTrue('Apple is now first in the list&quot;', foodItems[0] == cupcake);
++  assertTrue('Brownie is now second in the list&quot;', foodItems[1] == apple);
++  assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == brownie);
++
++  cupcake.reorderBetween(brownie, null);
++  foodItems = world.getListOfItemsInCategory(categoryCalledFood);
++  assertTrue('Apple is now first in the list&quot;', foodItems[0] == apple);
++  assertTrue('Brownie is now second in the list&quot;', foodItems[1] == brownie);
++  assertTrue('Cupcake is now third in the list&quot;', foodItems[2] == cupcake);
+   
+   world.logout();
+ }
++
+   
++function testDeletion() {
++  var world = new World();
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++  
++  var hydrogen = world.newItem(&quot;Hydrogen&quot;);
++  var oxygen = world.newItem(&quot;Oxygen&quot;);
++  
++  assertTrue('Hydrogen starts out not having been deleted&quot;', !hydrogen.hasBeenDeleted());
+ 
+-function tearDown() {
+-  ModelTestVars = null;
++  hydrogen.voteToDelete();
++  assertTrue('After a voteToDelete(), hydrogen hasBeenDeleted()&quot;', hydrogen.hasBeenDeleted());
++  
++  hydrogen.voteToRetain();
++  assertTrue('After a voteToRetain(), hydrogen no longer hasBeenDeleted()', !hydrogen.hasBeenDeleted());
++
++  world.logout();
+ }
+ 
+-/*********************************************************************
+-Methods that we don't yet have tests for:
++
++function testItemObservation() {
++  var world = new World();
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
+   
+-  item.reorderBetween()
++  var tokyo = world.newItem(&quot;Tokyo&quot;);
++  var seattle = world.newItem(&quot;Seattle&quot;);
+   
+-  item.hasBeenDeleted()
+-  item.voteToDelete()
+-  item.voteToRetain()
++  var changesObservedByObject = null;
++  var tokyoObserverObject = {};
++  tokyoObserverObject.observedItemHasChanged = function (inItem, inListOfRecords) {
++    changesObservedByObject = inListOfRecords;
++  };
++  tokyo.addObserver(tokyoObserverObject);
++
++  var changesObservedByFunction = null;
++  var tokyoObserverFunction = function (inItem, inListOfRecords) {
++    changesObservedByFunction = inListOfRecords;
++  };
++  tokyo.addObserver(tokyoObserverFunction);
+   
+-  item.addObserver()
+-  item.removeObserver()
+-  world.beginTransaction()
+-  world.endTransaction()
++  seattle.voteToDelete();
++  assertTrue('tokyoObserverObject does not observe Seattle', (changesObservedByObject === null));
++  assertTrue('tokyoObserverFunction does not observe Seattle', (changesObservedByFunction === null));
+ 
+-  world.getListOfResultItemsForQuery()
+-  world.setItemToBeIncludedInQueryResultList()
+-  world.removeObserverOfList()
++  tokyo.voteToDelete();
++  assertTrue('tokyoObserverObject does observe Tokyo', (changesObservedByObject != null));
++  assertTrue('tokyoObserverObject sees exactly one change', (changesObservedByObject.length == 1));
++  assertTrue('tokyoObserverFunction does observe Tokyo', (changesObservedByFunction != null));
++  assertTrue('tokyoObserverFunction sees exactly one change', (changesObservedByFunction.length == 1));
++
++  changesObservedByObject = null;
++  changesObservedByFunction = null;
++  world.beginTransaction();
++  tokyo.voteToRetain();
++  tokyo.addValue(&quot;Japan&quot;);
++  assertTrue('tokyoObserverObject does not yet see changes', (changesObservedByObject === null));
++  assertTrue('tokyoObserverFunction does not yet see changes', (changesObservedByFunction === null));
++  world.endTransaction();
++  assertTrue('tokyoObserverObject now sees changes', (changesObservedByObject != null));
++  assertTrue('tokyoObserverObject now sees two changes', (changesObservedByObject.length == 2));
++  assertTrue('tokyoObserverFunction now sees changes', (changesObservedByFunction != null));
++  assertTrue('tokyoObserverFunction now sees two changes', (changesObservedByFunction.length == 2));
++
++  changesObservedByObject = null;
++  changesObservedByFunction = null;
++  tokyo.removeObserver(tokyoObserverObject);
++  tokyo.removeObserver(tokyoObserverFunction);
++  tokyo.voteToDelete();
++  assertTrue('tokyoObserverObject no longer observes Tokyo', (changesObservedByObject === null));
++  assertTrue('tokyoObserverFunction no longer observes Tokyo', (changesObservedByFunction === null));
+   
+-*********************************************************************/
++  world.logout();
++}
+ 
++
++function testListObservation() {
++  var world = new World();
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++
++  var attributeCalledCategory = world.getAttributeCalledCategory();
++  
++  var apple = world.newItem(&quot;Apple&quot;);
++  var brownie = world.newItem(&quot;Brownie&quot;);  
++  var cupcake = world.newItem(&quot;Cupcake&quot;);
++
++  var categoryCalledFood = world.newCategory(&quot;Food&quot;);
++  apple.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++  brownie.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++  cupcake.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++
++  var tokyo = world.newItem(&quot;Tokyo&quot;);
++  var seattle = world.newItem(&quot;Seattle&quot;);
++
++  var changesObservedByObject = null;
++  var foodObserverObject = {};
++  foodObserverObject.observedListHasChanged = function (inList, inListOfChangeReports) {
++    changesObservedByObject = inListOfChangeReports;
++  };
++  var foodItems = world.getListOfItemsInCategory(categoryCalledFood, foodObserverObject);
++
++  var changesObservedByFunction = null;
++  var foodObserverFunction = function (inList, inListOfChangeReports) {
++    changesObservedByFunction = inListOfChangeReports;
++  };
++  var alsoFoodItems = world.getListOfItemsInCategory(categoryCalledFood, foodObserverFunction);
++  
++  apple.addValue(&quot;Red&quot;);
++  assertTrue('foodObserverObject sees a change to apple', (changesObservedByObject != null));
++  assertTrue('foodObserverFunction sees a change to apple', (changesObservedByFunction != null));
++
++  changesObservedByObject = null;
++  changesObservedByFunction = null;
++  tokyo.addValue(&quot;Japan&quot;);
++  assertTrue('foodObserverObject does not see a change to tokyo', (changesObservedByObject === null));
++  assertTrue('foodObserverFunction does not see a change to tokyo', (changesObservedByFunction === null));
++
++  world.removeListObserver(foodItems, foodObserverObject);
++  world.removeListObserver(alsoFoodItems, foodObserverFunction);
++  brownie.addValue(&quot;Brown&quot;);
++  assertTrue('foodObserverObject no longer sees changes to food items', (changesObservedByObject === null));
++  assertTrue('foodObserverFunction no longer sees changes to food items', (changesObservedByFunction === null));
++  
++  world.logout();
++}
++
++
++function testQueries() {
++  var world = new World();
++  var janesPassword = &quot;jane's password&quot;;
++  var userJane = world.newUser(&quot;Jane Doe&quot;, janesPassword);
++  world.login(userJane, janesPassword);
++  
++  var attributeCalledCategory = world.getAttributeCalledCategory();
++  
++  var apple = world.newItem(&quot;Apple&quot;);
++  var brownie = world.newItem(&quot;Brownie&quot;);  
++  var cupcake = world.newItem(&quot;Cupcake&quot;);
++
++  var categoryCalledFood = world.newCategory(&quot;Food&quot;);
++  assertTrue('The category &quot;Food&quot; is an item', (categoryCalledFood instanceof Item));
++  apple.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++  brownie.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++  cupcake.addAttributeValue(attributeCalledCategory, categoryCalledFood);
++
++  var tokyo = world.newItem(&quot;Tokyo&quot;);
++  var seattle = world.newItem(&quot;Seattle&quot;);
++
++  var hasAll;
++  var queryForFoods = world.newQueryForItemsByCategory(categoryCalledFood);
++  var queryForCities = world.newQueryForSpecificItems([tokyo, seattle]);
++  
++  var listOfFoods = world.getListOfResultItemsForQuery(queryForFoods);
++  hasAll = Util.areObjectsInSet([apple, brownie, cupcake], listOfFoods);
++  assertTrue('Food query returns 3 foods', listOfFoods.length == 3);
++  assertTrue('Food query returns all 3 foods', hasAll);
++
++  var listOfCities = world.getListOfResultItemsForQuery(queryForCities);
++  hasAll = Util.areObjectsInSet([tokyo, seattle], listOfCities);
++  assertTrue('City query returns 2 cities', listOfCities.length == 2);
++  assertTrue('City query returns all cities', hasAll);
++
++  world.setItemToBeIncludedInQueryResultList(tokyo, queryForFoods);
++  assertTrue('Tokyo is now a food', tokyo.isInCategory(categoryCalledFood));
++
++  listOfFoods = world.getListOfResultItemsForQuery(queryForFoods);
++  hasAll = Util.areObjectsInSet([apple, brownie, cupcake, tokyo], listOfFoods);
++  assertTrue('Food query returns 4 foods', listOfFoods.length == 4);
++  assertTrue('Food query returns all 4 foods', hasAll);
++
++  world.logout();
++}
++
++function tearDown() {
++  ModelTestVars = null;
++}
++
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/model/StubVirtualServer.js	2005-04-28 21:12:36 UTC (rev 41)
+@@ -154,7 +154,7 @@
+  * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
+  * @return   A newly created vote.
+  */
+-StubVirtualServer.prototype._newVote = function (inEntry, inRetainFlag) {
++StubVirtualServer.prototype.newVote = function (inEntry, inRetainFlag) {
+   var vote = new Vote(inEntry, this.__myWorld.getCurrentUser(), inRetainFlag);
+   this.__myChronologicalListOfNewlyCreatedRecords.push(vote);
+   return vote;
+@@ -310,12 +310,13 @@
+ StubVirtualServer.prototype.getListOfResultItemsForQuery = function (inQuery, inObserver) {
+   Util.assert(inQuery instanceof Item);
+   
+-  var attributeCalledQueryMatchingCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var attributeCalledQueryMatchingItem = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  var attributeCalledQueryMatchingCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var attributeCalledQueryMatchingItem = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+ 
+   var uuid = null;
+   var item = null;
+-  var listOfQueryResultItems = null;
++  var key;
++  var listOfQueryResultItems = [];
+   var listOfMatchingCategories = inQuery.getValuesForAttribute(attributeCalledQueryMatchingCategory);
+   var listOfMatchingItems = inQuery.getValuesForAttribute(attributeCalledQueryMatchingItem);
+   var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
+@@ -324,19 +325,23 @@
+   Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
+ 
+   if (isItemMatchingQuery) {
+-    listOfQueryResultItems = listOfMatchingItems;
++    for (key in listOfMatchingItems) {
++      var itemValue = listOfMatchingItems[key];
++      item = itemValue.getContentData();
++      listOfQueryResultItems.push(item);
++    }
+   }
+   
+   if (isCategoryMatchingQuery) {
+-    listOfQueryResultItems = [];
+     // This is a wildly inefficient search.  But maybe it doesn't matter,
+     // because this code should all be replaced someday by server code.
+     for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
+       item = this.__myHashTableOfItemsKeyedByUuid[uuid];
+       if (!item.hasBeenDeleted()) {
+         var includeItem = true;
+-        for (var key in listOfMatchingCategories) {
+-          var category = listOfMatchingCategories[key];
++        for (key in listOfMatchingCategories) {
++          var categoryValue = listOfMatchingCategories[key];
++          var category = categoryValue.getContentData();
+           if (includeItem &amp;&amp; !(item.isInCategory(category))) {
+             includeItem = false;
+           }
+@@ -349,7 +354,6 @@
+   }
+   
+   if (!isItemMatchingQuery &amp;&amp; !isCategoryMatchingQuery) {
+-    listOfQueryResultItems = [];
+     for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
+       item = this.__myHashTableOfItemsKeyedByUuid[uuid];
+       if (!item.hasBeenDeleted()) {
+@@ -377,8 +381,8 @@
+   Util.assert(inItem instanceof Item);
+   Util.assert(inQuery instanceof Item);
+ 
+-  var attributeCalledQueryMatchingCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
+-  var attributeCalledQueryMatchingItem = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  var attributeCalledQueryMatchingCategory = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var attributeCalledQueryMatchingItem = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+ 
+   var listOfMatchingCategories = inQuery.getValuesForAttribute(attributeCalledQueryMatchingCategory);
+   var listOfMatchingItems = inQuery.getValuesForAttribute(attributeCalledQueryMatchingItem);
+@@ -394,7 +398,8 @@
+   var attributeCalledCategory = this.__myWorld.getAttributeCalledCategory();
+   if (isCategoryMatchingQuery) {
+     for (var key in listOfMatchingCategories) {
+-      var category = listOfMatchingCategories[key];
++      var categoryValue = listOfMatchingCategories[key];
++      var category = categoryValue.getContentData();
+       if (!(inItem.isInCategory(category))) {
+         inItem.addAttributeValue(attributeCalledCategory, category);
+       }
+
+Added: trunk/source/model/TestSuite.html
+===================================================================
+--- trunk/source/model/TestSuite.html	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/model/TestSuite.html	2005-04-28 21:12:36 UTC (rev 41)
+@@ -0,0 +1,96 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Data Model Test Suite&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot;&gt;
++      function suite() {
++        var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestSuite(dataModelTestSuite());
++        return testSuite;
++      }
++      
++      function dataModelTestSuite() {
++        var testSuite = new window.top.jsUnitTestSuite();
++        testSuite.addTestPage(&quot;../../current/trunk/source/model/ModelTest.html&quot;);
++        testSuite.addTestPage(&quot;../../current/trunk/source/model/LintTest.html&quot;);
++        return testSuite;
++      }
++    &lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Data Model Test Suite&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/model/World.js	2005-04-28 21:12:36 UTC (rev 41)
+@@ -106,6 +106,8 @@
+   // this.__myAttributeCalledCreationUserstamp = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_USERSTAMP);
+   // this.__myAttributeCalledCreationTimestamp = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_TIMESTAMP);
+   this.__myAttributeCalledQuery = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY);
++  this.__myAttributeCalledQueryMatchingCategory = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  this.__myAttributeCalledQueryMatchingItem = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
+ 
+   // load the axiomatic categories
+   this.__myCategoryCalledAttribute = this.__myVirtualServer.getItemFromUuid(World.UUID_FOR_CATEGORY_ATTRIBUTE);
+@@ -323,7 +325,15 @@
+   return this.__myAttributeCalledQuery;
+ };
+ 
++World.prototype.getAttributeCalledQueryMatchingCategory = function () {
++  return this.__myAttributeCalledQueryMatchingCategory;
++};
+ 
++World.prototype.getAttributeCalledQueryMatchingItem = function () {
++  return this.__myAttributeCalledQueryMatchingItem;
++};
++
++
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic categories
+ // -------------------------------------------------------------------
+@@ -502,6 +512,72 @@
+ 
+ 
+ /**
++ * Returns a newly created item representing a query.
++ *
++ * @scope    public instance method
++ * @param    inCategory    Optional. A category item, or an array of category items. 
++ * @return   A newly created item representing a query.
++ */
++World.prototype.newQueryForItemsByCategory = function (inCategory) {
++  this.beginTransaction();
++  var item = this.__myVirtualServer.newItem(&quot;A query&quot;);
++  var attributeCalledCategory = this.getAttributeCalledCategory();
++  var categoryCalledQuery = this.getCategoryCalledQuery();
++  item.addAttributeValue(attributeCalledCategory, categoryCalledQuery);
++
++  var attributeCalledQueryMatchingCategory = this.getAttributeCalledQueryMatchingCategory();
++  if (inCategory) {
++    if (inCategory instanceof Item) {
++      item.addAttributeValue(attributeCalledQueryMatchingCategory, inCategory);
++    }
++    if (Util.isArray(inCategory)) {
++      var listOfCategories = inCategory;
++      for (var key in listOfCategories) {
++        var category = listOfCategories[key];
++        item.addAttributeValue(attributeCalledQueryMatchingCategory, category);
++      }
++    }
++  }
++
++  this.endTransaction();
++  return item;
++};
++
++
++/**
++ * Returns a newly created item representing a query.
++ *
++ * @scope    public instance method
++ * @param    inItems    Optional. An item, or an array of items. 
++ * @return   A newly created item representing a query.
++ */
++World.prototype.newQueryForSpecificItems = function (inItems) {
++  this.beginTransaction();
++  var item = this.__myVirtualServer.newItem(&quot;A query&quot;);
++  var attributeCalledCategory = this.getAttributeCalledCategory();
++  var categoryCalledQuery = this.getCategoryCalledQuery();
++  item.addAttributeValue(attributeCalledCategory, categoryCalledQuery);
++
++  var attributeCalledQueryMatchingItem = this.getAttributeCalledQueryMatchingItem();
++  if (inItems) {
++    if (inItems instanceof Item) {
++      item.addAttributeValue(attributeCalledQueryMatchingItem, inItems);
++    }
++    if (Util.isArray(inItems)) {
++      var listOfItems = inItems;
++      for (var key in listOfItems) {
++        var matchingItem = listOfItems[key];
++        item.addAttributeValue(attributeCalledQueryMatchingItem, matchingItem);
++      }
++    }
++  }
++
++  this.endTransaction();
++  return item;
++};
++
++
++/**
+  * Returns a newly created value.
+  *
+  * @scope    public instance method
+@@ -632,7 +708,6 @@
+     return observerWasAdded;
+   }
+   var weNeedToMakeANewTupleForThisList = true;
+-  var observerWasAdded = false;
+   var listOfTuples = this.__myListOfListObserverTuples;
+   for (var key in listOfTuples) {
+     var tuple = listOfTuples[key];
+
+Added: trunk/source/scrap_yard/Timestamp.js
+===================================================================
+--- trunk/source/scrap_yard/Timestamp.js	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/scrap_yard/Timestamp.js	2005-04-28 21:12:36 UTC (rev 41)
+@@ -0,0 +1,88 @@
++/*****************************************************************************
++ Timestamp.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Date
++// -------------------------------------------------------------------
++
++
++/**
++ * A Timestamp instance records when it was created.  Each Timestamp
++ * includes a Date object, which records the time in milliseconds since
++ * 1970.  In some use cases, thousands of Timestamp objects may be
++ * created within a single millisecond.  All of these Timestamps 
++ * will have Date objects with identical values.  To determine the
++ * sequence in which the Timestamps were created, we need each 
++ * Timestamp to have not only a Date object, but also a &quot;sequence
++ * number&quot;.  Given two Timestamps with identical Date values, the 
++ * sequence number tells which was created first.
++ *
++ * @scope    public instance constructor
++ * @param    inDate    Optional. A Date object. 
++ * @param    inSubMillisecondSequenceNumber    Optional. A number. 
++ */
++function Timestamp(inDate, inSequenceNumber) {
++  if (inDate &amp;&amp; inSubMillisecondSequenceNumber) {
++    // We're &quot;rehydrating&quot; an old Timestamp that we already know
++    // the internal state information of.
++    this.__myDate = inDate;
++    this.__mySequenceNumber = inSequenceNumber;
++  } else {
++    // We creating a brand new Timestamp, so we need to stamp it
++    // with the current time.
++    this.__myDate = new Date();
++    if (!Timestamp.__ourCurrentMillisecond) {
++      // This is the first Timestamp to ever be created
++      Timestamp.__ourCurrentMillisecond = this.__myDate.valueOf();
++      this.__mySequenceNumber = 1;
++      Timestamp.__ourNextAvailableSequenceNumber = 2;
++    } else {
++      var dateInMilliseconds = this.__myDate.valueOf();
++      if (dateInMilliseconds == Timestamp.__ourCurrentMillisecond) {
++        // We've already created a previous Timestamp in this same
++        // millisecond, so this new Timestamp needs a bigger 
++        // sequence number.
++        this.__mySequenceNumber = Timestamp.__ourNextAvailableSequenceNumber;
++        Timestamp.__ourNextAvailableSequenceNumber += 1;
++      } else {
++        // The last Timestamp we gave out happened long ago.
++        Timestamp.__ourCurrentMillisecond = dateInMilliseconds;
++        this.__mySequenceNumber = 1;
++        Timestamp.__ourNextAvailableSequenceNumber = 2;
++      }
++    }
++  }
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/scrap_yard/TimingTest.html
+===================================================================
+--- trunk/source/scrap_yard/TimingTest.html	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/scrap_yard/TimingTest.html	2005-04-28 21:12:36 UTC (rev 41)
+@@ -0,0 +1,85 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;JavaScript timing tests&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../Util.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../model/Entry.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;TimingTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;JavaScript timing tests&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
++    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
++    unit tests. The web server that served you this page may also have a
++    JsUnit testRunner available. If so, you should be able to run these unit
++    tests by going to
++    &lt;a href=&quot;../../../../third_party/jsunit/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
++
++    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
++    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
++    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Added: trunk/source/scrap_yard/TimingTest.js
+===================================================================
+--- trunk/source/scrap_yard/TimingTest.js	2005-04-27 04:26:02 UTC (rev 40)
++++ trunk/source/scrap_yard/TimingTest.js	2005-04-28 21:12:36 UTC (rev 41)
+@@ -0,0 +1,263 @@
++/*****************************************************************************
++ TimingTest.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++// Results from running this test, using Brian's Dell 4600:
++//  0   microseconds for EMPTY_LOOP
++// 16   microseconds for ARRAY_CREATION
++// 15   microseconds for OBJECT_CREATION
++// 14   microseconds for OBJECT_CREATION_WITH_STRINGS
++// 11   microseconds for DATE_CREATION
++//  2.3 microseconds for METHOD_CALL
++//  1.3 microseconds for GLOBAL_VARIABLE_LOOKUP
++//  1.2 microseconds for DATE_VALUEOF
++// 16    microseconds for ENTRY_COMPAREORDINALS
++
++// Results from a different test program, using Brian's Dell 4600:
++//  0.78 microseconds to create a new Array:   var a = [x, y];
++//  0.59 microseconds to create a new Object:  var o = {here: x, there: y};
++//  0.59 microseconds to create a new Object:  var o = {&quot;here&quot;: x, &quot;there&quot;: y};
++//  0.49 microseconds to create a new Date:    var d = new Date();
++//  0.18 microseconds to call a global method: noop();
++//  0.15 microseconds to look up a global:     ModelTestVars = null;
++//  0.06 microseconds to call Date.valueOf:    var foo = now.valueOf();
++//  0.88 microseconds to call compareOrdinals: var foo = Entry.compareOrdinals(e1, e2);
++
++var TEST_EMPTY_LOOP = &quot;EMPTY_LOOP&quot;;
++var TEST_ARRAY_CREATION = &quot;ARRAY_CREATION&quot;;
++var TEST_OBJECT_CREATION = &quot;OBJECT_CREATION&quot;;
++var TEST_OBJECT_CREATION_WITH_STRINGS = &quot;OBJECT_CREATION_WITH_STRINGS&quot;;
++var TEST_DATE_CREATION = &quot;DATE_CREATION&quot;;
++var TEST_METHOD_CALL = &quot;METHOD_CALL&quot;;
++var TEST_GLOBAL_VARIABLE_LOOKUP = &quot;GLOBAL_VARIABLE_LOOKUP&quot;;
++var TEST_DATE_VALUEOF = &quot;DATE_VALUEOF&quot;;
++var TEST_ENTRY_COMPAREORDINALS = &quot;ENTRY_COMPAREORDINALS&quot;;
++
++function testTimes() {
++  var testName;
++  var hashTableOfOperationsPerMillisecondKeyedByTestName = {};
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_EMPTY_LOOP] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_ARRAY_CREATION] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_OBJECT_CREATION] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_OBJECT_CREATION_WITH_STRINGS] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_DATE_CREATION] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_METHOD_CALL] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_GLOBAL_VARIABLE_LOOKUP] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_DATE_VALUEOF] = null;
++  hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_ENTRY_COMPAREORDINALS] = null;
++  for (testName in hashTableOfOperationsPerMillisecondKeyedByTestName) {
++    var opsPerMS = getOpsPerMS(testName);
++    hashTableOfOperationsPerMillisecondKeyedByTestName[testName] = opsPerMS;
++  }
++  var resultMessage = &quot;&quot;;
++  for (testName in hashTableOfOperationsPerMillisecondKeyedByTestName) {
++    var opsPerMS = hashTableOfOperationsPerMillisecondKeyedByTestName[testName];
++    var emptyLoopsPerMS = hashTableOfOperationsPerMillisecondKeyedByTestName[TEST_EMPTY_LOOP];
++    var microSecondsPerEmptyLoop = 1000 / emptyLoopsPerMS;
++    var microSecondsPerOperationGross = 1000 / opsPerMS;
++    var microSecondsPerOperationNet = microSecondsPerOperationGross - microSecondsPerEmptyLoop;
++    resultMessage += microSecondsPerOperationNet.toFixed(1) + &quot; microseconds for &quot; + testName + &quot;\n&quot;;
++  }
++  
++  alert(resultMessage);
++}
++
++function noop() {
++  return 0;
++}
++
++function getOpsPerMS(inTestName) {
++
++  var numberOfMillisecondsWorthOfTrials = 500;
++  var operationsPerForLoopIteration = 10;
++  var numberOfForLoopIterations = 5;
++  var operationsPerWhileLoopIteration = numberOfForLoopIterations * operationsPerForLoopIteration;
++  var totalOperations = 0;
++  
++  if (inTestName == TEST_ENTRY_COMPAREORDINALS) {
++    var world = {};
++    world.getCurrentUser = function () { return this; };
++    var e1 = new Entry();
++    var e2 = new Entry();
++    e1._Entry(world, 1);
++    e2._Entry(world, 2);
++    e1._initializeEntry();
++    e2._initializeEntry();
++  }
++
++  var start = new Date();
++  var startMS = start.valueOf();
++  var nowMS = startMS;
++  var i;
++  var now;
++  var foo;
++  
++  while (nowMS == startMS) {
++    now = new Date();
++    nowMS = now.valueOf();
++  }
++  
++  startMS = nowMS;
++  
++  while ((nowMS - startMS) &lt; numberOfMillisecondsWorthOfTrials) {
++    if (inTestName == TEST_EMPTY_LOOP) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        // empty: do nothing
++      }
++    }
++    if (inTestName == TEST_ARRAY_CREATION) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++        foo = [nowMS, startMS];
++      }
++    }
++    if (inTestName == TEST_OBJECT_CREATION) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++        foo = {now: nowMS, start: startMS};
++      }
++    }
++    if (inTestName == TEST_OBJECT_CREATION_WITH_STRINGS) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++        foo = {&quot;now&quot;: nowMS, &quot;start&quot;: startMS};
++      }
++    }
++    if (inTestName == TEST_DATE_CREATION) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++        foo = new Date();
++      }
++    }
++    if (inTestName == TEST_METHOD_CALL) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++        foo = noop();
++      }
++    }
++    if (inTestName == TEST_GLOBAL_VARIABLE_LOOKUP) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++        foo = TEST_EMPTY_LOOP;
++      }
++    }
++    if (inTestName == TEST_DATE_VALUEOF) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++        foo = now.valueOf();
++      }
++    }
++    if (inTestName == TEST_ENTRY_COMPAREORDINALS) {
++      for (i = 0; i &lt; numberOfForLoopIterations; i += 1) {
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++        foo = Entry.compareOrdinals(e1, e2);
++      }
++    }
++    now = new Date();
++    nowMS = now.valueOf();
++    totalOperations += operationsPerWhileLoopIteration;
++  }
++     
++//  now = new Date();
++//  nowMS = now.valueOf();   
++//  var elapsedMS = nowMS - startMS;
++//  var totalOperations = operationsPerForLoopIteration * numberOfForLoopIterations;
++//  var operationsPerMillisecond = totalOperations / elapsedMS;
++
++  var operationsPerMillisecond = totalOperations / numberOfMillisecondsWorthOfTrials;
++  return operationsPerMillisecond;  
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000033.html">[openrecord-svn] r40 - in trunk/source: . model
+</A></li>
+	<LI>Next message: <A HREF="000035.html">[openrecord-svn] r42 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#34">[ date ]</a>
+              <a href="thread.html#34">[ thread ]</a>
+              <a href="subject.html#34">[ subject ]</a>
+              <a href="author.html#34">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

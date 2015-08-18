@@ -1,0 +1,424 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r59 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r59%20-%20trunk/source&In-Reply-To=%3C200505160106.j4G16V5i003896%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000050.html">
+   <LINK REL="Next"  HREF="000052.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r59 - trunk/source</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r59%20-%20trunk/source&In-Reply-To=%3C200505160106.j4G16V5i003896%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r59 - trunk/source">chaolam at sheep.berlios.de
+       </A><BR>
+    <I>Mon May 16 03:06:31 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000050.html">[openrecord-svn] r58 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000052.html">[openrecord-svn] r60 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-05-16 03:06:23 +0200 (Mon, 16 May 2005)
+New Revision: 59
+
+Added:
+   trunk/source/Cookie.js
+Modified:
+   trunk/source/RootView.js
+   trunk/source/base_style.css
+   trunk/source/demo_page.html
+Log:
+1) Added new Cookie class
+2) Added support for Cookie class in RootView
+3) Refactored RootView Control span to use DOM level II
+4) Added very preliminary sign in/sign out logic to RootView, storing username in cookie
+
+
+
+Added: trunk/source/Cookie.js
+===================================================================
+--- trunk/source/Cookie.js	2005-05-07 02:41:09 UTC (rev 58)
++++ trunk/source/Cookie.js	2005-05-16 01:06:23 UTC (rev 59)
+@@ -0,0 +1,127 @@
++// Sample code from Javascript: The Definitive Guide, 4th Edition by David Flanagan
++// The constructor function: creates a Cookie object for the specified
++// document, with a specified name and optional attributes.
++// Arguments:
++//   document: The Document object for which the cookie is stored. Required.
++//   name:     A string that specifies a name for the cookie. Required.
++//   hours:    An optional number that specifies the number of hours from now
++//             after which the cookie should expire.
++//   path:     An optional string that specifies the cookie path attribute.
++//   domain:   An optional string that specifies the cookie domain attribute.
++//   secure:   An optional boolean value that, if true, requests a secure cookie.
++//
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   Util.js [pending: will soon when we add error checking]
++// -------------------------------------------------------------------
++
++function Cookie(document, name, hours, path, domain, secure)
++{
++    // All the predefined properties of this object begin with '$'
++    // to distinguish them from other properties, which are the values to
++    // be stored in the cookie
++    this.$document = document;
++    this.$name = name;
++    if (hours)
++        this.$expiration = new Date((new Date()).getTime(  ) + hours*3600000);
++    else this.$expiration = null;
++    if (path) this.$path = path; else this.$path = null;
++    if (domain) this.$domain = domain; else this.$domain = null;
++    if (secure) this.$secure = true; else this.$secure = false;
++}
++
++// This function is the store(  ) method of the Cookie object
++Cookie.prototype.store = function (  ) {
++    // First, loop through the properties of the Cookie object and
++    // put together the value of the cookie. Since cookies use the
++    // equals sign and semicolons as separators, we'll use colons
++    // and ampersands for the individual state variables we store 
++    // within a single cookie value. Note that we escape the value
++    // of each state variable, in case it contains punctuation or other
++    // illegal characters.
++    var cookieval = &quot;&quot;;
++    for(var prop in this) {
++        // Ignore properties with names that begin with '$' and also methods
++        if ((prop.charAt(0) == '$') || ((typeof this[prop]) == 'function') || !this[prop]) 
++            continue;
++        if (cookieval != &quot;&quot;) cookieval += '&amp;';
++        cookieval += prop + ':' + escape(this[prop]);
++    }
++
++    // Now that we have the value of the cookie, put together the 
++    // complete cookie string, which includes the name and the various
++    // attributes specified when the Cookie object was created
++    var cookie = this.$name + '=' + cookieval;
++    if (this.$expiration)
++        cookie += '; expires=' + this.$expiration.toGMTString(  );
++    if (this.$path) cookie += '; path=' + this.$path;
++    if (this.$domain) cookie += '; domain=' + this.$domain;
++    if (this.$secure) cookie += '; secure';
++
++    // Now store the cookie by setting the magic Document.cookie property
++    this.$document.cookie = cookie;
++}
++
++// This function is the load(  ) method of the Cookie object
++Cookie.prototype.load = function(  ) { 
++    // First, get a list of all cookies that pertain to this document
++    // We do this by reading the magic Document.cookie property
++    var allcookies = this.$document.cookie;
++    if (allcookies == &quot;&quot;) return false;
++
++    // Now extract just the named cookie from that list
++    var start = allcookies.indexOf(this.$name + '=');
++    if (start == -1) return false;   // Cookie not defined for this page
++    start += this.$name.length + 1;  // Skip name and equals sign
++    var end = allcookies.indexOf(';', start);
++    if (end == -1) end = allcookies.length;
++    var cookieval = allcookies.substring(start, end);
++
++    // Now that we've extracted the value of the named cookie, we
++    // must break that value down into individual state variable 
++    // names and values. The name/value pairs are separated from each
++    // other by ampersands, and the individual names and values are
++    // separated from each other by colons. We use the split(  ) method
++    // to parse everything.
++    var a = cookieval.split('&amp;');    // Break it into an array of name/value pairs
++    for(var i=0; i &lt; a.length; i++)  // Break each pair into an array
++        a[i] = a[i].split(':');
++
++    // Now that we've parsed the cookie value, set all the names and values
++    // of the state variables in this Cookie object. Note that we unescape(  )
++    // the property value, because we called escape(  ) when we stored it.
++    for(var i = 0; i &lt; a.length; i++) {
++        this[a[i][0]] = unescape(a[i][1]);
++    }
++
++    // We're done, so return the success code
++    return true;
++}
++
++// This function is the remove(  ) method of the Cookie object
++Cookie.prototype.remove = function(  ) {
++    var cookie;
++    cookie = this.$name + '=';
++    if (this.$path) cookie += '; path=' + this.$path;
++    if (this.$domain) cookie += '; domain=' + this.$domain;
++    cookie += '; expires=Fri, 02-Jan-1970 00:00:00 GMT';
++
++    this.$document.cookie = cookie;
++}
++
++/* need to turn this into Unit tests
++var testCookieCreation = false;
++var cookieName = &quot;user&quot;
++var userCookie = new Cookie(document, cookieName,10*365*24);
++if (testCookieCreation) {
++  userCookie.username = &quot;chao&quot;;
++  userCookie.editMode = true;
++  userCookie.store();
++}
++else {
++  Util.assert(userCookie.load());
++  Util.assert(userCookie.username == &quot;chao&quot;);
++  Util.assert(userCookie.editMode == &quot;true&quot;);
++}
++*/
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-05-07 02:41:09 UTC (rev 58)
++++ trunk/source/RootView.js	2005-05-16 01:06:23 UTC (rev 59)
+@@ -42,7 +42,6 @@
+ // -------------------------------------------------------------------
+ RootView.ELEMENT_CLASS_PAGE_EDIT_BUTTON = &quot;page_edit_button&quot;;
+ 
+-RootView.ELEMENT_ID_EDIT_BUTTON = &quot;edit_button&quot;;
+ RootView.ELEMENT_ID_DEBUG_TEXTAREA = &quot;debug_textarea&quot;;
+ 
+ RootView.URL_PAGE_PREFIX = &quot;page&quot;;
+@@ -53,7 +52,10 @@
+ RootView.ELEMENT_CLASS_EDIT_MODE = &quot;editmode&quot;;
+ RootView.ELEMENT_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+ 
++RootView.COOKIE_NAME = &quot;user&quot;;
++RootView.CONTROL_SPAN_CLASS = &quot;control_span&quot;
+ 
++
+ // -------------------------------------------------------------------
+ // RootView class properties
+ // -------------------------------------------------------------------
+@@ -75,10 +77,11 @@
+ 
+   // instance properties
+   this._myStevedore = inStevedore;
+-  this.myEditButtonId = RootView.ELEMENT_ID_EDIT_BUTTON;
+   this.myEditMode = false;
+   this.myNumberOfCallsToDebug = 0;
+   this.myDebugTextarea = null;
++  this.myCookie = new Cookie(document,RootView.COOKIE_NAME,10*365*24)
++  this.myCookie.load();
+   
+   this._myHashTableOfItemViewsKeyedByUuid = {};
+   this._myHashTableOfPageViewsKeyedByUuid = {};
+@@ -105,6 +108,7 @@
+   var logoSpan = View.createAndAppendElement(headerP, &quot;span&quot;, &quot;logo&quot;);
+   logoSpan.innerHTML = '&lt;a href=&quot;<A HREF="http://openrecord.org">http://openrecord.org</A>&quot;&gt;&lt;span class=&quot;logostart&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;logomiddle&quot;&gt;record&lt;/span&gt;&lt;span class=&quot;logoend&quot;&gt;.org&lt;/span&gt;&lt;/a&gt;';
+   var mainControlSpan = View.createAndAppendElement(headerP, &quot;span&quot;, null, &quot;main_control_span&quot;);
++  mainControlSpan.className = RootView.CONTROL_SPAN_CLASS;
+   View.createAndAppendElement(headerP, &quot;br&quot;);
+   var navbarDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;navbar&quot;);
+   var contentAreaDiv = View.createAndAppendElement(rootDiv, &quot;div&quot;, &quot;content_area&quot;);
+@@ -254,24 +258,79 @@
+  * @scope    public instance method
+  */
+ RootView.prototype.displayControlSpan = function () {
+-  Util.assert(this.myMainControlSpanElement instanceof HTMLSpanElement);
++  var mySpan = this.myMainControlSpanElement;
++  Util.assert(mySpan instanceof HTMLSpanElement);
++  for (var i = mySpan.childNodes.length-1;i &gt;= 0; i--) {
++    mySpan.removeChild(mySpan.childNodes[i]);
++  }
+ 
+-  var listOfStrings = [];
+-  
+-  var buttonValue = (this.myEditMode) ? &quot;Save&quot; : &quot;Edit&quot;;
+-  listOfStrings.push(&quot;&lt;input type=\&quot;button\&quot; class=\&quot;&quot; + RootView.ELEMENT_CLASS_PAGE_EDIT_BUTTON + &quot;\&quot; id=\&quot;&quot; + this.myEditButtonId + &quot;\&quot; name=\&quot;editbutton\&quot; value=\&quot;&quot; + buttonValue + &quot;\&quot;&gt;&lt;/input&gt;&quot;);
++  var username = this.myCookie.username;
++  var knownUser = username != null;
++  if (!knownUser) {username = &quot;guest. Your username: &quot;};
++  var welcomeNode = document.createTextNode(&quot;Hello, &quot; + username);
++  mySpan.appendChild(welcomeNode);
++  if (knownUser) { 
++    welcomeNode.appendData(&quot;. &quot;);
++    var signoutLink = document.createElement(&quot;a&quot;);
++    signoutLink.appendChild(document.createTextNode(&quot;Sign out&quot;));
++    signoutLink.onclick = this.clickOnSignoutButton.bindAsEventListener(this);
++    mySpan.appendChild(signoutLink);
++    var editButton = document.createElement(&quot;input&quot;);
++    editButton.type = &quot;button&quot;;
++    editButton.value = (this.myEditMode) ? &quot;Save&quot; : &quot;Edit&quot;;
++    editButton.onclick = this.clickOnEditButton.bindAsEventListener(this);
++    mySpan.appendChild(editButton);
++  }
++  else {
++    this.usernameInput = document.createElement(&quot;input&quot;);
++    this.usernameInput.size=10;
++    this.usernameInput.onkeypress = this.signinKeyPress.bindAsEventListener(this);
++    var signinButton = document.createElement(&quot;input&quot;);
++    signinButton.value = &quot;Sign in&quot;;
++    signinButton.type = &quot;button&quot;;
++    signinButton.onclick = this.clickOnSignInButton.bindAsEventListener(this);
++    mySpan.appendChild(this.usernameInput);
++    mySpan.appendChild(signinButton)
++  }
++};
+ 
+-  // write out the new control span content 
+-  var finalString = listOfStrings.join(&quot;&quot;);
+-  this.myMainControlSpanElement.innerHTML = finalString;
++RootView.prototype.clickOnSignoutButton = function(inEventObject) {
++// called when sign out button is clicked
++  if (this.myEditMode) {this.setEditMode(false)};
++  this.myCookie.username = null;
++  this.myCookie.store();
++  this.displayControlSpan();
++}
+ 
+-  // add event handlers for the newly created control span UI elements
+-  var editButton = document.getElementById(this.myEditButtonId);
+-  var listener = this;
+-  Util.addEventListener(editButton, &quot;click&quot;,
+-    function(event) { listener.clickOnEditButton(event);});
+-};
++RootView.prototype.signinKeyPress = function(inEventObject) {
++// called when sign in input field is typed with keystroke
++// see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
++  if (inEventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++    this.clickOnSignInButton(inEventObject);
++  }
++}
+ 
++RootView.prototype.clickOnSignInButton = function(inEventObject) {
++// called when sign in button is clicked
++  function isValidUsername(username) {
++    // PENDING: hard coded to validate for alphanumeric usernames of 3 or more characters
++    if (!username) return false;
++    return username.search(/\w{3,}/) &gt;= 0;
++  }
++  
++  var newUsername = this.usernameInput.value;
++  if (isValidUsername(newUsername)) {
++    this.myCookie.username = newUsername;
++    this.myCookie.store();
++    this.displayControlSpan();
++  }
++  else {
++    var newErrorNode = document.createTextNode(&quot;\n Your username must be 3 or more alphanumeric characters!&quot;);
++    if (this.errorNode) {this.myMainControlSpanElement.replaceChild(newErrorNode,this.errorNode)}
++    else {this.myMainControlSpanElement.appendChild(newErrorNode) }
++    this.errorNode = newErrorNode;
++  }
++}
+ 
+ /**
+  * Re-creates the HTML for the Navbar, and hands the HTML to the browser 
+@@ -437,23 +496,27 @@
+  * @param    inEventObject    An event object. 
+  */
+ RootView.prototype.clickOnEditButton = function (inEventObject) {
+-  var stevedore = this.getStevedore();
+-  if (this.myEditMode) {
+-    stevedore.endTransaction();
+-    window.document.body.style.cursor = &quot;auto&quot;;
+-  } else {
+-    stevedore.beginTransaction();
+-    window.document.body.style.cursor = &quot;crosshair&quot;;
+-  }
+-  this.myEditMode = !this.myEditMode;
+-  this.display();
+-  // this.displayTextInDebugTextarea(this.myEditMode);
+-  if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
+-    RootView.displayTextInDebugTextarea(stevedore._getJsonStringRepresentingAllItems());
+-  }
++  this.setEditMode(!this.myEditMode);
+ };
+ 
+-
++RootView.prototype.setEditMode = function (newVal) {
++  if (newVal != this.myEditMode) {
++    var stevedore = this.getStevedore();
++    if (this.myEditMode) {
++      stevedore.endTransaction();
++      window.document.body.style.cursor = &quot;auto&quot;;
++    } else {
++      stevedore.beginTransaction();
++      window.document.body.style.cursor = &quot;crosshair&quot;;
++    }
++    this.myEditMode = !this.myEditMode;
++    this.display();
++    // this.displayTextInDebugTextarea(this.myEditMode);
++    if (!this.myEditMode &amp;&amp; window.location &amp;&amp; (window.location.protocol == &quot;file:&quot;)) {
++      RootView.displayTextInDebugTextarea(stevedore._getJsonStringRepresentingAllItems());
++    }
++  }
++}
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-05-07 02:41:09 UTC (rev 58)
++++ trunk/source/base_style.css	2005-05-16 01:06:23 UTC (rev 59)
+@@ -526,6 +526,11 @@
+ 
+ 
+ /****************************************/
++/* Control span styles                     */
++.control_span {
++  font-size: x-small;
++}
++/****************************************/
+ /* Text view styles                     */
+ 
+ .text_view {
+
+Modified: trunk/source/demo_page.html
+===================================================================
+--- trunk/source/demo_page.html	2005-05-07 02:41:09 UTC (rev 58)
++++ trunk/source/demo_page.html	2005-05-16 01:06:23 UTC (rev 59)
+@@ -15,6 +15,7 @@
+     &lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;base_style.css&quot; /&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;View.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;Cookie.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;RootView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;ItemView.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;PageView.js&quot;&gt;&lt;/script&gt;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000050.html">[openrecord-svn] r58 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000052.html">[openrecord-svn] r60 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

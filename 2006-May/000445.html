@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r464 - in trunk: source source/plugins third_party
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r464%20-%20in%20trunk%3A%20source%20source/plugins%20third_party&In-Reply-To=%3C200605160506.k4G56PHS000940%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000443.html">
+   <LINK REL="Next"  HREF="000446.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r464 - in trunk: source source/plugins third_party</H1>
+    <B>mignon at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r464%20-%20in%20trunk%3A%20source%20source/plugins%20third_party&In-Reply-To=%3C200605160506.k4G56PHS000940%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r464 - in trunk: source source/plugins third_party">mignon at berlios.de
+       </A><BR>
+    <I>Tue May 16 07:06:25 CEST 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000443.html">[openrecord-svn] r463 - trunk/meeting_notes
+</A></li>
+        <LI>Next message: <A HREF="000446.html">[openrecord-svn] r465 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#445">[ date ]</a>
+              <a href="thread.html#445">[ thread ]</a>
+              <a href="subject.html#445">[ subject ]</a>
+              <a href="author.html#445">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: mignon
+Date: 2006-05-16 07:06:06 +0200 (Tue, 16 May 2006)
+New Revision: 464
+
+Modified:
+   trunk/source/OpenRecordLoaderStepThree.js
+   trunk/source/plugins/ButtonView.js
+   trunk/third_party/
+Log:
+Updated to latest version of dojo.  Replaced dojo.widget.Button2 (which is now deprecated) with dojo.widget.Button and deleted references to dojo.widget.html.Button2 (which no longer exists).
+
+Modified: trunk/source/OpenRecordLoaderStepThree.js
+===================================================================
+--- trunk/source/OpenRecordLoaderStepThree.js	2006-05-12 03:21:44 UTC (rev 463)
++++ trunk/source/OpenRecordLoaderStepThree.js	2006-05-16 05:06:06 UTC (rev 464)
+@@ -41,8 +41,7 @@
+ // do that because dojo.require() statements don't work
+ // within plugins (see bug #113 in the to_do_list.txt file).
+ dojo.require(&quot;dojo.widget.*&quot;);
+-dojo.require(&quot;dojo.widget.Button2&quot;);
+-dojo.require(&quot;dojo.widget.html.Button2&quot;);
++dojo.require(&quot;dojo.widget.Button&quot;);
+ dojo.require(&quot;dojo.widget.Menu2&quot;);
+ dojo.require(&quot;dojo.widget.ComboBox&quot;);
+ dojo.require(&quot;dojo.widget.html.ComboBox&quot;);
+
+Modified: trunk/source/plugins/ButtonView.js
+===================================================================
+--- trunk/source/plugins/ButtonView.js	2006-05-12 03:21:44 UTC (rev 463)
++++ trunk/source/plugins/ButtonView.js	2006-05-16 05:06:06 UTC (rev 464)
+@@ -14,8 +14,7 @@
+ dojo.require(&quot;orp.view.PluginView&quot;);
+ 
+ dojo.require(&quot;dojo.widget.*&quot;);
+-dojo.require(&quot;dojo.widget.Button2&quot;);
+-dojo.require(&quot;dojo.widget.html.Button2&quot;);
++dojo.require(&quot;dojo.widget.Button&quot;);
+ dojo.require(&quot;dojo.widget.Menu2&quot;);
+ 
+ /**
+@@ -119,22 +118,22 @@
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var button2 = dojo.widget.createWidget(&quot;Button2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
+-    dojo.event.connect(button2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++    var button = dojo.widget.createWidget(&quot;Button&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(button, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+   }
+   orp.view.View.appendNewElement(divElement, &quot;p&quot;);
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var dropdown2 = dojo.widget.createWidget(&quot;DropDownButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
+-    dojo.event.connect(dropdown2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++    var dropdown = dojo.widget.createWidget(&quot;DropDownButton&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(dropdown, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+   }
+   orp.view.View.appendNewElement(divElement, &quot;p&quot;);
+   for (var i in listOfContentItems) {
+     var contentItem = listOfContentItems[i];
+     var itemName = contentItem.getDisplayName(&quot;{no name}&quot;);
+-    var combo2 = dojo.widget.createWidget(&quot;ComboButton2&quot;, {caption: itemName}, divElement, &quot;last&quot;);
+-    dojo.event.connect(combo2, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
++    var combo = dojo.widget.createWidget(&quot;ComboButton&quot;, {caption: itemName}, divElement, &quot;last&quot;);
++    dojo.event.connect(combo, &quot;onClick&quot;, this, &quot;buttonClick&quot;)
+   }
+ 
+ };
+
+
+Property changes on: trunk/third_party
+___________________________________________________________________
+Name: svn:externals
+   - dojo  -r3024  <A HREF="http://svn.dojotoolkit.org/dojo/trunk">http://svn.dojotoolkit.org/dojo/trunk</A>
+
+   + dojo  -r4029  <A HREF="http://svn.dojotoolkit.org/dojo/trunk">http://svn.dojotoolkit.org/dojo/trunk</A>
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000443.html">[openrecord-svn] r463 - trunk/meeting_notes
+</A></li>
+	<LI>Next message: <A HREF="000446.html">[openrecord-svn] r465 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#445">[ date ]</a>
+              <a href="thread.html#445">[ thread ]</a>
+              <a href="subject.html#445">[ subject ]</a>
+              <a href="author.html#445">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

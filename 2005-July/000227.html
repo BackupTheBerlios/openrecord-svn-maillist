@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r241 - in trunk/source: . model view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r241%20-%20in%20trunk/source%3A%20.%20model%20view&In-Reply-To=%3C200507132048.j6DKmRmv004304%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000226.html">
+   <LINK REL="Next"  HREF="000228.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r241 - in trunk/source: . model view</H1>
+    <B>Chih-Chao Lam at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r241%20-%20in%20trunk/source%3A%20.%20model%20view&In-Reply-To=%3C200507132048.j6DKmRmv004304%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r241 - in trunk/source: . model view">chaolam at berlios.de
+       </A><BR>
+    <I>Wed Jul 13 22:48:27 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000226.html">[openrecord-svn] r240 - trunk/repositories
+</A></li>
+        <LI>Next message: <A HREF="000228.html">[openrecord-svn] r242 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#227">[ date ]</a>
+              <a href="thread.html#227">[ thread ]</a>
+              <a href="subject.html#227">[ subject ]</a>
+              <a href="author.html#227">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: chaolam
+Date: 2005-07-13 22:48:26 +0200 (Wed, 13 Jul 2005)
+New Revision: 241
+
+Modified:
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/view/EntryView.js
+   trunk/source/view/SuggestionBox.js
+Log:
+1) Added new &quot;hacky&quot; attribute &quot;not lozenge&quot;, so that EntryView will not display Entries as Lozenges for such attributes
+2) Minor css fixes
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-13 19:52:49 UTC (rev 240)
++++ trunk/source/TablePlugin.js	2005-07-13 20:48:26 UTC (rev 241)
+@@ -325,11 +325,11 @@
+   for (var i=0; i&lt;this._displayAttributes.length; ++i) {
+     var attribute = this._displayAttributes[i];
+     if (!this._sortAttribute) {this._sortAttribute = attribute;}
+-    var aCell = View.appendNewElement(headerRow,&quot;th&quot;,null,null,attribute.getDisplayString());
+-    //var aCell = View.appendNewElement(headerElt,&quot;span&quot;,null,null,attribute.getDisplayString());
++    var headerElt = View.appendNewElement(headerRow,&quot;th&quot;);
++    var aCell = View.appendNewElement(headerElt,&quot;span&quot;,null,null,attribute.getDisplayString());
+     //aCell.style.background = &quot;rgb(90%, 90%, 90%)&quot;;
+     if (this._sortAttribute == attribute) {
+-      aCell.appendChild(this.getSortIcon());
++      headerElt.appendChild(this.getSortIcon());
+     }
+     aCell.onclick = this.clickOnHeader.bindAsEventListener(this, attribute);
+     if (this.isInEditMode()) {
+@@ -399,7 +399,7 @@
+ TablePlugin.prototype.getSortIcon = function() {
+   var imageName = this._ascendingOrder ? TablePlugin.ASCENDING_GIF : TablePlugin.DESCENDING_GIF;
+   var image =  Util.createImageElement(imageName);
+-  image.align = &quot;middle&quot;;
++  //image.align = &quot;right&quot;;
+   return image;
+ };
+ 
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-13 19:52:49 UTC (rev 240)
++++ trunk/source/base_style.css	2005-07-13 20:48:26 UTC (rev 241)
+@@ -381,7 +381,7 @@
+ }
+ 
+ div.EntryView textarea {
+-  //font-size: large;
++  /*font-size: large;*/
+   background: #CCCCCC;
+   width: 100%;
+   font-family: Arial, Verdana, sans-serif;
+@@ -450,6 +450,9 @@
+   border-collapse: collapse; 
+ }
+ 
++.simple_table img {
++  vertical-align: middle;
++}
+ .simple_table th {
+   padding: 0.3em;
+   color: #000000;
+@@ -676,19 +679,26 @@
+ }
+ 
+ .ItemValue, .ConnectionValue {
+-  background-color: #DEE7F8; // light blue
+-  padding: 1px;
++  background-color: #DEE7F8; /* light blue */
++  padding-top: 1px;
++  padding-bottom: 1px;
++  padding-left: 5px;
++  padding-right: 8px;
+   border: thin solid #A4BDEC;	
+-  -moz-border-radius: 6px; // WARNING: Mozilla only attribute. This just makes a rectangle have rounded corners
++  -moz-border-radius: 12px; /* WARNING: Mozilla only attribute. This just makes a rectangle have rounded corners */
+ }
+ .ItemValue:hover, .ConnectionValue:hover {
+-  background-color: #BBCEF1; // darker blue
++  background-color: #BBCEF1; /* darker blue */
+ }
+ .ItemValueSelected {
+   background-color:#598bec;
++  padding-top: 1px;
++  padding-bottom: 1px;
++  padding-left: 5px;
++  padding-right: 8px;
+   color: #FFFFFF;
+   border: thin solid #A4BDEC;	
+-  -moz-border-radius: 6px; // WARNING: Mozilla only attribute. This just makes a rectangle have rounded corners
++  -moz-border-radius: 6px; /* WARNING: Mozilla only attribute. This just makes a rectangle have rounded corners */
+ }
+ 
+ .DateValue {
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-07-13 19:52:49 UTC (rev 240)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-07-13 20:48:26 UTC (rev 241)
+@@ -780,6 +780,10 @@
+              &quot;uuid&quot;: &quot;00040105-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Not Lozenge (Attribute)
++             &quot;uuid&quot;: &quot;00040106-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Table Columns (Attribute)
+              &quot;uuid&quot;: &quot;0004010a-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -926,6 +930,23 @@
+             &quot;value&quot;: &quot;00040201-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // Not Lozenge
++             &quot;uuid&quot;: &quot;0040101d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;00040106-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Not Lozenge (Attribute)
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Not Lozenge&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Not Lozenge) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Plugin View)
++             &quot;uuid&quot;: &quot;0040101e-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;00040106-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // Layout Data
+              &quot;uuid&quot;: &quot;0040102a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-07-13 19:52:49 UTC (rev 240)
++++ trunk/source/view/EntryView.js	2005-07-13 20:48:26 UTC (rev 241)
+@@ -57,6 +57,7 @@
+ 
+ EntryView.CSS_CLASS_NEGATIVE_NUMBER  = &quot;NegativeNumber&quot;;
+ 
++EntryView.UUID_FOR_ATTRIBUTE_NOT_LOZENGE = &quot;00040106-ce7f-11d9-8cd5-0011113ae5d6&quot;;
+ 
+ // -------------------------------------------------------------------
+ // EntryView private class variables
+@@ -97,6 +98,7 @@
+   this._isEditing = false;
+   this._proxyOnKeyFunction = null;
+   this._alwaysUseEditField = null;
++  this._attributeCanBeLozenge = this._isLozengeAttribute();
+   
+   this._isProvisional = item.isProvisional();
+   if (this._isProvisional) {
+@@ -111,6 +113,18 @@
+ /**
+  *
+  */
++EntryView.prototype._isLozengeAttribute = function() {
++  if (!EntryView.attributeCalledNotLozenge) {
++    EntryView.attributeCalledNotLozenge =
++      this.getWorld().getItemFromUuid(EntryView.UUID_FOR_ATTRIBUTE_NOT_LOZENGE);
++  }
++  var entries = this._attribute.getEntriesForAttribute(EntryView.attributeCalledNotLozenge);
++  return entries.length === 0; //PENDING need to actually check value of entries
++};
++
++/**
++ *
++ */
+ EntryView.prototype._setupSuggestionBox = function() {
+   var listOfSuggestions = this._suggestions || this.getWorld().getSuggestedItemsForAttribute(this._attribute);
+   if (listOfSuggestions &amp;&amp; listOfSuggestions.length &gt; 0) {
+@@ -190,7 +204,7 @@
+  *
+  */
+ EntryView.prototype._isLozenge = function() {
+-  return this._valueIsItem &amp;&amp; !this._alwaysUseEditField;
++  return this._attributeCanBeLozenge &amp;&amp; this._valueIsItem &amp;&amp; !this._alwaysUseEditField;
+ };
+ 
+ 
+@@ -234,22 +248,27 @@
+   if (this._entry) {
+     var dataType = this._entry.getType();
+     var className = this._getClassNameFromType(dataType);
++    var itemType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
++    var connectionType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
++    if (dataType == itemType || dataType == connectionType) {
++      if (this._isLozenge()) {
++        if (this.isInEditMode() &amp;&amp; !this.draggable) {
++          this._textSpan.or_entryView = this; 
++          this.draggable = new Draggable(this._textSpan, {revert:true});
++        }
++      }
++      else {
++        className = EntryView.CSS_CLASS_TEXT_VALUE;
++      }
++    }
+     this._textSpan.className = className;
+     
+     var typeNumber = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
+-    var itemType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
+-    var connectionType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
+     if (dataType == typeNumber) {
+       if (this._entry.getValue() &lt; 0) {
+         Util.css_addClass(this._textSpan,EntryView.CSS_CLASS_NEGATIVE_NUMBER);
+       }
+     }
+-    else if (this.isInEditMode() &amp;&amp; (dataType == itemType || dataType == connectionType)) {
+-      if (!this.draggable) {
+-        this._textSpan.or_entryView = this; 
+-        this.draggable = new Draggable(this._textSpan, {revert:true});
+-      }
+-    }
+   }
+ };
+ 
+@@ -700,22 +719,14 @@
+  * @scope    private instance method
+  */
+ EntryView.prototype._buildTypeHashTable = function() {
+-  var text      = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_TEXT);
+-  var number    = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
+-  var dateType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_DATE);
+-  var checkMark = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_CHECK_MARK);
+-  var url       = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_URL);
+-  var itemType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_ITEM);
+-  var connectionType  = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_CONNECTION);
+-  
+   EntryView._ourHashTableOfTypesKeyedByClassName = {};
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_TEXT_VALUE] = text;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_NUMBER_VALUE] = number;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_DATE_VALUE] = dateType;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_CHECKMARK_VALUE] = checkMark;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_URL_VALUE] = url;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_ITEM_VALUE] = itemType;
+-  EntryView._ourHashTableOfTypesKeyedByClassName[EntryView.CSS_CLASS_CONNECTION_VALUE] = connectionType;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_TEXT] = EntryView.CSS_CLASS_TEXT_VALUE;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_NUMBER] = EntryView.CSS_CLASS_NUMBER_VALUE;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_DATE] = EntryView.CSS_CLASS_DATE_VALUE;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_CHECK_MARK] = EntryView.CSS_CLASS_CHECKMARK_VALUE;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_URL] = EntryView.CSS_CLASS_URL_VALUE;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_ITEM] = EntryView.CSS_CLASS_ITEM_VALUE;
++  EntryView._ourHashTableOfTypesKeyedByClassName[World.UUID_FOR_TYPE_CONNECTION] = EntryView.CSS_CLASS_CONNECTION_VALUE;
+ };
+ 
+ 
+@@ -731,13 +742,14 @@
+   if (!EntryView._ourHashTableOfTypesKeyedByClassName) {
+     this._buildTypeHashTable();
+   }
+-  for (var className in EntryView._ourHashTableOfTypesKeyedByClassName) {
++  return EntryView._ourHashTableOfTypesKeyedByClassName[type.getUniqueKeyString()];
++/*  for (var className in EntryView._ourHashTableOfTypesKeyedByClassName) {
+     typeItem = EntryView._ourHashTableOfTypesKeyedByClassName[className];
+     if (type == typeItem) {
+       return className;
+     }
+   }
+-  Util.assert(false, &quot;no such type: &quot; + type.getDisplayString());
++  Util.assert(false, &quot;no such type: &quot; + type.getDisplayString());*/
+ };
+ 
+ 
+@@ -748,15 +760,15 @@
+  * @scope    private instance method
+  * @param    className    A string with the CSS className for a type.
+  * @return   An item that represents a basic data type, like Text, Number, or URL. 
+- */
++
+ EntryView.prototype._getTypeFromTypeClassName = function(className) {
+   if (!EntryView._ourHashTableOfTypesKeyedByClassName) {
+     this._buildTypeHashTable();
+   }
+-  return EntryView._ourHashTableOfTypesKeyedByClassName[className];
++  return EntryView._ourHashTableOfTypesKeyedByClassName[className]; //NO LONGER VALID
+ };
++ */
+ 
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+\ No newline at end of file
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-07-13 19:52:49 UTC (rev 240)
++++ trunk/source/view/SuggestionBox.js	2005-07-13 20:48:26 UTC (rev 241)
+@@ -250,7 +250,6 @@
+       var row = table.insertRow(rowNumber);
+       var cell = row.insertCell(columnNumber);
+       row.className = (this._selectedItem == item) ? &quot;selected&quot;:&quot;&quot;;
+-      //cell.style.background = (this._selectedItem == item) ? &quot;rgb(0%,70%,100%)&quot;:&quot;&quot;; //pending need to CSS-ify this
+       cell.appendChild(textNode);
+       cell.onmousedown = this._clickOnSelection.bindAsEventListener(this, item);
+       rowNumber += 1;
+@@ -261,9 +260,8 @@
+     var suggestionBoxTop = Util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
+     var suggestionBoxLeft = Util.getOffsetLeftFromElement(this._inputField);
+     this._suggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
+-    this._suggestionBoxDivElement.style.left = suggestionBoxLeft + &quot;px&quot;;
+-    // alert(this._inputField.offsetWidth);
+-    this._suggestionBoxDivElement.style.width = (this._inputField.offsetWidth - 2)+ &quot;px&quot;;
++    this._suggestionBoxDivElement.style.left = (suggestionBoxLeft-2) + &quot;px&quot;;
++    this._suggestionBoxDivElement.style.width = (this._inputField.offsetWidth + 4)+ &quot;px&quot;; //HACK: Need to fix +4
+ 
+     // this._suggestionBoxDivElement.className = &quot;suggestion_box&quot;;
+     this._suggestionBoxDivElement.style.visibility = &quot;visible&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000226.html">[openrecord-svn] r240 - trunk/repositories
+</A></li>
+	<LI>Next message: <A HREF="000228.html">[openrecord-svn] r242 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#227">[ date ]</a>
+              <a href="thread.html#227">[ thread ]</a>
+              <a href="subject.html#227">[ subject ]</a>
+              <a href="author.html#227">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r89 - trunk/documentation
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r89%20-%20trunk/documentation&In-Reply-To=%3C200505272218.j4RMIEle008846%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000077.html">
+   <LINK REL="Next"  HREF="000079.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r89 - trunk/documentation</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r89%20-%20trunk/documentation&In-Reply-To=%3C200505272218.j4RMIEle008846%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r89 - trunk/documentation">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Sat May 28 00:18:14 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000077.html">[openrecord-svn] r88 - in trunk/source: . model repositories/demo_page
+</A></li>
+        <LI>Next message: <A HREF="000079.html">[openrecord-svn] r90 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-28 00:18:13 +0200 (Sat, 28 May 2005)
+New Revision: 89
+
+Modified:
+   trunk/documentation/release_planning.txt
+Log:
+updated release_planning.txt
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-05-27 22:07:04 UTC (rev 88)
++++ trunk/documentation/release_planning.txt	2005-05-27 22:18:13 UTC (rev 89)
+@@ -78,7 +78,6 @@
+ Mignon |  High    | 1   ied | UI for deleting a row from a table 
+  Chao  |   done   | 1.5 ied | UI for logging in and logging out; cookies and auto-login; display of who you're logged in as
+  Chao  |   done   | 0.5 ied | UI to sort a table when you click on a column header
+- Chao  |  High    | 0   ied | UI for entering a new row in a table
+ Brian  |   done   | 1   ied | Data model: change &quot;Value&quot; to &quot;Entry&quot;; refactor entries to be per-attribute
+ Brian  |   done   | 2   ied | Convert UI code to use new data model
+        |  High    |         | UI for entering a number literal (instead of a string literal) in a table
+@@ -93,7 +92,9 @@
+        |   Low    |         | Write a plugin view that calculates and displays the measured project velocity
+        |   Low    |         | UI for creating a new page
+  Chao  |   done   |         | UI for creating a new user
+-Brian  | Medium   | 1   ied | Ensure that UUIDs are unique in multi-user use case
++-------+----------+---------+----------------------------------------------
++ Chao  |  High    | 0   ied | UI for entering a new row in a table
++Brian  |   done   | 1   ied | Ensure that UUIDs are unique in multi-user use case
+  
+ 
+        
+@@ -336,5 +337,22 @@
+     - representing queries (hold query matching criteria in normal attributes?)
+     - ad-hoc queries as well as persistant queries?
+     - bi-directional references as a type of entry?
++---------------------------------------------------
++ + Bug: &quot;Waiting for localhost...&quot;
++    Load the demo_page.html page from <A HREF="http://localhost:...">http://localhost:...</A>
++    Go into Edit mode and change some entry.  The Firefox status 
++    bar (bottom left) sometimes gets stuck saying 
++    &quot;Waiting for localhost...&quot;, even though it doesn't seem to
++    be waiting
++---------------------------------------------------
++ + Bug: &quot;Node was not found&quot; exception
++    Load the demo_page.html page from <A HREF="file:///...">file:///...</A>
++    Go into Edit mode and change some entry.  
++    You get an exception in TextView.js:
++      Util.handleError()
++      uncaught exception: [Exception... &quot;Node was not found&quot;  
++      code: &quot;8&quot; nsresult: &quot;0x80530008 (NS_ERROR_DOM_NOT_FOUND_ERR)&quot;  
++      location: &quot;<A HREF="file:///K:/www/htdocs/openrecord/demo/current/trunk/source/TextView.js">file:///K:/www/htdocs/openrecord/demo/current/trunk/source/TextView.js</A> Line: 221&quot;]
++      line: 0
++    
+ 
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000077.html">[openrecord-svn] r88 - in trunk/source: . model repositories/demo_page
+</A></li>
+	<LI>Next message: <A HREF="000079.html">[openrecord-svn] r90 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#78">[ date ]</a>
+              <a href="thread.html#78">[ thread ]</a>
+              <a href="subject.html#78">[ subject ]</a>
+              <a href="author.html#78">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,225 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r71 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-May/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r71%20-%20trunk/source/model&In-Reply-To=%3C200505200315.j4K3Feet026166%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000059.html">
+   <LINK REL="Next"  HREF="000061.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r71 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r71%20-%20trunk/source/model&In-Reply-To=%3C200505200315.j4K3Feet026166%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r71 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri May 20 05:15:40 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000059.html">[openrecord-svn] r70 - in trunk/source: . model
+</A></li>
+        <LI>Next message: <A HREF="000061.html">[openrecord-svn] r72 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-05-20 05:15:34 +0200 (Fri, 20 May 2005)
+New Revision: 71
+
+Modified:
+   trunk/source/model/ModelTest.js
+   trunk/source/model/StubVirtualServer.js
+Log:
+Added some error checking, and unit tests.
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-05-20 01:52:34 UTC (rev 70)
++++ trunk/source/model/ModelTest.js	2005-05-20 03:15:34 UTC (rev 71)
+@@ -71,8 +71,23 @@
+   world.login(userJane, janesPassword);
+   assertTrue('Jane is logged in', world.getCurrentUser() == userJane);
+   assertFalse('Chris is not logged in', world.getCurrentUser() == userChris);
++  var caughtError = false;
++  var oprahsPassword = &quot;Oprah's password&quot;;
++  try {
++    var userOprah = world.newUser(&quot;Oprah&quot;, oprahsPassword);
++  } catch (error) {
++    caughtError = true;
++  }
++  assertTrue(&quot;We can't create a new user while Jane is logged in&quot;, caughtError);
++  world.logout();
+   
+-  world.logout();
++  caughtError = false;
++  try {
++    var newItem = world.newItem(&quot;The Great Wall of China&quot;);
++  } catch (error) {
++    caughtError = true;
++  }
++  assertTrue(&quot;We can't create a new item without being logged in&quot;, caughtError);
+ }
+   
+ 
+@@ -501,9 +516,12 @@
+   //  reconstructedString.substring(beginMismatch, (beginMismatch + 500)));
+   assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
+   
+-  // var newItem = world.newProvisionalItem();
+-  // reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
+-  // assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
++  var guestUser = world.getItemFromUuid(1502);
++  var loginSuccess = world.login(guestUser, &quot;abracadabra&quot;);
++  assertTrue('Can log in as Guest', loginSuccess);
++  var newItem = world.newProvisionalItem();
++  reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
++  assert(&quot;reconstructed string equals original string&quot;, fileContentString == reconstructedString);
+   // var attributeCalledName = world.getAttributeCalledName();
+   // newItem.addEntryForAttribute(attributeCalledName, &quot;Jimmy Carter&quot;);
+   // reconstructedString = bigLumpVirtualServer.__getJsonStringRepresentingEntireWorld(); 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-05-20 01:52:34 UTC (rev 70)
++++ trunk/source/model/StubVirtualServer.js	2005-05-20 03:15:34 UTC (rev 71)
+@@ -91,14 +91,30 @@
+ // -------------------------------------------------------------------
+ 
+ /**
++ * Throws an Error if there is no user currently logged in.
++ *
++ * @scope    private instance method
++ * @throws   Throws an Error if no user is logged in.
++ */
++StubVirtualServer.prototype._throwErrorIfNoUserIsLoggedIn = function () {
++  if (!this.__myCurrentUser) {
++    var error = new Error(&quot;No user is logged in.  You can't write to the repository when nobody is logged in.&quot;);
++    throw error;
++  }
++};
++
++
++/**
+  * Returns a newly created item.
+  *
+  * @scope    public instance method
+  * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ StubVirtualServer.prototype.newItem = function (inName, inObserver) {
++  this._throwErrorIfNoUserIsLoggedIn();
+   var item = this._createNewItem(inObserver, false);
+   if (inName) { 
+     var attributeCalledName = this.__myWorld.getAttributeCalledName();
+@@ -118,8 +134,10 @@
+  * @scope    public instance method
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created provisional item.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ StubVirtualServer.prototype.newProvisionalItem = function (inObserver) {
++  this._throwErrorIfNoUserIsLoggedIn();
+   var item = this._createNewItem(inObserver, true);
+   return item;
+ };
+@@ -164,8 +182,10 @@
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+  * @param    inValue    The value to initialize the entry with. 
+  * @return   A newly created entry.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ StubVirtualServer.prototype.newEntry = function (inItemOrEntry, inAttribute, inValue) {
++  this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this.__getNewUuid();
+   var entry = new Entry(this.__myWorld, uuid);
+   entry._initialize(inItemOrEntry, inAttribute, inValue);
+@@ -182,8 +202,10 @@
+  * @param    inIdentifiedRecord    The identifiedRecord that this is an ordinal for. 
+  * @param    inOrdinalNumber    The ordinal number itself. 
+  * @return   A newly created ordinal.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ StubVirtualServer.prototype.newOrdinal = function (inIdentifiedRecord, inOrdinalNumber) {
++  this._throwErrorIfNoUserIsLoggedIn();
+   var ordinal = new Ordinal(inIdentifiedRecord, this.__myWorld.getCurrentUser(), inOrdinalNumber);
+   this.__myChronologicalListOfNewlyCreatedRecords.push(ordinal);
+   return ordinal;
+@@ -197,8 +219,10 @@
+  * @param    inIdentifiedRecord    The identifiedRecord to attach this vote to. 
+  * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
+  * @return   A newly created vote.
++ * @throws   Throws an Error if no user is logged in.
+  */
+ StubVirtualServer.prototype.newVote = function (inIdentifiedRecord, inRetainFlag) {
++  this._throwErrorIfNoUserIsLoggedIn();
+   var vote = new Vote(inIdentifiedRecord, this.__myWorld.getCurrentUser(), inRetainFlag);
+   this.__myChronologicalListOfNewlyCreatedRecords.push(vote);
+   return vote;
+@@ -217,16 +241,25 @@
+  * @param    inAuthentication    A string which will be used as the login password for the user. 
+  * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing a user.
++ * @throws   Throws an Error if a user is logged in.
+  */
+ StubVirtualServer.prototype.newUser = function (inName, inAuthentication, inObserver) {
+-  var newUser = this.newItem(null, inObserver);
++  if (this.__myCurrentUser) {
++    var error = new Error(&quot;A user is logged in.  You can't create a new user when somebody is already logged in.&quot;);
++    throw error;
++  }
++
++  var newUser = this._createNewItem(inObserver, false);
+   newUser.__myCreationUserstamp = newUser;
+   this.__myListOfUsers.push(newUser);
+   this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = inAuthentication;
++
+   if (inName) { 
++    this.__myCurrentUser = newUser;
+     var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+     var entry = newUser.addEntryForAttribute(attributeCalledName, inName);
+-    entry.__myCreationUserstamp = newUser;
++    // entry.__myCreationUserstamp = newUser;
++    this.__myCurrentUser = null;
+   }
+   return newUser;
+ };
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000059.html">[openrecord-svn] r70 - in trunk/source: . model
+</A></li>
+	<LI>Next message: <A HREF="000061.html">[openrecord-svn] r72 - trunk/source/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#60">[ date ]</a>
+              <a href="thread.html#60">[ thread ]</a>
+              <a href="subject.html#60">[ subject ]</a>
+              <a href="author.html#60">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

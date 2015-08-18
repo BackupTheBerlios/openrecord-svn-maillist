@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r259 - in trunk: documentation source/model source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r259%20-%20in%20trunk%3A%20documentation%20source/model%20source/util&In-Reply-To=%3C200507222330.j6MNUnTV031735%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000243.html">
+   <LINK REL="Next"  HREF="000245.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r259 - in trunk: documentation source/model source/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r259%20-%20in%20trunk%3A%20documentation%20source/model%20source/util&In-Reply-To=%3C200507222330.j6MNUnTV031735%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r259 - in trunk: documentation source/model source/util">skinner at berlios.de
+       </A><BR>
+    <I>Sat Jul 23 01:30:49 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000243.html">[openrecord-svn] r258 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000245.html">[openrecord-svn] r260 - trunk/source/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#244">[ date ]</a>
+              <a href="thread.html#244">[ thread ]</a>
+              <a href="subject.html#244">[ subject ]</a>
+              <a href="author.html#244">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-23 01:30:45 +0200 (Sat, 23 Jul 2005)
+New Revision: 259
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/util/Util.js
+Log:
+We now encode and decode reserved characters(&lt;&amp;&gt;\n&quot;') back at client-server layer.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-22 21:45:03 UTC (rev 258)
++++ trunk/documentation/release_planning.txt	2005-07-22 23:30:45 UTC (rev 259)
+@@ -268,7 +268,7 @@
+        |          |         | 22. Reach consensus on (colors, padding, and borders) and then implement
+        |          |         | 23. Make sure view code uses transactions
+        |          |         | 24. Deal with \n in page name or summary fields
+-brian  |          |         | 25. BUG: need to encode reserved characters(&lt;&amp;&gt;\n&quot;') back at client-server layer
++brian  |          | 0.25    | 25. BUG: need to encode reserved characters(&lt;&amp;&gt;\n&quot;') back at client-server layer
+ brian  |          | 0.25    |     Be able to make html files with just one &lt;script&gt; element, not dozens 
+ brian  |          |       &gt;&gt;|     Be able to easily create new documents that are empty
+        |          |       &gt;&gt;|     Create a dozen demo documents (quotes, dictionary, movies, books, oil-change, etc.)
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-07-22 21:45:03 UTC (rev 258)
++++ trunk/source/model/DeltaVirtualServer.js	2005-07-22 23:30:45 UTC (rev 259)
+@@ -132,11 +132,13 @@
+ DeltaVirtualServer.prototype.truncateString = function(string) {
+   var maxLength = 80;
+   var ellipsis = &quot;...&quot;;
++  var returnString = &quot;&quot;;
+   if (string.length &gt; maxLength) {
+-    return (string.substring(0, (maxLength - ellipsis.length)) + ellipsis);
++    returnString = (string.substring(0, (maxLength - ellipsis.length)) + ellipsis);
+   } else {
+-    return string;
++    returnString = string;
+   }
++  return this.encodeText(returnString);
+ };
+ 
+ 
+@@ -222,7 +224,7 @@
+     if (record instanceof Item) {
+       var item = record;
+       listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(item) + '\n');
+-      listOfStrings.push(indent + '//           by (' + item.getUserstamp().getDisplayString() + ')');
++      listOfStrings.push(indent + '//           by (' + this.truncateString(item.getUserstamp().getDisplayString()) + ')');
+       listOfStrings.push(' on (' + DateValue.getStringMonthDayYear(item.getCreationDate()) + ')\n');
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ITEM_CLASS + '&quot;: ');
+       listOfStrings.push('{ &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + item._getUuid() + '&quot; }');
+@@ -240,8 +242,8 @@
+         }
+         listOfStrings.push(',\n');
+         listOfStrings.push(indent + '// -----------------------------------------------------------------------\n');
+-        listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_USER_CLASS + '&quot;: ' + '{');
+-        listOfStrings.push('                                               // ' + itemDisplayNameSubstring + '\n');
++        listOfStrings.push(indent + '// ' + this._getTypedDisplayStringForItem(user) + '\n');
++        listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_USER_CLASS + '&quot;: ' + '{\n');
+         listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_USER + '&quot;: &quot;' + user._getUuid() + '&quot;,\n');
+         listOfStrings.push(indent + '     &quot;' + StubVirtualServer.JSON_MEMBER_PASSWORD + '&quot;: ' + passwordString + ' }\n');
+         listOfStrings.push(indent + '}');
+@@ -250,10 +252,10 @@
+ 
+     if (record instanceof Vote) {
+       var vote = record;
+-      listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{');
+       entryDisplayNameSubstring = this.truncateString(vote.getContentRecord().getDisplayString());
+       var deleteVsRetainString = vote.getRetainFlag() ? &quot;RETAIN&quot; : &quot;DELETE&quot;;
+-      listOfStrings.push('                                              // vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
++      listOfStrings.push(indent + '// vote to ' + deleteVsRetainString + &quot; &quot; + entryDisplayNameSubstring + '\n');
++      listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_VOTE_CLASS + '&quot;: ' + '{\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + vote._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '       &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + vote.getContentRecord()._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '   &quot;' + StubVirtualServer.JSON_MEMBER_RETAIN_FLAG + '&quot;: &quot;' + vote.getRetainFlag() + '&quot;');
+@@ -263,6 +265,8 @@
+ 
+     if (record instanceof Ordinal) {
+       var ordinal = record;
++      entryDisplayNameSubstring = this.truncateString(ordinal.getContentRecord().getDisplayString());
++      listOfStrings.push(indent + '// ordinal # ' + ordinal.getOrdinalNumber() + &quot; for &quot; + entryDisplayNameSubstring + '\n');
+       listOfStrings.push(indent + '{ &quot;' + StubVirtualServer.JSON_MEMBER_ORDINAL_CLASS + '&quot;: ' + '{' + '\n');
+       listOfStrings.push(indent + '         &quot;' + StubVirtualServer.JSON_MEMBER_UUID + '&quot;: &quot;' + ordinal._getUuid() + '&quot;,\n');
+       listOfStrings.push(indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_RECORD + '&quot;: &quot;' + ordinal.getContentRecord()._getUuid() + '&quot;,\n');
+@@ -274,7 +278,6 @@
+     if (record instanceof Entry) {
+       var entry = record;
+       var entryType = entry.getType();
+-      // var typeToken = this._getTypeTokenFromType(entryType);
+       var typeUuid = entryType._getUuid();
+       commentString = &quot;&quot;;
+       var entryString = &quot;&quot;;
+@@ -295,10 +298,10 @@
+         var secondAttribute = pairOfAttributes[1];
+         entryString += indent + '    &quot;' + StubVirtualServer.JSON_MEMBER_ATTRIBUTE + '&quot;: [&quot;' + firstAttribute._getUuid() + '&quot;, &quot;' + secondAttribute._getUuid() + '&quot;]';
+         commentString += indent + '// ' + this._getTypedDisplayStringForItem(firstItem);
+-        commentString += &quot;.(&quot; + firstAttribute.getDisplayString(&quot;???&quot;) + &quot;)&quot;;
++        commentString += &quot;.(&quot; + this.truncateString(firstAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+         commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(secondItem) + &quot;\n&quot;;
+         commentString += indent + '// ' + this._getTypedDisplayStringForItem(secondItem);
+-        commentString += &quot;.(&quot; + secondAttribute.getDisplayString(&quot;???&quot;) + &quot;)&quot;;
++        commentString += &quot;.(&quot; + this.truncateString(secondAttribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+         commentString += &quot; = &quot; + this._getTypedDisplayStringForItem(firstItem) + &quot;\n&quot;;
+       } else {
+         var attribute = entry.getAttribute();
+@@ -314,8 +317,8 @@
+             valueComment = contentData;
+             break;
+           case World.UUID_FOR_TYPE_TEXT: 
+-            valueString = '&quot;' + contentData + '&quot;';
+-            valueComment = this.truncateString(valueString);
++            valueString = '&quot;' + this.encodeText(contentData) + '&quot;';
++            valueComment = '&quot;' + this.truncateString(contentData) + '&quot;';
+             break;
+           case World.UUID_FOR_TYPE_DATE: 
+             valueString = '&quot;' + contentData.toString() + '&quot;';
+@@ -330,10 +333,10 @@
+         }
+         entryString += indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString;
+         commentString += indent + '// ' + this._getTypedDisplayStringForItem(entry.getItem());
+-        commentString += &quot;.(&quot; + attribute.getDisplayString(&quot;???&quot;) + &quot;)&quot;;
++        commentString += &quot;.(&quot; + this.truncateString(attribute.getDisplayString(&quot;???&quot;)) + &quot;)&quot;;
+         commentString += &quot; = &quot; + valueComment + &quot;\n&quot;;
+       }
+-      commentString += indent + '//           by (' + entry.getUserstamp().getDisplayString() + ')';
++      commentString += indent + '//           by (' + this.truncateString(entry.getUserstamp().getDisplayString()) + ')';
+       commentString += ' on (' + DateValue.getStringMonthDayYear(entry.getCreationDate()) + ')\n';
+       listOfStrings.push(commentString);
+       listOfStrings.push(entryString);
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-07-22 21:45:03 UTC (rev 258)
++++ trunk/source/model/Entry.js	2005-07-22 23:30:45 UTC (rev 259)
+@@ -113,11 +113,7 @@
+     }
+     else {Util.assert(false, &quot;unknown data type:&quot; + (typeof value) + ' value: ' + value);}
+   }
+-  if (Util.isString(value)) {
+-    this._value = Util.getCleanString(value);
+-  } else {
+-    this._value = value;
+-  }
++  this._value = value;
+ };
+ 
+ 
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-07-22 21:45:03 UTC (rev 258)
++++ trunk/source/model/StubVirtualServer.js	2005-07-22 23:30:45 UTC (rev 259)
+@@ -140,6 +140,74 @@
+ };
+ 
+ 
++/**
++ * Given a text string, this method returns a copy of the text string, 
++ * with certain special characters replaced by escape sequences.
++ * 
++ * For example, given a string like this:
++ * &lt;pre&gt;
++ *    this.encodeText('The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.\n');
++ * &lt;/pre&gt;
++ * The return value will be:
++ * &lt;pre&gt;
++ *    'The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.&#10;'
++ * &lt;/pre&gt;
++ * 
++ * @scope    public instance method
++ * @param    rawText    A text string to encode. 
++ * @return   A copy of the rawText string, with the special characters escaped. 
++ */
++StubVirtualServer.prototype.encodeText = function(rawText) {
++  Util.assert(Util.isString(rawText));
++
++  var returnString = rawText;
++  // Note: it's important that we do '&amp;' first, otherwise we'll accidentally
++  // replace all the &amp; characters that we add in the following lines.
++  returnString = returnString.replace(new RegExp('&amp;','g'), &quot;&amp;&quot;);
++  returnString = returnString.replace(new RegExp('&lt;','g'), &quot;&lt;&quot;);
++  returnString = returnString.replace(new RegExp('&gt;','g'), &quot;&gt;&quot;);
++  returnString = returnString.replace(new RegExp('&quot;','g'), &quot;&quot;&quot;);
++  returnString = returnString.replace(new RegExp('\n','g'), &quot;&#10;&quot;);
++  returnString = returnString.replace(new RegExp('\r','g'), &quot;&#13;&quot;);
++  return returnString;
++};
++
++
++/**
++ * Given a text string that was encoded using encodeText(), this method 
++ * returns a decoded copy of the text string, with the encoded escape 
++ * sequences now replaced by the original special characters.
++ *
++ * For example, given a string like this:
++ * &lt;pre&gt;
++ *    this.decodeText('The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.&#10;');
++ * &lt;/pre&gt;
++ * The return value will be:
++ * &lt;pre&gt;
++ *    'The quick &lt;brown&gt; fox &amp; the &quot;lazy&quot; hare.\n'
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    encodedText    A text string to decode. 
++ * @return   A copy of the encodedText string, with the escaped characters replaced by the original special characters. 
++ */
++StubVirtualServer.prototype.decodeText = function(encodedText) {
++  Util.assert(Util.isString(encodedText));
++
++  var returnString = encodedText;
++  returnString = returnString.replace(new RegExp('&#13;','g'), &quot;\r&quot;);
++  returnString = returnString.replace(new RegExp('&#10;','g'), &quot;\n&quot;);
++  returnString = returnString.replace(new RegExp('&quot;','g'), '&quot;');
++  returnString = returnString.replace(new RegExp('&gt;','g'), &quot;&gt;&quot;);
++  returnString = returnString.replace(new RegExp('&lt;','g'), &quot;&lt;&quot;);
++  returnString = returnString.replace(new RegExp('&amp;','g'), &quot;&amp;&quot;);
++  // Note: it's important that we do '&amp;' last, otherwise we won't correctly
++  // handle a case like this:
++  //   text = this.decodeText(this.encodeText('&lt;'));
++  return returnString;
++};
++
++
+ // -------------------------------------------------------------------
+ // Transaction Methods
+ // -------------------------------------------------------------------
+@@ -882,20 +950,9 @@
+           previousEntry = this.__getEntryFromUuidOrBootstrapEntry(previousEntryUuid);
+         }
+  
+-        var dataType;
+         var dataTypeUuid = dehydratedEntry[StubVirtualServer.JSON_MEMBER_TYPE];
+-        var PENDING_debug = false;
+-        if (Util.isUuid(dataTypeUuid)) {
+-          PENDING_debug = true;
+-          dataType = this.__getItemFromUuidOrBootstrapItem(dataTypeUuid);
+-        } else {
+-          // code to deal with the old pre-July-2005 file format
+-          /*
+-          var dataTypeToken = dataTypeUuid;
+-          dataType = this._getTypeFromTypeToken(dataTypeToken);
+-          dataTypeUuid = dataType._getUuid();
+-          */
+-        }
++        Util.assert(Util.isUuid(dataTypeUuid));
++        var dataType = this.__getItemFromUuidOrBootstrapItem(dataTypeUuid);
+         
+         if (dataTypeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+           var listOfItemUuids = dehydratedEntry[StubVirtualServer.JSON_MEMBER_ITEM];
+@@ -930,10 +987,7 @@
+               finalData = this.__getItemFromUuidOrBootstrapItem(rawData);
+               break;
+             case World.UUID_FOR_TYPE_TEXT:
+-              // if (PENDING_debug) {
+-              //   alert(rawData + &quot;\n&quot; + dataType);
+-              // }
+-              finalData = rawData;
++              finalData = this.decodeText(rawData);
+               break;
+             case World.UUID_FOR_TYPE_NUMBER:
+               finalData = parseFloat(rawData);
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-07-22 21:45:03 UTC (rev 258)
++++ trunk/source/util/Util.js	2005-07-22 23:30:45 UTC (rev 259)
+@@ -75,40 +75,8 @@
+ Util.KEYCODE_FOR_DELETE = 46;
+ 
+ 
+-// Util.ABBREV_MONTHS_ARRAY = new Array(&quot;Jan&quot;,&quot;Feb&quot;,&quot;Mar&quot;,&quot;Apr&quot;,&quot;May&quot;,&quot;Jun&quot;,&quot;Jul&quot;,&quot;Aug&quot;,&quot;Sep&quot;,&quot;Oct&quot;,&quot;Nov&quot;,&quot;Dec&quot;);
+ 
+-
+ // -------------------------------------------------------------------
+-// String manipulation methods
+-// -------------------------------------------------------------------
+-
+-/**
+- * Returns a copy of the input string, cleaned up so that it can be 
+- * included in a valid HTML page.
+- *
+- * Returns a copy of the string, but with the original characters 
+- * '&lt;', '&gt;', and '&amp;' all replaced by their HTML entities: &quot;&lt;&quot;, 
+- * &quot;&gt;&quot;, and &quot;&amp;&quot;.  Allows strings to displayed on HTML pages.
+- *
+- * @scope    public class method
+- * @syntax   var cleanString = Util.getCleanString(dirtyString);
+- * @param    string    A dirty string to be cleaned up.
+- * @return   String
+- */
+-Util.getCleanString = function(string) {
+-  Util.assert(Util.isString(string));
+-  
+-  var returnString = string;
+-  returnString = returnString.replace(/&amp;/g, &quot;&amp;&quot;);
+-  returnString = returnString.replace(/&lt;/g, &quot;&lt;&quot;);
+-  returnString = returnString.replace(/&gt;/g, &quot;&gt;&quot;);
+-  returnString = returnString.replace(/&quot;/g, &quot;&quot;&quot;);
+-  returnString = returnString.replace(/\n/g, &quot; &quot;);
+-  return returnString;
+-};
+-
+-
+-// -------------------------------------------------------------------
+ // Assertions and error handling methods
+ // -------------------------------------------------------------------
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000243.html">[openrecord-svn] r258 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000245.html">[openrecord-svn] r260 - trunk/source/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#244">[ date ]</a>
+              <a href="thread.html#244">[ thread ]</a>
+              <a href="subject.html#244">[ subject ]</a>
+              <a href="author.html#244">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

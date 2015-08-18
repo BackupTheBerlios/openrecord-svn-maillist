@@ -1,0 +1,2303 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r197 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r197%20-%20trunk/source/model&In-Reply-To=%3C200506300518.j5U5IqPP007647%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000182.html">
+   <LINK REL="Next"  HREF="000184.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r197 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r197%20-%20trunk/source/model&In-Reply-To=%3C200506300518.j5U5IqPP007647%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r197 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 07:18:52 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000182.html">[openrecord-svn] r196 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000184.html">[openrecord-svn] r198 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-30 07:18:45 +0200 (Thu, 30 Jun 2005)
+New Revision: 197
+
+Modified:
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/LintTest.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/Ordinal.js
+   trunk/source/model/QueryRunner.js
+   trunk/source/model/Record.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/Vote.js
+   trunk/source/model/World.js
+Log:
+Did a lot of minor clean-up work on the data model code -- standardized on our new coding conventions.
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/ContentRecord.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -32,13 +32,14 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Vote.js
+-//   Ordinal.js
+-//   Util.js
+-//   World.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++/*global World  */
++/*global Record  */
+ // -------------------------------------------------------------------
+ 
++
+ /**
+  * The ContentRecord class serves as an abstract superclass for the class Item
+  * and the class Entry.
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,13 +30,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js
+-//   World.js
+-//   Item.js
+-//   Vote.js
+-//   Entry.js
+-//   Ordinal.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window */
++/*global XMLHttpRequest, ActiveXObject  */
++/*global Util  */
++/*global World, Item, Entry, Ordinal, Vote  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -58,11 +57,9 @@
+   var axiomaticFileName = &quot;2005_june_axiomatic_items.json&quot;;
+   var urlForAxiomaticFile = this._pathToTrunkDirectory + &quot;source/model/&quot; + axiomaticFileName;
+   
+-  this._myDehydratedAxiomFileURL = urlForAxiomaticFile;  
+-  
++  this._dehydratedAxiomFileURL = urlForAxiomaticFile;  
+   this._repositoryName = repositoryName;
+-  
+-  this._myHasEverFailedToSaveFlag = false;
++  this._hasEverFailedToSaveFlag = false;
+ }
+ 
+ 
+@@ -71,12 +68,12 @@
+  * and does the initial loading of at least the axiomatic items.
+  *
+  * @scope    public instance method
+- * @param    inWorld    The world that we provide data for. 
++ * @param    world    The world that we provide data for. 
+  */
+-DeltaVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
+-  this._initialize(inWorld);
+-  this._buildTypeHashTable();
+-  this._loadAxiomaticItemsFromFileAtURL(this._myDehydratedAxiomFileURL);
++DeltaVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function(world) {
++  this._initialize(world);
++  // this._buildTypeHashTable();
++  this._loadAxiomaticItemsFromFileAtURL(this._dehydratedAxiomFileURL);
+ 
+   var pathToRepositoryDirectory = &quot;source/repositories/&quot;;
+   var repositoryFileName = this._repositoryName + &quot;.json&quot;;
+@@ -98,14 +95,14 @@
+  * instances of items corresponding to the dehydrated data.
+  * 
+  * @scope    private instance method
+- * @param    inJsonRepositoryString    A JSON string literal representing the world of items. 
++ * @param    jsonRepositoryString    A JSON string literal representing the world of items. 
+  */
+-DeltaVirtualServer.prototype._loadWorldFromJsonString = function (inJsonRepositoryString) {
++DeltaVirtualServer.prototype._loadWorldFromJsonString = function(jsonRepositoryString) {
+ 
+   // load the list of records
+-  Util.assert(Util.isString(inJsonRepositoryString));
++  Util.assert(Util.isString(jsonRepositoryString));
+   var dehydratedRecords = null;
+-  eval(&quot;dehydratedRecords = &quot; + inJsonRepositoryString + &quot;;&quot;);
++  eval(&quot;dehydratedRecords = &quot; + jsonRepositoryString + &quot;;&quot;);
+   Util.assert(Util.isObject(dehydratedRecords));
+   var recordFormat = dehydratedRecords[StubVirtualServer.JSON_MEMBER_FORMAT];
+   Util.assert(recordFormat == StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS);
+@@ -123,16 +120,16 @@
+  * 25 characters long.
+  *
+  * @scope    public instance method
+- * @param    inString    A string that may need truncating.
++ * @param    string    A string that may need truncating.
+  * @return   A string that is. 
+  */
+-DeltaVirtualServer.prototype.truncateString = function (inString) {
++DeltaVirtualServer.prototype.truncateString = function(string) {
+   var maxLength = 80;
+   var ellipsis = &quot;...&quot;;
+-  if (inString.length &gt; maxLength) {
+-    return (inString.substring(0, (maxLength - ellipsis.length)) + ellipsis);
++  if (string.length &gt; maxLength) {
++    return (string.substring(0, (maxLength - ellipsis.length)) + ellipsis);
+   } else {
+-    return inString;
++    return string;
+   }
+ };
+ 
+@@ -142,12 +139,12 @@
+  * representations of all of the records in a Transaction.
+  *
+  * @scope    private instance method
+- * @param    inTransaction    A transaction object.
++ * @param    transaction    A transaction object.
+  * @return   A JSON string literal, representing the records in the transaction. 
+  */
+-DeltaVirtualServer.prototype._getJsonStringRepresentingTransaction = function (inTransaction) {
++DeltaVirtualServer.prototype._getJsonStringRepresentingTransaction = function(transaction) {
+   var indent = &quot;  &quot;;
+-  var listOfRecords = inTransaction.getRecords();
++  var listOfRecords = transaction.getRecords();
+   if (!listOfRecords || listOfRecords.length === 0) {
+     return &quot;&quot;;
+   }
+@@ -159,7 +156,7 @@
+     var listOfStrings = [];
+     listOfStrings.push(&quot;  // =======================================================================\n&quot;);
+     listOfStrings.push('  { &quot;' + StubVirtualServer.JSON_MEMBER_TRANSACTION_CLASS + '&quot;: [\n');
+-    var content = this._getJsonStringRepresentingRecords(inTransaction.getRecords(), indent);
++    var content = this._getJsonStringRepresentingRecords(transaction.getRecords(), indent);
+     listOfStrings.push(content);
+     listOfStrings.push('  ]\n');
+     listOfStrings.push('  }');
+@@ -173,7 +170,7 @@
+ /**
+  *
+  */
+-DeltaVirtualServer.prototype._getTypedDisplayStringForItem = function (item) {
++DeltaVirtualServer.prototype._getTypedDisplayStringForItem = function(item) {
+   var returnString = &quot;(&quot;;
+   if (item) {
+     Util.assert(item instanceof Item);
+@@ -193,12 +190,12 @@
+  * representations of the records.
+  *
+  * @scope    private instance method
+- * @param    inListOfRecords    A list of the records to include in the JSON string.
+- * @param    inIndent    Optional. A string of spaces to prepend to each line.
++ * @param    listOfRecords    A list of the records to include in the JSON string.
++ * @param    indent    Optional. A string of spaces to prepend to each line.
+  * @return   A JSON string literal, representing the records. 
+  */
+-DeltaVirtualServer.prototype._getJsonStringRepresentingRecords = function (inListOfRecords, inIndent) {
+-  var indent = inIndent || &quot;&quot;;
++DeltaVirtualServer.prototype._getJsonStringRepresentingRecords = function(listOfRecords, indent) {
++  indent = indent || &quot;&quot;;
+   var key;
+   var listOfStrings = [];
+   var firstContentRecord = true;
+@@ -207,8 +204,8 @@
+   var listOfUsers = null;
+   var commentString;
+ 
+-  for (key in inListOfRecords) {
+-    var record = inListOfRecords[key];
++  for (key in listOfRecords) {
++    var record = listOfRecords[key];
+     if (firstContentRecord) {
+       firstContentRecord = false;
+     } else {
+@@ -230,7 +227,7 @@
+       }
+       if (Util.isObjectInSet(item, listOfUsers)) {
+         var user = item;
+-        var password = this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
++        var password = this._hashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
+         var passwordString = &quot;null&quot;;
+         if (password) {
+           passwordString = '&quot;' + password + '&quot;';
+@@ -352,7 +349,7 @@
+  * @param    forceSave    Optional. Forces a save if set to true. 
+  * @return   The list of changes made. 
+  */
+-DeltaVirtualServer.prototype.saveChangesToServer = function (forceSave) {
++DeltaVirtualServer.prototype.saveChangesToServer = function(forceSave) {
+   var currentTransaction = this.getCurrentTransaction();
+   var listOfChangesMade = currentTransaction.getRecords();
+   if (!forceSave &amp;&amp; listOfChangesMade.length === 0) {
+@@ -365,9 +362,9 @@
+       saveChanges = true;
+     }
+     if (window.location.protocol == &quot;file:&quot;) {
+-      if (!this._myHasEverFailedToSaveFlag) {
++      if (!this._hasEverFailedToSaveFlag) {
+         window.alert(&quot;I can't save changes to server, because this page was loaded from a \&quot;<A HREF="file:///\">file:///\</A>&quot; location, not a real \&quot;<A HREF="http://\">http://\</A>&quot; location.  Sorry.&quot;); 
+-        this._myHasEverFailedToSaveFlag = true;
++        this._hasEverFailedToSaveFlag = true;
+       }
+     }
+   }
+@@ -376,7 +373,7 @@
+   var newRecord;
+   for (key in listOfChangesMade) {
+     newRecord = listOfChangesMade[key];
+-    this.__myChronologicalListOfRecords.push(newRecord);
++    this._chronologicalListOfRecords.push(newRecord);
+   }
+ 
+   if (saveChanges) {
+@@ -391,10 +388,10 @@
+     // them is complicated, because the requests are asynchronous, so
+     // we need to check to see if the last request is done before we 
+     // can start a new request.
+-    this.__myXMLHttpRequestObject = this.__newXMLHttpRequestObject();
+-    this.__myXMLHttpRequestObject.open(&quot;POST&quot;, url, asynchronous);
+-    this.__myXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
+-    this.__myXMLHttpRequestObject.send(textToAppend);
++    var newXMLHttpRequestObject = this.__newXMLHttpRequestObject();
++    newXMLHttpRequestObject.open(&quot;POST&quot;, url, asynchronous);
++    newXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/plain&quot;);
++    newXMLHttpRequestObject.send(textToAppend);
+   }
+   
+   this._currentTransaction = null;
+@@ -408,7 +405,7 @@
+  * @scope    private instance method
+  * @return   A newly created XMLHttpRequest object. 
+  */
+-DeltaVirtualServer.prototype.__newXMLHttpRequestObject = function () {
++DeltaVirtualServer.prototype.__newXMLHttpRequestObject = function() {
+   var newXMLHttpRequestObject = null;
+   if (window.XMLHttpRequest) {
+     newXMLHttpRequestObject = new XMLHttpRequest();
+@@ -432,6 +429,7 @@
+   return newXMLHttpRequestObject;
+ };
+ 
++
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/Entry.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,13 +30,14 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js
+-//   Item.js
+-//   World.js
+-//   ContentRecord.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global ContentRecord */
++/*global Util */
++/*global World, Item */
+ // -------------------------------------------------------------------
+ 
++
+ /**
+  * Instances of the Entry class hold literal values (like strings
+  * and numbers), or reference values (pointers to Items).
+@@ -48,20 +49,20 @@
+  * constructor, call a method on Item, like item.addAttributeEntry()
+  *
+  * @scope    protected instance constructor
+- * @param    inWorld    The world that this entry is a part of. 
+- * @param    inUuid    The UUID for this entry. 
++ * @param    world    The world that this entry is a part of. 
++ * @param    uuid    The UUID for this entry. 
+  */
+ Entry.prototype = new ContentRecord();  // makes Entry be a subclass of ContentRecord
+-function Entry(inWorld, inUuid) {
+-  this._ContentRecord(inWorld, inUuid);
++function Entry(world, uuid) {
++  this._ContentRecord(world, uuid);
+  
+-  this.__myPreviousEntry = null;
+-  this.__myListOfSubsequentEntries = [];
+-  this.__myItem = null;
++  this._previousEntry = null;
++  this._listOfSubsequentEntries = [];
++  this._item = null;
+ 
+-  this.__myAttribute = null;
+-  this.__myValue = null;
+-  this._myType = null;
++  this._attribute = null;
++  this._value = null;
++  this._type = null;
+ }
+ 
+ 
+@@ -84,38 +85,38 @@
+  * @param    value    The value to initialize the entry with. 
+  * @param    type    Optional.  The data type to interpret the value as. 
+  */
+-Entry.prototype._initialize = function (item, previousEntry, attribute, value, type) {
+-  this.__myItem = item;
+-  this.__myAttribute = attribute;
++Entry.prototype._initialize = function(item, previousEntry, attribute, value, type) {
++  this._item = item;
++  this._attribute = attribute;
+ 
+   if (previousEntry) {
+-    this.__myPreviousEntry = previousEntry;
+-    this.__myPreviousEntry.__addSubsequentEntry(this);
++    this._previousEntry = previousEntry;
++    this._previousEntry.__addSubsequentEntry(this);
+   } else {
+-    this.__myPreviousEntry = null;
++    this._previousEntry = null;
+   }
+   
+   if (type) {
+-    this._myType = type;
++    this._type = type;
+   } else {
+     if (Util.isNumber(value)) {
+-      this._myType = this.getWorld().getTypeCalledNumber();
++      this._type = this.getWorld().getTypeCalledNumber();
+     }
+     else if (Util.isString(value)) {
+-      this._myType = this.getWorld().getTypeCalledText();
++      this._type = this.getWorld().getTypeCalledText();
+     }
+     else if (Util.isDate(value)) {
+-      this._myType = this.getWorld().getTypeCalledDate();
++      this._type = this.getWorld().getTypeCalledDate();
+     }
+     else if (value instanceof Item) {
+-      this._myType = this.getWorld().getTypeCalledItem();
++      this._type = this.getWorld().getTypeCalledItem();
+     }
+     else {Util.assert(false, &quot;unknown data type:&quot; + (typeof value) + ' value: ' + value);}
+   }
+   if (Util.isString(value)) {
+-    this.__myValue = Util.getCleanString(value);
++    this._value = Util.getCleanString(value);
+   } else {
+-    this.__myValue = value;
++    this._value = value;
+   }
+ };
+ 
+@@ -137,17 +138,17 @@
+  * @param    itemTwo    One of the two items that this entry will connect. 
+  * @param    attributeTwo    Optional. The attribute of itemTwo that this entry will be assigned to.  
+  */
+-Entry.prototype._initializeConnection = function (previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
++Entry.prototype._initializeConnection = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
+   if (previousEntry) {
+-    this.__myPreviousEntry = previousEntry;
+-    this.__myPreviousEntry.__addSubsequentEntry(this);
++    this._previousEntry = previousEntry;
++    this._previousEntry.__addSubsequentEntry(this);
+   } else {
+-    this.__myPreviousEntry = null;
++    this._previousEntry = null;
+   }
+ 
+-  this.__myItem = [itemOne, itemTwo];
+-  this.__myAttribute = [attributeOne, attributeTwo];
+-  this._myType = this.getWorld().getTypeCalledConnection();
++  this._item = [itemOne, itemTwo];
++  this._attribute = [attributeOne, attributeTwo];
++  this._type = this.getWorld().getTypeCalledConnection();
+ };
+ 
+ 
+@@ -161,38 +162,38 @@
+  * rehydrating dehydrated entry objects. 
+  *
+  * @scope    protected instance method
+- * @param    inItem    The item that this is an entry of. 
++ * @param    item    The item that this is an entry of. 
+  * @param    inAttribute    The attribute that this entry is assigned to. May be null. 
+- * @param    inValue    The value to initialize the entry with. 
+- * @param    inPreviousEntry    Optional. An old entry that this entry replaces. 
+- * @param    inType    Optional. An item representing a data type. 
++ * @param    value    The value to initialize the entry with. 
++ * @param    previousEntry    Optional. An old entry that this entry replaces. 
++ * @param    type    Optional. An item representing a data type. 
+  */
+-Entry.prototype._rehydrate = function (inItem, inAttribute, inValue, inPreviousEntry, inType) {
+-  this.__myItem = inItem;
+-  if (inPreviousEntry) {
+-    this.__myPreviousEntry = inPreviousEntry;
+-    this.__myPreviousEntry.__addSubsequentEntry(this);
++Entry.prototype._rehydrate = function(item, attribute, value, previousEntry, type) {
++  this._item = item;
++  if (previousEntry) {
++    this._previousEntry = previousEntry;
++    this._previousEntry.__addSubsequentEntry(this);
+   } else {
+-    this.__myPreviousEntry = null;
++    this._previousEntry = null;
+   }
+ 
+-  this.__myAttribute = inAttribute;
+-  this.__myValue = inValue;
++  this._attribute = attribute;
++  this._value = value;
+   
+-  this._myType = inType;
++  this._type = type;
+ 
+-  if (this.__myItem instanceof Item) {
+-    this.__myItem._addRehydratedEntry(this, inAttribute);
++  if (this._item instanceof Item) {
++    this._item._addRehydratedEntry(this, this._attribute);
+   } else {
+-    Util.assert(Util.isArray(this.__myItem));
+-    Util.assert(this.__myItem.length == 2);
+-    Util.assert(Util.isArray(this.__myAttribute));
+-    Util.assert(this.__myAttribute.length == 2);
++    Util.assert(Util.isArray(this._item));
++    Util.assert(this._item.length == 2);
++    Util.assert(Util.isArray(this._attribute));
++    Util.assert(this._attribute.length == 2);
+     
+-    var firstItem = this.__myItem[0];
+-    var secondItem = this.__myItem[1];
+-    firstItem._addRehydratedEntry(this, this.__myAttribute[0]);
+-    secondItem._addRehydratedEntry(this, this.__myAttribute[1]);
++    var firstItem = this._item[0];
++    var secondItem = this._item[1];
++    firstItem._addRehydratedEntry(this, this._attribute[0]);
++    secondItem._addRehydratedEntry(this, this._attribute[1]);
+   }
+ };
+ 
+@@ -207,8 +208,8 @@
+  * @scope    public instance method
+  * @return   The item that this is a entry of.
+  */
+-Entry.prototype.getItem = function () {
+-  return this.__myItem;
++Entry.prototype.getItem = function() {
++  return this._item;
+ };
+ 
+ 
+@@ -218,8 +219,8 @@
+  * @scope    public instance method
+  * @return   the type of this entry
+  */
+-Entry.prototype.getType = function () {
+-  return this._myType;
++Entry.prototype.getType = function() {
++  return this._type;
+ };
+ 
+ 
+@@ -230,8 +231,8 @@
+  * @scope    public instance method
+  * @return   The previous entry, which this entry replaces. 
+  */
+-Entry.prototype.getPreviousEntry = function () {
+-  return this.__myPreviousEntry;
++Entry.prototype.getPreviousEntry = function() {
++  return this._previousEntry;
+ };
+ 
+ 
+@@ -241,8 +242,8 @@
+  * @scope    public instance method
+  * @return   An attribute item.
+  */
+-Entry.prototype.getAttribute = function () {
+-  return this.__myAttribute;
++Entry.prototype.getAttribute = function() {
++  return this._attribute;
+ };
+ 
+ 
+@@ -254,16 +255,16 @@
+  * @param    item    The item that this is an entry of. 
+  * @return   An attribute item.
+  */
+-Entry.prototype.getAttributeForItem = function (item) {
+-  if (this.__myItem == item) {
+-    return this.__myAttribute;
++Entry.prototype.getAttributeForItem = function(item) {
++  if (this._item == item) {
++    return this._attribute;
+   }
+-  if (Util.isArray(this.__myItem)) {
+-    if (this.__myItem[0] == item) {
+-      return this.__myAttribute[0];
++  if (Util.isArray(this._item)) {
++    if (this._item[0] == item) {
++      return this._attribute[0];
+     }
+-    if (this.__myItem[1] == item) {
+-      return this.__myAttribute[1];
++    if (this._item[1] == item) {
++      return this._attribute[1];
+     }
+   }
+   return null;
+@@ -278,19 +279,19 @@
+  * @param    item    The item that this is an entry of. 
+  * @return   The item that is connected to the given item.
+  */
+-Entry.prototype.getConnectedItem = function (item) {
++Entry.prototype.getConnectedItem = function(item) {
+   Util.assert(item instanceof Item);
+-  if (this.__myItem == item) {
+-    if (this._myType == this.getWorld().getTypeCalledItem()) {
+-      return this.__myValue;
++  if (this._item == item) {
++    if (this._type == this.getWorld().getTypeCalledItem()) {
++      return this._value;
+     }
+   }
+-  if (Util.isArray(this.__myItem)) {
+-    if (this.__myItem[0] == item) {
+-      return this.__myItem[1];
++  if (Util.isArray(this._item)) {
++    if (this._item[0] == item) {
++      return this._item[1];
+     }
+-    if (this.__myItem[1] == item) {
+-      return this.__myItem[0];
++    if (this._item[1] == item) {
++      return this._item[0];
+     }
+   }
+   return null;
+@@ -304,17 +305,17 @@
+  * @param    item    The item that this is an entry of. 
+  * @return   The value this entry was initialized to hold.
+  */
+-Entry.prototype.getValue = function (item) {
+-  if (Util.isArray(this.__myItem)) {
+-    if (this.__myItem[0] == item) {
+-      return this.__myItem[1];
++Entry.prototype.getValue = function(item) {
++  if (Util.isArray(this._item)) {
++    if (this._item[0] == item) {
++      return this._item[1];
+     }
+-    if (this.__myItem[1] == item) {
+-      return this.__myItem[0];
++    if (this._item[1] == item) {
++      return this._item[0];
+     }
+     Util.assert(false, &quot;Entry.getValue() was called on a connection entry, but was not passed an item as a parameter.&quot;);
+   }
+-  return this.__myValue; 
++  return this._value; 
+ };
+ 
+ 
+@@ -324,29 +325,29 @@
+  * @scope    public instance method
+  * @return   A string representing the literal data in this entry.
+  */
+-Entry.prototype.getDisplayString = function (myItem) {
++Entry.prototype.getDisplayString = function(callingItem) {
+   var returnString = &quot;&quot;;
+-  switch (this._myType) {
++  switch (this._type) {
+     case this.getWorld().getTypeCalledNumber():
+-      returnString = &quot;&quot; + this.__myValue;
++      returnString = &quot;&quot; + this._value;
+       break;
+     case this.getWorld().getTypeCalledText():
+-      returnString = this.__myValue;
++      returnString = this._value;
+       break;
+     case this.getWorld().getTypeCalledDate():
+-      var aDate = this.__myValue;
++      var aDate = this._value;
+       returnString = Util.getStringMonthDayYear(aDate);
+       break;
+     case this.getWorld().getTypeCalledItem():
+-      returnString = this.__myValue.getDisplayString();
++      returnString = this._value.getDisplayString();
+       break;
+     case this.getWorld().getTypeCalledConnection():
+-      var firstItem = this.__myItem[0];
+-      var secondItem = this.__myItem[1];
+-      if (myItem) {
+-        if (myItem == firstItem) {returnString = secondItem.getDisplayString();}
+-        else if (myItem == secondItem) {returnString = firstItem.getDisplayString();}
+-        else {Util.assert(false, &quot;myItem isn't part of this Entry&quot;);}
++      var firstItem = this._item[0];
++      var secondItem = this._item[1];
++      if (callingItem) {
++        if (callingItem == firstItem) {returnString = secondItem.getDisplayString();}
++        else if (callingItem == secondItem) {returnString = firstItem.getDisplayString();}
++        else {Util.assert(false, &quot;callingItem isn't part of this Entry&quot;);}
+       }
+       else {
+         returnString = 'connection between &quot;' + firstItem.getDisplayString() + '&quot; and &quot;' + secondItem.getDisplayString() + '&quot;';
+@@ -363,7 +364,7 @@
+  * @scope    public instance method
+  * @return   A string with a description of the item.
+  */
+-Entry.prototype.toString = function () {
++Entry.prototype.toString = function() {
+   var returnString = &quot;[Entry #&quot; + this.getUniqueKeyString() + 
+     &quot; \&quot;&quot; + this.getDisplayString() + &quot;\&quot;&quot; + &quot;]&quot;;
+   return returnString;
+@@ -376,8 +377,8 @@
+  * @scope    public instance method
+  * @return   True if this entry has been replaced. False if it has not.
+  */
+-Entry.prototype.hasBeenReplaced = function () {
+-  var listOfEntries = this.__myListOfSubsequentEntries;
++Entry.prototype.hasBeenReplaced = function() {
++  var listOfEntries = this._listOfSubsequentEntries;
+ 
+   if (!listOfEntries || listOfEntries.length === 0) {
+     return false;
+@@ -413,10 +414,10 @@
+  * Called by a subsquent entry, to tell this entry that it has been replaced.
+  *
+  * @scope    private instance method
+- * @param    inEntry    The entry that replaces this one.
++ * @param    entry    The entry that replaces this one.
+  */
+-Entry.prototype.__addSubsequentEntry = function (inEntry) {
+-  this.__myListOfSubsequentEntries.push(inEntry);
++Entry.prototype.__addSubsequentEntry = function(entry) {
++  this._listOfSubsequentEntries.push(entry);
+ };
+ 
+ 
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/Item.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,11 +30,11 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js
+-//   World.js
+-//   Entry.js
+-//   ContentRecord.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global ContentRecord */
++/*global Util */
++/*global World, Entry */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -49,15 +49,15 @@
+  * constructor, call the newItem() method on World: world.newItem()
+  * 
+  * @scope    protected instance constructor
+- * @param    inWorld    The world that this item is a part of. 
+- * @param    inUuid    The UUID for this item. 
++ * @param    world    The world that this item is a part of. 
++ * @param    uuid    The UUID for this item. 
+  */
+ Item.prototype = new ContentRecord();  // makes Item be a subclass of ContentRecord
+-function Item(inWorld, inUuid) {
+-  this._ContentRecord(inWorld, inUuid);
++function Item(world, uuid) {
++  this._ContentRecord(world, uuid);
+   
+-  this.__myHashTableOfEntryListsKeyedByAttributeUuid = {};
+-  this.__myProvisionalFlag = false;
++  this._hashTableOfEntryListsKeyedByAttributeUuid = {};
++  this._provisionalFlag = false;
+ }
+ 
+ 
+@@ -72,15 +72,15 @@
+  * need to call item.rehydrate();
+  *
+  * @scope    protected instance method
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+- * @param    inProvisionalFlag    True if the item is provisional; false if the item is normal. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    provisionalFlag    True if the item is provisional; false if the item is normal. 
+  */
+-Item.prototype._initialize = function (inObserver, inProvisionalFlag) {
+-  if (inProvisionalFlag) {
+-    this.__myProvisionalFlag = true;
++Item.prototype._initialize = function(observer, provisionalFlag) {
++  if (provisionalFlag) {
++    this._provisionalFlag = true;
+   }
+-  if (inObserver) {
+-    this.addObserver(inObserver);
++  if (observer) {
++    this.addObserver(observer);
+   }
+ };
+ 
+@@ -94,14 +94,14 @@
+  * list of entries.
+  *
+  * @scope    public instance method
+- * @param    inValue    The value to initialize the entry to.
+- * @param    inType    Optional. An item representing a data type.
++ * @param    value    The value to initialize the entry to.
++ * @param    type    Optional. An item representing a data type.
+  * @return   An entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-Item.prototype.addEntry = function (inValue, inType) {
++Item.prototype.addEntry = function(value, type) {
+   var attributeCalledUnfiled = this.getWorld().getAttributeCalledUnfiled();
+-  return this._createNewEntry(null, attributeCalledUnfiled, inValue, inType);
++  return this._createNewEntry(null, attributeCalledUnfiled, value, type);
+ };
+ 
+ 
+@@ -122,14 +122,14 @@
+  * &lt;/pre&gt;
+  *
+  * @scope    public instance method
+- * @param    inAttribute    The attribute to assign the entry to. 
+- * @param    inValue    The value to initialize the entry with.
+- * @param    inType    Optional. An item representing a data type.
++ * @param    attribute    The attribute to assign the entry to. 
++ * @param    value    The value to initialize the entry with.
++ * @param    type    Optional. An item representing a data type.
+  * @return   An entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-Item.prototype.addEntryForAttribute = function (inAttribute, inValue, inType) {
+-  return this._createNewEntry(null, inAttribute, inValue, inType);
++Item.prototype.addEntryForAttribute = function(attribute, value, type) {
++  return this._createNewEntry(null, attribute, value, type);
+ };
+ 
+ 
+@@ -137,15 +137,15 @@
+  * Replaces an existing entry with a new entry.
+  *
+  * @scope    public instance method
+- * @param    inEntry    The old entry to be replaced.
+- * @param    inValue    The value to initialize the new entry to.
+- * @param    inType    Optional. An item representing a data type.
++ * @param    previousEntry    The old entry to be replaced.
++ * @param    value    The value to initialize the new entry to.
++ * @param    type    Optional. An item representing a data type.
+  * @return   The new replacement entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-Item.prototype.replaceEntry = function (inEntry, inValue, inType) {
+-  var attribute = inEntry.getAttributeForItem(this);
+-  return this._createNewEntry(inEntry, attribute, inValue, inType);
++Item.prototype.replaceEntry = function(previousEntry, value, type) {
++  var attribute = previousEntry.getAttributeForItem(this);
++  return this._createNewEntry(previousEntry, attribute, value, type);
+ };
+ 
+ 
+@@ -154,15 +154,15 @@
+  * to an attribute.
+  *
+  * @scope    public instance method
+- * @param    inEntry    The old entry to be replaced.
+- * @param    inAttribute    The attribute to assign the entry to. 
+- * @param    inValue    The value to initialize the new entry to.
+- * @param    inType    Optional. An item representing a data type.
++ * @param    previousEntry    The old entry to be replaced.
++ * @param    attribute    The attribute to assign the entry to. 
++ * @param    value    The value to initialize the new entry to.
++ * @param    type    Optional. An item representing a data type.
+  * @return   The new replacement entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-Item.prototype.replaceEntryWithEntryForAttribute = function (inEntry, inAttribute, inValue, inType) {
+-  return this._createNewEntry(inEntry, inAttribute, inValue, inType);
++Item.prototype.replaceEntryWithEntryForAttribute = function(previousEntry, attribute, value, type) {
++  return this._createNewEntry(previousEntry, attribute, value, type);
+ };
+ 
+ 
+@@ -176,7 +176,7 @@
+  * @param    type    Optional. An item representing a data type.
+  * @scope    private instance method
+  */
+-Item.prototype._createNewEntry = function (previousEntry, attribute, value, type) {
++Item.prototype._createNewEntry = function(previousEntry, attribute, value, type) {
+ 
+   // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
+   // then don't even bother creating a new entry. 
+@@ -189,8 +189,8 @@
+   }
+   
+   this.getWorld().beginTransaction();
+-  if (this.__myProvisionalFlag) {
+-    this.__myProvisionalFlag = false;
++  if (this._provisionalFlag) {
++    this._provisionalFlag = false;
+     this.getWorld()._provisionalItemJustBecameReal(this);
+   }
+   
+@@ -219,7 +219,7 @@
+  * @return   The new entry object.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-Item.prototype.addConnectionEntry = function (myAttribute, otherItem, otherAttribute) {
++Item.prototype.addConnectionEntry = function(myAttribute, otherItem, otherAttribute) {
+   return this.replaceEntryWithConnection(null, myAttribute, otherItem, otherAttribute);
+ };
+ 
+@@ -227,7 +227,7 @@
+ /**
+  *
+  */
+-Item.prototype.replaceEntryWithConnection = function (previousEntry, myAttribute, otherItem, otherAttribute) {
++Item.prototype.replaceEntryWithConnection = function(previousEntry, myAttribute, otherItem, otherAttribute) {
+   Util.assert(otherItem instanceof Item);
+   Util.assert(myAttribute instanceof Item);
+ 
+@@ -251,12 +251,12 @@
+   }
+ 
+   this.getWorld().beginTransaction();
+-  if (this.__myProvisionalFlag) {
+-    this.__myProvisionalFlag = false;
++  if (this._provisionalFlag) {
++    this._provisionalFlag = false;
+     this.getWorld()._provisionalItemJustBecameReal(this);
+   }
+-  if (otherItem.__myProvisionalFlag) {
+-    otherItem.__myProvisionalFlag = false;
++  if (otherItem._provisionalFlag) {
++    otherItem._provisionalFlag = false;
+     this.getWorld()._provisionalItemJustBecameReal(otherItem);
+   }
+   if (!otherAttribute) {
+@@ -275,7 +275,7 @@
+  * @scope    public instance method
+  * @param    category    An item representing a category. 
+  */
+-Item.prototype.assignToCategory = function (category) {
++Item.prototype.assignToCategory = function(category) {
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var attributeCalledItemsInCategory = this.getWorld().getAttributeCalledItemsInCategory();
+   this.addConnectionEntry(attributeCalledCategory, category, attributeCalledItemsInCategory);
+@@ -299,12 +299,12 @@
+  * &lt;/pre&gt;
+  *
+  * @scope    public instance method
+- * @param    inAttribute    An attribute that we want to know the entries of. 
++ * @param    attribute    An attribute that we want to know the entries of. 
+  * @return   A list of entry objects.
+  */
+-Item.prototype.getEntriesForAttribute = function (inAttribute) {
+-  Util.assert(inAttribute instanceof Item);
+-  var listOfEntriesForAttribute = this.__myHashTableOfEntryListsKeyedByAttributeUuid[inAttribute._getUuid()];
++Item.prototype.getEntriesForAttribute = function(attribute) {
++  Util.assert(attribute instanceof Item);
++  var listOfEntriesForAttribute = this._hashTableOfEntryListsKeyedByAttributeUuid[attribute._getUuid()];
+   if (!listOfEntriesForAttribute) {
+     listOfEntriesForAttribute = [];
+   }
+@@ -350,11 +350,11 @@
+  * @scope    public instance method
+  * @return   A list of entry objects.
+  */
+-Item.prototype.getEntries = function () {
++Item.prototype.getEntries = function() {
+   var listOfAllEntries = [];
+   
+-  for (var uuid in this.__myHashTableOfEntryListsKeyedByAttributeUuid) {
+-    var listOfEntriesForAttribute = this.__myHashTableOfEntryListsKeyedByAttributeUuid[uuid];
++  for (var uuid in this._hashTableOfEntryListsKeyedByAttributeUuid) {
++    var listOfEntriesForAttribute = this._hashTableOfEntryListsKeyedByAttributeUuid[uuid];
+     for (var key in listOfEntriesForAttribute) {
+       var entry = listOfEntriesForAttribute[key];
+       listOfAllEntries.push(entry);
+@@ -371,10 +371,10 @@
+  * @scope    public instance method
+  * @return   A list of attribute items.
+  */
+-Item.prototype.getAttributes = function () {
++Item.prototype.getAttributes = function() {
+   var listOfAttributes = [];
+   
+-  for (var uuid in this.__myHashTableOfEntryListsKeyedByAttributeUuid) {
++  for (var uuid in this._hashTableOfEntryListsKeyedByAttributeUuid) {
+     var attribute = this.getWorld().getItemFromUuid(uuid);
+     listOfAttributes.push(attribute);
+   }
+@@ -385,7 +385,7 @@
+ /**
+  *
+  */
+-Item.prototype.getFirstCategory = function () {
++Item.prototype.getFirstCategory = function() {
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var listOfCategoryEntries = this.getEntriesForAttribute(attributeCalledCategory);
+   var returnEntry = null;
+@@ -407,7 +407,7 @@
+  * @return   Boolean whether item is provisional
+  */
+ Item.prototype.isProvisional = function() {
+-  return this.__myProvisionalFlag;
++  return this._provisionalFlag;
+ };
+ 
+ 
+@@ -418,7 +418,7 @@
+  * @param    defaultString    Optional.  This string will be returned if the item has no display name. 
+  * @return   A string with a display name for the item.
+  */
+-Item.prototype.getDisplayName = function (defaultString) {
++Item.prototype.getDisplayName = function(defaultString) {
+   var displayName = defaultString || &quot;(no name)&quot;;
+   var listOfNameEntries = this.getNameEntries();
+   if (listOfNameEntries.length &gt; 0) {
+@@ -436,7 +436,7 @@
+  * @param    defaultString    Optional.  This string will be returned if the item has no short name or name. 
+  * @return   A string with a name for the item.
+  */
+-Item.prototype.getDisplayString = function (defaultString) {
++Item.prototype.getDisplayString = function(defaultString) {
+   var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+   var shortNameString = this.getSingleStringValueFromAttribute(attributeCalledShortName);
+   if (!shortNameString) {
+@@ -449,7 +449,7 @@
+ /**
+  *
+  */
+-Item.prototype.getDisplayStringForEntry = function (entry) {
++Item.prototype.getDisplayStringForEntry = function(entry) {
+   Util.assert(entry instanceof Entry);
+   return entry.getDisplayString(this);
+ };
+@@ -461,7 +461,7 @@
+  * @scope    public instance method
+  * @return   A list of the entries assigned to the &quot;name&quot; attribute.
+  */
+-Item.prototype.getNameEntries = function () {
++Item.prototype.getNameEntries = function() {
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   return this.getEntriesForAttribute(attributeCalledName);
+ };
+@@ -473,7 +473,7 @@
+  * @scope    public instance method
+  * @return   A list of the entries assigned to the &quot;short name&quot; attribute.
+  */
+-Item.prototype.getShortNameEntries = function () {
++Item.prototype.getShortNameEntries = function() {
+   var attributeCalledShortName = this.getWorld().getAttributeCalledShortName();
+   return this.getEntriesForAttribute(attributeCalledShortName);
+ };
+@@ -486,7 +486,7 @@
+  * @param    attribute    An item representing an attribute. 
+  * @return   A string with a description of the item.
+  */
+-Item.prototype.getSingleEntryFromAttribute = function (attribute) {
++Item.prototype.getSingleEntryFromAttribute = function(attribute) {
+   var listOfEntries = this.getEntriesForAttribute(attribute);
+   if (listOfEntries) {
+     return listOfEntries[0];
+@@ -502,7 +502,7 @@
+  * @param    attribute    An item representing an attribute. 
+  * @return   A string with a description of the item.
+  */
+-Item.prototype.getSingleStringValueFromAttribute = function (attribute) {
++Item.prototype.getSingleStringValueFromAttribute = function(attribute) {
+   var singleEntry = this.getSingleEntryFromAttribute(attribute);
+   if (singleEntry) {return singleEntry.getDisplayString();}
+   return &quot;&quot;;
+@@ -515,7 +515,7 @@
+  * @scope    public instance method
+  * @return   A string with a description of the item.
+  */
+-Item.prototype.toString = function () {
++Item.prototype.toString = function() {
+   var returnString = &quot;[Item #&quot; + this.getUniqueKeyString() + &quot; &quot;;
+   var attributeCategory = this.getWorld().getAttributeCalledCategory();
+   var listOfCategories = this.getEntriesForAttribute(attributeCategory);
+@@ -541,15 +541,15 @@
+  * @scope public instance method
+  * @return Boolean. True if this item has an attribute with the entry
+  */
+-Item.prototype.hasAttributeValue = function (inAttribute, inValue) {
+-  Util.assert(inAttribute instanceof Item);
+-  var entryList = this.getEntriesForAttribute(inAttribute);
++Item.prototype.hasAttributeValue = function(attribute, value) {
++  Util.assert(attribute instanceof Item);
++  var entryList = this.getEntriesForAttribute(attribute);
+ 
+   // look at all the entries this item's attribute is assigned to, 
+   // and see if one of them is &quot;inEntry&quot;
+   for (var key in entryList) {
+     var entry = entryList[key];
+-    if (entry.getValue(this) == inValue) {
++    if (entry.getValue(this) == value) {
+       return true;
+     }
+   }
+@@ -563,11 +563,11 @@
+  * @scope    public instance method
+  * @return   A boolean.  True if the item has been assigned to the category.
+  */
+-Item.prototype.isInCategory = function (inCategory) {
+-  Util.assert(inCategory instanceof Item);
++Item.prototype.isInCategory = function(category) {
++  Util.assert(category instanceof Item);
+ 
+   var categoryAttribute = this.getWorld().getAttributeCalledCategory();
+-  return this.hasAttributeValue(categoryAttribute, inCategory);
++  return this.hasAttributeValue(categoryAttribute, category);
+ };
+  
+ 
+@@ -580,10 +580,10 @@
+  * the observer will be notified when the item changes.
+  *
+  * @scope    public instance method
+- * @param    inObserver    An object or method to be registered as an observer of the item. 
++ * @param    observer    An object or method to be registered as an observer of the item. 
+  */
+-Item.prototype.addObserver = function (inObserver) {
+-  this.getWorld().addItemObserver(this, inObserver);
++Item.prototype.addObserver = function(observer) {
++  this.getWorld().addItemObserver(this, observer);
+ };
+ 
+ 
+@@ -592,10 +592,10 @@
+  * that the observer will no longer be notified when the item changes.
+  *
+  * @scope    public instance method
+- * @param    inObserver    The object or method to be removed from the set of observers. 
++ * @param    observer    The object or method to be removed from the set of observers. 
+  */
+-Item.prototype.removeObserver = function (inObserver) {
+-  this.getWorld().removeItemObserver(this, inObserver);
++Item.prototype.removeObserver = function(observer) {
++  this.getWorld().removeItemObserver(this, observer);
+ };
+ 
+ 
+@@ -611,11 +611,11 @@
+  * entry._rehydrate() method.
+  * 
+  * @scope    protected instance method
+- * @param    inEntry    The entry to be associated with this item. 
+- * @param    inAttribute    The attribute that this entry is assigned to. 
++ * @param    entry    The entry to be associated with this item. 
++ * @param    attribute    The attribute that this entry is assigned to. 
+  */
+-Item.prototype._addRehydratedEntry = function (inEntry, inAttribute) {
+-  this.__addEntryToListOfEntriesForAttribute(inEntry, inAttribute);
++Item.prototype._addRehydratedEntry = function(entry, attribute) {
++  this.__addEntryToListOfEntriesForAttribute(entry, attribute);
+ };
+   
+ 
+@@ -627,17 +627,17 @@
+  * Adds an entry to the list of entries that have been set for this item.
+  * 
+  * @scope    private instance method
+- * @param    inEntry    The entry to be associated with this item. 
++ * @param    entry    The entry to be associated with this item. 
+  * @param    attribute    The attribute that this entry is assigned to. 
+  */
+-Item.prototype.__addEntryToListOfEntriesForAttribute = function (inEntry, attribute) {
++Item.prototype.__addEntryToListOfEntriesForAttribute = function(entry, attribute) {
+   var attributeUuid = attribute._getUuid();
+-  var listOfEntries = this.__myHashTableOfEntryListsKeyedByAttributeUuid[attributeUuid];
++  var listOfEntries = this._hashTableOfEntryListsKeyedByAttributeUuid[attributeUuid];
+   if (!listOfEntries) {
+     listOfEntries = [];
+-    this.__myHashTableOfEntryListsKeyedByAttributeUuid[attributeUuid] = listOfEntries;
++    this._hashTableOfEntryListsKeyedByAttributeUuid[attributeUuid] = listOfEntries;
+   }
+-  listOfEntries.push(inEntry);
++  listOfEntries.push(entry);
+ };
+ 
+ 
+
+Modified: trunk/source/model/LintTest.js
+===================================================================
+--- trunk/source/model/LintTest.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/LintTest.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -28,6 +28,11 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global LintTool, assertTrue, setUp, tearDown */
++// -------------------------------------------------------------------
+ 
+ function setUp() {
+ }
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/ModelTest.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -28,6 +28,17 @@
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+  
++
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util */
++/*global World, Item, Entry */
++/*global StubVirtualServer */
++/*global assertTrue, assertFalse, setUp, tearDown */
++// -------------------------------------------------------------------
++
++
+ var ModelTestVars = null;
+ var world;
+ 
+@@ -71,7 +82,7 @@
+   var then = now;
+   while (now.valueOf() == then.valueOf()) {
+     now = new Date();
+-  };
++  }
+ }
+ 
+ function testGetTimestamp() {
+@@ -286,7 +297,7 @@
+   listOfEntries = theHobbit.getEntriesForAttribute(attributeCalledName);
+   assertTrue('&quot;The Hobbit&quot; has two names', listOfEntries.length == 2);
+   assertTrue('getDisplayName() returns the first name', (starWars.getDisplayName() == &quot;Star Wars&quot;));
+-  listOfNames = theHobbit.getNameEntries();
++  var listOfNames = theHobbit.getNameEntries();
+   assertTrue('getContentData() returns a string', listOfNames[0].getValue() == &quot;The Hobbit&quot;);
+   hasAll = Util.areObjectsInSet(listOfNames, listOfEntries);
+   hasAll = hasAll &amp;&amp; Util.areObjectsInSet(listOfEntries, listOfNames);
+@@ -569,7 +580,7 @@
+   var northAmericaQuery = world.newQuery(attributeCalledContinent, &quot;North America&quot;);
+   // listOfCountries = world.getResultItemsForQuery(northAmericaQuery);
+   var queryRunnerForNorthAmerica = world.newQueryRunner(northAmericaQuery);
+-  var listOfCountries = queryRunnerForNorthAmerica.getResultItems();
++  listOfCountries = queryRunnerForNorthAmerica.getResultItems();
+   assertTrue('North America query returned only Seattle',
+   listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
+     
+@@ -607,7 +618,7 @@
+   assertTrue(&quot;Should be at least 3 categories&quot;, origNumberOfCategories &gt;= 3);
+   
+   // Need to login before adding a category.
+-  loginSuccess = world.login(userJane, janesPassword);
++  var loginSuccess = world.login(userJane, janesPassword);
+   assertTrue('login succeeded', loginSuccess);
+   assertTrue('Jane is logged in', world.getCurrentUser() == userJane);  
+ 
+
+Modified: trunk/source/model/Ordinal.js
+===================================================================
+--- trunk/source/model/Ordinal.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/Ordinal.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,11 +30,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   User.js
+-//   ContentRecord.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Record */
+ // -------------------------------------------------------------------
+ 
++
+ /**
+  * Each instance of the Ordinal class keeps track of the fact that
+  * a user set an ordinal number for an item or a entry of an item.
+@@ -47,6 +48,8 @@
+  */
+ Ordinal.prototype = new Record();  // makes Ordinal be a subclass of Record
+ function Ordinal(world, uuid, contentRecord, ordinalNumber) {
++  this._Record(world, uuid);
++
+   this._contentRecord = contentRecord;
+   this._ordinalNumber = ordinalNumber;
+   this._contentRecord._addOrdinal(this);
+@@ -59,7 +62,7 @@
+  * @scope    public instance method
+  * @return   An item or entry.
+  */
+-Ordinal.prototype.getContentRecord = function () {
++Ordinal.prototype.getContentRecord = function() {
+   return this._contentRecord;
+ };
+ 
+@@ -70,7 +73,7 @@
+  * @scope    public instance method
+  * @return   An ordinal number.
+  */
+-Ordinal.prototype.getOrdinalNumber = function () {
++Ordinal.prototype.getOrdinalNumber = function() {
+   return this._ordinalNumber;
+ };
+ 
+
+Modified: trunk/source/model/QueryRunner.js
+===================================================================
+--- trunk/source/model/QueryRunner.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/QueryRunner.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -29,6 +29,14 @@
+ *****************************************************************************/
+  
+ 
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++/*global Item, World  */
++// -------------------------------------------------------------------
++
++
+ /**
+  * A QueryRunner is used to run a query.  A QueryRunner can be initialized with a
+  * query spec item, so that when the QueryRunner is executed it will return the
+@@ -71,7 +79,7 @@
+  * @scope    public instance method
+  * @return   A World object. 
+  */
+-QueryRunner.prototype.getWorld = function () {
++QueryRunner.prototype.getWorld = function() {
+   return this._world;
+ };
+ 
+@@ -82,7 +90,7 @@
+  * @scope    public instance method
+  * @return   An attribute item. 
+  */
+-QueryRunner.prototype.getMatchingAttribute = function () {
++QueryRunner.prototype.getMatchingAttribute = function() {
+   return this._matchingAttribute;
+ };
+ 
+@@ -93,7 +101,7 @@
+  * @scope    public instance method
+  * @return   A list of values. 
+  */
+-QueryRunner.prototype.getMatchingValues = function () {
++QueryRunner.prototype.getMatchingValues = function() {
+   return this._listOfMatchingValues;
+ };
+ 
+@@ -104,7 +112,7 @@
+  * @scope    public instance method
+  * @return   The list of items in the query result set. 
+  */
+-QueryRunner.prototype.getResultItems = function () {
++QueryRunner.prototype.getResultItems = function() {
+   return this._listOfResultItems;
+ };
+ 
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/Record.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -31,6 +31,13 @@
+ *****************************************************************************/
+ 
+ 
++// -------------------------------------------------------------------
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++// -------------------------------------------------------------------
++
++
+ /**
+  * The Record class serves as an abstract superclass for the classes Vote,
+  * Ordinal, and ContentRecord.  ContentRecord is the abstract superclass
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/StubVirtualServer.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,14 +30,10 @@
+  
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js
+-//   World.js
+-//   Item.js
+-//   ContentRecord.js
+-//   Ordinal.js
+-//   Entry.js
+-//   Vote.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Util  */
++/*global World, Item, Entry, Ordinal, Vote, ContentRecord, Transaction  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -93,7 +89,7 @@
+   }
+   urlForAxiomaticFile += &quot;source/model/&quot; + fileName;
+   
+-  this._myDehydratedAxiomFileURL = urlForAxiomaticFile;
++  this._dehydratedAxiomFileURL = urlForAxiomaticFile;
+ }
+ 
+ 
+@@ -101,21 +97,21 @@
+  * Initializes the instance variables for a newly created StubVirtualServer.
+  *
+  * @scope    private instance method
+- * @param    inWorld    The world that we provide data for. 
++ * @param    world    The world that we provide data for. 
+  */
+-StubVirtualServer.prototype._initialize = function (inWorld) {
+-  this.__myWorld = inWorld;
++StubVirtualServer.prototype._initialize = function(world) {
++  this._world = world;
+   
+   this._countOfNestedTransactions = 0;
+   this._currentTransaction = null;
+ 
+-  this.__myHashTableOfItemsKeyedByUuid = {};
+-  this.__myHashTableOfEntriesKeyedByUuid = {};
+-  this.__myChronologicalListOfRecords = [];
++  this._hashTableOfItemsKeyedByUuid = {};
++  this._hashTableOfEntriesKeyedByUuid = {};
++  this._chronologicalListOfRecords = [];
+   
+-  this.__myListOfUsers = [];
+-  this.__myHashTableOfUserAuthenticationInfo = {};
+-  this.__myCurrentUser = null;
++  this._listOfUsers = [];
++  this._hashTableOfUserAuthenticationInfo = {};
++  this._currentUser = null;
+ };
+  
+ 
+@@ -124,12 +120,12 @@
+  * and does the initial loading of at least the axiomatic items.
+  *
+  * @scope    public instance method
+- * @param    inWorld    The world that we provide data for. 
++ * @param    world    The world that we provide data for. 
+  */
+-StubVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function (inWorld) {
+-  this._initialize(inWorld);
+-  this._buildTypeHashTable();
+-  this._loadAxiomaticItemsFromFileAtURL(this._myDehydratedAxiomFileURL);
++StubVirtualServer.prototype.setWorldAndLoadAxiomaticItems = function(world) {
++  this._initialize(world);
++  // this._buildTypeHashTable();
++  this._loadAxiomaticItemsFromFileAtURL(this._dehydratedAxiomFileURL);
+ };
+ 
+ 
+@@ -139,8 +135,8 @@
+  * @scope    public instance method
+  * @return   A World object. 
+  */
+-StubVirtualServer.prototype.getWorld = function () {
+-  return this.__myWorld;
++StubVirtualServer.prototype.getWorld = function() {
++  return this._world;
+ };
+ 
+ 
+@@ -181,7 +177,7 @@
+     if (listOfChangesMade.length &gt; 0) {
+       // alert(listOfChangesMade.length + &quot; changes made&quot;);
+       // Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
+-      this.__myWorld._notifyObserversOfChanges(listOfChangesMade);
++      this._world._notifyObserversOfChanges(listOfChangesMade);
+     }
+   }
+ };
+@@ -193,7 +189,7 @@
+  * @scope    public instance method
+  * @return   A Transaction object, or null if there is no transaction in progress. 
+  */
+-StubVirtualServer.prototype.getCurrentTransaction = function () {
++StubVirtualServer.prototype.getCurrentTransaction = function() {
+   return this._currentTransaction;
+ };
+ 
+@@ -206,17 +202,17 @@
+  * Returns a newly created item.
+  *
+  * @scope    public instance method
+- * @param    inName    Optional. A string, which will be assigned to the name attribute of the new item. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    name    Optional. A string, which will be assigned to the name attribute of the new item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype.newItem = function (inName, inObserver) {
++StubVirtualServer.prototype.newItem = function(name, observer) {
+   this._throwErrorIfNoUserIsLoggedIn();
+-  var item = this._createNewItem(inObserver, false);
+-  if (inName) { 
+-    var attributeCalledName = this.__myWorld.getAttributeCalledName();
+-    item.addEntryForAttribute(attributeCalledName, inName);
++  var item = this._createNewItem(observer, false);
++  if (name) { 
++    var attributeCalledName = this._world.getAttributeCalledName();
++    item.addEntryForAttribute(attributeCalledName, name);
+   }
+   return item;
+ };
+@@ -230,13 +226,13 @@
+  * an entry is set for one of the item's attributes.
+  *
+  * @scope    public instance method
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created provisional item.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype.newProvisionalItem = function (inObserver) {
++StubVirtualServer.prototype.newProvisionalItem = function(observer) {
+   this._throwErrorIfNoUserIsLoggedIn();
+-  var item = this._createNewItem(inObserver, true);
++  var item = this._createNewItem(observer, true);
+   return item;
+ };
+ 
+@@ -245,18 +241,17 @@
+  * Returns a newly created item: either a provisional item or a normal item.
+  *
+  * @scope    private instance method
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
+- * @param    inProvisionalFlag    True if the item is provisional; false if the item is normal. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    provisionalFlag    True if the item is provisional; false if the item is normal. 
+  * @return   A newly created item.
+  */
+-StubVirtualServer.prototype._createNewItem = function (inObserver, inProvisionalFlag) {
++StubVirtualServer.prototype._createNewItem = function(observer, provisionalFlag) {
+   var uuid = this._getNewUuid();
+-  var item = new Item(this.__myWorld, uuid);
+-  item._initialize(inObserver, inProvisionalFlag);
+-  this.__myHashTableOfItemsKeyedByUuid[uuid] = item;
+-  if (!inProvisionalFlag) {
++  var item = new Item(this._world, uuid);
++  item._initialize(observer, provisionalFlag);
++  this._hashTableOfItemsKeyedByUuid[uuid] = item;
++  if (!provisionalFlag) {
+     this._currentTransaction.addRecord(item);
+-    // this.__myChronologicalListOfNewlyCreatedRecords.push(item);
+   }
+   return item;
+ };
+@@ -266,10 +261,10 @@
+  * Records the fact that a provisional item just became real.
+  *
+  * @scope    package instance method
+- * @param    inItem    The item that was provisional and just became real. 
++ * @param    item    The item that was provisional and just became real. 
+  */
+-StubVirtualServer.prototype._provisionalItemJustBecameReal = function (inItem) {
+-  this._currentTransaction.addRecord(inItem);
++StubVirtualServer.prototype._provisionalItemJustBecameReal = function(item) {
++  this._currentTransaction.addRecord(item);
+ };
+ 
+ 
+@@ -285,14 +280,14 @@
+  * @return   A newly created entry.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype.newEntry = function (item, previousEntry, attribute, value, type) {
++StubVirtualServer.prototype.newEntry = function(item, previousEntry, attribute, value, type) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
+-  var entry = new Entry(this.__myWorld, uuid);
++  var entry = new Entry(this._world, uuid);
+   entry._initialize(item, previousEntry, attribute, value, type);
+   item.__addEntryToListOfEntriesForAttribute(entry, attribute);
+   
+-  this.__myHashTableOfEntriesKeyedByUuid[uuid] = entry;
++  this._hashTableOfEntriesKeyedByUuid[uuid] = entry;
+   this._currentTransaction.addRecord(entry);
+   return entry;
+ };
+@@ -313,13 +308,13 @@
+ StubVirtualServer.prototype.newConnectionEntry = function(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
+-  var entry = new Entry(this.__myWorld, uuid);
++  var entry = new Entry(this._world, uuid);
+   entry._initializeConnection(previousEntry, itemOne, attributeOne, itemTwo, attributeTwo);
+ 
+   itemOne.__addEntryToListOfEntriesForAttribute(entry, attributeOne);
+   itemTwo.__addEntryToListOfEntriesForAttribute(entry, attributeTwo);
+ 
+-  this.__myHashTableOfEntriesKeyedByUuid[uuid] = entry;
++  this._hashTableOfEntriesKeyedByUuid[uuid] = entry;
+   this._currentTransaction.addRecord(entry);
+   return entry;
+ };
+@@ -329,15 +324,15 @@
+  * Returns a newly created ordinal.
+  *
+  * @scope    public instance method
+- * @param    inContentRecord    The contentRecord that this is an ordinal for. 
+- * @param    inOrdinalNumber    The ordinal number itself. 
++ * @param    contentRecord    The contentRecord that this is an ordinal for. 
++ * @param    ordinalNumber    The ordinal number itself. 
+  * @return   A newly created ordinal.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype.newOrdinal = function (inContentRecord, inOrdinalNumber) {
++StubVirtualServer.prototype.newOrdinal = function(contentRecord, ordinalNumber) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
+-  var ordinal = new Ordinal(this.__myWorld, uuid, inContentRecord, inOrdinalNumber);
++  var ordinal = new Ordinal(this._world, uuid, contentRecord, ordinalNumber);
+   this._currentTransaction.addRecord(ordinal);
+   return ordinal;
+ };
+@@ -347,15 +342,15 @@
+  * Returns a newly created vote.
+  *
+  * @scope    public instance method
+- * @param    inContentRecord    The contentRecord to attach this vote to. 
+- * @param    inRetainFlag    True if this is a vote to retain. False if this is a vote to delete. 
++ * @param    contentRecord    The contentRecord to attach this vote to. 
++ * @param    retainFlag    True if this is a vote to retain. False if this is a vote to delete. 
+  * @return   A newly created vote.
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype.newVote = function (inContentRecord, inRetainFlag) {
++StubVirtualServer.prototype.newVote = function(contentRecord, retainFlag) {
+   this._throwErrorIfNoUserIsLoggedIn();
+   var uuid = this._getNewUuid();
+-  var vote = new Vote(this.__myWorld, uuid, inContentRecord, inRetainFlag);
++  var vote = new Vote(this._world, uuid, contentRecord, retainFlag);
+   this._currentTransaction.addRecord(vote);
+   return vote;
+ };
+@@ -369,35 +364,35 @@
+  * Creates a new item, where the new item represents a user of this datastore.
+  *
+  * @scope    public instance method
+- * @param    inName    A string, which will be assigned to the name attribute of the new item. 
+- * @param    inAuthentication    A string which will be used as the login password for the user. 
+- * @param    inObserver    Optional. An object or method to be registered as an observer of the returned item. 
++ * @param    name    A string, which will be assigned to the name attribute of the new item. 
++ * @param    authentication    A string which will be used as the login password for the user. 
++ * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+  * @return   A newly created item representing a user.
+  * @throws   Throws an Error if a user is logged in.
+  */
+-StubVirtualServer.prototype.newUser = function (inName, inAuthentication, inObserver) {
+-  if (this.__myCurrentUser) {
++StubVirtualServer.prototype.newUser = function(name, authentication, observer) {
++  if (this._currentUser) {
+     var error = new Error(&quot;A user is logged in.  You can't create a new user when somebody is already logged in.&quot;);
+     throw error;
+   }
+ 
+-  var newUser = this._createNewItem(inObserver, false);
+-  this.__myListOfUsers.push(newUser);
++  var newUser = this._createNewItem(observer, false);
++  this._listOfUsers.push(newUser);
+   
+   var md5Authentication = null;
+-  if (inAuthentication) {
+-    md5Authentication = Util.hex_md5(inAuthentication);
++  if (authentication) {
++    md5Authentication = Util.hex_md5(authentication);
+   }
+-  this.__myHashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = md5Authentication;
++  this._hashTableOfUserAuthenticationInfo[newUser.getUniqueKeyString()] = md5Authentication;
+ 
+-  this.__myCurrentUser = newUser;
++  this._currentUser = newUser;
+   var categoryCalledPerson = this.getWorld().getCategoryCalledPerson();
+   newUser.assignToCategory(categoryCalledPerson); 
+-  if (inName) { 
++  if (name) { 
+     var attributeCalledName = this.getItemFromUuid(World.UUID_FOR_ATTRIBUTE_NAME);
+-    var entry = newUser.addEntryForAttribute(attributeCalledName, inName);
++    var entry = newUser.addEntryForAttribute(attributeCalledName, name);
+   }
+-  this.__myCurrentUser = null;
++  this._currentUser = null;
+   
+   return newUser;
+ };
+@@ -409,8 +404,8 @@
+  * @scope    public instance method
+  * @return   A list of items.
+  */
+-StubVirtualServer.prototype.getUsers = function () {
+-  return this.__myListOfUsers;
++StubVirtualServer.prototype.getUsers = function() {
++  return this._listOfUsers;
+ };
+ 
+ 
+@@ -420,8 +415,8 @@
+  * @scope    public instance method
+  * @return   An item representing the user who is currently logged in.
+  */
+-StubVirtualServer.prototype.getCurrentUser = function () {
+-  return this.__myCurrentUser;
++StubVirtualServer.prototype.getCurrentUser = function() {
++  return this._currentUser;
+ };
+ 
+ 
+@@ -437,38 +432,38 @@
+  * @param    inPassword    Password supplied at login. 
+  * @return   True if we were able to log in the user. False if the login failed.
+  */
+-StubVirtualServer.prototype.login = function (inUser, inPassword) {
++StubVirtualServer.prototype.login = function(user, password) {
+   
+   // Only one user can be logged in at once.  We consider it an error
+   // if you try to log in a new user before logging out the old one.
+-  if (this.__myCurrentUser) {
++  if (this._currentUser) {
+     Util.assert(false);
+   }
+   
+-  var isKnownUser = Util.isObjectInSet(inUser, this.__myListOfUsers);
++  var isKnownUser = Util.isObjectInSet(user, this._listOfUsers);
+   if (!isKnownUser) {
+     return false;
+   }
+ 
+-  if (inUser._getUuid() == World.UUID_FOR_USER_AMY) {
++  if (user._getUuid() == World.UUID_FOR_USER_AMY) {
+     // nobody is allowed to log in as the axiomatic user
+     return false;
+   }
+   
+   var md5hashOfPassword = null;
+-  if (inPassword) {
+-    md5hashOfPassword = Util.hex_md5(inPassword);
++  if (password) {
++    md5hashOfPassword = Util.hex_md5(password);
+   }
+-  var realAuthentication = this._getAuthenticationInfoForUser(inUser);
++  var realAuthentication = this._getAuthenticationInfoForUser(user);
+   var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+   
+   // PENDING: temporary hack
+   // if (!successfulAuthentication) {
+-  //  successfulAuthentication = (&quot;PENDING: magic super password&quot; == inAuthentication);
++  //  successfulAuthentication = (&quot;PENDING: magic super password&quot; == authentication);
+   // }
+   
+   if (successfulAuthentication) {
+-    this.__myCurrentUser = inUser;
++    this._currentUser = user;
+     return true;
+   } else {
+     return false;
+@@ -482,9 +477,9 @@
+  * @scope    public instance method
+  * @return   True if the current user was logged out. False if there was no current user logged in.
+  */
+-StubVirtualServer.prototype.logout = function () {
+-  if (this.__myCurrentUser) {
+-    this.__myCurrentUser = null;
++StubVirtualServer.prototype.logout = function() {
++  if (this._currentUser) {
++    this._currentUser = null;
+     return true;
+   } else {
+     return false;
+@@ -500,16 +495,16 @@
+  * Given a UUID, returns the item identified by that UUID.
+  *
+  * @scope    public instance method
+- * @param    inUuid    The UUID of the item to be returned. 
+- * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @param    uuid    The UUID of the item to be returned. 
++ * @param    observer    Optional. An object to be registered as an observer of the returned item. 
+  * @return   The item identified by the given UUID.
+  */
+-StubVirtualServer.prototype.getItemFromUuid = function (inUuid, inObserver) {
+-  Util.assert(Util.isUuid(inUuid), inUuid + ' is not a Uuid');
++StubVirtualServer.prototype.getItemFromUuid = function(uuid, observer) {
++  Util.assert(Util.isUuid(uuid), uuid + ' is not a Uuid');
+   
+-  var item = this.__myHashTableOfItemsKeyedByUuid[inUuid];
+-  if (item &amp;&amp; inObserver) {
+-    item.addObserver(inObserver);
++  var item = this._hashTableOfItemsKeyedByUuid[uuid];
++  if (item &amp;&amp; observer) {
++    item.addObserver(observer);
+   }
+   return item;
+ };
+@@ -541,11 +536,11 @@
+  *
+  * @deprecated    PENDING: use getResultItemsForQueryRunner() instead.
+  * @scope    public instance method
+- * @param    inQuery    A query item. 
++ * @param    query    A query item. 
+  * @return   A list of items.
+  */
+-StubVirtualServer.prototype.getResultItemsForQuery = function (inQuery, inObserver) {
+-  Util.assert(inQuery instanceof Item);
++StubVirtualServer.prototype.getResultItemsForQuery = function(query, observer) {
++  Util.assert(query instanceof Item);
+   
+   var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+@@ -554,8 +549,8 @@
+   var item = null;
+   var key;
+   var listOfQueryResultItems = [];
+-  var listOfMatchingEntries = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-  var listOfMatchingAttrs = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++  var listOfMatchingEntries = query.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var listOfMatchingAttrs = query.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+   if (!listOfMatchingEntries || listOfMatchingEntries.length === 0) {
+     return [];
+   }
+@@ -571,8 +566,8 @@
+ 
+   // This is a wildly inefficient search.  But maybe it doesn't matter,
+   // because this code should all be replaced someday by server code.
+-  for (uuid in this.__myHashTableOfItemsKeyedByUuid) {
+-    item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++  for (uuid in this._hashTableOfItemsKeyedByUuid) {
++    item = this._hashTableOfItemsKeyedByUuid[uuid];
+     if (!item.hasBeenDeleted()) {
+       var includeItem = true;
+       for (key in listOfMatchingEntries) {
+@@ -628,8 +623,8 @@
+     }
+   } else {
+     // General case code for any sort of query. 
+-    for (var uuid in this.__myHashTableOfItemsKeyedByUuid) {
+-      var item = this.__myHashTableOfItemsKeyedByUuid[uuid];
++    for (var uuid in this._hashTableOfItemsKeyedByUuid) {
++      var item = this._hashTableOfItemsKeyedByUuid[uuid];
+       var includeItem = queryRunner.doesItemMatch(item);
+       if (includeItem) {
+         listOfQueryResultItems.push(item);
+@@ -647,19 +642,20 @@
+  * included in query result list.
+  *
+  * @scope    public instance method
+- * @param    inItem    An item, which will be modified so that it matches the query. 
+- * @param    inQuery    A query item. 
++ * @param    item    An item, which will be modified so that it matches the query. 
++ * @param    query    A query item. 
+  */
+-StubVirtualServer.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
+-  Util.assert(inItem instanceof Item);
+-  Util.assert(inQuery instanceof Item);
++StubVirtualServer.prototype.setItemToBeIncludedInQueryResultList = function(item, query) {
++  Util.assert(item instanceof Item);
++  Util.assert(query instanceof Item);
++  
+   var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+   var attributeCalledCategory = this.getWorld().getAttributeCalledCategory();
+   var categoryCalledCategory = this.getWorld().getCategoryCalledCategory();
+   
+-  var listOfMatchingEntries = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-  var listOfMatchingAttrs = inQuery.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
++  var listOfMatchingEntries = query.getEntriesForAttribute(attributeCalledQueryMatchingValue);
++  var listOfMatchingAttrs = query.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+   if (!(listOfMatchingEntries &amp;&amp; (listOfMatchingEntries.length &gt; 0))) {return;} // query not fully formed, so nothing to add
+   var matchingAttribute;
+   if (listOfMatchingAttrs.length === 0) {
+@@ -674,11 +670,11 @@
+   for (var key in listOfMatchingEntries) {
+     var matchingEntry = listOfMatchingEntries[key];
+     var match = matchingEntry.getValue();
+-    if (!inItem.hasAttributeValue(matchingAttribute, match)) {
++    if (!item.hasAttributeValue(matchingAttribute, match)) {
+       if ((matchingAttribute == attributeCalledCategory) &amp;&amp; (match instanceof Item) &amp;&amp; (match.isInCategory(categoryCalledCategory))) {
+-        inItem.assignToCategory(match);
++        item.assignToCategory(match);
+       } else {
+-        inItem.addEntryForAttribute(matchingAttribute, match);
++        item.addEntryForAttribute(matchingAttribute, match);
+       }
+     }
+   }
+@@ -693,20 +689,9 @@
+  * @param    inCategory    A category item. 
+  * @return   A list of items.
+  */
+-StubVirtualServer.prototype.getItemsInCategory = function (category) {
++StubVirtualServer.prototype.getItemsInCategory = function(category) {
+   Util.assert(category instanceof Item);
+ 
+-/*  
+-  var listOfItems = [];
+-  for (var uuid in this.__myHashTableOfItemsKeyedByUuid) {
+-    var item = this.__myHashTableOfItemsKeyedByUuid[uuid];
+-    if (!item.hasBeenDeleted() &amp;&amp; item.isInCategory(category)) {
+-      listOfItems.push(item);
+-    }
+-  }
+-  listOfItems.sort(ContentRecord.compareOrdinals);
+-  return listOfItems; 
+-  */
+   var attributeCalledItemsInCategory = this.getWorld().getAttributeCalledItemsInCategory();
+   var listOfEntries = category.getEntriesForAttribute(attributeCalledItemsInCategory);
+   var listOfItems = [];
+@@ -730,8 +715,8 @@
+  * @scope    private instance method
+  * @throws   Throws an Error if no user is logged in.
+  */
+-StubVirtualServer.prototype._throwErrorIfNoUserIsLoggedIn = function () {
+-  if (!this.__myCurrentUser) {
++StubVirtualServer.prototype._throwErrorIfNoUserIsLoggedIn = function() {
++  if (!this._currentUser) {
+     var error = new Error(&quot;No user is logged in.  You can't write to the repository when nobody is logged in.&quot;);
+     throw error;
+   }
+@@ -742,15 +727,15 @@
+  * Given a UUID, returns the item or entry identified by that UUID.
+  *
+  * @scope    private instance method
+- * @param    inUuid    The UUID of the item or entry to be returned. 
++ * @param    uuid    The UUID of the item or entry to be returned. 
+  * @return   The item or entry identified by the given UUID.
+  */
+-StubVirtualServer.prototype._getContentRecordFromUuid = function (inUuid) {
+-  var item = this.getItemFromUuid(inUuid);
++StubVirtualServer.prototype._getContentRecordFromUuid = function(uuid) {
++  var item = this.getItemFromUuid(uuid);
+   if (item) {
+     return item;
+   } else {
+-    return this.__myHashTableOfEntriesKeyedByUuid[inUuid];
++    return this._hashTableOfEntriesKeyedByUuid[uuid];
+   }
+ };
+ 
+@@ -763,8 +748,8 @@
+  */
+ StubVirtualServer.prototype._getNewUuid = function() {
+   var newUuid;
+-  if (this.__myCurrentUser) {
+-    var uuidOfCurrentUser = this.__myCurrentUser._getUuid();
++  if (this._currentUser) {
++    var uuidOfCurrentUser = this._currentUser._getUuid();
+     var arrayOfParts = uuidOfCurrentUser.split(&quot;-&quot;);
+     var pseudoNodeOfCurrentUser = arrayOfParts[4];//&quot;0123456789AB&quot;;
+     newUuid = Util.generateTimeBasedUuid(pseudoNodeOfCurrentUser);
+@@ -781,11 +766,11 @@
+  * associated with that user.
+  *
+  * @scope    private instance method
+- * @param    inUser    An item representing a user. 
++ * @param    user    An item representing a user. 
+  * @return   The authentication info for the user.
+  */
+-StubVirtualServer.prototype._getAuthenticationInfoForUser = function (inUser) {
+-  return this.__myHashTableOfUserAuthenticationInfo[inUser.getUniqueKeyString()];
++StubVirtualServer.prototype._getAuthenticationInfoForUser = function(user) {
++  return this._hashTableOfUserAuthenticationInfo[user.getUniqueKeyString()];
+ };
+ 
+ 
+@@ -794,15 +779,15 @@
+  * or (b) creates an new item object, set its UUID, and returns that object.
+  *
+  * @scope    private instance method
+- * @param    inUuid    The UUID of the item to be returned. 
++ * @param    uuid    The UUID of the item to be returned. 
+  * @return   The item identified by the given UUID.
+  */
+-StubVirtualServer.prototype._getItemFromUuidOrCreateNewItem = function (inUuid) {
+-  var item = this.getItemFromUuid(inUuid);
++StubVirtualServer.prototype._getItemFromUuidOrCreateNewItem = function(uuid) {
++  var item = this.getItemFromUuid(uuid);
+   if (!item) {
+-    item = new Item(this.__myWorld, inUuid);
++    item = new Item(this._world, uuid);
+     item._initialize();
+-    this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
++    this._hashTableOfItemsKeyedByUuid[uuid] = item;
+     this._currentTransaction.addRecord(item);
+   }
+   return item;
+@@ -815,7 +800,7 @@
+  *
+  * @scope    private instance method
+  */
+-StubVirtualServer.prototype._loadAxiomaticItemsFromFileAtURL = function (url) {
++StubVirtualServer.prototype._loadAxiomaticItemsFromFileAtURL = function(url) {
+   var fileContentString = Util.getStringContentsOfFileAtURL(url);
+   Util.assert(Util.isString(fileContentString));
+   fileContentString += &quot; ] }&quot;;
+@@ -841,11 +826,11 @@
+  * @param    inUuid    The UUID of the item to be returned. 
+  * @return   The item identified by the given UUID.
+  */
+-StubVirtualServer.prototype.__getItemFromUuidOrBootstrapItem = function (inUuid) {
+-  var item = this.getItemFromUuid(inUuid);
++StubVirtualServer.prototype.__getItemFromUuidOrBootstrapItem = function(uuid) {
++  var item = this.getItemFromUuid(uuid);
+   if (!item) {
+-    item = new Item(this.getWorld(), inUuid);
+-    this.__myHashTableOfItemsKeyedByUuid[inUuid] = item;
++    item = new Item(this.getWorld(), uuid);
++    this._hashTableOfItemsKeyedByUuid[uuid] = item;
+   }
+   return item;
+ };
+@@ -856,14 +841,14 @@
+  * or (b) creates an new entry object, set its UUID, and returns that object.
+  *
+  * @scope    private instance method
+- * @param    inUuid    The UUID of the entry to be returned. 
++ * @param    uuid    The UUID of the entry to be returned. 
+  * @return   The entry identified by the given UUID.
+  */
+-StubVirtualServer.prototype.__getEntryFromUuidOrBootstrapEntry = function (inUuid) {
+-  var entry = this.__myHashTableOfEntriesKeyedByUuid[inUuid];
++StubVirtualServer.prototype.__getEntryFromUuidOrBootstrapEntry = function(uuid) {
++  var entry = this._hashTableOfEntriesKeyedByUuid[uuid];
+   if (!entry) {
+-    entry = new Entry(this.getWorld(), inUuid);
+-    this.__myHashTableOfEntriesKeyedByUuid[inUuid] = entry;
++    entry = new Entry(this.getWorld(), uuid);
++    this._hashTableOfEntriesKeyedByUuid[uuid] = entry;
+   }
+   return entry;
+ };
+@@ -874,7 +859,8 @@
+  *
+  * @scope    private instance method
+  */
+-StubVirtualServer.prototype._buildTypeHashTable = function () {
++/*
++StubVirtualServer.prototype._buildTypeHashTable = function() {
+   var text      = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_TEXT);
+   var number    = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_NUMBER);
+   var dateType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_DATE);
+@@ -883,64 +869,67 @@
+   var itemType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_ITEM);
+   var connectionType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_CONNECTION);
+   
+-  this._myHashTableOfTypesKeyedByToken = {};
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_TEXT_VALUE] = text;
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_NUMBER_VALUE] = number;
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_DATE_VALUE] = dateType;
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CHECKMARK_VALUE] = checkMark;
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_URL_VALUE] = url;
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_RELATED_UUID] = itemType;
+-  this._myHashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CONNECTION] = connectionType;
++  this._hashTableOfTypesKeyedByToken = {};
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_TEXT_VALUE] = text;
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_NUMBER_VALUE] = number;
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_DATE_VALUE] = dateType;
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CHECKMARK_VALUE] = checkMark;
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_URL_VALUE] = url;
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_RELATED_UUID] = itemType;
++  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CONNECTION] = connectionType;
+ };
++*/
+ 
+-
+ /**
+  * Given an item that represents that represents a basic data type, this method
+  * returns the corresponding string token that represents the same data type.
+  *
+  * @scope    private instance method
+- * @param    inType    An item that represents a basic data type, like Text, Number, or URL. 
++ * @param    type    An item that represents a basic data type, like Text, Number, or URL. 
+  * @return   A string token that represents a basic data type.
+  */
+-StubVirtualServer.prototype._getTypeTokenFromType = function (inType) {
+-  for (var token in this._myHashTableOfTypesKeyedByToken) {
+-    typeItem = this._myHashTableOfTypesKeyedByToken[token];
+-    if (inType == typeItem) {
++/*
++StubVirtualServer.prototype._getTypeTokenFromType = function(type) {
++  for (var token in this._hashTableOfTypesKeyedByToken) {
++    typeItem = this._hashTableOfTypesKeyedByToken[token];
++    if (type == typeItem) {
+       return token;
+     }
+   }
+-  Util.assert(false, &quot;no such type: &quot; + inType.getDisplayString());
++  Util.assert(false, &quot;no such type: &quot; + type.getDisplayString());
+ };
++*/
+ 
+-
+ /**
+  * Given a string token that represents a basic data type, this method
+  * returns the corresponding item that represents the same data type.
+  *
+  * @scope    private instance method
+- * @param    inToken    A string token that represents a basic data type.
++ * @param    token    A string token that represents a basic data type.
+  * @return   An item that represents a basic data type, like Text, Number, or URL. 
+  */
+-StubVirtualServer.prototype._getTypeFromTypeToken = function (inToken) {
+-  return this._myHashTableOfTypesKeyedByToken[inToken];
++/*
++StubVirtualServer.prototype._getTypeFromTypeToken = function(token) {
++  return this._hashTableOfTypesKeyedByToken[token];
+ };
++*/
+ 
+ 
+ /**
+  * Given a dehydrated list of records, rehydrates each of the records.
+  *
+  * @scope    private instance method
+- * @param    inListOfRecords    A list of dehydrated records. 
++ * @param    listOfDehydratedRecords    A list of dehydrated records. 
+  */
+-StubVirtualServer.prototype._rehydrateRecords = function (inListOfRecords) {
++StubVirtualServer.prototype._rehydrateRecords = function(listOfDehydratedRecords) {
+   var key;
+   var itemUuid;
+   var item;
+   var contentRecordUuid;
+   var contentRecord;
+ 
+-  for (key in inListOfRecords) {
+-    var dehydratedRecord = inListOfRecords[key];
++  for (key in listOfDehydratedRecords) {
++    var dehydratedRecord = listOfDehydratedRecords[key];
+ 
+     var dehydratedTransaction = dehydratedRecord[StubVirtualServer.JSON_MEMBER_TRANSACTION_CLASS];
+     if (dehydratedTransaction) {
+@@ -956,15 +945,15 @@
+       if (dehydratedItem) {
+         itemUuid = dehydratedItem[StubVirtualServer.JSON_MEMBER_UUID];
+         item = this.__getItemFromUuidOrBootstrapItem(itemUuid);
+-        this.__myChronologicalListOfRecords.push(item);
++        this._chronologicalListOfRecords.push(item);
+       }
+       
+       if (dehydratedUser) {
+         var userUuid = dehydratedUser[StubVirtualServer.JSON_MEMBER_USER];
+         var userPasswordHash = dehydratedUser[StubVirtualServer.JSON_MEMBER_PASSWORD];
+         var user = this.__getItemFromUuidOrBootstrapItem(userUuid);
+-        this.__myListOfUsers.push(user);
+-        this.__myHashTableOfUserAuthenticationInfo[user.getUniqueKeyString()] = userPasswordHash;
++        this._listOfUsers.push(user);
++        this._hashTableOfUserAuthenticationInfo[user.getUniqueKeyString()] = userPasswordHash;
+       }
+       
+       if (dehydratedVote) {
+@@ -981,7 +970,7 @@
+         contentRecordUuid = dehydratedVote[StubVirtualServer.JSON_MEMBER_RECORD];
+         contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+         var vote = new Vote(this.getWorld(), voteUuid, contentRecord, retainFlag);
+-        this.__myChronologicalListOfRecords.push(vote);
++        this._chronologicalListOfRecords.push(vote);
+       }
+       
+       if (dehydratedOrdinal) {
+@@ -990,7 +979,7 @@
+         contentRecordUuid = dehydratedOrdinal[StubVirtualServer.JSON_MEMBER_RECORD];
+         contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+         var ordinal = new Ordinal(this.getWorld(), ordinalUuid, contentRecord, ordinalNumber);
+-        this.__myChronologicalListOfRecords.push(ordinal);
++        this._chronologicalListOfRecords.push(ordinal);
+       }
+       
+       if (dehydratedEntry) {
+@@ -1010,9 +999,11 @@
+           dataType = this.__getItemFromUuidOrBootstrapItem(dataTypeUuid);
+         } else {
+           // code to deal with the old pre-July-2005 file format
++          /*
+           var dataTypeToken = dataTypeUuid;
+           dataType = this._getTypeFromTypeToken(dataTypeToken);
+           dataTypeUuid = dataType._getUuid();
++          */
+         }
+         
+         if (dataTypeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+@@ -1060,11 +1051,11 @@
+               finalData = new Date(rawData);
+               break;
+             default:
+-              Util.assert(false,'Unknown data type while _rehydrating()');
++              Util.assert(false, 'Unknown data type while _rehydrating()');
+           }
+           entry._rehydrate(item, attribute, finalData, previousEntry, dataType);
+         }
+-        this.__myChronologicalListOfRecords.push(entry);
++        this._chronologicalListOfRecords.push(entry);
+       }
+       
+     }
+
+Modified: trunk/source/model/Vote.js
+===================================================================
+--- trunk/source/model/Vote.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/Vote.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,11 +30,12 @@
+ 
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   User.js
+-//   ContentRecord.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global Record */
+ // -------------------------------------------------------------------
+ 
++
+ /**
+  * Each instance of the Vote class keeps track of a vote to retain or delete
+  * an item or a entry of an item.
+@@ -61,7 +62,7 @@
+  * @scope    public instance method
+  * @return   An item or entry.
+  */
+-Vote.prototype.getContentRecord = function () {
++Vote.prototype.getContentRecord = function() {
+   return this._contentRecord;
+ };
+ 
+@@ -73,7 +74,7 @@
+  * @scope    public instance method
+  * @return   A boolean. True if this is a vote to retain, or false if this is a vote to delete.
+  */
+-Vote.prototype.getRetainFlag = function () {
++Vote.prototype.getRetainFlag = function() {
+   return this._retainFlag;
+ };
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-30 03:54:39 UTC (rev 196)
++++ trunk/source/model/World.js	2005-06-30 05:18:45 UTC (rev 197)
+@@ -30,10 +30,13 @@
+  
+ 
+ // -------------------------------------------------------------------
+-// Dependencies:
+-//   Util.js
+-//   Item.js
+-//   StubVirtualServer.js
++// Dependencies, expressed in the syntax that JSLint understands:
++// 
++/*global window */
++/*global Util  */
++/*global Item, Entry, Ordinal, Vote, ContentRecord  */
++/*global QueryRunner  */ 
++/*global DeltaVirtualServer  */
+ // -------------------------------------------------------------------
+ 
+ 
+@@ -689,11 +692,11 @@
+  * Returns a newly created item representing a query.
+  *
+  * @scope    public instance method
+- * @param    matchingAttribute Attribute to query against
+- * @param    matchingEntriesOrList an Entry or array of entries to be matched against,  
++ * @param    matchingAttribute    Attribute to query against
++ * @param    matchingEntryOrListOfEntries    an Entry or array of entries to be matched against,  
+  * @return   A newly created item representing a query.
+  */
+-World.prototype.newQuery = function(matchingAttribute, matchingEntriesOrList) {
++World.prototype.newQuery = function(matchingAttribute, matchingEntryOrListOfEntries) {
+   Util.assert(matchingAttribute instanceof Item);
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(&quot;A query&quot;);
+@@ -704,15 +707,15 @@
+   var attributeCalledQueryMatchingValue = this.getAttributeCalledQueryMatchingValue();
+   var matchingEntry;
+   item.addEntryForAttribute(attributeCalledQueryMatchingAttribute, matchingAttribute);
+-  if (matchingEntriesOrList) {
+-    if (Util.isArray(matchingEntriesOrList)) {
+-      for (var key in matchingEntriesOrList) {
+-        matchingEntry = listOfCategories[key];
++  if (matchingEntryOrListOfEntries) {
++    if (Util.isArray(matchingEntryOrListOfEntries)) {
++      for (var key in matchingEntryOrListOfEntries) {
++        matchingEntry = matchingEntryOrListOfEntries[key];
+         item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
+       }
+     }
+     else {
+-      matchingEntry = matchingEntriesOrList;
++      matchingEntry = matchingEntryOrListOfEntries;
+       item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
+     }
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000182.html">[openrecord-svn] r196 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000184.html">[openrecord-svn] r198 - in trunk/source: . model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#183">[ date ]</a>
+              <a href="thread.html#183">[ thread ]</a>
+              <a href="subject.html#183">[ subject ]</a>
+              <a href="author.html#183">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

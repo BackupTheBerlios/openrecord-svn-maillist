@@ -1,0 +1,1895 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r22 - trunk/source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-April/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r22%20-%20trunk/source&In-Reply-To=%3C200504052104.j35L4WwG006118%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000015.html">
+   <LINK REL="Next"  HREF="000017.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r22 - trunk/source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r22%20-%20trunk/source&In-Reply-To=%3C200504052104.j35L4WwG006118%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r22 - trunk/source">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Tue Apr  5 23:04:32 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000015.html">[openrecord-svn] r21 - trunk/source
+</A></li>
+        <LI>Next message: <A HREF="000017.html">[openrecord-svn] r23 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-04-05 23:04:31 +0200 (Tue, 05 Apr 2005)
+New Revision: 22
+
+Added:
+   trunk/source/Item.js
+   trunk/source/Rectangle.js
+   trunk/source/Stevedore.js
+   trunk/source/Util.js
+   trunk/source/View.js
+Log:
+Changing file names from this_style.js to ThisStyle.js
+
+Added: trunk/source/Item.js
+===================================================================
+--- trunk/source/Item.js	2005-04-05 21:00:35 UTC (rev 21)
++++ trunk/source/Item.js	2005-04-05 21:04:31 UTC (rev 22)
+@@ -0,0 +1,369 @@
++/*****************************************************************************
++ item.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++ 
++// -------------------------------------------------------------------
++// Dependencies:
++//   util.js
++//   stevedore.js
++// -------------------------------------------------------------------
++
++
++/**
++ * Instances of the Item class know how to store and retrieve their
++ * attribute values.
++ *
++ * @scope    public instance constructor
++ */
++function Item(inStevedore, inUuid) {
++  Util.assert(!inUuid || Util.isNumeric(inUuid));
++  
++  this._myStevedore = inStevedore;
++  this._myUuid = inUuid;
++  this._myListOfObservers = [];
++  this._myHashTableOfAssignmentsKeyedByAttributeUuid = {};
++}
++
++
++/**
++ * Returns the display name of the item.
++ *
++ * @scope    public instance method
++ * @return   A string with a display name for the item.
++ */
++Item.prototype.toString = function () {
++  var returnString = &quot;[Item #&quot; + this.getUuid() + &quot; &quot;;
++  var listOfCategories = this.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY);
++  for (var key in listOfCategories) {
++    var category = listOfCategories[key];
++    Util.assert(category instanceof Item);
++    returnString += &quot;(&quot; + category.getDisplayName() + &quot;)&quot;;
++  }
++  returnString += &quot; \&quot;&quot; + this.getDisplayName() + &quot;\&quot;&quot; + &quot;]&quot;;
++  return returnString; 
++};
++
++
++// -------------------------------------------------------------------
++// Attribute Accessor Methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the display name of the item.
++ *
++ * @scope    public instance method
++ * @return   A string with a display name for the item.
++ */
++Item.prototype.getDisplayName = function (inDefaultString) {
++  return this._getStringUsingNameAttributes(Stevedore.UUID_FOR_ATTRIBUTE_NAME, null, inDefaultString);
++};
++  
++  
++/**
++ * Returns a short display name for the item.
++ *
++ * @scope    public instance method
++ * @return   A string with a short display name for the item.
++ */
++Item.prototype.getShortName = function (inDefaultString) {
++  return this._getStringUsingNameAttributes(Stevedore.UUID_FOR_ATTRIBUTE_SHORT_NAME, Stevedore.UUID_FOR_ATTRIBUTE_NAME, inDefaultString);
++};
++
++
++/**
++ * Given an attribute, this method returns the list of values that 
++ * have been assigned to that attribute for this item.
++ *
++ * For example, to find out what color Kermit is: 
++ * &lt;pre&gt;
++ *    var valueList = kermit.getValueListFromAttribute(color);
++ *    for (var i = 0; i &lt; valueList.length; ++i) {
++ *      alert(&quot;Kermit is &quot; + valueList[i]);
++ *    }
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    inAttribute    The object to be removed from the set of observers. 
++ */
++Item.prototype.getValueListFromAttribute = function (inAttribute) {
++  Util.assert(Util.isHashTable(this._myHashTableOfAssignmentsKeyedByAttributeUuid));
++  
++  var attributeUuid = this._myStevedore.getAttributeUuidFromAttributeOrUuid(inAttribute);
++  // PENDING: 
++  //   If this item isn't yet fully loaded into the cache, then we might need 
++  //   to ask our stevedore to get the attribute values for us.
++  var valueList = this._myHashTableOfAssignmentsKeyedByAttributeUuid[attributeUuid];
++  return (valueList || null);
++};
++
++
++/**
++ * Assigns a value to an attribute in this item.
++ *
++ * Given an attribute and a value, assigns that value to the
++ * attribute of the item. For example, to make a Kermit green:
++ * &lt;pre&gt;
++ *    kermit.assign(color, &quot;green&quot;);
++ * &lt;/pre&gt;
++ * Attributes can always have more than one assigned value, so
++ * you can make Kermit be both blue and green by doing:
++ * &lt;pre&gt;
++ *    kermit.assign(color, &quot;green&quot;);
++ *    kermit.assign(color, &quot;blue&quot;);
++ * &lt;/pre&gt;
++ *
++ * @scope    public instance method
++ * @param    inAttribute    The attribute to assign the value to, or the UUID of the attribute. 
++ * @param    inValue    The value to be assigned. 
++ */
++Item.prototype.assign = function (inAttribute, inValue) {
++  var cleanValue = inValue;
++  // alert(&quot;assign(&quot; + inAttribute + &quot;, &quot; + inValue + &quot;)&quot;);
++  if (Util.isString(inValue)) {
++    var cleanValue = Util.getCleanString(inValue);
++  }
++  var valueWasSet = this._initializeAttributeValue(inAttribute, cleanValue);
++  if (valueWasSet) {
++    this._myStevedore.markDirty(this);
++  }
++  // PENDING: 
++  //   We also need to create a change object, and we need to tell 
++  //   this._myStevedore about the change.
++  this._notifyObservers();
++};
++
++
++/**
++ * Given an attribute, removes that attribute from the item's list
++ * of attributes that have values assigned.
++ *
++ * @scope    public instance method
++ * @param    inAttribute    The attribute to clear, or the UUID of the attribute. 
++ * @return   Returns true if there was an existing attribute value to clear.
++ */
++Item.prototype.clear = function (inAttribute) {
++  Util.assert(Util.isHashTable(this._myHashTableOfAssignmentsKeyedByAttributeUuid));
++
++  var valueWasDeleted = false;
++  var attributeUuid = this._myStevedore.getAttributeUuidFromAttributeOrUuid(inAttribute);
++  var currentValueList = this._myHashTableOfAssignmentsKeyedByAttributeUuid[attributeUuid];
++  if (currentValueList &amp;&amp; (currentValueList.length &gt; 0)) {
++    this._myHashTableOfAssignmentsKeyedByAttributeUuid[attributeUuid] = null;
++    valueWasDeleted = true;
++    this._myStevedore.markDirty(this);
++  }
++  
++  // PENDING: 
++  //   We also need to create a change object, and we need to tell 
++  //   this._myStevedore about the change.
++  this._notifyObservers();
++  
++  return valueWasDeleted;
++};
++
++
++// -------------------------------------------------------------------
++// Non-Attribute Accessor Methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the UUID of the item.
++ *
++ * @scope    public instance method
++ * @return   The UUID of the item.
++ */
++Item.prototype.getUuid = function () {
++  return this._myUuid;
++};
++
++
++/**
++ * Returns a list of the UUIDs for all the attributes that this item
++ * has values assigned to.
++ *
++ * @scope    public instance method
++ * @return   A list of UUIDs of attribute items.
++ */
++Item.prototype.getListOfAttributeUuids = function () {
++  var listOfAttributeUuids = [];
++  for (var attributeUuid in this._myHashTableOfAssignmentsKeyedByAttributeUuid) {
++    listOfAttributeUuids.push(attributeUuid);
++  }
++  return listOfAttributeUuids;
++};
++
++
++/**
++ * Given a category, returns &quot;true&quot; if the item has been assigned to 
++ * that category.
++ *
++ * Also returns true if the item has been assigned to some category which is in
++ * turn assigned to the given category, and so on, up the chain of category 
++ * assignments.
++ *
++ * @scope    public instance method
++ * @return   A boolean.  True if the item has been assigned to the category.
++ */
++Item.prototype.isInCategory = function (inCategory) {
++  Util.assert(inCategory instanceof Item);
++
++  var valueList = this.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY);
++  var key;
++  var value;
++  
++  // look at all the categories this item is assigned to, and see if one of them is &quot;inCategory&quot;
++  for (key in valueList) {
++    value = valueList[key];
++    if (value == inCategory) {
++      return true;
++    }
++  }
++  
++  // look at all the categories this item is assigned to, and see if one of them
++  // is in turn in the categoery &quot;inCategory&quot;
++  for (key in valueList) {
++    value = valueList[key];
++    // PENDING: 
++    //   This will go into an infinite loop if there is ever a cycle in the category 
++    //   assignments, like: A is in category B, and B is in C, and C is in A.
++    //   We need to use a non-recursive search of the graph.
++    // PENDING:
++    //   Do we also need to register as an observer of something, so that if we later
++    //   become a member of that category in question, then we can notify whoever
++    //   is observing us?
++    if ((value != this) &amp;&amp; (value.isInCategory(inCategory))) {
++      return true;
++    }
++  }
++  return false;
++};
++ 
++
++// -------------------------------------------------------------------
++// Observer/Observable Methods
++// -------------------------------------------------------------------
++
++/**
++ * Given an object, registers the object as an observer of this item, so that
++ * the object will be notified when the item changes.
++ *
++ * @scope    public instance method
++ * @param    inObserver    An object to be registered as an observer of the item. 
++ */
++Item.prototype.addObserver = function (inObserver) {
++  Util.addObjectToSet(inObserver, this._myListOfObservers);
++};
++
++
++/**
++ * Given an object, removes that object from the set of observers of this item, so 
++ * that the object will no longer be notified when the item changes.
++ *
++ * @scope    public instance method
++ * @param    inObserver    The object to be removed from the set of observers. 
++ */
++Item.prototype.removeObserver = function (inObserver) {
++  Util.removeObjectFromSet(inObserver, this._myListOfObservers);
++};
++
++
++// -------------------------------------------------------------------
++// Private Methods
++// -------------------------------------------------------------------
++
++/**
++ * Set the value of an attribute when the item is first being loaded
++ * by the Stevedore.
++ *
++ * @scope    private instance method
++ * @param    inAttribute    The attribute to assign the value to, or the UUID of the attribute. 
++ * @param    inValue    The value to be assigned. 
++ * @return   Returns true if the value was assigned.
++ */
++Item.prototype._initializeAttributeValue = function (inAttribute, inValue) {
++  Util.assert(Util.isHashTable(this._myHashTableOfAssignmentsKeyedByAttributeUuid));
++
++  var attributeUuid = this._myStevedore.getAttributeUuidFromAttributeOrUuid(inAttribute);
++  if (!this._myHashTableOfAssignmentsKeyedByAttributeUuid[attributeUuid]) {
++    this._myHashTableOfAssignmentsKeyedByAttributeUuid[attributeUuid] = [];
++  }
++  // var 
++  var valueList = this._myHashTableOfAssignmentsKeyedByAttributeUuid[attributeUuid];
++  var valueWasAddedFlag = Util.addObjectToSet(inValue, valueList);
++  return valueWasAddedFlag;
++};
++
++
++/**
++ * Returns some display name for the item, drawing on both the &quot;name&quot; and
++ * &quot;short name&quot; attributes.
++ *
++ * @scope    private instance method
++ * @return   A string with a display name for the item.
++ */
++Item.prototype._getStringUsingNameAttributes = function (inPrimaryAttributeUuid, inSecondaryAttributeUuid, inDefaultString) {
++  var returnString = null;
++  var nameList = this.getValueListFromAttribute(inPrimaryAttributeUuid);
++  if (nameList) {
++    returnString = nameList[0];
++  }
++  if (!returnString &amp;&amp; inSecondaryAttributeUuid) {
++    nameList = this.getValueListFromAttribute(inSecondaryAttributeUuid);
++    if (nameList) {
++      returnString = nameList[0];
++    }
++  }
++  if (!returnString) {
++    returnString = inDefaultString;
++  }
++  if (!returnString) {
++    returnString = &quot;&quot;;
++  }
++  return returnString;
++};
++  
++
++/**
++ * Sends messages to all the registered observers to let them know that
++ * this item has changed.
++ *
++ * @scope    private instance method
++ */
++Item.prototype._notifyObservers = function () {
++  for (var key in this._myListOfObservers) {
++    var observer = this._myListOfObservers[key];
++    observer.observedItemHasChanged(this);
++  }
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/Rectangle.js
+===================================================================
+--- trunk/source/Rectangle.js	2005-04-05 21:00:35 UTC (rev 21)
++++ trunk/source/Rectangle.js	2005-04-05 21:04:31 UTC (rev 22)
+@@ -0,0 +1,175 @@
++// -------------------------------------------------------------------
++// Brian's 2005 JavaScript Coding Conventions
++//
++// + jslint approved
++//    + jslint should return &quot;ok&quot; when it looks at the code (with strictest settings)
++//    + do not use &quot;with&quot;
++//    + do not use &quot;new Function&quot;
++//    + do not use ++ and --
++// 
++// + naming conventions
++//    + capitalization
++//       + classes are initial caps (CamelCaps): &quot;Rectangle&quot;, &quot;FillPattern&quot;
++//       + all variable names and methods names are mixedCaps: &quot;fillPattern&quot;
++//       + acronyms appear in initial caps: &quot;myHtmlString&quot;, not &quot;myHTMLString&quot;
++//       + constants are all caps, with underscores: FILL_PATTERN_SOLID
++//    + file names
++//       + each file has just one public class
++//       + file names exactly match the name of the class they contain: &quot;Rectangle.js&quot;, &quot;FillPattern.js&quot;
++//       + directories are all lower case, with underscores: &quot;basic_shapes&quot;
++//    + variable scoping prefixes
++//       + class variables are prefixed with &quot;our&quot;
++//       + instance variables are prefixed with &quot;my&quot;
++//       + global variables are prefixed with &quot;window.global&quot;
++//       + locally scoped variables are not prefixed
++//       + function input parameters are prefixed with &quot;in&quot;
++//       + private variables are prefixed with &quot;_&quot;
++//    + class constants are prefixed with the type of the constant -- see LAYOUT_PORTRAIT
++//    + array variables are prefixed with &quot;ListOf&quot; or &quot;HashTableOf&quot; or &quot;ArrayOf&quot;
++//       + var myListOfBooks = []; &lt;-- a &quot;List&quot; has only values, no keys [&quot;Apple&quot;, &quot;Orange&quot;, &quot;Banana&quot;]
++//       + var myHashTableOfBooksKeyedByTitle = {}; &lt;-- a &quot;HashTable&quot; is an associative array with key-value pairs
++//       + var myArrayOfBooks = new Array(); &lt;-- an &quot;Array&quot; has values that are indexed by number array[23] = &quot;Apple&quot;
++//    + accessor methods are prefixed with &quot;get&quot; or &quot;is&quot; -- e.g. oval.getArea(), oval.isCircle()
++//       + any method that returns a value and does not change an object's state should be a &quot;get&quot; or &quot;is&quot; method
++//       + any method that does change an object's state should be a &quot;set&quot; method
++//    + problems are marked with &quot;PENDING&quot;
++//
++// + compatiblity with other browsers and other JavaScript libraries 
++//    + use &quot;get&quot; and &quot;set&quot; accessors -- do *not* assign Mozilla &quot;getter&quot; and &quot;setter&quot; methods
++//    + add methods in your own namespace -- do *not* extend built-in objects: String.prototype.toEsperanto = function ...
++//
++// + indenting, tabs, and line ending characters
++//    + 2-space indenting
++//    + only spaces, no tabs
++//    + Unix style line endings: just \n -- not \r or \r\n
++//
++// + file header and footer conventions
++//    + file name is given
++//    + copyright and license statements are included
++//    + file dependencies are listed
++//    + sections for: class constants, class properties, constructor, instance methods
++//    + &quot;End of file&quot; ending
++//
++// + scoping
++//    + locally scoped variables are declared before being used: &quot;var foo&quot;, not &quot;foo
++//    + global variables are not used, except for class names
++//    + instance methods are defined on the prototype -- see getArea()
++//    + accessor methods never have side-effects
++//
++// + PENDING
++//    + private instance properties?
++//    + private instance methods?
++//    + class methods?
++// -------------------------------------------------------------------
++
++
++
++
++/*****************************************************************************
++ rectangle.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   line.js
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// Rectangle public class constants
++// -------------------------------------------------------------------
++Rectangle.LAYOUT_PORTRAIT = &quot;Portrait&quot;;
++Rectangle.LAYOUT_LANDSCAPE = &quot;Landscape&quot;;
++
++Rectangle.FILL_SOLID = &quot;Solid&quot;;
++Rectangle.FILL_EMPTY = &quot;Empty&quot;;
++
++
++// -------------------------------------------------------------------
++// Rectangle class properties
++// -------------------------------------------------------------------
++Rectangle.ourHashTableOfColorsKeyedBySize = new Array();
++
++
++/**
++ * Each Rectangle instances represents a single rectangle.
++ *
++ * @scope    public instance constructor
++ * @syntax   var rect = new Rectangle()
++ */
++function Rectangle() {
++  // instance properties
++  this.myWidth = null;
++  this.myHeight = null;
++}
++
++
++// -------------------------------------------------------------------
++// Public class methods
++// -------------------------------------------------------------------
++
++/**
++ * Given two Rectangle object, returns new Rectangle large enough
++ * to encompass both of the given Rectangles.
++ *
++ * @scope    public class method
++ * @param    inRectOne    A Rectangle object. 
++ * @param    inRectTwo    A Rectangle object. 
++ * @return   A newly created Rectangle object.
++ */
++Rectangle.union = function (inRectOne, inRectTwo) {
++  Util.assert(inRectOne instanceof Rectangle);
++  Util.assert(inRectTwo instanceof Rectangle);
++
++  var newRectangle = new Rectangle();
++  newRectangle.myWidth = Math.max(inRectOne.myWidth, inRectTwo.myWidth);
++  newRectangle.myHeight = Math.max(inRectOne.myHeight, inRectTwo.myHeight);
++  return newRectangle;
++};
++
++
++// -------------------------------------------------------------------
++// Public instance methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns the area of the rectangle.
++ *
++ * @scope    public instance method
++ * @return   A number.
++ */
++Rectangle.prototype.getArea = function () {
++  var area = this.myWidth * this.myHeight;
++  return area;
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/Stevedore.js
+===================================================================
+--- trunk/source/Stevedore.js	2005-04-05 21:00:35 UTC (rev 21)
++++ trunk/source/Stevedore.js	2005-04-05 21:04:31 UTC (rev 22)
+@@ -0,0 +1,638 @@
++/*****************************************************************************
++ stevedore.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++ 
++// -------------------------------------------------------------------
++// Dependencies:
++//   util.js
++//   item.js
++// -------------------------------------------------------------------
++
++
++// -------------------------------------------------------------------
++// Stevedore public class constants
++// -------------------------------------------------------------------
++Stevedore.UUID_FOR_ATTRIBUTE_UUID = 100;
++Stevedore.UUID_FOR_ATTRIBUTE_SHORT_NAME = 101;
++Stevedore.UUID_FOR_ATTRIBUTE_NAME = 102;
++Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY = 103;
++Stevedore.UUID_FOR_ATTRIBUTE_BODY = 104;
++Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY = 105;
++Stevedore.UUID_FOR_ATTRIBUTE_USERSTAMP = 106;
++Stevedore.UUID_FOR_ATTRIBUTE_TIMESTAMP = 107;
++Stevedore.UUID_FOR_ATTRIBUTE_SECTION = 108;
++Stevedore.UUID_FOR_ATTRIBUTE_QUERY = 109;
++Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY = 110;
++Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM = 111;
++Stevedore.UUID_FOR_ATTRIBUTE_LAYOUT_NAME = 112;
++
++Stevedore.UUID_FOR_CATEGORY_BOOK = 141;      // here as an example only
++Stevedore.UUID_FOR_CATEGORY_MOVIE = 142;     // here as an example only
++Stevedore.UUID_FOR_CATEGORY_ATTRIBUTE = 143;
++Stevedore.UUID_FOR_CATEGORY_CATEGORY = 144;
++Stevedore.UUID_FOR_CATEGORY_PAGE = 145;
++Stevedore.UUID_FOR_CATEGORY_SECTION = 146;
++Stevedore.UUID_FOR_CATEGORY_QUERY = 147;
++
++Stevedore.JSON_MEMBER_FORMAT = &quot;format&quot;;
++Stevedore.JSON_MEMBER_TIMESTAMP = &quot;timestamp&quot;;
++Stevedore.JSON_MEMBER_DATA = &quot;data&quot;;
++Stevedore.JSON_FORMAT_2005_MARCH = &quot;2005_MARCH_ITEM_CENTRIC_LIST&quot;;
++
++Stevedore.JSON_MEMBER_TYPE = &quot;type&quot;;
++Stevedore.JSON_MEMBER_VALUE = &quot;value&quot;;
++Stevedore.JSON_TYPE_STRING_VALUE = &quot;StringValue&quot;;
++Stevedore.JSON_TYPE_UUID = &quot;Uuid&quot;;
++Stevedore.JSON_TYPE_FOREIGN_UUID = &quot;ForeignUuid&quot;;
++Stevedore.JSON_TYPE_NUMBER_VALUE = &quot;NumberValue&quot;;
++
++
++/**
++ * Instances of the Stevedore class know how to store and retrieve items to 
++ * and from a data source.
++ *
++ * @scope    public instance constructor
++ */
++function Stevedore() {
++  this._myNextAvailableUuid = 1;
++  this._myHashTableOfItemsKeyedByUuid = {};
++  this._myCountOfNestedTransactions = 0;
++  this._myHomePageItem = null;
++  this._myXMLHttpRequestObject = this._newXMLHttpRequestObject();
++  this._myListOfDirtyItems = [];
++  // this._myDirtyFlag = false;
++  
++  this._loadBootstrapItems();
++}
++
++
++/**
++ * Returns a newly created item.
++ *
++ * @scope    public instance method
++ * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @return   A newly created item.
++ */
++Stevedore.prototype.newItem = function (inObserver) {
++  var uuid = this._myNextAvailableUuid;
++  this._myNextAvailableUuid += 1;
++  var item = new Item(this, uuid);
++  this._myHashTableOfItemsKeyedByUuid[uuid] = item;
++  item.addObserver(inObserver);
++  this.markDirty(item);
++  return item;
++};
++
++
++// -------------------------------------------------------------------
++// Accessor Methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a UUID, returns the item identified by that UUID.
++ *
++ * @scope    public instance method
++ * @param    inUuid    The UUID of the item to be returned. 
++ * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @return   The item identified by the given UUID.
++ */
++Stevedore.prototype.getItemFromUuid = function (inUuid, inObserver) {
++  Util.assert(Util.isNumeric(inUuid));
++  
++  var item = this._myHashTableOfItemsKeyedByUuid[inUuid];
++  if (item &amp;&amp; inObserver) {
++    item.addObserver(inObserver);
++  }
++  return item;
++};
++
++
++/**
++ * Given an attribute or an attribute's UUID, return the attribute's UUID.
++ *
++ * @scope    public instance method
++ * @param    inAttributeOrUuid    An attribute, or an attribute's UUID. 
++ * @return   The UUID of the attribute.
++ */
++Stevedore.prototype.getAttributeUuidFromAttributeOrUuid = function (inAttributeOrUuid) {
++  Util.assert((inAttributeOrUuid instanceof Item) || Util.isNumeric(inAttributeOrUuid));
++
++  var uuid = null;
++  if (Util.isNumeric(inAttributeOrUuid)) {
++    uuid = inAttributeOrUuid;
++  }
++  if (inAttributeOrUuid instanceof Item) {
++    uuid = inAttributeOrUuid.getUuid();
++  }
++  return uuid;
++};
++
++
++/**
++ * Returns the page item to be used as the home page.
++ *
++ * @scope    public instance method
++ * @return   A page item.
++ */
++Stevedore.prototype.getHomePage = function () {
++  return this._myHomePageItem; 
++};
++
++
++/**
++ * Given a query item, this method returns a list of all the items that 
++ * match the query criteria.
++ *
++ * @scope    public instance method
++ * @param    inQuery    A query item. 
++ * @return   A list of items.
++ */
++Stevedore.prototype.getListOfResultItemsForQuery = function (inQuery) {
++  Util.assert(inQuery instanceof Item);
++
++  var listOfQueryResultItems = null;
++  var listOfMatchingCategories = inQuery.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var listOfMatchingItems = inQuery.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
++  var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
++
++  Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
++
++  if (isItemMatchingQuery) {
++    listOfQueryResultItems = listOfMatchingItems;
++  }
++  
++  if (isCategoryMatchingQuery) {
++    listOfQueryResultItems = [];
++    // This is a wildly inefficient search.  But maybe it doesn't matter,
++    // because this code should all be replaced someday by server code.
++    for (var uuid in this._myHashTableOfItemsKeyedByUuid) {
++      var item = this._myHashTableOfItemsKeyedByUuid[uuid];
++      var includeItem = true;
++      for (var key in listOfMatchingCategories) {
++        var category = listOfMatchingCategories[key];
++        if (includeItem &amp;&amp; !(item.isInCategory(category))) {
++          includeItem = false;
++        }
++      }
++      if (includeItem) {
++        listOfQueryResultItems.push(item);
++      }
++    }
++  }
++  
++  if (!isItemMatchingQuery &amp;&amp; !isCategoryMatchingQuery) {
++    listOfQueryResultItems = [];
++    for (var uuid in this._myHashTableOfItemsKeyedByUuid) {
++      var item = this._myHashTableOfItemsKeyedByUuid[uuid];
++      listOfQueryResultItems.push(item);
++    }
++  }
++  
++  return listOfQueryResultItems; 
++};
++
++
++
++/**
++ * Given an item and a query item, this method modifies the attributes 
++ * of the item so that when the query is next evaluated the item will be 
++ * included in query result list.
++ *
++ * @scope    public instance method
++ * @param    inItem    An item, which will be modified so that it matches the query. 
++ * @param    inQuery    A query item. 
++ */
++Stevedore.prototype.setItemToBeIncludedInQueryResultList = function (inItem, inQuery) {
++  Util.assert(inItem instanceof Item);
++  Util.assert(inQuery instanceof Item);
++
++  var listOfMatchingCategories = inQuery.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY);
++  var listOfMatchingItems = inQuery.getValueListFromAttribute(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM);
++  var isCategoryMatchingQuery = (listOfMatchingCategories &amp;&amp; (listOfMatchingCategories.length &gt; 0));
++  var isItemMatchingQuery = (listOfMatchingItems &amp;&amp; (listOfMatchingItems.length &gt; 0));
++
++  Util.assert(!(isCategoryMatchingQuery &amp;&amp; isItemMatchingQuery));
++
++  if (isItemMatchingQuery) {
++    inQuery.assign(Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM, inItem);
++  }
++  
++  if (isCategoryMatchingQuery) {
++    for (var key in listOfMatchingCategories) {
++      var category = listOfMatchingCategories[key];
++      if (!(inItem.isInCategory(category))) {
++        inItem.assign(Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY, category);
++      }
++    }
++  }
++};
++
++
++/**
++ * Given a category, this method returns a list of all the items that have been 
++ * assigned to that category.
++ *
++ * @scope    public instance method
++ * @param    inCategory    A category item. 
++ * @return   A list of items.
++ */
++Stevedore.prototype.getListOfItemsInCategory = function (inCategory) {
++  Util.assert(inCategory instanceof Item);
++
++  var listOfItems = [];
++  for (var uuid in this._myHashTableOfItemsKeyedByUuid) {
++    var item = this._myHashTableOfItemsKeyedByUuid[uuid];
++    if (item.isInCategory(inCategory)) {
++      listOfItems.push(item);
++    }
++    // var kindList = item.getValueListFromAttribute(Repository.ATTRIBUTE_CALLED_KIND);
++    // if (kindList) {
++    //   if (kindList[0] == inKind) {
++    //     listOfItems.push(item);
++    //   }
++    // }
++  }
++  return listOfItems; 
++};
++
++// -------------------------------------------------------------------
++// Transaction Methods
++// -------------------------------------------------------------------
++
++/**
++ * Marks the beginning of a transaction.
++ *
++ * Each time you call beginTransaction() you open a new transaction, 
++ * which you need to close later using endTransation().  Transactions
++ * may be nested, but the beginTransaction and endTransation calls
++ * always need to come in pairs. 
++ *
++ * @scope    public instance method
++ */
++Stevedore.prototype.beginTransaction = function () {
++  this._myCountOfNestedTransactions += 1;
++  // PENDING:
++  //   This is just a stub method for now.  Once we start implementing
++  //   support for transactions we'll have to put some real code here.
++};
++ 
++
++/**
++ * Marks the end of a transaction.
++ *
++ * @scope    public instance method
++ */
++Stevedore.prototype.endTransaction = function () {
++  this._myCountOfNestedTransactions -= 1;
++  Util.assert(this._myCountOfNestedTransactions &gt;= 0);
++  // PENDING:
++  //   This is just a stub method for now.  Once we start implementing
++  //   support for transactions we'll have to put some real code here.
++  if (this._myCountOfNestedTransactions === 0) {
++    RootView.displayStatusBlurb(this._myListOfDirtyItems.length + &quot; changes made&quot;);
++    if (this._myListOfDirtyItems &amp;&amp; (this._myListOfDirtyItems.length &gt; 0)) {
++      this._saveChangesToServer();
++      this._myListOfDirtyItems = [];
++    }
++  }
++};
++
++
++/**
++ * Marks an item as having been edited during the transaction.
++ *
++ * @scope    public instance method
++ */
++Stevedore.prototype.markDirty = function (anItem) {
++  Util.assert(Util.isArray(this._myListOfDirtyItems));
++  this._myListOfDirtyItems.push(anItem);
++};
++
++
++// -------------------------------------------------------------------
++// Private Methods
++// -------------------------------------------------------------------
++
++/**
++ * Given a UUID, either (a) returns the existing item identified by that UUID, 
++ * or (b) creates an new item object, set its UUID, and returns that object.
++ *
++ * @scope    public instance method
++ * @param    inUuid    The UUID of the item to be returned. 
++ * @param    inObserver    Optional. An object to be registered as an observer of the returned item. 
++ * @return   The item identified by the given UUID.
++ */
++Stevedore.prototype._getItemFromUuidOrBootstrapItem = function (inUuid, inObserver) {
++  var item = this.getItemFromUuid(inUuid, inObserver);
++  if (!item) {
++    item = new Item(this, inUuid);
++    this._myHashTableOfItemsKeyedByUuid[inUuid] = item;
++    this._myNextAvailableUuid = Math.max(this._myNextAvailableUuid, (inUuid + 1));   
++    item.addObserver(inObserver);
++  }
++  return item;
++};
++
++
++/**
++ * Loads the basic items that needed in order to anything else, like
++ * the items for &quot;name&quot;, &quot;attribute&quot;, and &quot;category&quot;.
++ *
++ * @scope    private instance method
++ */
++Stevedore.prototype._loadBootstrapItems = function () {
++  var uuid;
++  var name;
++  var item;
++  
++  // associate display names with the UUIDs of all the attributes
++  var hashTableOfAttributeNamesKeyedByUuid = {};
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_SHORT_NAME] = &quot;Short Name&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_NAME] = &quot;Name&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_SUMMARY] = &quot;Summary&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_BODY] = &quot;Body&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY] = &quot;Category&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_USERSTAMP] = &quot;Userstamp&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_TIMESTAMP] = &quot;Timestamp&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_SECTION] = &quot;Section&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_QUERY] = &quot;Query&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_CATEGORY] = &quot;Matching Category&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_QUERY_MATCHING_ITEM] = &quot;Matching Item&quot;;
++  hashTableOfAttributeNamesKeyedByUuid[Stevedore.UUID_FOR_ATTRIBUTE_LAYOUT_NAME] = &quot;Layout Name&quot;;
++
++  // create all the Item objects for the attributes
++  for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
++    this._getItemFromUuidOrBootstrapItem(uuid);
++  }
++  
++  // associate display names with the UUIDs of all the categories
++  var hashTableOfCategoryNamesKeyedByUuid = {};
++  hashTableOfCategoryNamesKeyedByUuid[Stevedore.UUID_FOR_CATEGORY_ATTRIBUTE] = &quot;Attribute&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[Stevedore.UUID_FOR_CATEGORY_CATEGORY] = &quot;Category&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[Stevedore.UUID_FOR_CATEGORY_PAGE] = &quot;Page&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[Stevedore.UUID_FOR_CATEGORY_SECTION] = &quot;Section&quot;;
++  hashTableOfCategoryNamesKeyedByUuid[Stevedore.UUID_FOR_CATEGORY_QUERY] = &quot;Query&quot;;
++
++  // create all the Item objects for the categories
++  for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
++    this._getItemFromUuidOrBootstrapItem(uuid);
++  }
++ 
++  // set the display names of all the attributes, and put them in the category called &quot;Attribute&quot;
++  var categoryAttribute = this._getItemFromUuidOrBootstrapItem(Stevedore.UUID_FOR_CATEGORY_ATTRIBUTE);
++  for (uuid in hashTableOfAttributeNamesKeyedByUuid) {
++    item = this.getItemFromUuid(uuid);
++    name = hashTableOfAttributeNamesKeyedByUuid[uuid];
++    item._initializeAttributeValue(Stevedore.UUID_FOR_ATTRIBUTE_NAME, name);
++    item._initializeAttributeValue(Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY, categoryAttribute);
++  }
++  
++  // set the display names of all the categories, and put them in the category called &quot;Category&quot;
++  var categoryCategory = this._getItemFromUuidOrBootstrapItem(Stevedore.UUID_FOR_CATEGORY_CATEGORY);
++  for (uuid in hashTableOfCategoryNamesKeyedByUuid) {
++    item = this.getItemFromUuid(uuid);
++    name = hashTableOfCategoryNamesKeyedByUuid[uuid];
++    item._initializeAttributeValue(Stevedore.UUID_FOR_ATTRIBUTE_NAME, name);
++    item._initializeAttributeValue(Stevedore.UUID_FOR_ATTRIBUTE_CATEGORY, categoryCategory);
++  }
++  
++};
++
++
++/**
++ * Loads sample data.
++ *
++ * Given a set of sample data in JSON format, bootstraps 
++ * new instances of items corresponding to the sample data.
++ * 
++ * @scope    private instance method
++ * @param    inDataSet    A list of items to be loaded, in JSON format. 
++ */
++Stevedore.prototype._loadItemsFromList = function (inDataSet) {
++  Util.assert(Util.isArray(inDataSet) || Util.isObject(inDataSet));
++  
++  var uuidValue;
++  var uuid;
++  var item;
++  var listOfItems;
++  
++  if (Util.isArray(inDataSet)) {
++    // this is an old, pre-March-15-2005, file format
++    listOfItems = inDataSet;
++  } else {
++    // this is newer file format, circa March-16-2005
++    var fileFormat = inDataSet[Stevedore.JSON_MEMBER_FORMAT];
++    Util.assert(fileFormat == Stevedore.JSON_FORMAT_2005_MARCH);
++    listOfItems = inDataSet[Stevedore.JSON_MEMBER_DATA];
++    Util.assert(Util.isArray(listOfItems));
++  }
++  
++  for (var entryKey in listOfItems) {
++    var entry = listOfItems[entryKey];
++    uuidValue = entry[Stevedore.UUID_FOR_ATTRIBUTE_UUID];
++    uuid = uuidValue[Stevedore.JSON_MEMBER_VALUE];
++    item = this._getItemFromUuidOrBootstrapItem(uuid);
++    for (var propertyKey in entry) {
++      if (propertyKey != Stevedore.UUID_FOR_ATTRIBUTE_UUID) { 
++        var propertyValue = entry[propertyKey];
++        var attributeUuid = propertyKey;
++        Util.assert(Util.isArray(propertyValue));
++        for (var valueKey in propertyValue) {
++          var valueObject = propertyValue[valueKey];
++          var valueType = valueObject[Stevedore.JSON_MEMBER_TYPE];
++          var valueValue = valueObject[Stevedore.JSON_MEMBER_VALUE];
++          var finalValue = null;
++          switch (valueType) {
++            case Stevedore.JSON_TYPE_FOREIGN_UUID:
++              finalValue = this._getItemFromUuidOrBootstrapItem(valueValue);
++              break;
++            case Stevedore.JSON_TYPE_STRING_VALUE:
++              finalValue = valueValue;
++              break;
++            case Stevedore.JSON_TYPE_NUMBER_VALUE:
++              finalValue = valueValue;
++              break;
++          }
++          item._initializeAttributeValue(attributeUuid, finalValue);
++        }
++      }
++    }
++  }
++  
++  // PENDING:
++  // If we don't have a designated &quot;home page&quot; for this data set, then just
++  // look through all the items and set the home page to be the first page 
++  // item we come across.  This, of course, is a hack.
++  if (!this._myHomePageItem) {
++    var categoryPage = this.getItemFromUuid(Stevedore.UUID_FOR_CATEGORY_PAGE);
++    for (uuid in this._myHashTableOfItemsKeyedByUuid) {
++      item = this.getItemFromUuid(uuid);
++      if (item.isInCategory(categoryPage)) {
++        this._myHomePageItem = this._myHomePageItem || item;
++      }
++    }
++  }
++};
++
++
++/**
++ * Returns a huge string, containing a JavaScript &quot;object literal&quot;
++ * representation of the entire cache.
++ *
++ * @scope    private instance method
++ * @return   A string in JavaScript &quot;object literal&quot; format, representing all the items in the cache. 
++ */
++Stevedore.prototype._getJsonStringRepresentingAllItems = function () {
++  var timestamp = new Date();
++  var timestampString = timestamp.toString();
++  var listOfStrings = [];
++  
++  listOfStrings.push('// Repository dump, in JSON format' + '\n');
++  listOfStrings.push('Stevedore._ourRepositoryInJsonFormat = {' + '\n');
++  listOfStrings.push('  &quot;' + Stevedore.JSON_MEMBER_FORMAT + '&quot;: &quot;' + Stevedore.JSON_FORMAT_2005_MARCH + '&quot;, ' + '\n');
++  listOfStrings.push('  &quot;' + Stevedore.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + timestampString + '&quot;, ' + '\n');
++  listOfStrings.push('  &quot;' + Stevedore.JSON_MEMBER_DATA + '&quot;: ' + '[' + '\n');
++  for (var uuid in this._myHashTableOfItemsKeyedByUuid) {
++    var uuidInJsonForm = '{ &quot;' + Stevedore.JSON_MEMBER_TYPE + '&quot;: &quot;' + Stevedore.JSON_TYPE_UUID + '&quot;, &quot;' + Stevedore.JSON_MEMBER_VALUE + '&quot;: ' + uuid + ' }';
++    listOfStrings.push('  { &quot;' + Stevedore.UUID_FOR_ATTRIBUTE_UUID + '&quot;: ' + uuidInJsonForm + ',' + '\n');
++    var item = this.getItemFromUuid(uuid);
++    var listOfAttributeUuids = item.getListOfAttributeUuids();
++    for (var attributeKey in listOfAttributeUuids) {
++      var attributeUuid = listOfAttributeUuids[attributeKey];
++      var attribute = this.getItemFromUuid(attributeUuid);
++      Util.assert(attribute instanceof Item);
++      var attributeName = attribute.getDisplayName();
++      var attributeNameSubstring = (attributeName + '          ').substring(0, 10);
++      listOfStrings.push('    /* ' + attributeNameSubstring + ' */   ');
++      listOfStrings.push('&quot;' + attributeUuid + '&quot;: [');
++      var listOfAttributeValues = item.getValueListFromAttribute(attribute);
++      for (var valueKey in listOfAttributeValues) {
++        var value = listOfAttributeValues[valueKey];
++        var pickleString = &quot;&quot;;
++        var typeString = null;
++        var valueString = null;
++        if (Util.isNumber(value)) {
++          typeString = Stevedore.JSON_TYPE_NUMBER_VALUE;
++          valueString = value;
++        }
++        if (Util.isString(value)) {
++          typeString = Stevedore.JSON_TYPE_STRING_VALUE;
++          valueString = '&quot;' + value + '&quot;';
++        }
++        if (value instanceof Item) {
++          typeString = Stevedore.JSON_TYPE_FOREIGN_UUID;
++          valueString = value.getUuid();
++        }
++        pickleString = '{ &quot;' + Stevedore.JSON_MEMBER_TYPE + '&quot;: &quot;' + typeString + '&quot;, &quot;' + Stevedore.JSON_MEMBER_VALUE + '&quot;: ' + valueString + ' }';
++        listOfStrings.push(pickleString + ', ');
++      }
++      listOfStrings.push('],\n');
++    }
++    listOfStrings.push(&quot;  },&quot; + &quot;\n&quot;);
++  }
++  listOfStrings.push(&quot;]};&quot; + &quot;\n&quot;);
++  var finalString = listOfStrings.join(&quot;&quot;);
++  return finalString;
++};
++
++
++/**
++ * Returns a newly created XMLHttpRequest object.
++ *
++ * @scope    private instance method
++ * @return   A newly created XMLHttpRequest object. 
++ */
++Stevedore.prototype._newXMLHttpRequestObject = function () {
++  var newXMLHttpRequestObject = null;
++  if (window.XMLHttpRequest) {
++    newXMLHttpRequestObject = new XMLHttpRequest();
++  } else {
++    if (window.ActiveXObject) {
++      newXMLHttpRequestObject = new ActiveXObject(&quot;Microsoft.XMLHTTP&quot;);
++    }
++  }
++  if (newXMLHttpRequestObject) {
++    newXMLHttpRequestObject.onreadystatechange = function() {
++      alert(&quot;onreadystatechange:\n&quot; +
++        &quot;readyState: &quot; + this._myXMLHttpRequestObject.readyState + &quot;\n&quot; +
++        &quot;status: &quot; + this._myXMLHttpRequestObject.status + &quot;\n&quot; +
++        &quot;statusText: &quot; + this._myXMLHttpRequestObject.statusText + &quot;\n&quot; +
++        &quot;responseText: &quot; + this._myXMLHttpRequestObject.responseText + &quot;\n&quot;);
++    };
++  }
++  return newXMLHttpRequestObject;
++};
++
++
++/**
++ * Sends all the changed items to the server, so that the server can save the
++ * changes.
++ *
++ * @scope    private instance method
++ */
++Stevedore.prototype._saveChangesToServer = function () {
++  var saveChanges = false;
++  if (window.location) {
++    if (window.location.protocol == &quot;http:&quot;) {
++      saveChanges = true;
++    }
++    if (window.location.protocol == &quot;file:&quot;) {
++      alert(&quot;I can't save changes to server, because this page was loaded from a \&quot;<A HREF="file:///\">file:///\</A>&quot; location, not a real \&quot;<A HREF="http://\">http://\</A>&quot; location.  Sorry.&quot;); 
++    }
++  }
++  
++  if (saveChanges) {
++    var url = &quot;save_changes.php&quot;;
++    this._myXMLHttpRequestObject.open(&quot;POST&quot;, url, true);
++    this._myXMLHttpRequestObject.setRequestHeader(&quot;Content-Type&quot;, &quot;text/xml&quot;);
++    this._myXMLHttpRequestObject.send(this._getJsonStringRepresentingAllItems());
++  }
++  
++};
++
++
++/**
++ * This is the event handler method that we register with the XMLHttpRequest
++ * object's onreadystatechange property.
++ *
++ * @scope    private class method
++ */
++Stevedore._handleStateChangeForXMLHttpRequestObject = function () {
++  alert(&quot;_handleStateChangeForXMLHttpRequestObject()\n&quot;); // +
++  //  &quot;readyState: &quot; + this._myXMLHttpRequestObject.readyState + &quot;\n&quot; +
++  //  &quot;status: &quot; + this._myXMLHttpRequestObject.status + &quot;\n&quot; +
++  //  &quot;statusText: &quot; + this._myXMLHttpRequestObject.statusText + &quot;\n&quot; +
++  //  &quot;responseText: &quot; + this._myXMLHttpRequestObject.responseText + &quot;\n&quot;);
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/Util.js
+===================================================================
+--- trunk/source/Util.js	2005-04-05 21:00:35 UTC (rev 21)
++++ trunk/source/Util.js	2005-04-05 21:04:31 UTC (rev 22)
+@@ -0,0 +1,411 @@
++/*****************************************************************************
++ util.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++
++/**
++ * The Util class offers general utility methods that might
++ * be useful in a wide variety of applications.
++ *
++ * There is no need to ever call this constructor.  All the Util
++ * methods are class methods, not instance methods, and the only 
++ * reason this constructor exists is to cause the name &quot;Util&quot;
++ * to be a globally-scoped class name, which the class methods 
++ * can then be attached to.
++ *
++ * @scope    public instance constructor
++ * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ */
++function Util() {
++  throw new Error(&quot;Util is a static class. You can't create instances of it.&quot;);
++}
++
++
++// -------------------------------------------------------------------
++// Util public class constants
++// -------------------------------------------------------------------
++Util.ASCII_VALUE_FOR_RETURN = 13;
++Util.ASCII_VALUE_FOR_TAB = 9;
++Util.ASCII_VALUE_FOR_ESCAPE = 27;
++
++// &#37; = %
++// &#38; = &amp;
++// &#39; = '
++// &#40; = (
++Util.ASCII_VALUE_FOR_LEFT_ARROW = 37;  // 123
++Util.ASCII_VALUE_FOR_UP_ARROW = 38;    // 126
++Util.ASCII_VALUE_FOR_RIGHT_ARROW = 39; // 124
++Util.ASCII_VALUE_FOR_DOWN_ARROW = 40;  // 125
++
++
++// -------------------------------------------------------------------
++// String manipulation methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns a copy of the input string, cleaned up so that it can be 
++ * included in a valid HTML page.
++ *
++ * Returns a copy of the string, but with the original characters 
++ * '&lt;', '&gt;', and '&amp;' all replaced by their HTML entities: &quot;&lt;&quot;, 
++ * &quot;&gt;&quot;, and &quot;&amp;&quot;.  Allows strings to displayed on HTML pages.
++ *
++ * @scope    public class method
++ * @syntax   var cleanString = Util.getCleanString(dirtyString);
++ * @param    inString    A dirty string to be cleaned up.
++ * @return   String
++ */
++Util.getCleanString = function(inString) {
++  Util.assert(Util.isString(inString));
++  
++  var returnString = inString;
++  returnString = returnString.replace(/&amp;/g, &quot;&amp;&quot;);
++  returnString = returnString.replace(/&lt;/g, &quot;&lt;&quot;);
++  returnString = returnString.replace(/&gt;/g, &quot;&gt;&quot;);
++  returnString = returnString.replace(/&quot;/g, &quot;&quot;&quot;);
++  returnString = returnString.replace(/\n/g, &quot; &quot;);
++  return returnString;
++};
++
++
++// -------------------------------------------------------------------
++// Assertions and error handling methods
++// -------------------------------------------------------------------
++
++/**
++ * Registers a function to be used to report errors.
++ *
++ * @scope    public class method
++ * @param    inFunction    A function which takes a single string argument. 
++ */
++Util.setErrorReportCallback = function (inFunction) {
++  Util.ourErrorReporter = inFunction;
++};
++
++
++/**
++ * This defaultErrorReporter simply calls &quot;alert&quot; to report errors.
++ *
++ * @scope    public class method
++ * @param    inText    The error message to be reported. 
++ */
++Util.defaultErrorReporter = function (inText) {
++  window.alert(inText);
++};
++Util.ourErrorReporter = Util.defaultErrorReporter;
++
++ 
++ /**
++ * Pops up an alert box showing an error message.
++ *
++ * @scope    public class method
++ * @param    inMessage    A string describing the error.
++ * @param    inUrl    A string that gives the name of the file where the error was found.
++ * @param    inLine    The line number where the error was found.
++ */
++Util.handleError = function (inMessage, inUrl, inLine) {
++  Util.ourErrorReporter(&quot;Util.handleError()\n&quot; + inMessage + &quot;\nline: &quot; + inLine + &quot;\nURL: &quot; + inUrl);
++};
++
++
++/**
++ * Pops up an alert box if the assertion fails.
++ *
++ * If the asserted condition is true, this method does nothing. If the condition
++ * is false, this method pops up an alert box.  The alert box explains that an
++ * assertion failed, and it gives a stack trace showing the file name and line
++ * number where the assertion failed.
++ *
++ * @scope    public class method
++ * @param    inBoolean    A boolean value, which needs to be true for the assertion to succeed. 
++ * @param    inMessage    Optional. A string describing the assertion.
++ */
++Util.assert = function (inBoolean, inMessage) {
++  var exception = new Error();  // create an exception, just to get a stack trace
++  var stackString = exception.stack;
++  var stackList = stackString.split(&quot;\n&quot;);
++  stackList.shift(); // get rid of the &quot;ReferenceError()@:0&quot; at the start of the list
++  stackList.shift(); // get rid of the &quot;(false)@file ... util.js:67&quot; at the start of the list
++  stackList.pop();   // get rid of the trailing &quot;\n&quot;
++  stackList.pop();   // get rid of the &quot;@:0&quot; at the end of the list
++  stackString = stackList.join(&quot;\n&quot;);
++  if (Util.isBoolean(inBoolean)) {
++    if (!inBoolean) {    
++      Util.ourErrorReporter(&quot;An assert statement failed.\nThe method Util.assert() was called with a 'false' value.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
++    }
++  } else {
++    Util.ourErrorReporter(&quot;An assert statement went sour.\nThe method Util.assert() was passed a non-boolean argument.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
++  }
++};
++
++
++// -------------------------------------------------------------------
++// Type checking methods
++// -------------------------------------------------------------------
++
++/**
++ * Returns true if the given value is a string.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a string.
++ */
++Util.isString = function (inValue) {
++  return (typeof(inValue) == &quot;string&quot;);
++};
++
++
++/**
++ * Returns true if the given value is a number (and is finite number).
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a number.
++ */
++Util.isNumber = function (inValue) {
++  return ((typeof(inValue) == &quot;number&quot;) &amp;&amp; isFinite(inValue));
++};
++
++
++/**
++ * Returns true if the given value is a number or a string that 
++ * represents a number.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a number or a string that represents a number.
++ */
++Util.isNumeric = function (inValue) {
++  var isNumber = Util.isNumber(inValue);
++  if (isNumber) {
++    return true;
++  }
++  var isNumeric = Util.isString(inValue) &amp;&amp; Util.isNumber(parseInt(inValue));
++  return isNumeric;
++};
++
++
++/**
++ * Returns true if the given value is a boolean.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a boolean.
++ */
++Util.isBoolean = function (inValue) {
++  return (typeof(inValue) == &quot;boolean&quot;);
++};
++
++
++/**
++ * Returns true if the given value is an object.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is an object.
++ */
++Util.isObject = function (inValue) {
++  return (inValue &amp;&amp; (typeof(inValue) == &quot;object&quot;));
++};
++
++
++/**
++ * Returns true if the given value is an array.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is an array.
++ */
++Util.isArray = function (inValue) {
++  return (inValue &amp;&amp; (typeof(inValue) == &quot;object&quot;) &amp;&amp; (inValue.constructor == Array));
++};
++
++
++/**
++ * Returns true if the given value is a hash table.
++ *
++ * @scope    public class method
++ * @param    inValue    Any object or literal value. 
++ * @return   A boolean value. True if inValue is a hash table.
++ */
++Util.isHashTable = function (inValue) {
++  return (inValue &amp;&amp; (typeof(inValue) == &quot;object&quot;));  // PENDING: we should be more restrictive!
++};
++
++
++// -------------------------------------------------------------------
++// Methods that operate on Sets
++// -------------------------------------------------------------------
++
++/**
++ * Returns true if the given object is a member of the set.  
++ * 
++ * @scope    public class method
++ * @param    inObject    The object to look for. 
++ * @param    inSet    The Array to look for the object in. 
++ * @return   Returns true if the object was found in the set.
++ */
++Util.isObjectInSet = function (inObject, inSet) {
++  Util.assert(Util.isArray(inSet));
++  
++  for (var i=0; i&lt;inSet.length; i+=1) {
++    if (inSet[i] == inObject) {
++      return true;
++    }
++  }
++  return false;
++};
++
++
++/**
++ * Removes an object from an array.  
++ * 
++ * @scope    public class method
++ * @param    inObject    The object to be removed. 
++ * @param    inSet    The Array that the object should be removed from. 
++ * @return   Returns true if the object was removed from the array.
++ */
++Util.removeObjectFromSet = function (inObject, inSet) {
++  Util.assert(Util.isArray(inSet));
++  
++  if (!inObject) {
++    return false;
++  }
++  for (var i=0; i&lt;inSet.length; i+=1) {
++    if (inSet[i] == inObject) {
++      inSet.splice(i, 1);
++      return true;
++    }
++  }
++  return false;
++};
++
++
++/**
++ * This method is similar to array.push(object), but it will only add the
++ * object to the array if the object is not already in the array.  
++ * 
++ * @scope    public class method
++ * @param    inObject    The object to be added. 
++ * @param    inSet    The Array that the object should be added to. 
++ * @return   Returns true if the object was added to the array.
++ */
++Util.addObjectToSet = function (inObject, inSet) {
++  Util.assert(Util.isArray(inSet));
++
++  if (!inObject) {
++    return false;
++  }
++  if (Util.isObjectInSet(inObject, inSet)) {
++    return false;
++  }
++  inSet.push(inObject);
++  return true;
++};
++
++
++// -------------------------------------------------------------------
++// Methods that deal with event handling
++// -------------------------------------------------------------------
++
++/**
++ * Given an event object, returns the HTML element that was the 
++ * target of the event.  
++ * 
++ * Should work for IE, Mozilla, and _some_ other browsers.  
++ *
++ * @scope    public class method
++ * @param    inEventObject    An event object. 
++ * @return   An HTML element.
++ */
++Util.getTargetFromEvent = function (inEventObject) {
++  var target = null;
++  if (inEventObject.target) {
++    target = inEventObject.target;
++  } else {
++    if (inEventObject.srcElement) {
++      target = inEventObject.srcElement;
++    }
++  }
++  if (target &amp;&amp; target.nodeType == 3) { // defeat Safari bug
++    target = target.parentNode;
++  }
++  return target;
++};
++
++
++/**
++ * A cross-browser compatibility method for registering event listeners. 
++ *
++ * @scope public class method
++ * @param inElement    An HTMLElement.
++ * @param inEventType    The type of event (e.g. &quot;mousedown&quot;, &quot;click&quot;).
++ * @param inCallback    The function to call when the event happens.
++ * @param inCaptures    True if the event should be captured by this function.
++ */
++Util.addEventListener = function (inElement, inEventType, inCallback, inCaptures) {
++  if (inElement.addEventListener) {
++    // for DOM Level 2 browsers, like Firefox
++    inElement.addEventListener(inEventType, inCallback, inCaptures);
++  } else {
++    if (inElement.attachEvent) {
++      // for Internet Explorer
++      inElement.attachEvent(&quot;on&quot;+inEventType, inCallback, inCaptures);
++    }
++  } 
++};
++
++// -------------------------------------------------------------------
++// HTML document manipulation
++// -------------------------------------------------------------------
++
++/**
++ * Looks at all the anchor links in the document, finds the ones with the 
++ * attribute rel=&quot;external&quot;, and sets the target attribute of those anchor
++ * links so that the links will open in a new browser window.  
++ * 
++ * @scope    public class method
++ */
++Util.setTargetsForExternalLinks = function () {
++  if (!window.document.getElementsByTagName) {
++    return;
++  }
++  var listOfAnchorElements = window.document.getElementsByTagName(&quot;a&quot;);
++  var regExp = new RegExp(&quot;\\b&quot; + &quot;external&quot; + &quot;\\b&quot;);
++  for (var i=0; i&lt;listOfAnchorElements.length; i+=1) {
++    var anchor = listOfAnchorElements[i];
++    if (anchor.getAttribute(&quot;href&quot;) &amp;&amp; (anchor.getAttribute(&quot;rel&quot;)) &amp;&amp; (anchor.getAttribute(&quot;rel&quot;).search(regExp) != -1)) {
++      anchor.target = &quot;_blank&quot;;
++    }
++  }
++};
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Added: trunk/source/View.js
+===================================================================
+--- trunk/source/View.js	2005-04-05 21:00:35 UTC (rev 21)
++++ trunk/source/View.js	2005-04-05 21:04:31 UTC (rev 22)
+@@ -0,0 +1,198 @@
++/*****************************************************************************
++ view.js
++ 
++******************************************************************************
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++
++
++// -------------------------------------------------------------------
++// Dependencies:
++//   util.js
++// -------------------------------------------------------------------
++
++
++/**
++ * The View class serves as an abstract superclass for other view classes.
++ *
++ * @scope    public instance constructor
++ * @syntax   DO NOT CALL THIS CONSTRUCTOR
++ */
++function View() {
++  // alert(&quot;View constructor&quot;);
++  this._mySuperview = null;
++  this._myDivElement = null;
++}
++
++
++/**
++ * Tells the View who its parent is in the view hierarchy.
++ *
++ * @scope    public instance method
++ * @param    inSuperview    The superview for this view. 
++ */
++View.prototype.setSuperview = function (inSuperview) {
++  // Util.assert(ViewInterface.isImplementedBy(inSuperview));
++
++  this._mySuperview = inSuperview;
++};
++
++
++/**
++ * Returns the parent view in the view hierarchy.
++ *
++ * @scope    public instance method
++ * @return   A View object. 
++ */
++View.prototype.getSuperview = function () {
++  return this._mySuperview;
++};
++
++
++/**
++ * Tells the View what HTMLDivElement to display itself in.
++ *
++ * @scope    public instance method
++ * @param    inDivElement    The HTMLDivElement to display the view in. 
++ */
++View.prototype.setDivElement = function (inDivElement) {
++  Util.assert(inDivElement instanceof HTMLDivElement);
++
++  this._myDivElement = inDivElement;
++  // this.display();
++};
++
++
++/**
++ * Returns the HTMLDivElement that the view displays itself in.
++ *
++ * @scope    public instance method
++ * @return   An HTMLDivElement. 
++ */
++View.prototype.getDivElement = function () {
++  return this._myDivElement;
++};
++
++
++/**
++ * Returns the Stevedore instance that this view is using.
++ *
++ * @scope    public instance method
++ * @return   A Stevedore object. 
++ */
++View.prototype.getStevedore = function () {
++  return this._mySuperview.getStevedore();
++};
++
++
++/**
++ * Returns true if we are in Edit Mode.
++ *
++ * @scope    public instance method
++ * @return   A boolean value. True if we are in Edit Mode.
++ */
++View.prototype.isInEditMode = function () {
++  return this._mySuperview.isInEditMode();
++};
++
++
++/**
++ * A toggle switch to set whether this view is drawn on-screen or hidden
++ * off-screen.
++ *
++ * @scope    public instance method
++ * @param    inBoolean    True if the view should be visible on screen. False if the view should be hidden off screen.
++ */
++View.prototype.includeOnScreen = function (inBoolean) {
++  Util.assert(Util.isBoolean(inBoolean));
++
++  if (inBoolean) {
++    this.refresh();
++    this._myDivElement.style.display = &quot;block&quot;;
++  } else {
++    this._myDivElement.style.display = &quot;none&quot;;
++  }
++};
++
++
++// -------------------------------------------------------------------
++// HTML element helper methods
++// -------------------------------------------------------------------
++
++/**
++ * Given an HTML element, we first call document.createElement() to 
++ * create a new element, and then call appendChild() to add the new 
++ * element to the given element.
++ *
++ * @scope    public class method
++ * @param    inElement    The existing element that we should append the new element to. 
++ * @param    inTagName    The HTML tag for the element (&quot;div&quot;, &quot;p&quot;, &quot;span&quot;, etc.). 
++ * @param    inClassName    Optional. The HTML/CSS class to assign to the new element. 
++ * @param    inId    Optional. The HTML id to assign to the new element. 
++ * @return   The newly created HTML element.
++ */
++View.createAndAppendElement = function (inElement, inTagName, inClassName, inId) {
++  Util.assert(inElement instanceof HTMLElement);
++  Util.assert(Util.isString(inTagName));
++  Util.assert(!inClassName || Util.isString(inClassName));
++  Util.assert(!inId || Util.isString(inId));
++
++  var newElement = window.document.createElement(inTagName);
++  if (inClassName) {
++    newElement.className = inClassName;
++  }
++  if (inId) {
++    newElement.id = inId;
++  }
++  inElement.appendChild(newElement);
++  return newElement;
++};
++
++
++/**
++ * Given an HTML element, we first call document.createTextNode() to 
++ * create a new text node, and then call appendChild() to add the new 
++ * text node to the given element.
++ *
++ * @scope    public class method
++ * @param    inElement    The existing element that we should append the new element to. 
++ * @param    inText    The text string to put in the text node.
++ * @return   The newly created text node.
++ */
++View.createAndAppendTextNode = function (inElement, inText) {
++  Util.assert(inElement instanceof HTMLElement);
++  Util.assert(Util.isString(inText));
++
++  var newTextNode = window.document.createTextNode(inText);
++  inElement.appendChild(newTextNode);
++  return newTextNode;
++};
++
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000015.html">[openrecord-svn] r21 - trunk/source
+</A></li>
+	<LI>Next message: <A HREF="000017.html">[openrecord-svn] r23 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#16">[ date ]</a>
+              <a href="thread.html#16">[ thread ]</a>
+              <a href="subject.html#16">[ subject ]</a>
+              <a href="author.html#16">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

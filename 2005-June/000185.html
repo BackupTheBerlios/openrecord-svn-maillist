@@ -1,0 +1,302 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r199 - in trunk/source: . model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r199%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506301813.j5UID1CP019808%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000184.html">
+   <LINK REL="Next"  HREF="000186.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r199 - in trunk/source: . model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r199%20-%20in%20trunk/source%3A%20.%20model&In-Reply-To=%3C200506301813.j5UID1CP019808%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r199 - in trunk/source: . model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 30 20:13:01 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000184.html">[openrecord-svn] r198 - in trunk/source: . model
+</A></li>
+        <LI>Next message: <A HREF="000186.html">[openrecord-svn] r200 - trunk/source/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-30 20:13:01 +0200 (Thu, 30 Jun 2005)
+New Revision: 199
+
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/PluginView.js
+   trunk/source/model/QueryRunner.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/World.js
+Log:
+More bug fixing and cleaning up cruft.
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-06-30 17:36:42 UTC (rev 198)
++++ trunk/source/BarChartPlugin.js	2005-06-30 18:13:01 UTC (rev 199)
+@@ -119,7 +119,7 @@
+       if (listOfEntries) {
+         firstEntry = listOfEntries[0];
+         if (firstEntry) {
+-          var value = firstEntry.getValue();
++          var value = firstEntry.getValue(contentItem);
+           if (Util.isNumber(value)) {
+             var count = hashTableOfNumericValueIncidenceKeyedByAttributeKey[attributeKeyString];
+             if (!count) {
+
+Modified: trunk/source/PluginView.js
+===================================================================
+--- trunk/source/PluginView.js	2005-06-30 17:36:42 UTC (rev 198)
++++ trunk/source/PluginView.js	2005-06-30 18:13:01 UTC (rev 199)
+@@ -87,15 +87,6 @@
+  */
+ PluginView.prototype.fetchItems = function() {
+   this._listOfItems = this._queryRunner.getResultItems();
+-  /*
+-  if (Util.isArray(this._querySpec)) {
+-    //PENDING hack to allow Plugin to support list of items or query
+-    this._listOfItems = this._querySpec;
+-  }
+-  else {
+-    this._listOfItems = this._querySpec ? this.getWorld().getResultItemsForQuery(this._querySpec) : [];
+-  }
+-  */
+   return this._listOfItems;
+ };
+ 
+
+Modified: trunk/source/model/QueryRunner.js
+===================================================================
+--- trunk/source/model/QueryRunner.js	2005-06-30 17:36:42 UTC (rev 198)
++++ trunk/source/model/QueryRunner.js	2005-06-30 18:13:01 UTC (rev 199)
+@@ -150,10 +150,14 @@
+   
+   var matchingAttribute = this.getMatchingAttribute();
+   var listOfMatchingValues = this.getMatchingValues();
+-  for (var key in listOfMatchingValues) {
+-    var matchingValue = listOfMatchingValues[key];
+-    if (item.hasAttributeValue(matchingAttribute, matchingValue)) {
+-      return true;
++  if (matchingAttribute == QueryRunner.EXPLICIT_LIST_OF_ITEMS) {
++    return Util.isObjectInSet(item, listOfMatchingValues);
++  } else {
++    for (var key in listOfMatchingValues) {
++      var matchingValue = listOfMatchingValues[key];
++      if (item.hasAttributeValue(matchingAttribute, matchingValue)) {
++        return true;
++      }
+     }
+   }
+   
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-06-30 17:36:42 UTC (rev 198)
++++ trunk/source/model/StubVirtualServer.js	2005-06-30 18:13:01 UTC (rev 199)
+@@ -531,65 +531,6 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Given a query item, this method returns a list of all the items that 
+- * match the query criteria.
+- *
+- * @deprecated    PENDING: use getResultItemsForQueryRunner() instead.
+- * @scope    public instance method
+- * @param    query    A query item. 
+- * @return   A list of items.
+- */
+- /*
+-StubVirtualServer.prototype.getResultItemsForQuery = function(query, observer) {
+-  Util.assert(query instanceof Item);
+-  
+-  var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+-  var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+-
+-  var uuid = null;
+-  var item = null;
+-  var key;
+-  var listOfQueryResultItems = [];
+-  var listOfMatchingEntries = query.getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-  var listOfMatchingAttrs = query.getEntriesForAttribute(attributeCalledQueryMatchingAttribute);
+-  if (!listOfMatchingEntries || listOfMatchingEntries.length === 0) {
+-    return [];
+-  }
+-  var matchingAttribute;
+-  if (listOfMatchingAttrs.length === 0) {
+-    // by default matching attribute is category
+-    matchingAttribute = this.getWorld().getAttributeCalledCategory();
+-  }
+-  else {
+-    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
+-    matchingAttribute = listOfMatchingAttrs[0].getValue();
+-  }
+-
+-  // This is a wildly inefficient search.  But maybe it doesn't matter,
+-  // because this code should all be replaced someday by server code.
+-  for (uuid in this._hashTableOfItemsKeyedByUuid) {
+-    item = this._hashTableOfItemsKeyedByUuid[uuid];
+-    if (!item.hasBeenDeleted()) {
+-      var includeItem = true;
+-      for (key in listOfMatchingEntries) {
+-        var matchingEntry = listOfMatchingEntries[key];
+-        var match = matchingEntry.getValue();
+-        if (includeItem &amp;&amp; !(item.hasAttributeValue(matchingAttribute, match))) {
+-          includeItem = false;
+-        }
+-      }
+-      if (includeItem) {
+-        listOfQueryResultItems.push(item);
+-      }
+-    }
+-  }
+-  
+-  listOfQueryResultItems.sort(ContentRecord.compareOrdinals);
+-  return listOfQueryResultItems; 
+-};
+-*/
+-
+-/**
+  * Given a QueryRunner object, this method returns a list of all the items that 
+  * match the query criteria.
+  *
+@@ -856,67 +797,6 @@
+ 
+ 
+ /**
+- * PENDING.
+- *
+- * @scope    private instance method
+- */
+-/*
+-StubVirtualServer.prototype._buildTypeHashTable = function() {
+-  var text      = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_TEXT);
+-  var number    = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_NUMBER);
+-  var dateType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_DATE);
+-  var checkMark = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_CHECK_MARK);
+-  var url       = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_URL);
+-  var itemType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_ITEM);
+-  var connectionType  = this.__getItemFromUuidOrBootstrapItem(World.UUID_FOR_TYPE_CONNECTION);
+-  
+-  this._hashTableOfTypesKeyedByToken = {};
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_TEXT_VALUE] = text;
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_NUMBER_VALUE] = number;
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_DATE_VALUE] = dateType;
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CHECKMARK_VALUE] = checkMark;
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_URL_VALUE] = url;
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_RELATED_UUID] = itemType;
+-  this._hashTableOfTypesKeyedByToken[StubVirtualServer.JSON_TYPE_CONNECTION] = connectionType;
+-};
+-*/
+-
+-/**
+- * Given an item that represents that represents a basic data type, this method
+- * returns the corresponding string token that represents the same data type.
+- *
+- * @scope    private instance method
+- * @param    type    An item that represents a basic data type, like Text, Number, or URL. 
+- * @return   A string token that represents a basic data type.
+- */
+-/*
+-StubVirtualServer.prototype._getTypeTokenFromType = function(type) {
+-  for (var token in this._hashTableOfTypesKeyedByToken) {
+-    typeItem = this._hashTableOfTypesKeyedByToken[token];
+-    if (type == typeItem) {
+-      return token;
+-    }
+-  }
+-  Util.assert(false, &quot;no such type: &quot; + type.getDisplayString());
+-};
+-*/
+-
+-/**
+- * Given a string token that represents a basic data type, this method
+- * returns the corresponding item that represents the same data type.
+- *
+- * @scope    private instance method
+- * @param    token    A string token that represents a basic data type.
+- * @return   An item that represents a basic data type, like Text, Number, or URL. 
+- */
+-/*
+-StubVirtualServer.prototype._getTypeFromTypeToken = function(token) {
+-  return this._hashTableOfTypesKeyedByToken[token];
+-};
+-*/
+-
+-
+-/**
+  * Given a dehydrated list of records, rehydrates each of the records.
+  *
+  * @scope    private instance method
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-30 17:36:42 UTC (rev 198)
++++ trunk/source/model/World.js	2005-06-30 18:13:01 UTC (rev 199)
+@@ -868,24 +868,6 @@
+ // -------------------------------------------------------------------
+ 
+ /**
+- * Given a query item, this method returns a list of all the items that 
+- * match the query criteria.
+- *
+- * @deprecated    PENDING: use getResultItemsForQueryRunner() instead.
+- * @scope    public instance method
+- * @param    query    A query item. 
+- * @param    observer    Optional. An object or method to be registered as an observer of the returned item. 
+- * @return   A list of items.
+- */
+- /*
+-World.prototype.getResultItemsForQuery = function(query, observer) {
+-  var listOfItems = this._virtualServer.getResultItemsForQuery(query);
+-  this.__addListObserver(listOfItems, observer);
+-  return listOfItems;
+-};
+-*/
+-
+-/**
+  * Given a QueryRunner object, this method returns a list of all the items that 
+  * match the query criteria.
+  *
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000184.html">[openrecord-svn] r198 - in trunk/source: . model
+</A></li>
+	<LI>Next message: <A HREF="000186.html">[openrecord-svn] r200 - trunk/source/repositories
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

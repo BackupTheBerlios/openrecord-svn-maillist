@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r413 - trunk/source/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2006-January/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r413%20-%20trunk/source/util&In-Reply-To=%3C200601022230.k02MUZmH025295%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000393.html">
+   <LINK REL="Next"  HREF="000395.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r413 - trunk/source/util</H1>
+    <B>skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r413%20-%20trunk/source/util&In-Reply-To=%3C200601022230.k02MUZmH025295%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r413 - trunk/source/util">skinner at berlios.de
+       </A><BR>
+    <I>Mon Jan  2 23:30:35 CET 2006</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000393.html">[openrecord-svn] r412 - trunk/documentation
+</A></li>
+        <LI>Next message: <A HREF="000395.html">[openrecord-svn] r414 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#394">[ date ]</a>
+              <a href="thread.html#394">[ thread ]</a>
+              <a href="subject.html#394">[ subject ]</a>
+              <a href="author.html#394">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2006-01-02 23:30:34 +0100 (Mon, 02 Jan 2006)
+New Revision: 413
+
+Modified:
+   trunk/source/util/Util.js
+Log:
+replaced a couple Util.js methods with dojo implementations
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2006-01-02 22:10:47 UTC (rev 412)
++++ trunk/source/util/Util.js	2006-01-02 22:30:34 UTC (rev 413)
+@@ -201,7 +201,7 @@
+ 
+ 
+ orp.util.hasProperty = function(object, property) {
+-  return (object[property] !== undefined);
++  return (object[property] !== undefined); // return (property in object);
+ };
+ 
+ orp.util.hasProperties = function(object, properties) {
+@@ -245,12 +245,13 @@
+  * @return   Returns a number between 0 and array.length, or -1 if the element was not in the array.
+  */
+ orp.util.getArrayIndex = function(array, value) {
+-  for (var i=0; i&lt;array.length; ++i) {
+-    if (array[i] == value) {
+-      return i;
+-    }
+-  }
+-  return -1;
++  return dojo.lang.indexOf(array, value);
++  // for (var i=0; i&lt;array.length; ++i) {
++  //   if (array[i] == value) {
++  //     return i;
++  //   }
++  // }
++  // return -1;
+ };
+ 
+ 
+@@ -268,13 +269,7 @@
+  */
+ orp.util.isObjectInSet = function(object, set) {
+   orp.lang.assertType(set, Array);
+-  
+-  for (var key in set) {
+-    if (set[key] == object) {
+-      return true;
+-    }
+-  }
+-  return false;
++  return dojo.lang.inArray(set, object);
+ };
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000393.html">[openrecord-svn] r412 - trunk/documentation
+</A></li>
+	<LI>Next message: <A HREF="000395.html">[openrecord-svn] r414 - trunk/documentation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#394">[ date ]</a>
+              <a href="thread.html#394">[ thread ]</a>
+              <a href="subject.html#394">[ subject ]</a>
+              <a href="author.html#394">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

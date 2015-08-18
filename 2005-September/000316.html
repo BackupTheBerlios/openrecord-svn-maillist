@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r332 - in trunk: source/util tests/util
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r332%20-%20in%20trunk%3A%20source/util%20tests/util&In-Reply-To=%3C200509200339.j8K3dDf6027861%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000315.html">
+   <LINK REL="Next"  HREF="000317.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r332 - in trunk: source/util tests/util</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r332%20-%20in%20trunk%3A%20source/util%20tests/util&In-Reply-To=%3C200509200339.j8K3dDf6027861%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r332 - in trunk: source/util tests/util">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 20 05:39:13 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000315.html">[openrecord-svn] r331 - in trunk: source/util tests/util
+</A></li>
+        <LI>Next message: <A HREF="000317.html">[openrecord-svn] r333 - in trunk: source source/model source/util source/view tests tests/model tests/util tests/view third_party/gtd_tiddlywiki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#316">[ date ]</a>
+              <a href="thread.html#316">[ thread ]</a>
+              <a href="subject.html#316">[ subject ]</a>
+              <a href="author.html#316">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-20 05:39:12 +0200 (Tue, 20 Sep 2005)
+New Revision: 332
+
+Added:
+   trunk/tests/util/food.xml
+Removed:
+   trunk/source/util/food.xml
+Modified:
+   trunk/tests/util/XmlConverterMultiplePassesTest.js
+   trunk/tests/util/XmlConverterTest.js
+Log:
+Converted the XmlConverter class to use the Dojo package system.  Moved the unit tests over to the test tree.
+
+Deleted: trunk/source/util/food.xml
+===================================================================
+--- trunk/source/util/food.xml	2005-09-20 03:36:30 UTC (rev 331)
++++ trunk/source/util/food.xml	2005-09-20 03:39:12 UTC (rev 332)
+@@ -1,13 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;US-ASCII&quot; ?&gt;
+-&lt;Food_Glossary&gt;
+-&lt;Record food_id=&quot;32&quot;&gt;
+-&lt;name&gt;carrot&lt;/name&gt;&lt;color&gt;orange&lt;/color&gt;&lt;flavor&gt;sweet&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;lots&lt;/A&gt;&lt;C&gt;lots&lt;/C&gt;&lt;/vitamins&gt;
+-&lt;/Record&gt;
+-&lt;Record food_id=&quot;47&quot;&gt;
+-&lt;name&gt;cheese puff&lt;/name&gt;&lt;color&gt;orange&lt;/color&gt;&lt;flavor&gt;salty&lt;/flavor&gt;&lt;flavor&gt;cheesy&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;0.0&lt;/A&gt;&lt;C&gt;0.0&lt;/C&gt;&lt;/vitamins&gt;
+-&lt;/Record&gt;
+-&lt;Record food_id=&quot;114&quot;&gt;
+-&lt;name&gt;radish&lt;/name&gt;&lt;color&gt;red&lt;/color&gt;&lt;flavor&gt;hot&lt;/flavor&gt;&lt;vitamins&gt;&lt;A&gt;maybe&lt;/A&gt;&lt;C&gt;some&lt;/C&gt;&lt;/vitamins&gt;
+-&lt;/Record&gt;
+-&lt;/Food_Glossary&gt;
+-
+
+Modified: trunk/tests/util/XmlConverterMultiplePassesTest.js
+===================================================================
+--- trunk/tests/util/XmlConverterMultiplePassesTest.js	2005-09-20 03:36:30 UTC (rev 331)
++++ trunk/tests/util/XmlConverterMultiplePassesTest.js	2005-09-20 03:39:12 UTC (rev 332)
+@@ -54,7 +54,7 @@
+   var annsPassword = &quot;Ann's password&quot;;
+   var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+   world.login(userAnn, annsPassword);
+-  var xmlFile = &quot;../../../source/util/food.xml&quot;;
++  var xmlFile = &quot;../../../tests/util/food.xml&quot;;
+   var xmlConverter = new XmlConverter(world, xmlFile, &quot;food&quot;, &quot;Record&quot;);
+   var xmlToAttributeSpecifiers = new Array();
+   xmlToAttributeSpecifiers.push(new XmlTextNodeToAttributeSpecifier([&quot;name&quot;], world.getAttributeCalledName()));
+
+Modified: trunk/tests/util/XmlConverterTest.js
+===================================================================
+--- trunk/tests/util/XmlConverterTest.js	2005-09-20 03:36:30 UTC (rev 331)
++++ trunk/tests/util/XmlConverterTest.js	2005-09-20 03:39:12 UTC (rev 332)
+@@ -52,7 +52,7 @@
+   var annsPassword = &quot;Ann's password&quot;;
+   var userAnn = world.newUser(&quot;Ann Doe&quot;, annsPassword);
+   world.login(userAnn, annsPassword);
+-  var xmlFile = &quot;../../../source/util/food.xml&quot;;
++  var xmlFile = &quot;../../../tests/util/food.xml&quot;;
+   xmlConverter = new XmlConverter(world, xmlFile, &quot;food&quot;, &quot;Record&quot;);
+ }
+ 
+
+Copied: trunk/tests/util/food.xml (from rev 329, trunk/source/util/food.xml)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000315.html">[openrecord-svn] r331 - in trunk: source/util tests/util
+</A></li>
+	<LI>Next message: <A HREF="000317.html">[openrecord-svn] r333 - in trunk: source source/model source/util source/view tests tests/model tests/util tests/view third_party/gtd_tiddlywiki
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#316">[ date ]</a>
+              <a href="thread.html#316">[ thread ]</a>
+              <a href="subject.html#316">[ subject ]</a>
+              <a href="author.html#316">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

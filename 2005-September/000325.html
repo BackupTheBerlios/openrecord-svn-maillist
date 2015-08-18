@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r342 - in trunk: source/model tests/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r342%20-%20in%20trunk%3A%20source/model%20tests/model&In-Reply-To=%3C200509270139.j8R1d9dR027770%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000324.html">
+   <LINK REL="Next"  HREF="000326.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r342 - in trunk: source/model tests/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r342%20-%20in%20trunk%3A%20source/model%20tests/model&In-Reply-To=%3C200509270139.j8R1d9dR027770%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r342 - in trunk: source/model tests/model">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 27 03:39:09 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000324.html">[openrecord-svn] r341 - in trunk: documentation source source/model source/util source/view
+</A></li>
+        <LI>Next message: <A HREF="000326.html">[openrecord-svn] r343 - in trunk: documentation source source/model source/util tests/model tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#325">[ date ]</a>
+              <a href="thread.html#325">[ thread ]</a>
+              <a href="subject.html#325">[ subject ]</a>
+              <a href="author.html#325">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-27 03:39:06 +0200 (Tue, 27 Sep 2005)
+New Revision: 342
+
+Modified:
+   trunk/source/model/2005_june_axiomatic_items.json
+   trunk/source/model/World.js
+   trunk/tests/model/ModelTest.js
+Log:
+Added the new axiomatic attribute &quot;Class Name&quot;, to be used for dynamically loading plugins.
+
+Modified: trunk/source/model/2005_june_axiomatic_items.json
+===================================================================
+--- trunk/source/model/2005_june_axiomatic_items.json	2005-09-27 01:00:25 UTC (rev 341)
++++ trunk/source/model/2005_june_axiomatic_items.json	2005-09-27 01:39:06 UTC (rev 342)
+@@ -63,6 +63,10 @@
+              &quot;uuid&quot;: &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Item&quot;: {                                               // Attribute: Class Name
++             &quot;uuid&quot;: &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Item&quot;: {                                               // Type: Text
+              &quot;uuid&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+@@ -503,6 +507,31 @@
+             &quot;value&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot; }
+     },
+     // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Class Name&quot;
++             &quot;uuid&quot;: &quot;000100fa-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
++             &quot;item&quot;: &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Class Name
++             &quot;type&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // TextValue
++            &quot;value&quot;: &quot;Class Name&quot; }
++    },
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              
++             // in item (Attribute: Class Name) assign (Attribute: Category) = (Category: Attribute)
++             // in item (Category: Attribute) assign (Attribute: Items in Category) = (Attribute: Class Name)
++             &quot;uuid&quot;: &quot;000100fb-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;type&quot;: &quot;00001050-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++             &quot;item&quot;: [&quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;00001210-ce7f-11d9-8cd5-0011113ae5d6&quot;],
++        &quot;attribute&quot;: [&quot;00001005-ce7f-11d9-8cd5-0011113ae5d6&quot;, &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;]  }
++    },  
++    // -----------------------------------------------------------------------
++    { &quot;Entry&quot;: {                                              // &quot;Class Name&quot;
++             &quot;uuid&quot;: &quot;000100fc-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++        &quot;attribute&quot;: &quot;0000100a-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Expected Type
++             &quot;item&quot;: &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Attribute: Class Name
++             &quot;type&quot;: &quot;00001030-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // RelatedUuid
++            &quot;value&quot;: &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot; }
++    },
++    // -----------------------------------------------------------------------
+     { &quot;Entry&quot;: {                                              // &quot;Text&quot;
+              &quot;uuid&quot;: &quot;0001020a-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+         &quot;attribute&quot;: &quot;00001001-ce7f-11d9-8cd5-0011113ae5d6&quot;,  // Name
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-09-27 01:00:25 UTC (rev 341)
++++ trunk/source/model/World.js	2005-09-27 01:39:06 UTC (rev 342)
+@@ -118,6 +118,7 @@
+   ATTRIBUTE_ITEMS_IN_CATEGORY:        &quot;0000100c-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   ATTRIBUTE_TAG:                      &quot;0000100d-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   ATTRIBUTE_TAGGED_ITEMS:             &quot;0000100e-ce7f-11d9-8cd5-0011113ae5d6&quot;,
++  ATTRIBUTE_CLASS_NAME:               &quot;0000100f-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+ 
+   TYPE_TEXT:               &quot;00001020-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+   TYPE_NUMBER:             &quot;00001021-ce7f-11d9-8cd5-0011113ae5d6&quot;,
+@@ -167,6 +168,7 @@
+   this._attributeCalledItemsInCategory        = server.getItemFromUuid(UUID.ATTRIBUTE_ITEMS_IN_CATEGORY);
+   this._attributeCalledTag                    = server.getItemFromUuid(UUID.ATTRIBUTE_TAG);
+   this._attributeCalledTaggedItems            = server.getItemFromUuid(UUID.ATTRIBUTE_TAGGED_ITEMS);
++  this._attributeCalledClassName              = server.getItemFromUuid(UUID.ATTRIBUTE_CLASS_NAME);
+ 
+   // load the axiomatic types
+   this._typeCalledText       = server.getItemFromUuid(UUID.TYPE_TEXT);
+@@ -496,7 +498,12 @@
+   return this._attributeCalledTaggedItems;
+ };
+ 
++orp.model.World.prototype.getAttributeCalledClassName = function() {
++  return this._attributeCalledClassName;
++};
+ 
++
++
+ // -------------------------------------------------------------------
+ // Accessor methods for axiomatic categories
+ // -------------------------------------------------------------------
+
+Modified: trunk/tests/model/ModelTest.js
+===================================================================
+--- trunk/tests/model/ModelTest.js	2005-09-27 01:00:25 UTC (rev 341)
++++ trunk/tests/model/ModelTest.js	2005-09-27 01:39:06 UTC (rev 342)
+@@ -193,11 +193,13 @@
+   var listOfAssignedNames;
+   var nameEntry;
+   
++  var categoryCalledAttribute = world.getCategoryCalledAttribute();
+   var listOfAttributes = [];
+   listOfAttributes.push(world.getAttributeCalledName());
+   listOfAttributes.push(world.getAttributeCalledShortName());
+   listOfAttributes.push(world.getAttributeCalledSummary());
+   listOfAttributes.push(world.getAttributeCalledCategory());
++  listOfAttributes.push(world.getAttributeCalledClassName());
+   for (key in listOfAttributes) {
+     item = listOfAttributes[key];
+     listOfAssignedNames = item.getNameEntries();
+@@ -206,6 +208,7 @@
+     nameEntry = listOfAssignedNames[0];
+     assertTrue('Every axiomatic attribute has a name which is an entry', (nameEntry instanceof orp.model.Entry));
+     assertTrue('Every entry can be displayed as a string', orp.util.isString(nameEntry.getDisplayString()));
++    assertTrue('Every axiomatic attribute is in the category &quot;Attribute&quot;', item.isInCategory(categoryCalledAttribute));
+   }
+   
+   var listOfCategories = [];
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000324.html">[openrecord-svn] r341 - in trunk: documentation source source/model source/util source/view
+</A></li>
+	<LI>Next message: <A HREF="000326.html">[openrecord-svn] r343 - in trunk: documentation source source/model source/util tests/model tests/util
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#325">[ date ]</a>
+              <a href="thread.html#325">[ thread ]</a>
+              <a href="subject.html#325">[ subject ]</a>
+              <a href="author.html#325">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

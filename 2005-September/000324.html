@@ -1,0 +1,607 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r341 - in trunk: documentation source source/model source/util source/view
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r341%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20source/view&In-Reply-To=%3C200509270101.j8R112X4003728%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000323.html">
+   <LINK REL="Next"  HREF="000325.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r341 - in trunk: documentation source source/model source/util source/view</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r341%20-%20in%20trunk%3A%20documentation%20source%20source/model%20source/util%20source/view&In-Reply-To=%3C200509270101.j8R112X4003728%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r341 - in trunk: documentation source source/model source/util source/view">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 27 03:01:02 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000323.html">[openrecord-svn] r340 - in trunk/source: . model view
+</A></li>
+        <LI>Next message: <A HREF="000325.html">[openrecord-svn] r342 - in trunk: source/model tests/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#324">[ date ]</a>
+              <a href="thread.html#324">[ thread ]</a>
+              <a href="subject.html#324">[ subject ]</a>
+              <a href="author.html#324">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-27 03:00:25 +0200 (Tue, 27 Sep 2005)
+New Revision: 341
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/TablePlugin.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Item.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/util/LintTool.js
+   trunk/source/util/Util.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/LoginView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/NavbarView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/RootView.js
+   trunk/source/view/SectionView.js
+   trunk/source/view/SuggestionBox.js
+Log:
+Replaced calls to orp.util.getStringContentsOfFileAtURL() with calls to dojo.hostenv.getText().  Replaced most calls to orpBindAsEventListener() with calls to dojo.event.connect().
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/documentation/release_planning.txt	2005-09-27 01:00:25 UTC (rev 341)
+@@ -357,8 +357,8 @@
+        |          |         |     try removing all the lines: dojo.hostenv.setModulePrefix(&quot;dojo&quot;, ... 
+        |          |         |     try to get djConfig.debugAtAllCosts to work (see sandbox.html)
+        |          |         |     try to replace /source/util/Cookie.js with dojo.io.cookies
+-       |          |         |     try to replace orpBindAsEventListener() with dojo.event.connect()
+-       |          |         |     try to replace orp.util.getStringContentsOfFileAtURL() with a Dojo method
++brian  |          |part done|     try to replace orpBindAsEventListener() with dojo.event.connect()
++brian  |          | 0    IED|     try to replace orp.util.getStringContentsOfFileAtURL() with a Dojo method
+        |          |         |     try to replace View.appendNewElement() with Dojo methods
+        |          |         |     move isUuid out of Util.js
+        |          |         |     try to replace remaining Util.js functions with dojo.lang functions
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/TablePlugin.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -42,6 +42,7 @@
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.util.CsvParser&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -225,7 +226,8 @@
+     }
+     optionElt.text += attribute.getDisplayString();
+     optionElt.value = attribute.getUuidString();
+-    optionElt.onclick = this._attributeEditorChanged.orpBindAsEventListener(this);
++    // optionElt.onclick = this._attributeEditorChanged.orpBindAsEventListener(this);
++    dojo.event.connect(optionElt, &quot;onclick&quot;, this, &quot;_attributeEditorChanged&quot;);
+   }
+   this._selectElement = selectElt;
+   
+@@ -241,9 +243,11 @@
+   if (window.location.protocol == &quot;file:&quot;) {
+     var importDiv = orp.view.View.appendNewElement(htmlElement, &quot;div&quot;, orp.view.RootView.cssClass.EDIT_TOOL);
+     orp.view.View.appendNewTextNode(importDiv, &quot; Import Data:&quot;);
+-    var importButton = orp.view.View.appendNewElement(importDiv, &quot;input&quot;);
+-    importButton.type = &quot;file&quot;;
+-    importButton.onchange = this._importData.orpBindAsEventListener(this, importButton);
++    this._fileImportButton = orp.view.View.appendNewElement(importDiv, &quot;input&quot;);
++    this._fileImportButton.type = &quot;file&quot;;
++    
++    // this._fileImportButton.onchange = this._importData.orpBindAsEventListener(this);
++    dojo.event.connect(this._fileImportButton, &quot;onchange&quot;, this, &quot;_importData&quot;);
+   }
+ };
+ 
+@@ -436,7 +440,11 @@
+     if (this._sortAttribute == attribute) {
+       headerCellContentSpan.appendChild(this.getSortIcon());
+     }
++    
++    // FIXME: need to figure out how to pass &quot;attribute&quot; via dojo.event.connect()
+     Event.observe(headerCell, &quot;click&quot;, this.clickOnHeader.orpBindAsEventListener(this, attribute));
++    // dojo.event.connect(headerCell, &quot;onclick&quot;, this, &quot;clickOnHeader&quot;);
++    
+     if (this.isInEditMode()) {
+       var listener = this;
+       var draggable = new Draggable(headerCellContentSpan, {revert:true});
+@@ -595,11 +603,12 @@
+  * 
+  * @scope    private instance method
+  */
+-orp.TablePlugin.prototype._importData = function(eventObject, fileButton) {
++orp.TablePlugin.prototype._importData = function(eventObject) {
+   var listOfAttributes = this._displayAttributes;
+   var startTime = new Date();
+   
+-  var fileContents = orp.util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + fileButton.value);
++  // var fileContents = orp.util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + this._fileImportButton.value);
++  var fileContents = dojo.hostenv.getText('<A HREF="file://">file://</A>' + this._fileImportButton.value);
+   var csvParser = new orp.util.CsvParser();
+   var listOfRecords = csvParser.getStringValuesFromCsvData(fileContents);
+   if (!listOfRecords) {
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/model/DeltaVirtualServer.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -100,7 +100,8 @@
+     repositoryUrl = this._completePathToTrunkDirectory + '/';
+   }
+   repositoryUrl += orp.model.DeltaVirtualServer.PATH_TO_REPOSITORY_DIRECTORY + &quot;/&quot; + repositoryFileName;
+-  var repositoryContentString = orp.util.getStringContentsOfFileAtURL(repositoryUrl);
++  // var repositoryContentString = orp.util.getStringContentsOfFileAtURL(repositoryUrl);
++  var repositoryContentString = dojo.hostenv.getText(repositoryUrl);
+   repositoryContentString += &quot; ] }&quot;;
+ 
+   this._loadWorldFromJsonString(repositoryContentString);
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/model/Item.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -188,7 +188,8 @@
+  *    var entry = item.addEntry({value: &quot;green&quot;});
+  *    entry = item.replaceEntry({previousEntry: entry, value: &quot;green&quot;});
+  *    entry = item.replaceEntry({previousEntry: entry, attribute: color, value: &quot;green&quot;});
+- *    entry = item.replaceEntry({previousEntry: entry, attribute: color, value: &quot;green&quot;, type: string});
++ *    var textType = world.getTypeCalledText();
++ *    entry = item.replaceEntry({previousEntry: entry, attribute: color, value: &quot;green&quot;, type: textType});
+  * &lt;/pre&gt;
+  * 
+  * @scope    public instance method
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/model/StubVirtualServer.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -864,7 +864,8 @@
+  * @scope    private instance method
+  */
+ orp.model.StubVirtualServer.prototype._loadAxiomaticItemsFromFileAtURL = function(url) {
+-  var fileContentString = orp.util.getStringContentsOfFileAtURL(url);
++  // var fileContentString = orp.util.getStringContentsOfFileAtURL(url);
++  var fileContentString = dojo.hostenv.getText(url);
+   // orp.util.assert(orp.util.isString(fileContentString));
+   orp.lang.assertType(fileContentString, String);
+   fileContentString += &quot; ] }&quot;;
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/util/LintTool.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -142,7 +142,8 @@
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+ orp.util.LintTool.getErrorReportForCodeAtUrl = function(url) {
+-  var fileContents = orp.util.getStringContentsOfFileAtURL(url);
++  // var fileContents = orp.util.getStringContentsOfFileAtURL(url);
++  var fileContents = dojo.hostenv.getText(url);
+   return orp.util.LintTool.getErrorReportForCodeInString(fileContents);
+ };
+ 
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/util/Util.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -683,11 +683,16 @@
+  * @return   A string containing the contents of the file.
+  */
+ orp.util.getStringContentsOfFileAtURL = function(url) {
++  dj_deprecated(&quot;orp.util.getStringContentsOfFileAtURL() is deprecated. Use dojo.hostenv.getText().&quot;);
++  return dojo.hostenv.getText(url);
++
++  /* 
+   var anXMLHttpRequestObject = new window.XMLHttpRequest();
+   anXMLHttpRequestObject.open(&quot;GET&quot;, url, false);
+   anXMLHttpRequestObject.send(null);
+   var fileContents = anXMLHttpRequestObject.responseText;
+   return fileContents;
++  */
+ };
+ 
+ 
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/EntryView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -40,6 +40,7 @@
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -260,7 +261,8 @@
+     this._setClassName();
+   }
+   
+-  htmlElement.onclick = this.onClick.orpBindAsEventListener(this);
++  // htmlElement.onclick = this.onClick.orpBindAsEventListener(this);
++  dojo.event.connect(htmlElement, &quot;onclick&quot;, this, &quot;onClick&quot;);
+   if (this._alwaysUseEditField) {
+     this.startEditing(true);
+   }
+@@ -280,7 +282,9 @@
+     var connectionType  = this.getWorld().getItemFromUuid(orp.model.World.UUID.TYPE_CONNECTION);
+     if (dataType == itemType || dataType == connectionType) {
+       if (this._isLozenge()) {
+-        this.getHtmlElement().ondblclick = this.onDoubleClick.orpBindAsEventListener(this);
++        // this.getHtmlElement().ondblclick = this.onDoubleClick.orpBindAsEventListener(this);
++        var htmlElement = this.getHtmlElement();
++        dojo.event.connect(htmlElement, &quot;ondblclick&quot;, this, &quot;onDoubleClick&quot;);
+         if (this.isInEditMode() &amp;&amp; !this._draggable) {
+           if (orp.view.EntryView._PENDING_temporaryHackToDecreaseLayoutTime) {
+             // if (this.getRootView().isInShowToolsMode()) {
+@@ -361,10 +365,16 @@
+         editField.type = 'text';
+       }
+       var listener = this; 
+-      editField.onblur = this.onBlur.orpBindAsEventListener(this);
+-      editField.onkeypress = this.onKeyPress.orpBindAsEventListener(this);
+-      editField.onkeyup = this.onKeyUp.orpBindAsEventListener(this);
+-      editField.onfocus = this.onFocus.orpBindAsEventListener(this);
++      // editField.onblur = this.onBlur.orpBindAsEventListener(this);
++      // editField.onkeypress = this.onKeyPress.orpBindAsEventListener(this);
++      // editField.onkeyup = this.onKeyUp.orpBindAsEventListener(this);
++      // editField.onfocus = this.onFocus.orpBindAsEventListener(this);
++      dojo.event.connect(editField, &quot;onblur&quot;, this, &quot;onBlur&quot;);
++      dojo.event.connect(editField, &quot;onkeypress&quot;, this, &quot;onKeyPress&quot;);
++      dojo.event.connect(editField, &quot;onkeyup&quot;, this, &quot;onKeyUp&quot;);
++      dojo.event.connect(editField, &quot;onfocus&quot;, this, &quot;onFocus&quot;);
++      
++      
+       editField.value = this._isProvisional ? '' : (initialStr) ? initialStr : this._textNode.data;
+       //alert(editField.value)
+       if (this.getSuperview().getEntryWidth) {
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/LoginView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -37,6 +37,7 @@
+ dojo.provide(&quot;orp.view.LoginView&quot;);
+ dojo.provide(&quot;orp.view.UserSuggestionBox&quot;);
+ dojo.require(&quot;orp.view.View&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -141,44 +142,52 @@
+     //   Enter new name and password:  _username_  _password_  [Create New Account]
+     
+     orp.view.View.appendNewTextNode(mySpan,&quot;Enter new name and password:&quot;);
+-    this.usernameInput = orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{size:20,value:&quot;Albert Einstein&quot;});
++    this.usernameInput = orp.view.View.appendNewElement(mySpan, &quot;input&quot;, null, {size:20, value:&quot;Albert Einstein&quot;});
+     orp.view.View.appendNewTextNode(mySpan,&quot; &quot;);
+-    this.passwordInput = orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{size:10,type:&quot;password&quot;,value:&quot;randomdots&quot;});
+-    this.passwordInput.onkeypress = this._createAccountPasswordKeyPress.orpBindAsEventListener(this);
+-    orp.view.View.appendNewTextNode(mySpan,&quot; &quot;);
+-    orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{value:&quot;Create New Account&quot;,type:&quot;button&quot;}).onclick = 
+-      this._clickOnNewAcctButton.orpBindAsEventListener(this);
++    this.passwordInput = orp.view.View.appendNewElement(mySpan, &quot;input&quot;, null, {size:10, type:&quot;password&quot;, value:&quot;randomdots&quot;});
++    // this.passwordInput.onkeypress = this._createAccountPasswordKeyPress.orpBindAsEventListener(this);
++    dojo.event.connect(this.passwordInput, &quot;onkeypress&quot;, this, &quot;_createAccountPasswordKeyPress&quot;);
++    orp.view.View.appendNewTextNode(mySpan, &quot; &quot;);
++    var newAccountButton = orp.view.View.appendNewElement(mySpan ,&quot;input&quot;, null, {value:&quot;Create New Account&quot;, type:&quot;button&quot;});
++    // newAccountButton.onclick = this._clickOnNewAcctButton.orpBindAsEventListener(this);
++    dojo.event.connect(newAccountButton, &quot;onclick&quot;, this, &quot;_clickOnNewAcctButton&quot;);
+     this.usernameInput.select();
+-  }
+-  else if (currentUser) { 
++  } else if (currentUser) { 
+     // The user is already logged in.
+     // Create a line that looks like this:
+     //   Hello Jane Doe.  _Sign out_  [Edit]
+     
+-    orp.view.View.appendNewTextNode(mySpan,&quot;Hello &quot; + currentUser.getDisplayString() + &quot;. &quot;);
+-    orp.view.View.appendNewElement(mySpan,&quot;a&quot;,null,null,&quot;Sign out&quot;).onclick = this._clickOnSignoutLink.orpBindAsEventListener(this);
+-    orp.view.View.appendNewTextNode(mySpan,&quot; &quot;);
+-    orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{type:&quot;button&quot;,value:
+-      (this.getRootView().isInShowToolsMode()) ? &quot;Hide Tools&quot; : &quot;Show Tools&quot;}).onclick =
+-        this._clickOnShowToolsButton.orpBindAsEventListener(this);
++    orp.view.View.appendNewTextNode(mySpan, &quot;Hello &quot; + currentUser.getDisplayString() + &quot;. &quot;);
++    var signOutLink = orp.view.View.appendNewElement(mySpan, &quot;a&quot;, null, null, &quot;Sign out&quot;);
++    // signOutLink.onclick = this._clickOnSignoutLink.orpBindAsEventListener(this);
++    dojo.event.connect(signOutLink, &quot;onclick&quot;, this, &quot;_clickOnSignoutLink&quot;);
++    orp.view.View.appendNewTextNode(mySpan, &quot; &quot;);
++    var showToolsButton = orp.view.View.appendNewElement(mySpan, &quot;input&quot;, null, {type:&quot;button&quot;, value:
++      (this.getRootView().isInShowToolsMode()) ? &quot;Hide Tools&quot; : &quot;Show Tools&quot;});
++    // showToolsButton.onclick = this._clickOnShowToolsButton.orpBindAsEventListener(this);
++    dojo.event.connect(showToolsButton, &quot;onclick&quot;, this, &quot;_clickOnShowToolsButton&quot;);
+   }
+   else {
+     // The user has not yet signed in.
+     // Create a line that looks like this:
+     //   _Create Account_  or sign in:  _username_  _password_  [Sign in]
+     
+-    orp.view.View.appendNewElement(mySpan,&quot;a&quot;,null,null,&quot;Create Account&quot;).onclick = 
+-      this._clickOnCreateAccountLink.orpBindAsEventListener(this);
+-    orp.view.View.appendNewTextNode(mySpan,&quot; or sign in: &quot;);
+-    this.usernameInput = orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{size:20,value:&quot;Albert Einstein&quot;});
++    var createAccountLink = orp.view.View.appendNewElement(mySpan, &quot;a&quot;, null, null, &quot;Create Account&quot;);
++    // createAccountLink.onclick = this._clickOnCreateAccountLink.orpBindAsEventListener(this);
++    dojo.event.connect(createAccountLink, &quot;onclick&quot;, this, &quot;_clickOnCreateAccountLink&quot;);
++    orp.view.View.appendNewTextNode(mySpan, &quot; or sign in: &quot;);
++    this.usernameInput = orp.view.View.appendNewElement(mySpan, &quot;input&quot;, null, {size:20,value:&quot;Albert Einstein&quot;});
+     mySpan.appendChild(document.createTextNode(&quot; &quot;));
+-    this.passwordInput = orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{size:10,type:&quot;password&quot;,value:&quot;randomdots&quot;});
+-    this.passwordInput.onkeypress = this._signinPasswordKeyPress.orpBindAsEventListener(this);
+-    this.passwordInput.onfocus = this._signinPasswordFocus.orpBindAsEventListener(this);
++    this.passwordInput = orp.view.View.appendNewElement(mySpan, &quot;input&quot;, null, {size:10,type:&quot;password&quot;,value:&quot;randomdots&quot;});
++    // this.passwordInput.onkeypress = this._signinPasswordKeyPress.orpBindAsEventListener(this);
++    // this.passwordInput.onfocus = this._signinPasswordFocus.orpBindAsEventListener(this);
++    dojo.event.connect(this.passwordInput, &quot;onkeypress&quot;, this, &quot;_signinPasswordKeyPress&quot;);
++    dojo.event.connect(this.passwordInput, &quot;onfocus&quot;, this, &quot;_signinPasswordFocus&quot;);
+     this._myUsernameSuggestionBox = new orp.view.UserSuggestionBox(this.usernameInput, this.getWorld().getUsers(), this.passwordInput);
+     mySpan.appendChild(document.createTextNode(&quot; &quot;));
+-    orp.view.View.appendNewElement(mySpan,&quot;input&quot;,null,{value:&quot;Sign in&quot;,type:&quot;button&quot;}).onclick =
+-      this._clickOnSignInButton.orpBindAsEventListener(this);
++    var signInButton = orp.view.View.appendNewElement(mySpan, &quot;input&quot;, null, {value:&quot;Sign in&quot;,type:&quot;button&quot;});
++    // signInButton.onclick = this._clickOnSignInButton.orpBindAsEventListener(this);
++    dojo.event.connect(signInButton, &quot;onclick&quot;, this, &quot;_clickOnSignInButton&quot;);
+   }
+   
+ };
+@@ -394,9 +403,12 @@
+   this._userSuggestionBoxDivElement.style.display = &quot;none&quot;;
+   document.body.appendChild(this._userSuggestionBoxDivElement);
+   
+-  this._inputField.onkeyup = this._keyPressOnInputField.orpBindAsEventListener(this);
+-  this._inputField.onfocus = this._focusOnInputField.orpBindAsEventListener(this);
+-  this._inputField.onblur = this._blurOnInputField.orpBindAsEventListener(this);
++  // this._inputField.onkeyup = this._keyPressOnInputField.orpBindAsEventListener(this);
++  // this._inputField.onfocus = this._focusOnInputField.orpBindAsEventListener(this);
++  // this._inputField.onblur = this._blurOnInputField.orpBindAsEventListener(this);
++  dojo.event.connect(this._inputField, &quot;onkeyup&quot;, this, &quot;_keyPressOnInputField&quot;);
++  dojo.event.connect(this._inputField, &quot;onfocus&quot;, this, &quot;_focusOnInputField&quot;);
++  dojo.event.connect(this._inputField, &quot;onblur&quot;, this, &quot;_blurOnInputField&quot;);
+   //this._keyPressOnInputField();
+ };
+ 
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/MultiEntriesView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -39,6 +39,7 @@
+ dojo.require(&quot;orp.view.EntryView&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -361,7 +362,8 @@
+   }
+   
+   if (this.isInEditMode()) {
+-    htmlElement.onclick = this._handleOwnClick.orpBindAsEventListener(this);
++    // htmlElement.onclick = this._handleOwnClick.orpBindAsEventListener(this);
++    dojo.event.connect(htmlElement, &quot;onclick&quot;, this, &quot;_handleOwnClick&quot;);
+     var listener = this;
+     Droppables.add(htmlElement, {accept: [orp.view.EntryView.cssClass.CONNECTION_VALUE, orp.view.EntryView.CSS_ITEM_VALUE, orp.view.EntryView.cssClass.SELECTED],
+       hoverclass: &quot;test&quot;,
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/NavbarView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -38,6 +38,7 @@
+ dojo.require(&quot;orp.view.View&quot;);
+ dojo.require(&quot;orp.view.RootView&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -121,10 +122,12 @@
+  *
+  * @scope    public instance method
+  * @param    event    The mousedown event object. 
+- * @param    liElement    The HTMLElement for this menu item. 
+  */
+-orp.view.NavbarView.prototype._mouseDownOnMenuItem = function(event, liElement) {
+-  this._liElementBeingTouched = liElement;
++orp.view.NavbarView.prototype._mouseDownOnMenuItem = function(event) {
++  // FIXME: 
++  // Should we be using &quot;event.target&quot; instead of &quot;event.currentTarget&quot;?
++  // Or should we be using orp.util.getTargetFromEvent(event)?
++  this._liElementBeingTouched = event.currentTarget;
+ };
+ 
+ 
+@@ -218,8 +221,9 @@
+     var liElement = orp.view.View.appendNewElement(ulElement, &quot;li&quot;, orp.view.NavbarView.cssClass.MENU_ITEM, {id: menuItemId});
+     if (page == this.getRootView().getCurrentPage()) {orp.util.css_addClass(liElement, orp.view.NavbarView.cssClass.SELECTED);}
+     var anchorElement = orp.view.View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
+-    Event.observe(anchorElement, &quot;click&quot;, orp.view.RootView.clickOnLocalLink.orpBindAsEventListener());
+-    Event.observe(liElement, &quot;mousedown&quot;, this._mouseDownOnMenuItem.orpBindAsEventListener(this, liElement));
++    
++    dojo.event.connect(anchorElement, &quot;onclick&quot;, orp.view.RootView.clickOnLocalLink);
++    dojo.event.connect(liElement, &quot;onmousedown&quot;, this, &quot;_mouseDownOnMenuItem&quot;);
+   }
+   var listener = this;
+   this._builtForEditMode = this.isInEditMode();
+@@ -232,7 +236,8 @@
+   var newPageButton = orp.view.View.appendNewElement(divElement, &quot;input&quot;, orp.view.RootView.cssClass.EDIT_TOOL);
+   newPageButton.type = &quot;button&quot;;
+   newPageButton.value = &quot;New Page&quot;;
+-  newPageButton.onclick = this._clickOnNewPageButton.orpBindAsEventListener(this);
++  // newPageButton.onclick = this._clickOnNewPageButton.orpBindAsEventListener(this);
++  dojo.event.connect(newPageButton, &quot;onclick&quot;, this, &quot;_clickOnNewPageButton&quot;);
+ };
+ 
+ 
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/PageView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -41,6 +41,7 @@
+ dojo.require(&quot;orp.view.EntryView&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -265,7 +266,8 @@
+     var editButton = orp.view.View.appendNewElement(this._editModeDiv, &quot;input&quot;);
+     editButton.type = &quot;Button&quot;;
+     editButton.value = &quot;New Section&quot;;
+-    editButton.onclick = this._addNewSection.orpBindAsEventListener(this);
++    // editButton.onclick = this._addNewSection.orpBindAsEventListener(this);
++    dojo.event.connect(editButton, &quot;onclick&quot;, this, &quot;_addNewSection&quot;);
+   }
+ };
+ 
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/RootView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -42,6 +42,7 @@
+ dojo.require(&quot;orp.view.ItemView&quot;);
+ dojo.require(&quot;orp.model.World&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -91,7 +92,8 @@
+   
+   this._currentlyInDisplayMethod = false;
+   
+-  document.addEventListener(&quot;keypress&quot;, this._onKeyPress.orpBindAsEventListener(this),false);
++  // document.addEventListener(&quot;keypress&quot;, this._onKeyPress.orpBindAsEventListener(this),false);
++  dojo.event.connect(document, &quot;onkeypress&quot;, this, &quot;_onKeyPress&quot;);
+   
+   // window.document.body.innerHTML = &quot;&quot;;
+   // var rootDiv = orp.view.View.appendNewElement(window.document.body, &quot;div&quot;);
+@@ -591,6 +593,7 @@
+   else {this._selections = [];}
+ };
+ 
++
+ /**
+  * Adds the selection with the given selectable object (current View) 
+  * @scope    public instance method
+@@ -598,9 +601,10 @@
+  */
+ orp.view.RootView.prototype.addToSelection = function(aView) {
+   orp.lang.assert(aView instanceof orp.view.View);
+-  orp.util.addObjectToSet(aView,this._selections);
++  orp.util.addObjectToSet(aView, this._selections);
+ };
+ 
++
+ /**
+  * Removes the given selectable object (current View) from selection
+  * @scope    public instance method
+@@ -608,9 +612,10 @@
+  */
+ orp.view.RootView.prototype.removeFromSelection = function(aView) {
+   orp.lang.assert(aView instanceof orp.view.View);
+-  orp.lang.assert(orp.util.removeObjectFromSet(aView,this._selections));
++  orp.lang.assert(orp.util.removeObjectFromSet(aView, this._selections));
+ };
+   
++
+ // -------------------------------------------------------------------
+ // Event handler methods
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/SectionView.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -41,6 +41,7 @@
+ dojo.require(&quot;orp.view.RootView&quot;);
+ dojo.require(&quot;orp.model.Item&quot;);
+ dojo.require(&quot;orp.lang.Lang&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // FIXME: We shouldn't need to include these three lines:
+ dojo.require(&quot;orp.DetailPlugin&quot;);
+@@ -362,7 +363,8 @@
+     var optionElement = orp.view.View.appendNewElement(selectElement, &quot;option&quot;);
+     optionElement.selected = (matchingAttribute.getDisplayString() == anAttribute.getDisplayString());
+     optionElement.value = anAttribute.getUuidString();
+-    optionElement.onclick = this.clickOnAttributeMenu.orpBindAsEventListener(this);
++    // optionElement.onclick = this.clickOnAttributeMenu.orpBindAsEventListener(this);
++    dojo.event.connect(optionElement, &quot;onclick&quot;, this, &quot;clickOnAttributeMenu&quot;);
+     optionElement.text = anAttribute.getDisplayString();
+   }
+   
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-09-26 20:21:06 UTC (rev 340)
++++ trunk/source/view/SuggestionBox.js	2005-09-27 01:00:25 UTC (rev 341)
+@@ -36,6 +36,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.view.SuggestionBox&quot;);
+ dojo.require(&quot;orp.util.Util&quot;);
++dojo.require(&quot;dojo.event.*&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -254,7 +255,11 @@
+       var cell = row.insertCell(columnNumber);
+       row.className = (this._selectedItem == item) ? &quot;selected&quot;:&quot;&quot;;
+       cell.appendChild(textNode);
++      
++      // FIXME: need to figure out how to pass &quot;item&quot; as a parameter via dojo.event.connect()
+       cell.onmousedown = this._clickOnSelection.orpBindAsEventListener(this, item);
++      // dojo.event.connect(cell, &quot;onmousedown&quot;, this, &quot;_clickOnSelection&quot;);
++      
+       rowNumber += 1;
+     }
+     this._suggestionBoxDivElement.appendChild(table);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000323.html">[openrecord-svn] r340 - in trunk/source: . model view
+</A></li>
+	<LI>Next message: <A HREF="000325.html">[openrecord-svn] r342 - in trunk: source/model tests/model
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#324">[ date ]</a>
+              <a href="thread.html#324">[ thread ]</a>
+              <a href="subject.html#324">[ subject ]</a>
+              <a href="author.html#324">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

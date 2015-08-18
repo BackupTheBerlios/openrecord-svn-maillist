@@ -1,0 +1,471 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r209 - in trunk: documentation source
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-July/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r209%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200507022059.j62Kxagw018207%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000194.html">
+   <LINK REL="Next"  HREF="000196.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r209 - in trunk: documentation source</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r209%20-%20in%20trunk%3A%20documentation%20source&In-Reply-To=%3C200507022059.j62Kxagw018207%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r209 - in trunk: documentation source">skinner at berlios.de
+       </A><BR>
+    <I>Sat Jul  2 22:59:36 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000194.html">[openrecord-svn] r208 - in trunk: . documentation source source/view
+</A></li>
+        <LI>Next message: <A HREF="000196.html">[openrecord-svn] r210 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-07-02 22:59:35 +0200 (Sat, 02 Jul 2005)
+New Revision: 209
+
+Modified:
+   trunk/documentation/release_planning.txt
+   trunk/source/LoginView.js
+   trunk/source/NavbarView.js
+   trunk/source/PageView.js
+   trunk/source/RootView.js
+   trunk/source/SectionView.js
+   trunk/source/TablePlugin.js
+   trunk/source/base_style.css
+Log:
+Changed the &quot;Edit&quot;/&quot;Done Editing&quot; button into a &quot;Show Tools&quot;/&quot;Hide Tools&quot; button.  Changed things so that any logged-in user can always edit, even if the editing tools are not showing.
+
+Modified: trunk/documentation/release_planning.txt
+===================================================================
+--- trunk/documentation/release_planning.txt	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/documentation/release_planning.txt	2005-07-02 20:59:35 UTC (rev 209)
+@@ -244,20 +244,20 @@
+ -------+----------+---------+----------------------------------------------
+ Who    | Estimate | Actual  | Task
+ -------+----------+---------+----------------------------------------------
+-       |          |         |  1. Change &quot;Edit&quot;/&quot;Done Editing&quot; button to &quot;Show Tools&quot;/&quot;Hide Tools&quot;
+-       |          |         |  2. Allow editing for any logged in user, even if edit tools aren't shown
++brian  | 0        | 0       |  1. Change &quot;Edit&quot;/&quot;Done Editing&quot; button to &quot;Show Tools&quot;/&quot;Hide Tools&quot;
++brian  | 0.25 IED | 0.25    |  2. Allow editing for any logged in user, even if edit tools aren't shown
+        |          |         |  3. Assign system attributes &amp; categories to a &quot;System&quot; category
+        |          |         |  4. Hide &quot;System&quot; items most of the time
+        |          |         |  5. Attempt to embed an OpenRecord view in a MediaWiki page
+        |          |         |  6. Refactor our observer notification API (and implementation)
+-chao   |0.5 IED   |         |  7. Wire up observers &amp; keep views in sync
++chao   | 0.5  IED |         |  7. Wire up observers &amp; keep views in sync
+        |          |         |  8. be able to select a lozenge 
+        |          |         |  9. be able to select a table row 
+        |          |         | 10. be able to select a non-lozenge literal entry
+        |          |         | 11. be able to select the text within an entry
+        |          |         | 12. be able to delete a selected lozenge 
+        |          |         | 13. be able to delete a selected table row 
+-chao   | 0.5 IED  |         | 14. improve keyboard navigation: tab, arrow, and return keys
++chao   | 0.5  IED |         | 14. improve keyboard navigation: tab, arrow, and return keys
+        |          |         | 15. Get data model to pass the ordinal unit tests again
+        |          |         | 16. drag-and-drop lozenges
+        |          |         | 17. drag-and-drop to re-order navbar menu items
+
+Modified: trunk/source/LoginView.js
+===================================================================
+--- trunk/source/LoginView.js	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/LoginView.js	2005-07-02 20:59:35 UTC (rev 209)
+@@ -118,6 +118,8 @@
+       }
+     }
+   }
++  var editMode = currentUser ? true : false;
++  this.getRootView().setEditMode(editMode);
+   
+   var welcomeText, welcomeNode;
+   if (this._isCreatingNewAccount) {
+@@ -165,11 +167,11 @@
+ 
+     mySpan.appendChild(document.createTextNode(&quot; &quot;));
+ 
+-    var editButton = document.createElement(&quot;input&quot;);
+-    editButton.type = &quot;button&quot;;
+-    editButton.value = (this.isInEditMode()) ? &quot;Done editing&quot; : &quot;Edit&quot;;
+-    editButton.onclick = this._clickOnEditButton.bindAsEventListener(this);
+-    mySpan.appendChild(editButton);
++    var toolsButton = document.createElement(&quot;input&quot;);
++    toolsButton.type = &quot;button&quot;;
++    toolsButton.value = (this.getRootView().isInShowToolsMode()) ? &quot;Hide Tools&quot; : &quot;Show Tools&quot;;
++    toolsButton.onclick = this._clickOnShowToolsButton.bindAsEventListener(this);
++    mySpan.appendChild(toolsButton);
+   }
+   else {
+     // The user has not yet signed in.
+@@ -227,6 +229,8 @@
+   this._cookie.store();
+   this.getWorld().logout();
+   this._rebuildView();
++  this.getRootView().setShowToolsMode(false);
++  this.getRootView().setEditMode(false);
+ };
+ 
+ 
+@@ -276,6 +280,7 @@
+   this._rebuildView();
+ };
+ 
++
+ /**
+  * Called when the user clicks on the &quot;Create New Account&quot; button.
+  *
+@@ -333,8 +338,8 @@
+  * @scope    private instance method
+  * @param    inEventObject    An event object. 
+  */
+-LoginView.prototype._clickOnEditButton = function (inEventObject) {
+-  this.getRootView().setEditMode(!this.isInEditMode());
++LoginView.prototype._clickOnShowToolsButton = function (inEventObject) {
++  this.getRootView().setShowToolsMode(!this.getRootView().isInShowToolsMode());
+   this._rebuildView();
+ };
+ 
+@@ -354,6 +359,7 @@
+   } else {
+     this._reportError(&quot;Login failed. Wrong password.&quot;);
+   }
++  this.getRootView().setEditMode(loginSuccess);
+ };
+ 
+ 
+
+Modified: trunk/source/NavbarView.js
+===================================================================
+--- trunk/source/NavbarView.js	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/NavbarView.js	2005-07-02 20:59:35 UTC (rev 209)
+@@ -117,7 +117,7 @@
+     anchorElement.onclick = RootView.clickOnLocalLink.bindAsEventListener();
+   }
+   
+-  var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
++  var newPageButton = View.createAndAppendElement(divElement, &quot;input&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   newPageButton.type = &quot;button&quot;;
+   newPageButton.value = &quot;New Page&quot;;
+   newPageButton.onclick = this._clickOnNewPageButton.bindAsEventListener(this);
+
+Modified: trunk/source/PageView.js
+===================================================================
+--- trunk/source/PageView.js	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/PageView.js	2005-07-02 20:59:35 UTC (rev 209)
+@@ -134,7 +134,6 @@
+       var sectionView = this._listOfSectionViews[key];      
+       sectionView.refresh();
+     }
+-    this._refreshEditModeControls();
+   }
+ };
+ 
+@@ -173,8 +172,8 @@
+       this._buildNewSection(section);
+     }
+   }
+-  this._wasInEditMode = this.isInEditMode();
+-  if (this._wasInEditMode) {this._buildEditControls();}
++
++  this._buildEditControls();
+   this._myHasEverBeenDisplayedFlag = true;
+   this.refresh();
+ };
+@@ -183,16 +182,16 @@
+ /**
+  * Creates a new section in this page.
+  *
+- * @param  inSection newSection item
+- * @param  inBeforeElt (optional) if specified, section view to be inserted before this elt
+  * @scope    private instance method
++ * @param    sectionItem    newSection item
++ * @param    insertBeforeElement    Optional. The HTML element that this new section view should come before on the page.
+  */
+-PageView.prototype._buildNewSection = function(inSection, inBeforeElt) {
++PageView.prototype._buildNewSection = function(sectionItem, insertBeforeElement) {
+   var pageDivElement = this.getHTMLElement();
+   var sectionViewDiv = document.createElement(&quot;div&quot;);
+-  var sectionView = new SectionView(this, sectionViewDiv, inSection, this._listOfSectionViews.length);
+-  if (inBeforeElt) {
+-    pageDivElement.insertBefore(sectionViewDiv, inBeforeElt);
++  var sectionView = new SectionView(this, sectionViewDiv, sectionItem, this._listOfSectionViews.length);
++  if (insertBeforeElement) {
++    pageDivElement.insertBefore(sectionViewDiv, insertBeforeElement);
+   }
+   else {
+     pageDivElement.appendChild(sectionViewDiv);
+@@ -221,39 +220,16 @@
+ PageView.prototype._buildEditControls = function() {
+   if (!this._editModeDiv) {
+     var pageDivElement = this.getHTMLElement();
+-    this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, SectionView.CSS_CLASS_SECTION);
+-    View.createAndAppendElement(this._editModeDiv,&quot;br&quot;);
+-    var editButton = View.createAndAppendElement(this._editModeDiv, &quot;input&quot;, 
+-      RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
++    var cssClass = SectionView.CSS_CLASS_SECTION + &quot; &quot; + RootView.CSS_CLASS_EDIT_TOOL;
++    this._editModeDiv = View.createAndAppendElement(pageDivElement, &quot;div&quot;, cssClass);
++    View.createAndAppendElement(this._editModeDiv, &quot;br&quot;);
++    var editButton = View.createAndAppendElement(this._editModeDiv, &quot;input&quot;);
+     editButton.type = &quot;Button&quot;;
+     editButton.value = &quot;New Section&quot;;
+     editButton.onclick = this._addNewSection.bindAsEventListener(this);
+   }
+-  else {
+-    this._editModeDiv.display = &quot;Block&quot;;
+-  }
+ };
+ 
+-
+-/**
+- * Called when edit controls need to be refreshed
+- *
+- * @scope    private instance method
+- */
+-PageView.prototype._refreshEditModeControls = function() {
+-  if (this._wasInEditMode != this.isInEditMode()) {
+-    this._wasInEditMode = this.isInEditMode();
+-    if (this.isInEditMode()) {
+-      this._buildEditControls();
+-    }
+-    else {
+-      this.getHTMLElement().removeChild(this._editModeDiv);
+-      // PENDING: why does hiding _editModeDiv still leave a blue line, gotta ask Brian about CSS
+-      this._editModeDiv = null;
+-    }
+-  }
+-};
+-
+ // -------------------------------------------------------------------
+ // End of file
+ // -------------------------------------------------------------------
+
+Modified: trunk/source/RootView.js
+===================================================================
+--- trunk/source/RootView.js	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/RootView.js	2005-07-02 20:59:35 UTC (rev 209)
+@@ -46,7 +46,7 @@
+ RootView.CSS_CLASS_PAGE_EDIT_BUTTON = &quot;page_edit_button&quot;;
+ RootView.CSS_CLASS_EDIT_MODE = &quot;editmode&quot;;
+ RootView.CSS_CLASS_VIEW_MODE = &quot;viewmode&quot;;
+-RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL = &quot;edit_mode_only_control&quot;;
++RootView.CSS_CLASS_EDIT_TOOL = &quot;edit_tool&quot;;
+ RootView.CSS_CLASS_CONTROL_SPAN = &quot;control_span&quot;;
+ 
+ RootView.ELEMENT_ID_DEBUG_TEXTAREA = &quot;debug_textarea&quot;;
+@@ -89,6 +89,7 @@
+   // instance properties
+   this._world = world;
+   this._editMode = false;
++  this._showToolsMode = false;
+   this._numberOfCallsToDebug = 0;
+   this._debugTextarea = null;
+   
+@@ -233,6 +234,31 @@
+ 
+ 
+ /**
++ * Returns true if we are in Show Tools Mode.
++ *
++ * @scope    public instance method
++ * @return   A boolean value. True if we are in Show Tools Mode.
++ */
++RootView.prototype.isInShowToolsMode = function() {
++  return this._showToolsMode;
++};
++
++    
++/**
++ * Switches the UI between showing edit tools and hiding edit tools.
++ *
++ * @scope    public instance method
++ * @param    showToolsFlag    A boolean. True to show edit tools, false to hide edit tools.
++ */
++RootView.prototype.setShowToolsMode = function(showToolsFlag) {
++  if (showToolsFlag != this._showToolsMode) {
++    this._showToolsMode = !this._showToolsMode;
++    this._rootDiv.className = (this.isInShowToolsMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
++  }
++};
++
++
++/**
+  * Given an item, returns a relative URL that can be used to redirect the 
+  * browser to a page that displays that time.
+  *
+@@ -330,7 +356,7 @@
+   Util.assert(this._currentContentView instanceof Object);
+ 
+   document.title = this._currentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
+-  this._rootDiv.className = (this.isInEditMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
++  this._rootDiv.className = (this.isInShowToolsMode()) ? RootView.CSS_CLASS_EDIT_MODE : RootView.CSS_CLASS_VIEW_MODE;
+   this._displayLoginSpan();
+   this._displayNavbar();
+   this._displayDebugArea();
+
+Modified: trunk/source/SectionView.js
+===================================================================
+--- trunk/source/SectionView.js	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/SectionView.js	2005-07-02 20:59:35 UTC (rev 209)
+@@ -239,7 +239,7 @@
+   View.createAndAppendElement(outerDiv, &quot;p&quot;);
+ 
+   // create the editing controls, if we're in edit mode
+-  var controlArea = View.createAndAppendElement(outerDiv, &quot;p&quot;, RootView.CSS_CLASS_EDIT_MODE_ONLY_CONTROL);
++  var controlArea = View.createAndAppendElement(outerDiv, &quot;p&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   var textShowMeA = document.createTextNode(&quot;Show me a &quot;);
+   controlArea.appendChild(textShowMeA);
+ 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/TablePlugin.js	2005-07-02 20:59:35 UTC (rev 209)
+@@ -197,22 +197,25 @@
+  * @scope    private instance method
+  */
+ TablePlugin.prototype._buildAttributeEditor = function() {
+-  var htmlElt = this.getHTMLElement();
+-  View.createAndAppendElement(htmlElt,&quot;br&quot;);
+-  var selectElt = View.createAndAppendElement(htmlElt,&quot;select&quot;);
++  var htmlElement = this.getHTMLElement();
++  View.createAndAppendElement(htmlElement, &quot;br&quot;);
++  var selectElt = View.createAndAppendElement(htmlElement, &quot;select&quot;, RootView.CSS_CLASS_EDIT_TOOL);
+   var listOfAttributes = this.getWorld().getAttributes();
+-  var optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
++  var optionElt = View.createAndAppendElement(selectElt, &quot;option&quot;);
+   optionElt.text = &quot;Add new attribute:&quot;;
+-  for (var i = 0; i &lt; listOfAttributes.length; ++i) {
+-    optionElt = View.createAndAppendElement(selectElt,&quot;option&quot;);
+-    if (Util.isObjectInSet(listOfAttributes[i],this._displayAttributes)) {optionElt.text = '*';}
+-    optionElt.text += listOfAttributes[i].getDisplayString();
+-    optionElt.value = listOfAttributes[i].getUniqueKeyString();
++  for (var key in listOfAttributes) {
++    var attribute = listOfAttributes[key];
++    optionElt = View.createAndAppendElement(selectElt, &quot;option&quot;);
++    if (Util.isObjectInSet(attribute, this._displayAttributes)) {
++      optionElt.text = '* ';
++    }
++    optionElt.text += attribute.getDisplayString();
++    optionElt.value = attribute.getUniqueKeyString();
+     optionElt.onclick = this._attributeEditorChanged.bindAsEventListener(this);
+   }
+   this._selectElement = selectElt;
+-  /*View.createAndAppendTextNode(htmlElt, &quot; Import Data:&quot;);
+-  var importButton = View.createAndAppendElement(htmlElt,&quot;input&quot;);
++  /*View.createAndAppendTextNode(htmlElement, &quot; Import Data:&quot;);
++  var importButton = View.createAndAppendElement(htmlElement,&quot;input&quot;);
+   importButton.type = &quot;file&quot;;
+   importButton.onchange = this._importData.bindAsEventListener(this, importButton);*/
+ };
+@@ -365,7 +368,8 @@
+   
+   this.getHTMLElement().appendChild(this._table);
+   
+-  if (this.isInEditMode()) {this._buildAttributeEditor();}
++  // if (this.isInEditMode()) {this._buildAttributeEditor();}
++  this._buildAttributeEditor();
+ };
+ 
+ 
+@@ -434,6 +438,7 @@
+   this._buildTable();
+ };
+ 
++
+ /**
+  * Called when the user clicks on table header. Resorts table accordingly.
+  * 
+@@ -454,6 +459,10 @@
+   return false;
+ };
+  
++
++/**
++ * 
++ */
+ TablePlugin.prototype._importData = function (inEventObject, fileButton) {
+   // Returns null if it can't do it, false if there's an error, or a string of the content if successful
+ /*  function mozillaLoadFile(filePath)
+@@ -492,6 +501,7 @@
+   window.open('<A HREF="file://">file://</A>'+fileButton.value,'preview');   
+ };
+ 
++
+ /**
+  * Called when the user clicks on attribute editor item, either to add or remove attribute column
+  * 
+@@ -532,7 +542,11 @@
+     this._buildTable(true);
+   }
+ };
++ 
+ 
++/**
++ * 
++ */
+ TablePlugin.prototype._handleClick = function (inEventObject, anEntryView) {
+   var rowElement = anEntryView.getSuperview().getHTMLElement().parentNode; // entryView -&gt; multiEntriesView -&gt; cellElment -&gt; rowElement
+   return this.selectRow(rowElement);
+
+Modified: trunk/source/base_style.css
+===================================================================
+--- trunk/source/base_style.css	2005-07-02 19:54:15 UTC (rev 208)
++++ trunk/source/base_style.css	2005-07-02 20:59:35 UTC (rev 209)
+@@ -232,15 +232,15 @@
+   float: right;
+ }
+ 
+-div.editmode p.edit_mode_only_control {
++div.editmode p.edit_tool {
+   background-color: rgb(100%, 100%, 40%);
+ }
+ 
+-div.editmode .edit_mode_only_control {
++div.editmode .edit_tool {
+   display: block;
+ }
+ 
+-div.viewmode .edit_mode_only_control {
++div.viewmode .edit_tool {
+   display: none;
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000194.html">[openrecord-svn] r208 - in trunk: . documentation source source/view
+</A></li>
+	<LI>Next message: <A HREF="000196.html">[openrecord-svn] r210 - in trunk/source: . view
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#195">[ date ]</a>
+              <a href="thread.html#195">[ thread ]</a>
+              <a href="subject.html#195">[ subject ]</a>
+              <a href="author.html#195">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

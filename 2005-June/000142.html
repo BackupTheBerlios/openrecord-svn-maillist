@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r156 - trunk/source/model
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-June/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r156%20-%20trunk/source/model&In-Reply-To=%3C200506170433.j5H4XxOm008006%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000141.html">
+   <LINK REL="Next"  HREF="000143.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r156 - trunk/source/model</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r156%20-%20trunk/source/model&In-Reply-To=%3C200506170433.j5H4XxOm008006%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r156 - trunk/source/model">skinner at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jun 17 06:33:59 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000141.html">[openrecord-svn] r155 - trunk/source/model
+</A></li>
+        <LI>Next message: <A HREF="000143.html">[openrecord-svn] r157 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#142">[ date ]</a>
+              <a href="thread.html#142">[ thread ]</a>
+              <a href="subject.html#142">[ subject ]</a>
+              <a href="author.html#142">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-06-17 06:33:51 +0200 (Fri, 17 Jun 2005)
+New Revision: 156
+
+Modified:
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/Record.js
+   trunk/source/model/World.js
+Log:
+Did a little cleaning up.
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-06-17 04:13:05 UTC (rev 155)
++++ trunk/source/model/ContentRecord.js	2005-06-17 04:33:51 UTC (rev 156)
+@@ -71,17 +71,6 @@
+ 
+ 
+ /**
+- * Initializes a new contentRecord that has just been created by a user action.
+- *
+- * WARNING: This method should be called ONLY from subclasses.
+- *
+- * @scope    protected instance method
+- */
+-ContentRecord.prototype._initializeContentRecord = function() {
+-};
+-
+-
+-/**
+  * Records a user's vote to retain or delete this ContentRecord.
+  *
+  * @scope    protected instance method
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-06-17 04:13:05 UTC (rev 155)
++++ trunk/source/model/DeltaVirtualServer.js	2005-06-17 04:33:51 UTC (rev 156)
+@@ -531,7 +531,6 @@
+     // var userDisplayName = record.getUserstamp().getDisplayName();
+     // var userDisplayNameSubstring = this.truncateString(userDisplayName);
+     // listOfStrings.push('  // by (' + userDisplayNameSubstring + ')\n');
+-    // listOfStrings.push(indent + '    &quot;' + DeltaVirtualServer.JSON_MEMBER_TIMESTAMP + '&quot;: &quot;' + record.getTimestamp().valueOf() + '&quot; }\n');
+     listOfStrings.push(indent + '}');
+   }
+   
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-06-17 04:13:05 UTC (rev 155)
++++ trunk/source/model/Entry.js	2005-06-17 04:33:51 UTC (rev 156)
+@@ -83,8 +83,6 @@
+ * @param    inType    Optional.  The data type to interpret the value as. 
+  */
+ Entry.prototype._initialize = function (inItemOrEntry, inAttribute, inValue, inType) {
+-  this._initializeContentRecord();
+-
+   if (inItemOrEntry instanceof Entry) {
+     this.__myPreviousEntry = inItemOrEntry;
+     this.__myItem = this.__myPreviousEntry.getItem();
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-06-17 04:13:05 UTC (rev 155)
++++ trunk/source/model/Item.js	2005-06-17 04:33:51 UTC (rev 156)
+@@ -77,8 +77,6 @@
+  * @param    inProvisionalFlag    True if the item is provisional; false if the item is normal. 
+  */
+ Item.prototype._initialize = function (inObserver, inProvisionalFlag) {
+-  this._initializeContentRecord();
+-
+   if (inProvisionalFlag) {
+     this.__myProvisionalFlag = true;
+   }
+@@ -236,7 +234,7 @@
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+       Util.assert(false);
+-      filteredListOfEntries = listOfEntries; //PENDING No such variable as listOfEntries ?!!
++      filteredListOfEntries = listOfEntriesForAttribute;
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-06-17 04:13:05 UTC (rev 155)
++++ trunk/source/model/Record.js	2005-06-17 04:33:51 UTC (rev 156)
+@@ -123,7 +123,6 @@
+  */
+ Record.prototype.getTimestamp = function() {
+   if (this._creationTimestamp) {
+-    // This case is now here only for the (temporary) benefit of _rehydrateContentRecord.
+     return this._creationTimestamp;
+   }
+   var hexTimeLow = this._uuid.split('-')[0];
+@@ -149,6 +148,11 @@
+   var millisecondsBetween1582and1970 = secondsBetween1582and1970 * 1000;
+ 
+   var millisecondsSince1970 = millisecondsSince1582 - millisecondsBetween1582and1970;
++
++  // PENDING: 
++  // Do we want this to return a Date object rather than a floating point
++  // value?
++  this._creationTimestamp = millisecondsSince1970;
+   return millisecondsSince1970;
+ };
+ 
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-06-17 04:13:05 UTC (rev 155)
++++ trunk/source/model/World.js	2005-06-17 04:33:51 UTC (rev 156)
+@@ -653,39 +653,6 @@
+ };
+ 
+ 
+-/** OBSOLETE - no more support for queries for specific items 
+- * Returns a newly created item representing a query.
+- *
+- * @scope    public instance method
+- * @param    itemOrListOfItems    Optional. An item, or an array of items. 
+- * @return   A newly created item representing a query.
+-World.prototype.newQueryForSpecificItems = function(itemOrListOfItems) {
+-  this.beginTransaction();
+-  var item = this._virtualServer.newItem(&quot;A query&quot;);
+-  var attributeCalledCategory = this.getAttributeCalledCategory();
+-  var categoryCalledQuery = this.getCategoryCalledQuery();
+-  item.addEntryForAttribute(attributeCalledCategory, categoryCalledQuery);
+-
+-  var attributeCalledQueryMatchingItem = this.getAttributeCalledQueryMatchingItem();
+-  if (itemOrListOfItems) {
+-    if (itemOrListOfItems instanceof Item) {
+-      item.addEntryForAttribute(attributeCalledQueryMatchingItem, itemOrListOfItems);
+-    }
+-    if (Util.isArray(itemOrListOfItems)) {
+-      var listOfItems = itemOrListOfItems;
+-      for (var key in listOfItems) {
+-        var matchingItem = listOfItems[key];
+-        item.addEntryForAttribute(attributeCalledQueryMatchingItem, matchingItem);
+-      }
+-    }
+-  }
+-
+-  this.endTransaction();
+-  return item;
+-};
+-*/
+-
+-
+ /**
+  * Returns a newly created entry.
+  *
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000141.html">[openrecord-svn] r155 - trunk/source/model
+</A></li>
+	<LI>Next message: <A HREF="000143.html">[openrecord-svn] r157 - in trunk: documentation source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#142">[ date ]</a>
+              <a href="thread.html#142">[ thread ]</a>
+              <a href="subject.html#142">[ subject ]</a>
+              <a href="author.html#142">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,3807 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [openrecord-svn] r333 - in trunk: source source/model source/util source/view tests tests/model tests/util tests/view third_party/gtd_tiddlywiki
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/openrecord-svn/2005-September/index.html" >
+   <LINK REL="made" HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r333%20-%20in%20trunk%3A%20source%20source/model%20source/util%20source/view%20tests%20tests/model%20tests/util%20tests/view%20third_party/gtd_tiddlywiki&In-Reply-To=%3C200509202036.j8KKaCTZ006518%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000316.html">
+   <LINK REL="Next"  HREF="000318.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[openrecord-svn] r333 - in trunk: source source/model source/util source/view tests tests/model tests/util tests/view third_party/gtd_tiddlywiki</H1>
+    <B>Brian Douglas Skinner at BerliOS</B> 
+    <A HREF="mailto:openrecord-svn%40lists.berlios.de?Subject=Re%3A%20%5Bopenrecord-svn%5D%20r333%20-%20in%20trunk%3A%20source%20source/model%20source/util%20source/view%20tests%20tests/model%20tests/util%20tests/view%20third_party/gtd_tiddlywiki&In-Reply-To=%3C200509202036.j8KKaCTZ006518%40sheep.berlios.de%3E"
+       TITLE="[openrecord-svn] r333 - in trunk: source source/model source/util source/view tests tests/model tests/util tests/view third_party/gtd_tiddlywiki">skinner at berlios.de
+       </A><BR>
+    <I>Tue Sep 20 22:36:12 CEST 2005</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000316.html">[openrecord-svn] r332 - in trunk: source/util tests/util
+</A></li>
+        <LI>Next message: <A HREF="000318.html">[openrecord-svn] r335 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#317">[ date ]</a>
+              <a href="thread.html#317">[ thread ]</a>
+              <a href="subject.html#317">[ subject ]</a>
+              <a href="author.html#317">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: skinner
+Date: 2005-09-20 22:36:08 +0200 (Tue, 20 Sep 2005)
+New Revision: 333
+
+Added:
+   trunk/tests/util/UtilTest.html
+   trunk/tests/util/UtilTest.js
+Removed:
+   trunk/source/util/TestSuite.html
+   trunk/source/util/UtilTest.html
+   trunk/source/util/UtilTest.js
+Modified:
+   trunk/source/BarChartPlugin.js
+   trunk/source/OutlinePlugin.js
+   trunk/source/TablePlugin.js
+   trunk/source/TestSuite.html
+   trunk/source/model/ContentRecord.js
+   trunk/source/model/DeltaVirtualServer.js
+   trunk/source/model/Entry.js
+   trunk/source/model/Item.js
+   trunk/source/model/ModelTest.js
+   trunk/source/model/QueryRunner.js
+   trunk/source/model/Record.js
+   trunk/source/model/RepositoryWritingTest.js
+   trunk/source/model/StubVirtualServer.js
+   trunk/source/model/TestReorderingForSpecialCases.js
+   trunk/source/model/TestReorderingForTypicalOrdinals.js
+   trunk/source/model/World.js
+   trunk/source/util/CsvParser.js
+   trunk/source/util/DateValue.js
+   trunk/source/util/LintTool.js
+   trunk/source/util/RandomUuid.js
+   trunk/source/util/TimeBasedUuid.js
+   trunk/source/util/Util.js
+   trunk/source/util/Uuid.js
+   trunk/source/util/XmlConverter.js
+   trunk/source/view/EntryView.js
+   trunk/source/view/ItemView.js
+   trunk/source/view/LoginView.js
+   trunk/source/view/MultiEntriesView.js
+   trunk/source/view/NavbarView.js
+   trunk/source/view/PageView.js
+   trunk/source/view/RootView.js
+   trunk/source/view/SectionView.js
+   trunk/source/view/SuggestionBox.js
+   trunk/source/view/View.js
+   trunk/tests/LintTest.html
+   trunk/tests/model/LintTest.html
+   trunk/tests/util/CsvParserTest.html
+   trunk/tests/util/DateValueTest.html
+   trunk/tests/util/DateValueTest.js
+   trunk/tests/util/LintTest.html
+   trunk/tests/util/TestSuite.html
+   trunk/tests/util/UuidTest.html
+   trunk/tests/util/XmlConverterMultiplePassesTest.html
+   trunk/tests/util/XmlConverterMultiplePassesTest.js
+   trunk/tests/util/XmlConverterTest.html
+   trunk/tests/util/XmlConverterTest.js
+   trunk/tests/view/LintTest.html
+   trunk/third_party/gtd_tiddlywiki/FileSaver.js
+Log:
+Converted Util.js to use the Dojo package system, and updated everything else accordingly.
+
+Modified: trunk/source/BarChartPlugin.js
+===================================================================
+--- trunk/source/BarChartPlugin.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/BarChartPlugin.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -123,7 +123,7 @@
+         firstEntry = listOfEntries[0];
+         if (firstEntry) {
+           var value = firstEntry.getValue(contentItem);
+-          if (Util.isNumber(value)) {
++          if (orp.util.isNumber(value)) {
+             var count = hashTableOfNumericValueIncidenceKeyedByUuid[attributeUuid];
+             if (!count) {
+               count = 0;
+@@ -156,7 +156,7 @@
+       if (listOfEntries &amp;&amp; listOfEntries[0]) {
+         var nextEntry = listOfEntries[0];
+         var nextValue = nextEntry.getValue();
+-        if (Util.isNumber(nextValue)) {
++        if (orp.util.isNumber(nextValue)) {
+           maxValue = Math.max(maxValue, nextValue);
+         }     
+       }
+@@ -186,7 +186,7 @@
+       if (listOfEntries &amp;&amp; listOfEntries[0]) {
+         firstEntry = listOfEntries[0];
+         var firstValue = firstEntry.getValue();
+-        if (Util.isNumber(firstValue)) {
++        if (orp.util.isNumber(firstValue)) {
+           numericValue = firstValue;
+         }
+       }
+
+Modified: trunk/source/OutlinePlugin.js
+===================================================================
+--- trunk/source/OutlinePlugin.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/OutlinePlugin.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -118,7 +118,7 @@
+ 
+     // View.appendNewTextNode(anchorElement, &quot;(more &#8658;)&quot;);
+     anchorElement.innerHTML = &quot;(more &#8658;)&quot;;
+-    Util.addEventListener(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink);
++    orp.util.addEventListener(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink);
+   }
+ };
+ 
+
+Modified: trunk/source/TablePlugin.js
+===================================================================
+--- trunk/source/TablePlugin.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/TablePlugin.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -121,7 +121,7 @@
+  * @return   This method returns 0 if the items are comparable. If _ascendingOrder is true, itemA is less than itemB, this method returns -1, otherwise it returns +1. 
+  */
+ TablePlugin.prototype.compareItemsBySortAttribute = function(itemA, itemB) {
+-  Util.assert(this._sortAttribute !== null);
++  orp.util.assert(this._sortAttribute !== null);
+   var strA = itemA.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+   var strB = itemB.getSingleStringValueFromAttribute(this._sortAttribute).toLowerCase();
+   var ascendingInt = this._ascendingOrder ? -1 : 1;
+@@ -147,7 +147,7 @@
+     // columns, and we just want to use that list.
+     for (var i in listOfTableColumnEntries) {
+       anAttribute = listOfTableColumnEntries[i].getValue();
+-      Util.assert(anAttribute instanceof Item);
++      orp.util.assert(anAttribute instanceof Item);
+       displayAttributes.push(anAttribute);
+     }
+   } else {
+@@ -170,7 +170,7 @@
+       }
+     }
+     
+-    if (Util.lengthOfHashTable(hashTableOfAttributesKeyedByUuid) &lt; 1) {
++    if (orp.util.lengthOfHashTable(hashTableOfAttributesKeyedByUuid) &lt; 1) {
+       // If we have not yet identified any display attributes to use as
+       // column headers, then we'll just use the &quot;Name&quot; attribute so that
+       // our table will have at least one column.
+@@ -201,7 +201,7 @@
+   for (var key in listOfAttributes) {
+     var attribute = listOfAttributes[key];
+     optionElt = View.appendNewElement(selectElt, &quot;option&quot;);
+-    if (Util.isObjectInSet(attribute, this._displayAttributes)) {
++    if (orp.util.isObjectInSet(attribute, this._displayAttributes)) {
+       optionElt.text = '* ';
+     }
+     optionElt.text += attribute.getDisplayString();
+@@ -331,8 +331,8 @@
+   var headerCellElement = droppableObject.element;
+   var headerCellUuid = headerCellElement.getAttribute('uuid');
+   var droppedOnAttribute = world.getItemFromUuid(headerCellUuid);
+-  var indexOfDraggedAttribute = Util.getArrayIndex(this._displayAttributes, draggedAttribute);
+-  var indexOfDroppedOnAttribute = Util.getArrayIndex(this._displayAttributes, droppedOnAttribute);
++  var indexOfDraggedAttribute = orp.util.getArrayIndex(this._displayAttributes, draggedAttribute);
++  var indexOfDroppedOnAttribute = orp.util.getArrayIndex(this._displayAttributes, droppedOnAttribute);
+ 
+   // If the user dragged a column header and dropped it on the same column 
+   // header, then we don't need to change the column order.
+@@ -353,7 +353,7 @@
+   if (listOfTableColumnEntries.length &gt; 0) {
+     // If we get here, it means this table has a saved list of user-selected
+     // columns, and we just want to re-order that list.
+-    Util.assert(this._displayAttributes.length == listOfTableColumnEntries.length);
++    orp.util.assert(this._displayAttributes.length == listOfTableColumnEntries.length);
+     var draggedEntry = listOfTableColumnEntries[indexOfDraggedAttribute];
+     var droppedOnEntry = listOfTableColumnEntries[indexOfDroppedOnAttribute];
+     if (indexOfDraggedAttribute &gt; indexOfDroppedOnAttribute) {
+@@ -496,7 +496,7 @@
+  */
+ TablePlugin.prototype.getSortIcon = function() {
+   var imageName = this._ascendingOrder ? TablePlugin.ASCENDING_GIF : TablePlugin.DESCENDING_GIF;
+-  var image =  Util.createImageElement(imageName);
++  var image =  orp.util.createImageElement(imageName);
+   //image.align = &quot;right&quot;;
+   return image;
+ };
+@@ -557,7 +557,7 @@
+  * @scope    public instance method
+  */
+ TablePlugin.prototype.selectRow = function(rowElement) {
+-  Util.assert(rowElement instanceof HTMLTableRowElement);
++  orp.util.assert(rowElement instanceof HTMLTableRowElement);
+   if (rowElement != this._lastSelectedRow) {
+     if (this._lastSelectedRow) {
+       this._lastSelectedRow.className = &quot;&quot;;
+@@ -580,7 +580,7 @@
+   var listOfAttributes = this._displayAttributes;
+   var startTime = new Date();
+   
+-  var fileContents = Util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + fileButton.value);
++  var fileContents = orp.util.getStringContentsOfFileAtURL('<A HREF="file://">file://</A>' + fileButton.value);
+   var csvParser = new orp.util.CsvParser();
+   var listOfRecords = csvParser.getStringValuesFromCsvData(fileContents);
+   if (!listOfRecords) {
+@@ -638,7 +638,7 @@
+       world.beginTransaction();
+     }
+     listOfFields = listOfRecords[i];
+-    Util.assert(listOfFields.length == listOfAttributes.length);
++    orp.util.assert(listOfFields.length == listOfAttributes.length);
+     var newItem = world.newItem();
+     world.setItemToBeIncludedInQueryResultList(newItem, this.getQuerySpec());
+     for (j in listOfAttributes) {
+@@ -692,7 +692,7 @@
+     var entriesTableColumns = this._layout.getEntriesForAttribute(attributeTableColumns);
+     var noStoredColumns = (entriesTableColumns.length === 0);
+     var changedAttribute = this.getWorld().getItemFromUuid(attributeUuid);
+-    var removeAttribute = Util.removeObjectFromSet(changedAttribute,this._displayAttributes);
++    var removeAttribute = orp.util.removeObjectFromSet(changedAttribute,this._displayAttributes);
+     var typeCalledItem = repository.getTypeCalledItem();
+     if (removeAttribute) {
+       for (var i in entriesTableColumns) {
+@@ -751,22 +751,22 @@
+   
+   var move = null;
+   switch (asciiValueOfKey) {
+-    case Util.ASCII_VALUE_FOR_LEFT_ARROW:
++    case orp.util.ASCII.LEFT_ARROW:
+       move = MOVE_LEFT;
+       break;
+-    case Util.ASCII_VALUE_FOR_UP_ARROW:
++    case orp.util.ASCII.UP_ARROW:
+       move = MOVE_UP;
+       break;
+-    case Util.ASCII_VALUE_FOR_RIGHT_ARROW:
++    case orp.util.ASCII.RIGHT_ARROW:
+       move = MOVE_RIGHT;
+       break;
+-    case Util.ASCII_VALUE_FOR_DOWN_ARROW:
++    case orp.util.ASCII.DOWN_ARROW:
+       move = MOVE_DOWN;
+       break;
+-    case Util.ASCII_VALUE_FOR_RETURN:
++    case orp.util.ASCII.RETURN:
+       move = (shiftKeyPressed) ? MOVE_UP : MOVE_DOWN;
+       break;
+-    case Util.ASCII_VALUE_FOR_TAB:
++    case orp.util.ASCII.TAB:
+       move = (shiftKeyPressed) ? MOVE_LEFT : MOVE_RIGHT;
+       break;
+     default:
+@@ -775,8 +775,8 @@
+   }
+   
+   if (move) {
+-    Util.isNumber(this._numberOfColumns);
+-    Util.isArray(this._listOfItems);
++    orp.util.isNumber(this._numberOfColumns);
++    orp.util.isArray(this._listOfItems);
+     
+     // line below needs to be called here i.e. early because stopping an edit may change a provisional item
+     // to become a &quot;real&quot; one thereby  creating new row for the next provisional item, e.g. this._listOfItems changes
+
+Modified: trunk/source/TestSuite.html
+===================================================================
+--- trunk/source/TestSuite.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/TestSuite.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -30,7 +30,6 @@
+         testSuite.addTestPage(&quot;../../../tests/view/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/LintTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../source/model/TestSuite.html&quot;);
+-        testSuite.addTestPage(&quot;../../../source/util/TestSuite.html&quot;);
+         return testSuite;
+       }
+     &lt;/script&gt;
+
+Modified: trunk/source/model/ContentRecord.js
+===================================================================
+--- trunk/source/model/ContentRecord.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/ContentRecord.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -162,19 +162,19 @@
+       break;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_DEMOCRATIC:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+   }
+   return ordinalNumber;
+@@ -225,18 +225,18 @@
+       break;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_DEMOCRATIC:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+       hasBeenDeleted = false;
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+   }
+   return hasBeenDeleted;
+@@ -270,7 +270,7 @@
+   
+   if (firstOrdinalNumber &amp;&amp; thirdOrdinalNumber) {
+     if (firstOrdinalNumber == thirdOrdinalNumber) {
+-      Util.assert(false, &quot;Tried to reorder between two items with the same ordinal.&quot;);
++      orp.util.assert(false, &quot;Tried to reorder between two items with the same ordinal.&quot;);
+     }
+     else {
+       if (firstOrdinalNumber &gt; thirdOrdinalNumber) {
+
+Modified: trunk/source/model/DeltaVirtualServer.js
+===================================================================
+--- trunk/source/model/DeltaVirtualServer.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/DeltaVirtualServer.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -82,7 +82,7 @@
+     repositoryUrl = this._completePathToTrunkDirectory + '/';
+   }
+   repositoryUrl += DeltaVirtualServer.PATH_TO_REPOSITORY_DIRECTORY + &quot;/&quot; + repositoryFileName;
+-  var repositoryContentString = Util.getStringContentsOfFileAtURL(repositoryUrl);
++  var repositoryContentString = orp.util.getStringContentsOfFileAtURL(repositoryUrl);
+   repositoryContentString += &quot; ] }&quot;;
+ 
+   this._loadWorldFromJsonString(repositoryContentString);
+@@ -105,14 +105,14 @@
+ DeltaVirtualServer.prototype._loadWorldFromJsonString = function(jsonRepositoryString) {
+ 
+   // load the list of records
+-  Util.assert(Util.isString(jsonRepositoryString));
++  orp.util.assert(orp.util.isString(jsonRepositoryString));
+   var dehydratedRecords = null;
+   eval(&quot;dehydratedRecords = &quot; + jsonRepositoryString + &quot;;&quot;);
+-  Util.assert(Util.isObject(dehydratedRecords));
++  orp.util.assert(orp.util.isObject(dehydratedRecords));
+   var recordFormat = dehydratedRecords[StubVirtualServer.JSON_MEMBER_FORMAT];
+-  Util.assert(recordFormat == StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS);
++  orp.util.assert(recordFormat == StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS);
+   var listOfRecords = dehydratedRecords[StubVirtualServer.JSON_MEMBER_RECORDS];
+-  Util.assert(Util.isArray(listOfRecords));
++  orp.util.assert(orp.util.isArray(listOfRecords));
+   
+   var listOfUsers = null;
+   
+@@ -249,7 +249,7 @@
+       if (!listOfUsers) {
+         listOfUsers = this.getUsers();
+       }
+-      if (Util.isObjectInSet(item, listOfUsers)) {
++      if (orp.util.isObjectInSet(item, listOfUsers)) {
+         var user = item;
+         var password = this._hashTableOfUserAuthenticationInfo[user.getUuid()];
+         var passwordString = &quot;null&quot;;
+@@ -363,7 +363,7 @@
+             if (generateComments) {valueComment = this._getTypedDisplayStringForItem(contentData);}
+             break;
+           default:
+-            Util.assert(false, &quot;no such type: &quot; + entryType.getDisplayString());
++            orp.util.assert(false, &quot;no such type: &quot; + entryType.getDisplayString());
+         }
+         listOfStringsForEntry.push(indent + '        &quot;' + StubVirtualServer.JSON_MEMBER_VALUE + '&quot;: ' + valueString);
+         if (generateComments) {
+
+Modified: trunk/source/model/Entry.js
+===================================================================
+--- trunk/source/model/Entry.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/Entry.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -99,19 +99,19 @@
+   if (type) {
+     this._type = type;
+   } else {
+-    if (Util.isNumber(value)) {
++    if (orp.util.isNumber(value)) {
+       this._type = this.getWorld().getTypeCalledNumber();
+     }
+-    else if (Util.isString(value)) {
++    else if (orp.util.isString(value)) {
+       this._type = this.getWorld().getTypeCalledText();
+     }
+-    else if (Util.isDate(value)) {
++    else if (orp.util.isDate(value)) {
+       this._type = this.getWorld().getTypeCalledDate();
+     }
+     else if (value instanceof Item) {
+       this._type = this.getWorld().getTypeCalledItem();
+     }
+-    else {Util.assert(false, &quot;unknown data type:&quot; + (typeof value) + ' value: ' + value);}
++    else {orp.util.assert(false, &quot;unknown data type:&quot; + (typeof value) + ' value: ' + value);}
+   }
+   this._value = value;
+ };
+@@ -181,10 +181,10 @@
+   if (this._item instanceof Item) {
+     this._item._addRehydratedEntry(this, this._attribute);
+   } else {
+-    Util.assert(Util.isArray(this._item));
+-    Util.assert(this._item.length == 2);
+-    Util.assert(Util.isArray(this._attribute));
+-    Util.assert(this._attribute.length == 2);
++    orp.util.assert(orp.util.isArray(this._item));
++    orp.util.assert(this._item.length == 2);
++    orp.util.assert(orp.util.isArray(this._attribute));
++    orp.util.assert(this._attribute.length == 2);
+     
+     var firstItem = this._item[0];
+     var secondItem = this._item[1];
+@@ -255,7 +255,7 @@
+   if (this._item == item) {
+     return this._attribute;
+   }
+-  if (Util.isArray(this._item)) {
++  if (orp.util.isArray(this._item)) {
+     if (this._item[0] == item) {
+       return this._attribute[0];
+     }
+@@ -276,13 +276,13 @@
+  * @return   The item that is connected to the given item.
+  */
+ Entry.prototype.getConnectedItem = function(item) {
+-  Util.assert(item instanceof Item);
++  orp.util.assert(item instanceof Item);
+   if (this._item == item) {
+     if (this._type == this.getWorld().getTypeCalledItem()) {
+       return this._value;
+     }
+   }
+-  if (Util.isArray(this._item)) {
++  if (orp.util.isArray(this._item)) {
+     if (this._item[0] == item) {
+       return this._item[1];
+     }
+@@ -302,14 +302,14 @@
+  * @return   The value this entry was initialized to hold.
+  */
+ Entry.prototype.getValue = function(item) {
+-  if (Util.isArray(this._item)) {
++  if (orp.util.isArray(this._item)) {
+     if (this._item[0] == item) {
+       return this._item[1];
+     }
+     if (this._item[1] == item) {
+       return this._item[0];
+     }
+-    Util.assert(false, &quot;Entry.getValue() was called on a connection entry, but was not passed an item as a parameter.&quot;);
++    orp.util.assert(false, &quot;Entry.getValue() was called on a connection entry, but was not passed an item as a parameter.&quot;);
+   }
+   return this._value; 
+ };
+@@ -327,7 +327,7 @@
+     case this.getWorld().getTypeCalledNumber():
+       var originalString = this._value.toString();
+       var arrayOfTwoStrings = originalString.split('.');
+-      Util.assert(arrayOfTwoStrings.length &lt; 3);
++      orp.util.assert(arrayOfTwoStrings.length &lt; 3);
+       wholeNumberString = arrayOfTwoStrings[0];
+       fractionalNumberString = null;
+       if (arrayOfTwoStrings.length == 2) {
+@@ -359,7 +359,7 @@
+       break;
+     case this.getWorld().getTypeCalledDate():
+       var aDate = this._value;
+-      // returnString = Util.getStringMonthDayYear(aDate);
++      // returnString = orp.util.getStringMonthDayYear(aDate);
+       returnString = aDate.toShortLocaleDateString();
+       break;
+     case this.getWorld().getTypeCalledItem():
+@@ -371,7 +371,7 @@
+       if (callingItem) {
+         if (callingItem == firstItem) {returnString = secondItem.getDisplayString();}
+         else if (callingItem == secondItem) {returnString = firstItem.getDisplayString();}
+-        else {Util.assert(false, &quot;callingItem isn't part of this Entry&quot;);}
++        else {orp.util.assert(false, &quot;callingItem isn't part of this Entry&quot;);}
+       }
+       else {
+         returnString = 'connection between &quot;' + firstItem.getDisplayString() + '&quot; and &quot;' + secondItem.getDisplayString() + '&quot;';
+@@ -415,17 +415,17 @@
+       return true;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_DEMOCRATIC:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+       return false;
+     default:
+       // We should never get here.  If we get here, it's an error.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+   }
+ };
+
+Modified: trunk/source/model/Item.js
+===================================================================
+--- trunk/source/model/Item.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/Item.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -156,14 +156,14 @@
+  * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.addEntry = function(namedParameters) {
+-  Util.assert(dojo.lang.isObject(namedParameters));
++  orp.util.assert(dojo.lang.isObject(namedParameters));
+   var arg = Item.NamedParameters;
+   var value = namedParameters[arg.value];
+   var attribute = namedParameters[arg.attribute];
+   var type = namedParameters[arg.type];
+   
+   // Check for typos in parameter names
+-  Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [arg.value, arg.attribute, arg.type]));
++  orp.util.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [arg.value, arg.attribute, arg.type]));
+   
+   if (!attribute) {
+     attribute = this.getWorld().getAttributeCalledUnfiled();
+@@ -192,7 +192,7 @@
+  * @throws   Throws an Error if no user is logged in.
+  */
+ Item.prototype.replaceEntry = function(namedParameters) {
+-  Util.assert(dojo.lang.isObject(namedParameters));
++  orp.util.assert(dojo.lang.isObject(namedParameters));
+   var arg = Item.NamedParameters;
+   var value = namedParameters[arg.value];
+   var attribute = namedParameters[arg.attribute];
+@@ -200,9 +200,9 @@
+   var previousEntry = namedParameters[arg.previousEntry];
+ 
+   // Check for typos in parameter names
+-  Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [arg.value, arg.attribute, arg.type, arg.previousEntry]));
++  orp.util.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [arg.value, arg.attribute, arg.type, arg.previousEntry]));
+   
+-  Util.assert(dojo.lang.isObject(previousEntry));
++  orp.util.assert(dojo.lang.isObject(previousEntry));
+   if (!attribute) {
+     attribute = previousEntry.getAttributeForItem(this);
+   }
+@@ -369,8 +369,8 @@
+  *
+  */
+ Item.prototype.replaceEntryWithConnection = function(previousEntry, myAttribute, otherItem, otherAttribute) {
+-  Util.assert(otherItem instanceof Item);
+-  Util.assert(myAttribute instanceof Item);
++  orp.util.assert(otherItem instanceof Item);
++  orp.util.assert(myAttribute instanceof Item);
+ 
+   // If we've just been asked to replace the string &quot;Foo&quot; with the string &quot;Foo&quot;,
+   // then don't even bother creating a new entry. 
+@@ -378,10 +378,10 @@
+     // var oldValue = previousEntry.getValue(this);
+     var oldPairOfAttributes = previousEntry.getAttribute();
+     var oldPairOfItems = previousEntry.getItem();
+-    if (Util.isArray(oldPairOfAttributes)) {
+-      Util.assert(Util.isArray(oldPairOfAttributes));
+-      Util.assert(oldPairOfAttributes.length == 2);
+-      Util.assert(oldPairOfItems.length == 2);
++    if (orp.util.isArray(oldPairOfAttributes)) {
++      orp.util.assert(orp.util.isArray(oldPairOfAttributes));
++      orp.util.assert(oldPairOfAttributes.length == 2);
++      orp.util.assert(oldPairOfItems.length == 2);
+       if (((oldPairOfAttributes[0] == myAttribute) &amp;&amp;  (oldPairOfAttributes[1] == otherAttribute) &amp;&amp;
+         oldPairOfItems[0] == this &amp;&amp; oldPairOfItems[1] == otherItem) ||
+         ((oldPairOfAttributes[1] == myAttribute) &amp;&amp;  (oldPairOfAttributes[0] == otherAttribute) &amp;&amp;
+@@ -413,7 +413,7 @@
+     if (oldItemOrPairOfItems instanceof Item) {
+       oldItemOrPairOfItems._noteChanges(null);
+     }
+-    if (Util.isArray(oldItemOrPairOfItems)) {
++    if (orp.util.isArray(oldItemOrPairOfItems)) {
+       oldItemOrPairOfItems[0]._noteChanges(null);
+       oldItemOrPairOfItems[1]._noteChanges(null);
+     }
+@@ -464,7 +464,7 @@
+  * @return   A list of entry objects.
+  */
+ Item.prototype.getEntriesForAttribute = function(attribute) {
+-  Util.assert(attribute instanceof Item);
++  orp.util.assert(attribute instanceof Item);
+   
+   if (this._cachedEntriesKeyedByAttributeUuid !== null) {
+     var listOfCachedEntries = this._cachedEntriesKeyedByAttributeUuid[attribute.getUuid()];
+@@ -494,18 +494,18 @@
+       break;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_DEMOCRATIC:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+       filteredListOfEntries = listOfEntriesForAttribute;
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+   }
+   filteredListOfEntries.sort(ContentRecord.compareOrdinals);
+@@ -640,7 +640,7 @@
+  *
+  */
+ Item.prototype.getDisplayStringForEntry = function(entry) {
+-  Util.assert(entry instanceof Entry);
++  orp.util.assert(entry instanceof Entry);
+   return entry.getDisplayString(this);
+ };
+ 
+@@ -732,7 +732,7 @@
+  * @return Boolean. True if this item has an attribute with the entry
+  */
+ Item.prototype.hasAttributeValue = function(attribute, value) {
+-  Util.assert(attribute instanceof Item);
++  orp.util.assert(attribute instanceof Item);
+   var entryList = this.getEntriesForAttribute(attribute);
+ 
+   // look at all the entries this item's attribute is assigned to, 
+@@ -755,7 +755,7 @@
+  * @return   A boolean.  True if the item has been assigned to the category.
+  */
+ Item.prototype.isInCategory = function(category) {
+-  Util.assert(category instanceof Item);
++  orp.util.assert(category instanceof Item);
+ 
+   var categoryAttribute = this.getWorld().getAttributeCalledCategory();
+   return this.hasAttributeValue(categoryAttribute, category);
+
+Modified: trunk/source/model/ModelTest.js
+===================================================================
+--- trunk/source/model/ModelTest.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/ModelTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -199,11 +199,11 @@
+   for (key in listOfAttributes) {
+     item = listOfAttributes[key];
+     listOfAssignedNames = item.getNameEntries();
+-    assertTrue('Every axiomatic attribute has an array of names', Util.isArray(listOfAssignedNames));
++    assertTrue('Every axiomatic attribute has an array of names', orp.util.isArray(listOfAssignedNames));
+     assertTrue('Every axiomatic attribute has one name assigned', listOfAssignedNames.length == 1);
+     nameEntry = listOfAssignedNames[0];
+     assertTrue('Every axiomatic attribute has a name which is an entry', (nameEntry instanceof Entry));
+-    assertTrue('Every entry can be displayed as a string', Util.isString(nameEntry.getDisplayString()));
++    assertTrue('Every entry can be displayed as a string', orp.util.isString(nameEntry.getDisplayString()));
+   }
+   
+   var listOfCategories = [];
+@@ -212,11 +212,11 @@
+   for (key in listOfCategories) {
+     item = listOfCategories[key];
+     listOfAssignedNames = item.getNameEntries();
+-    assertTrue('Every axiomatic category has an array of names', Util.isArray(listOfAssignedNames));
++    assertTrue('Every axiomatic category has an array of names', orp.util.isArray(listOfAssignedNames));
+     assertTrue('Every axiomatic category has one name assigned', listOfAssignedNames.length == 1);
+     nameEntry = listOfAssignedNames[0];
+     assertTrue('Every axiomatic category has a name which is entry', (nameEntry instanceof Entry));
+-    assertTrue('Every entry can be displayed as a string', Util.isString(nameEntry.getDisplayString()));
++    assertTrue('Every entry can be displayed as a string', orp.util.isString(nameEntry.getDisplayString()));
+   }
+ }
+ 
+@@ -251,12 +251,12 @@
+   assertTrue('&quot;R2D2&quot; has not been replaced', !r2d2.hasBeenReplaced());
+ 
+   listOfCharacters = starWars.getEntriesForAttribute(characterAttribute);
+-  hasAll = Util.areObjectsInSet([luck, c3po], listOfCharacters);
++  hasAll = orp.util.areObjectsInSet([luck, c3po], listOfCharacters);
+   assertTrue('&quot;Star Wars&quot; has characters: luck, c3po', hasAll);
+   assertTrue('Exactly 2 characters in Star Wars', listOfCharacters.length == 2);
+ 
+   listOfEntries = starWars.getEntries();
+-  hasAll = Util.areObjectsInSet([luck, c3po, r2d2], listOfEntries);
++  hasAll = orp.util.areObjectsInSet([luck, c3po, r2d2], listOfEntries);
+   assertTrue('&quot;Star Wars&quot; has entries: luck, c3po, r2d2', hasAll);  
+   
+   var ordinalA = starWars.getOrdinalNumberAtCreation();
+@@ -273,7 +273,7 @@
+   assertTrue('&quot;Star Wars&quot; was made by Jane', starWarsUserstamp == userJane);    
+ 
+   listOfAttributes = starWars.getAttributes();
+-  hasAll = Util.areObjectsInSet([nameAttribute, characterAttribute], listOfAttributes);
++  hasAll = orp.util.areObjectsInSet([nameAttribute, characterAttribute], listOfAttributes);
+   assertTrue('&quot;Star Wars&quot; has both expected attributes', hasAll);
+   
+   worldRetrievalFilter = world.getRetrievalFilter();
+@@ -286,11 +286,11 @@
+   assertTrue('&quot;Luck&quot; is a entry in &quot;Star Wars&quot;', luck.getItem() == starWars);
+ 
+   listOfEntries = starWars.getEntries();
+-  hasAll = Util.areObjectsInSet([luke, c3po, r2d2], listOfEntries);
++  hasAll = orp.util.areObjectsInSet([luke, c3po, r2d2], listOfEntries);
+   assertTrue('&quot;Star Wars&quot; has entries: luke, c3po, r2d2', hasAll);  
+ 
+   listOfCharacters = starWars.getEntriesForAttribute(characterAttribute);
+-  hasAll = Util.areObjectsInSet([luke, c3po], listOfCharacters);
++  hasAll = orp.util.areObjectsInSet([luke, c3po], listOfCharacters);
+   assertTrue('&quot;Star Wars&quot; has characters: luke, c3po', hasAll);
+   assertTrue('Exactly 2 characters in the star wars', listOfCharacters.length == 2);
+ 
+@@ -309,8 +309,8 @@
+   assertTrue(&quot;Can't replace a value with an identical value&quot;, failure === null);
+ 
+   listOfCharacters = starWars.getEntriesForAttribute(characterAttribute);
+-  var hasR2d2 = Util.isObjectInSet(r2d2, listOfCharacters);
+-  hasAll = Util.areObjectsInSet([luke, c3po, r2d2], listOfCharacters);
++  var hasR2d2 = orp.util.isObjectInSet(r2d2, listOfCharacters);
++  hasAll = orp.util.areObjectsInSet([luke, c3po, r2d2], listOfCharacters);
+   assertTrue('Chris sees R2D2 as a character', hasR2d2);
+   assertTrue('Chris sees characters: luke, c3po, r2d2', hasAll);
+   assertTrue('Chris sees 3 characters in &quot;Star Wars&quot;', listOfCharacters.length == 3);
+@@ -323,8 +323,8 @@
+   assertTrue('getDisplayName() returns the first name', (starWars.getDisplayName() == &quot;Star Wars&quot;));
+   var listOfNames = theHobbit.getNameEntries();
+   assertTrue('getContentData() returns a string', listOfNames[0].getValue() == &quot;The Hobbit&quot;);
+-  hasAll = Util.areObjectsInSet(listOfNames, listOfEntries);
+-  hasAll = hasAll &amp;&amp; Util.areObjectsInSet(listOfEntries, listOfNames);
++  hasAll = orp.util.areObjectsInSet(listOfNames, listOfEntries);
++  hasAll = hasAll &amp;&amp; orp.util.areObjectsInSet(listOfEntries, listOfNames);
+   assertTrue('getName() matches getEntriesForAttribute(attributeCalledName)', hasAll);
+   
+   world.logout();
+@@ -363,7 +363,7 @@
+   assertTrue('&quot;The Hobbit&quot; is in the category &quot;Book&quot;', isInCategory);
+  
+   var allBooks = world.getItemsInCategory(categoryCalledBook);
+-  var hasAll = Util.areObjectsInSet([theHobbit, theWisdomOfCrowds, theTransparentSociety], allBooks);
++  var hasAll = orp.util.areObjectsInSet([theHobbit, theWisdomOfCrowds, theTransparentSociety], allBooks);
+   assertTrue('All three books are in the category &quot;Book&quot;', hasAll);
+   
+   world.logout();
+@@ -564,7 +564,7 @@
+   var queryRunnerForFoods = world.newQueryRunner(queryForFoods);
+   var listOfFoods = queryRunnerForFoods.getResultItems();
+   
+-  hasAll = Util.areObjectsInSet([apple, brownie, cupcake], listOfFoods);
++  hasAll = orp.util.areObjectsInSet([apple, brownie, cupcake], listOfFoods);
+   assertTrue('Food query returns 3 foods', listOfFoods.length == 3);
+   assertTrue('Food query returns all 3 foods', hasAll);
+ 
+@@ -572,7 +572,7 @@
+   assertTrue('Tokyo is now a food', tokyo.isInCategory(categoryCalledFood));
+ 
+   listOfFoods = queryRunnerForFoods.getResultItems();
+-  hasAll = Util.areObjectsInSet([apple, brownie, cupcake, tokyo], listOfFoods);
++  hasAll = orp.util.areObjectsInSet([apple, brownie, cupcake, tokyo], listOfFoods);
+   assertTrue('Food query returns 4 foods', listOfFoods.length == 4);
+   assertTrue('Food query returns all 4 foods', hasAll);
+ 
+@@ -586,24 +586,24 @@
+   var listOfCountries = queryRunnerForAsia.getResultItems();
+   
+   assertTrue('Asia query returns 2 countries', listOfCountries.length == 2);
+-  hasAll = Util.areObjectsInSet([tokyo,beijing], listOfCountries);
++  hasAll = orp.util.areObjectsInSet([tokyo,beijing], listOfCountries);
+   assertTrue('Asia query returns all 2 countries', hasAll);
+   
+   var northAmericaQuery = world.newQuery(attributeCalledContinent, &quot;North America&quot;);
+   var queryRunnerForNorthAmerica = world.newQueryRunner(northAmericaQuery);
+   listOfCountries = queryRunnerForNorthAmerica.getResultItems();
+   assertTrue('North America query returned only Seattle',
+-  listOfCountries.length == 1 &amp;&amp; Util.isObjectInSet(seattle, listOfCountries));
++  listOfCountries.length == 1 &amp;&amp; orp.util.isObjectInSet(seattle, listOfCountries));
+     
+   seattle.addEntry({attribute:attributeCalledContinent, value:&quot;Asia&quot;});
+   listOfCountries = queryRunnerForAsia.getResultItems();
+   assertTrue('Asia query returns 3 countries', listOfCountries.length == 3);
+-  hasAll = Util.areObjectsInSet([tokyo,beijing,seattle], listOfCountries);
++  hasAll = orp.util.areObjectsInSet([tokyo,beijing,seattle], listOfCountries);
+   assertTrue('Asia query returns all 3 countries', hasAll);
+   
+   world.setItemToBeIncludedInQueryResultList(beijing, northAmericaQuery);
+   listOfCountries = queryRunnerForNorthAmerica.getResultItems();
+-  assertTrue('Beijing is now in North America',Util.isObjectInSet(beijing, listOfCountries));
++  assertTrue('Beijing is now in North America',orp.util.isObjectInSet(beijing, listOfCountries));
+   assertTrue('North America query returns 2 countries', listOfCountries.length == 2);
+   world.setItemToBeIncludedInQueryResultList(seattle, northAmericaQuery);
+   listOfCountries = queryRunnerForNorthAmerica.getResultItems();
+
+Modified: trunk/source/model/QueryRunner.js
+===================================================================
+--- trunk/source/model/QueryRunner.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/QueryRunner.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -67,7 +67,7 @@
+  * @param    observer    Optional. An object or method to be registered as an observer of the query. 
+  */
+ function QueryRunner(world, querySpec, observer) {
+-  Util.assert(world instanceof World);
++  orp.util.assert(world instanceof World);
+   
+   this._world = world;
+   this._querySpec = querySpec;
+@@ -151,7 +151,7 @@
+   var matchingAttribute = this.getMatchingAttribute();
+   var listOfMatchingValues = this.getMatchingValues();
+   if (matchingAttribute == QueryRunner.EXPLICIT_LIST_OF_ITEMS) {
+-    return Util.isObjectInSet(item, listOfMatchingValues);
++    return orp.util.isObjectInSet(item, listOfMatchingValues);
+   } else {
+     for (var key in listOfMatchingValues) {
+       var matchingValue = listOfMatchingValues[key];
+@@ -187,7 +187,7 @@
+  * @param    listOfChangeRecords    A list of the records that impacted the querySpec. 
+  */
+ QueryRunner.prototype.observedItemHasChanged = function(querySpec, listOfChangeRecords) {
+-  Util.assert(querySpec == this._querySpec);
++  orp.util.assert(querySpec == this._querySpec);
+   this._readQuerySpec();
+   this._runQuery();
+ };
+@@ -236,7 +236,7 @@
+       this._matchingAttribute = this.getWorld().getAttributeCalledCategory();
+     }
+     else {
+-      Util.assert(listOfMatchingAttributeEntries.length == 1, 'There should only be one matching attribute on a Query Spec item.');
++      orp.util.assert(listOfMatchingAttributeEntries.length == 1, 'There should only be one matching attribute on a Query Spec item.');
+       this._matchingAttribute = listOfMatchingAttributeEntries[0].getValue();
+     }
+ 
+@@ -255,7 +255,7 @@
+   
+   // Handle the case where we have an ad-hoc query 
+   // that just has a list of items.
+-  if (Util.isArray(this._querySpec)) {
++  if (orp.util.isArray(this._querySpec)) {
+     var querySpecArray = this._querySpec;
+     this._matchingAttribute = QueryRunner.EXPLICIT_LIST_OF_ITEMS;
+     this._listOfMatchingValues = querySpecArray;
+@@ -265,7 +265,7 @@
+   
+   // Handle the case where we have an ad-hoc query that
+   // povides a matching attribute and matching values.
+-  if (Util.isObject(this._querySpec)) {
++  if (orp.util.isObject(this._querySpec)) {
+     var querySpecJson = this._querySpec;
+     this._matchingAttribute = querySpecJson[QueryRunner.JSON_MEMBER_ATTRIBUTE];
+     if (!this._matchingAttribute) {
+
+Modified: trunk/source/model/Record.js
+===================================================================
+--- trunk/source/model/Record.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/Record.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -68,13 +68,13 @@
+ Record.prototype._Record = function(world, uuid) {
+   dojo.require(&quot;orp.util.TimeBasedUuid&quot;);
+ 
+-  Util.assert(Util.isUuidValue(uuid));
+-  if (Util.isString(uuid)) {
++  orp.util.assert(orp.util.isUuidValue(uuid));
++  if (orp.util.isString(uuid)) {
+     var uuidString = uuid;
+-    Util.assert(uuidString.length == 36);
++    orp.util.assert(uuidString.length == 36);
+     uuid = new orp.util.TimeBasedUuid(uuidString);
+   }
+-  Util.assert(Util.isUuid(uuid));
++  orp.util.assert(orp.util.isUuid(uuid));
+   
+   this._world = world;
+   this._uuid = uuid;
+
+Modified: trunk/source/model/RepositoryWritingTest.js
+===================================================================
+--- trunk/source/model/RepositoryWritingTest.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/RepositoryWritingTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -46,7 +46,7 @@
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+ 
+   utilAssertReportedError = false;
+-  Util.setErrorReportCallback(errorReporter)
++  orp.util.setErrorReportCallback(errorReporter)
+ 
+   var isHttp = window.location.protocol == &quot;http:&quot;;
+   saver = isHttp? new HttpSaver(fileName, pathToTrunkDirectoryFromThisDirectory) 
+@@ -152,19 +152,19 @@
+ }
+ 
+ function fileHasExpectedContents(expectedContents) {
+-  var contents = Util.getStringContentsOfFileAtURL(fileUrl);
++  var contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
+   for (var i = 0; contents != expectedContents &amp;&amp; i &lt; 5; ++i) {
+     waitASecond();
+-    contents = Util.getStringContentsOfFileAtURL(fileUrl);
++    contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
+   }
+   return (contents == expectedContents);
+ }
+ 
+ function fileHasExpectedSubstring(expectedSubstring) {
+-  var contents = Util.getStringContentsOfFileAtURL(fileUrl);
++  var contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
+   for (var i = 0; contents.indexOf(expectedSubstring) == -1 &amp;&amp; i &lt; 5; ++i) {
+     waitASecond();
+-    contents = Util.getStringContentsOfFileAtURL(fileUrl);
++    contents = orp.util.getStringContentsOfFileAtURL(fileUrl);
+   }
+   return (contents.indexOf(expectedSubstring) != -1);
+ }
+
+Modified: trunk/source/model/StubVirtualServer.js
+===================================================================
+--- trunk/source/model/StubVirtualServer.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/StubVirtualServer.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -184,7 +184,7 @@
+  * @return   A copy of the rawText string, with the special characters escaped. 
+  */
+ StubVirtualServer.prototype.encodeText = function(rawText) {
+-  Util.assert(Util.isString(rawText));
++  orp.util.assert(orp.util.isString(rawText));
+ 
+   var returnString = rawText;
+   // Note: it's important that we do '&amp;' first, otherwise we'll accidentally
+@@ -218,7 +218,7 @@
+  * @return   A copy of the encodedText string, with the escaped characters replaced by the original special characters. 
+  */
+ StubVirtualServer.prototype.decodeText = function(encodedText) {
+-  Util.assert(Util.isString(encodedText));
++  orp.util.assert(orp.util.isString(encodedText));
+ 
+   var returnString = encodedText;
+   returnString = returnString.replace(new RegExp('&#13;','g'), &quot;\r&quot;);
+@@ -263,14 +263,14 @@
+  */
+ StubVirtualServer.prototype.endTransaction = function() {
+   this._countOfNestedTransactions -= 1;
+-  Util.assert(this._countOfNestedTransactions &gt;= 0);
++  orp.util.assert(this._countOfNestedTransactions &gt;= 0);
+ 
+   if (this._countOfNestedTransactions === 0) {
+     var listOfChangesMade = this._saveChangesToServer();
+     this._currentTransaction = null;
+     if (listOfChangesMade.length &gt; 0) {
+       // alert(listOfChangesMade.length + &quot; changes made&quot;);
+-      // Util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
++      // orp.util.displayStatusBlurb(listOfChangesMade.length + &quot; changes made&quot;);
+       this._world._notifyObserversOfChanges(listOfChangesMade);
+     }
+   }
+@@ -476,7 +476,7 @@
+   
+   var md5Authentication = null;
+   if (authentication) {
+-    md5Authentication = Util.hex_md5(authentication);
++    md5Authentication = orp.util.hex_md5(authentication);
+   }
+   this._hashTableOfUserAuthenticationInfo[newUser.getUuid()] = md5Authentication;
+ 
+@@ -533,10 +533,10 @@
+   // Only one user can be logged in at once.  We consider it an error
+   // if you try to log in a new user before logging out the old one.
+   if (this._currentUser) {
+-    Util.assert(false);
++    orp.util.assert(false);
+   }
+   
+-  var isKnownUser = Util.isObjectInSet(user, this._listOfUsers);
++  var isKnownUser = orp.util.isObjectInSet(user, this._listOfUsers);
+   if (!isKnownUser) {
+     return false;
+   }
+@@ -548,7 +548,7 @@
+   
+   var md5hashOfPassword = null;
+   if (password) {
+-    md5hashOfPassword = Util.hex_md5(password);
++    md5hashOfPassword = orp.util.hex_md5(password);
+   }
+   var realAuthentication = this._getAuthenticationInfoForUser(user);
+   var successfulAuthentication = ((realAuthentication == md5hashOfPassword) || !realAuthentication);
+@@ -596,7 +596,7 @@
+  * @return   The item identified by the given UUID.
+  */
+ StubVirtualServer.prototype.getItemFromUuid = function(uuid, observer) {
+-  Util.assert(Util.isUuidValue(uuid));
++  orp.util.assert(orp.util.isUuidValue(uuid));
+   
+   var item = this._hashTableOfItemsKeyedByUuid[uuid];
+   if (item &amp;&amp; observer) {
+@@ -656,7 +656,7 @@
+       for (var innerKey in listOfEntriesForItemsInCategory) {
+         var entry = listOfEntriesForItemsInCategory[innerKey];
+         var itemInCategory = entry.getValue(category);
+-        Util.addObjectToSet(itemInCategory, listOfQueryResultItems);
++        orp.util.addObjectToSet(itemInCategory, listOfQueryResultItems);
+       }
+     }
+   } else {
+@@ -684,8 +684,8 @@
+  * @param    query    A query item. 
+  */
+ StubVirtualServer.prototype.setItemToBeIncludedInQueryResultList = function(item, query) {
+-  Util.assert(item instanceof Item);
+-  Util.assert(query instanceof Item);
++  orp.util.assert(item instanceof Item);
++  orp.util.assert(query instanceof Item);
+   
+   var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+   var attributeCalledQueryMatchingAttribute = this.getWorld().getAttributeCalledQueryMatchingAttribute();
+@@ -701,7 +701,7 @@
+     matchingAttribute = attributeCalledCategory;
+   }
+   else {
+-    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    orp.util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
+     matchingAttribute = listOfMatchingAttrs[0].getValue();
+   }
+ 
+@@ -729,7 +729,7 @@
+  * @return   A list of items.
+  */
+ StubVirtualServer.prototype.getItemsInCategory = function(category) {
+-  Util.assert(category instanceof Item);
++  orp.util.assert(category instanceof Item);
+ 
+   var attributeCalledItemsInCategory = this.getWorld().getAttributeCalledItemsInCategory();
+   var listOfEntries = category.getEntriesForAttribute(attributeCalledItemsInCategory);
+@@ -853,18 +853,18 @@
+  * @scope    private instance method
+  */
+ StubVirtualServer.prototype._loadAxiomaticItemsFromFileAtURL = function(url) {
+-  var fileContentString = Util.getStringContentsOfFileAtURL(url);
+-  Util.assert(Util.isString(fileContentString));
++  var fileContentString = orp.util.getStringContentsOfFileAtURL(url);
++  orp.util.assert(orp.util.isString(fileContentString));
+   fileContentString += &quot; ] }&quot;;
+ 
+-  Util.assert(Util.isString(fileContentString));
++  orp.util.assert(orp.util.isString(fileContentString));
+   var dehydratedRecords = null;
+   eval(&quot;dehydratedRecords = &quot; + fileContentString + &quot;;&quot;);
+-  Util.assert(Util.isObject(dehydratedRecords));
++  orp.util.assert(orp.util.isObject(dehydratedRecords));
+   var recordFormat = dehydratedRecords[StubVirtualServer.JSON_MEMBER_FORMAT];
+-  Util.assert(recordFormat == StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS);
++  orp.util.assert(recordFormat == StubVirtualServer.JSON_FORMAT_2005_JUNE_RECORDS);
+   var listOfRecords = dehydratedRecords[StubVirtualServer.JSON_MEMBER_RECORDS];
+-  Util.assert(Util.isArray(listOfRecords));
++  orp.util.assert(orp.util.isArray(listOfRecords));
+   
+   this._rehydrateRecords(listOfRecords);
+ };
+@@ -967,7 +967,7 @@
+         if (retainFlagString == &quot;false&quot;) {
+           retainFlag = false;
+         }
+-        Util.assert(retainFlag !== null);
++        orp.util.assert(retainFlag !== null);
+         contentRecordUuid = dehydratedVote[StubVirtualServer.JSON_MEMBER_RECORD];
+         contentRecord = this._getContentRecordFromUuid(contentRecordUuid);
+         var vote = new Vote(this.getWorld(), voteUuid, contentRecord, retainFlag);
+@@ -993,7 +993,7 @@
+         }
+  
+         var dataTypeUuid = dehydratedEntry[StubVirtualServer.JSON_MEMBER_TYPE];
+-        Util.assert(Util.isUuidValue(dataTypeUuid));
++        orp.util.assert(orp.util.isUuidValue(dataTypeUuid));
+         var dataType = this.__getItemFromUuidOrBootstrapItem(dataTypeUuid);
+         
+         if (dataTypeUuid == World.UUID_FOR_TYPE_CONNECTION) {
+@@ -1020,7 +1020,7 @@
+           if (attributeUuid) {
+             attribute = this.__getItemFromUuidOrBootstrapItem(attributeUuid);
+           } else {
+-            Util.assert(false); // the attributeUuid should always be there
++            orp.util.assert(false); // the attributeUuid should always be there
+           }
+           var rawData = dehydratedEntry[StubVirtualServer.JSON_MEMBER_VALUE];
+           var finalData = null;
+@@ -1039,10 +1039,10 @@
+               // if (!finalData.isValid()) {
+               //   alert(rawData + &quot; &quot; + finalData);
+               // }
+-              Util.assert(finalData.isValid());
++              orp.util.assert(finalData.isValid());
+               break;
+             default:
+-              Util.assert(false, 'Unknown data type while _rehydrating()');
++              orp.util.assert(false, 'Unknown data type while _rehydrating()');
+           }
+           entry._rehydrate(item, attribute, finalData, previousEntry, dataType);
+         }
+
+Modified: trunk/source/model/TestReorderingForSpecialCases.js
+===================================================================
+--- trunk/source/model/TestReorderingForSpecialCases.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/TestReorderingForSpecialCases.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -53,7 +53,7 @@
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+ 
+   utilAssertReportedError = false;
+-  Util.setErrorReportCallback(errorReporter);
++  orp.util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../..&quot;;
+   var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
+ 
+
+Modified: trunk/source/model/TestReorderingForTypicalOrdinals.js
+===================================================================
+--- trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/TestReorderingForTypicalOrdinals.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -57,7 +57,7 @@
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+ 
+   utilAssertReportedError = false;
+-  Util.setErrorReportCallback(errorReporter);
++  orp.util.setErrorReportCallback(errorReporter);
+   var pathToTrunkDirectory = &quot;../..&quot;;
+   var virtualServer = new StubVirtualServer(pathToTrunkDirectory);
+   var realUuidGenerator = StubVirtualServer.prototype._generateUuid;
+
+Modified: trunk/source/model/World.js
+===================================================================
+--- trunk/source/model/World.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/model/World.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -235,7 +235,7 @@
+       if (itemOrPairOfItems instanceof Item) {
+         listOfItems.push(itemOrPairOfItems); 
+       }
+-      if (Util.isArray(itemOrPairOfItems)) {
++      if (orp.util.isArray(itemOrPairOfItems)) {
+         listOfItems.push(itemOrPairOfItems[0]);
+         listOfItems.push(itemOrPairOfItems[1]);
+       }
+@@ -267,14 +267,14 @@
+     var listOfObserversForItem = this._hashTableOfObserverListsKeyedByItemUuid[uuid];
+     for (key in listOfObserversForItem) {
+       observer = listOfObserversForItem[key];
+-      if (Util.isFunction(observer)) {
++      if (orp.util.isFunction(observer)) {
+         observer.call(null, item, listOfRecordsForItem);
+       } else {
+-        if (Util.isObject(observer)) {
++        if (orp.util.isObject(observer)) {
+           observer.observedItemHasChanged(item, listOfRecordsForItem);
+         } else {
+           // We should never get here.  If we do, consider it an error.
+-          Util.assert(false);
++          orp.util.assert(false);
+         }
+       }
+     }
+@@ -302,14 +302,14 @@
+     if (listOfItemChangeReports) {
+       for (key in setOfObservers) {
+         observer = setOfObservers[key];
+-        if (Util.isFunction(observer)) {
++        if (orp.util.isFunction(observer)) {
+           observer.call(null, listBeingObserved, listOfItemChangeReports);
+         } else {
+-          if (Util.isObject(observer)) {
++          if (orp.util.isObject(observer)) {
+             observer.observedListHasChanged(listBeingObserved, listOfItemChangeReports);
+           } else {
+             // We should never get here.  If we do, consider it an error.
+-            Util.assert(false);
++            orp.util.assert(false);
+           }
+         }
+       }
+@@ -324,7 +324,7 @@
+     var reportChange = false;
+     for (uuid in hashTableOfNewlyCreatedRecordsKeyedByItemUuid) {
+       item = this.getItemFromUuid(uuid);
+-      if (Util.isObjectInSet(item, oldListOfResultItems)) {
++      if (orp.util.isObjectInSet(item, oldListOfResultItems)) {
+         reportChange = true;
+         break;
+       } else {
+@@ -365,7 +365,7 @@
+  * @param    filter    A string constant representing one of the three supported retrieval filters.
+  */
+ World.prototype.setRetrievalFilter = function(filter) {
+-  Util.assert(filter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS ||
++  orp.util.assert(filter == World.RETRIEVAL_FILTER_LAST_EDIT_WINS ||
+               filter == World.RETRIEVAL_FILTER_SINGLE_USER ||
+               filter == World.RETRIEVAL_FILTER_DEMOCRATIC ||
+               filter == World.RETRIEVAL_FILTER_UNABRIDGED);
+@@ -396,18 +396,18 @@
+       break;
+     case World.RETRIEVAL_FILTER_SINGLE_USER:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_DEMOCRATIC:
+       // PENDING: This still needs to be implemented.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+     case World.RETRIEVAL_FILTER_UNABRIDGED:
+       filteredList = unfilteredList;
+       break;
+     default:
+       // We should never get here.  If we get here, it's an error.
+-      Util.assert(false);
++      orp.util.assert(false);
+       break;
+   }
+ 
+@@ -705,7 +705,7 @@
+  * @return   A newly created item representing a query.
+  */
+ World.prototype.newQuery = function(matchingAttribute, matchingEntryOrListOfEntries) {
+-  Util.assert(matchingAttribute instanceof Item);
++  orp.util.assert(matchingAttribute instanceof Item);
+   this.beginTransaction();
+   var item = this._virtualServer.newItem(&quot;A query&quot;);
+   var categoryCalledQuery = this.getCategoryCalledQuery();
+@@ -717,7 +717,7 @@
+   // item.addEntryForAttribute(attributeCalledQueryMatchingAttribute, matchingAttribute);
+   item.addEntry({attribute:attributeCalledQueryMatchingAttribute, value:matchingAttribute});
+   if (matchingEntryOrListOfEntries) {
+-    if (Util.isArray(matchingEntryOrListOfEntries)) {
++    if (orp.util.isArray(matchingEntryOrListOfEntries)) {
+       for (var key in matchingEntryOrListOfEntries) {
+         matchingEntry = matchingEntryOrListOfEntries[key];
+         // item.addEntryForAttribute(attributeCalledQueryMatchingValue, matchingEntry);
+@@ -771,9 +771,9 @@
+  * @param    queryRunner    A QueryRunner object. 
+  */
+ World.prototype._registerQueryRunner = function(queryRunner) {
+-  Util.assert(queryRunner instanceof QueryRunner);
+-  var success = Util.addObjectToSet(queryRunner, this._registeredQueryRunners);
+-  Util.assert(success);
++  orp.util.assert(queryRunner instanceof QueryRunner);
++  var success = orp.util.addObjectToSet(queryRunner, this._registeredQueryRunners);
++  orp.util.assert(success);
+ };
+ 
+ 
+@@ -785,9 +785,9 @@
+  * @param    queryRunner    A previously registered QueryRunner object. 
+  */
+ World.prototype._unregisterQueryRunner = function(queryRunner) {
+-  Util.assert(queryRunner instanceof QueryRunner);
+-  var success = Util.removeObjectFromSet(queryRunner, this._registeredQueryRunners);
+-  Util.assert(success);
++  orp.util.assert(queryRunner instanceof QueryRunner);
++  var success = orp.util.removeObjectFromSet(queryRunner, this._registeredQueryRunners);
++  orp.util.assert(success);
+ };
+ 
+ 
+@@ -982,7 +982,7 @@
+     var listOfItems = this.getItemsInCategory(category);
+     for (var keyToo in listOfItems) {
+       var item = listOfItems[keyToo];
+-      Util.addObjectToSet(item, listOfSuggestedItems);
++      orp.util.addObjectToSet(item, listOfSuggestedItems);
+     }
+   }
+   this.__addListObserver(listOfSuggestedItems, observer);
+@@ -1022,7 +1022,7 @@
+     if (tuple[World.__TUPLE_KEY_LIST] == listOfItems) {
+       weNeedToMakeANewTupleForThisList = false;
+       var setOfObservers = tuple[World.__TUPLE_KEY_OBSERVERS];
+-      observerWasAdded = Util.addObjectToSet(observer, setOfObservers);
++      observerWasAdded = orp.util.addObjectToSet(observer, setOfObservers);
+     }
+   }
+   if (weNeedToMakeANewTupleForThisList) {
+@@ -1051,7 +1051,7 @@
+     var tuple = listOfTuples[key];
+     if (tuple[World.__TUPLE_KEY_LIST] == listOfItems) {
+       var setOfObservers = tuple[World.__TUPLE_KEY_OBSERVERS];
+-      observerWasRemoved = Util.removeObjectFromSet(observer, setOfObservers);
++      observerWasRemoved = orp.util.removeObjectFromSet(observer, setOfObservers);
+     }
+   }
+   return observerWasRemoved;
+@@ -1072,7 +1072,7 @@
+     observerList = [];
+     this._hashTableOfObserverListsKeyedByItemUuid[item.getUuid()] = observerList;
+   }
+-  var observerWasAdded = Util.addObjectToSet(observer, observerList);
++  var observerWasAdded = orp.util.addObjectToSet(observer, observerList);
+   return observerWasAdded;
+ };
+ 
+@@ -1089,7 +1089,7 @@
+   var observerWasRemoved = false;
+   var observerList = this._hashTableOfObserverListsKeyedByItemUuid[item.getUuid()];
+   if (observerList) {
+-    observerWasRemoved = Util.removeObjectFromSet(observer, observerList);
++    observerWasRemoved = orp.util.removeObjectFromSet(observer, observerList);
+   } 
+   return observerWasRemoved;
+ };
+
+Modified: trunk/source/util/CsvParser.js
+===================================================================
+--- trunk/source/util/CsvParser.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/CsvParser.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -34,7 +34,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.CsvParser&quot;);
+ dojo.require(&quot;dojo.lang.*&quot;);
+-// dojo.require(&quot;orp.util.Util&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -78,7 +78,7 @@
+  * @return   Returns an array containing sub-arrays containing strings.
+  */
+ orp.util.CsvParser.prototype.getStringValuesFromCsvData = function(csvData) {
+-  Util.assert(dojo.lang.isString(csvData));
++  orp.util.assert(dojo.lang.isString(csvData));
+   
+   var lineEndingCharacters = new RegExp(&quot;\r\n|\n|\r&quot;);
+   var leadingWhiteSpaceCharacters = new RegExp(&quot;^\\s+&quot;,'g');
+
+Modified: trunk/source/util/DateValue.js
+===================================================================
+--- trunk/source/util/DateValue.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/DateValue.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -34,6 +34,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.DateValue&quot;);
+ dojo.require(&quot;dojo.lang.*&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -78,7 +79,7 @@
+   // Create a conventional JavaScript Date object.
+   switch (argumentType) {
+     case STRING:
+-      var evalStr = Util.trimString(year).toLowerCase();
++      var evalStr = orp.util.trimString(year).toLowerCase();
+       if (evalStr == 'today') {
+         date = new Date(Math.floor((Date.now()-DateValue.TIMEZONE_OFFSET)/DateValue.MILLISECS_IN_A_DAY) *
+           DateValue.MILLISECS_IN_A_DAY + DateValue.TIMEZONE_OFFSET);
+@@ -172,9 +173,9 @@
+             var matchArray = year.match(regExpr);
+             var monthIndex;
+             if (matchArray) {
+-              monthIndex = Util.getArrayIndex(DateValue.ARRAY_OF_MONTH_SHORT_NAMES,matchArray[1]);
++              monthIndex = orp.util.getArrayIndex(DateValue.ARRAY_OF_MONTH_SHORT_NAMES,matchArray[1]);
+               if (monthIndex == -1) {
+-                monthIndex = Util.getArrayIndex(DateValue.ARRAY_OF_MONTH_NAMES,matchArray[1]);
++                monthIndex = orp.util.getArrayIndex(DateValue.ARRAY_OF_MONTH_NAMES,matchArray[1]);
+               }
+             }
+             else {
+
+Modified: trunk/source/util/LintTool.js
+===================================================================
+--- trunk/source/util/LintTool.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/LintTool.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -34,6 +34,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.LintTool&quot;);
+ dojo.require(&quot;dojo.lang.*&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ 
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+@@ -140,7 +141,7 @@
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+ orp.util.LintTool.getErrorReportForCodeAtUrl = function(url) {
+-  var fileContents = Util.getStringContentsOfFileAtURL(url);
++  var fileContents = orp.util.getStringContentsOfFileAtURL(url);
+   return orp.util.LintTool.getErrorReportForCodeInString(fileContents);
+ };
+ 
+@@ -155,9 +156,9 @@
+  * @return   Returns an error message string, or returns an empty string if there are no errors (according to jslint).
+  */
+ orp.util.LintTool.getErrorReportFromListOfFilesnames = function(listOfFilenames, path) {
+-  Util.assert(Util.isArray(listOfFilenames));
++  orp.util.assert(orp.util.isArray(listOfFilenames));
+   if (path) {
+-    Util.assert(dojo.lang.isString(path));
++    orp.util.assert(dojo.lang.isString(path));
+   } else {
+     path = &quot;&quot;;
+   }
+
+Modified: trunk/source/util/RandomUuid.js
+===================================================================
+--- trunk/source/util/RandomUuid.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/RandomUuid.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -35,8 +35,8 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.RandomUuid&quot;);
+ dojo.require(&quot;orp.util.Uuid&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ 
+-
+ // -------------------------------------------------------------------
+ // Dependencies, expressed in the syntax that JSLint understands:
+ /*global Util  */
+@@ -75,18 +75,18 @@
+     } else {
+       if (dojo.lang.isObject(namedParameters)) {
+         uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
+-        Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [orp.util.Uuid.NamedParameters.uuidString]));
++        orp.util.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [orp.util.Uuid.NamedParameters.uuidString]));
+       } else {
+-        Util.assert(false);
++        orp.util.assert(false);
+       }
+     }
+-    Util.assert(dojo.lang.isString(uuidString));
+-    Util.assert(uuidString.length == 36);
++    orp.util.assert(dojo.lang.isString(uuidString));
++    orp.util.assert(uuidString.length == 36);
+     this._uuidString = uuidString;
+   } else {
+     this._uuidString = this._generateUuidString();
+   }
+-  Util.assert(this.getVersion() == orp.util.Uuid.Version.RANDOM);
++  orp.util.assert(this.getVersion() == orp.util.Uuid.Version.RANDOM);
+ };
+ 
+ dj_inherits(orp.util.RandomUuid, orp.util.Uuid);  // makes RandomUuid be a subclass of Uuid
+
+Deleted: trunk/source/util/TestSuite.html
+===================================================================
+--- trunk/source/util/TestSuite.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/TestSuite.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -1,95 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Util Test Suite&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot;&gt;
+-      function suite() {
+-        var testSuite = new window.top.jsUnitTestSuite();
+-        testSuite.addTestSuite(utilTestSuite());
+-        return testSuite;
+-      }
+-      
+-      function utilTestSuite() {
+-        var testSuite = new window.top.jsUnitTestSuite();
+-        testSuite.addTestPage(&quot;../../../source/util/UtilTest.html&quot;);
+-        return testSuite;
+-      }
+-    &lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Util Test Suite&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;If you're looking at this page across an &quot;<A HREF="http://">http://</A>&quot; connection, rather
+-    than having loaded it as a &quot;<A HREF="file:///">file:///</A>&quot;, then you may be able to run the
+-    unit tests. The web server that served you this page may also have a
+-    JsUnit testRunner available. If so, you should be able to run these unit
+-    tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button.&lt;/p&gt;
+-
+-    &lt;p&gt;You can also run these unit tests on your local computer. To do that you 
+-    first need to download &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; 
+-    rel=&quot;external&quot;&gt;JsUnit&lt;/a&gt;.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Modified: trunk/source/util/TimeBasedUuid.js
+===================================================================
+--- trunk/source/util/TimeBasedUuid.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/TimeBasedUuid.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -36,6 +36,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.TimeBasedUuid&quot;);
+ dojo.require(&quot;orp.util.Uuid&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -84,7 +85,7 @@
+   if (namedParameters) {
+     if (dojo.lang.isString(namedParameters)) {
+       uuidString = namedParameters;
+-      Util.assert(uuidString.length == 36);
++      orp.util.assert(uuidString.length == 36);
+       this._uuidString = uuidString;
+     } else {
+       if (dojo.lang.isObject(namedParameters)) {
+@@ -93,34 +94,34 @@
+         var pseudoNode = namedParameters[&quot;pseudoNode&quot;];
+         var hardwareNode = namedParameters[&quot;hardwareNode&quot;];
+         var atLeastOneParameter = (uuidString || node || pseudoNode || hardwareNode) ? true : false;
+-        Util.assert(atLeastOneParameter);
+-        Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;, &quot;node&quot;, &quot;pseudoNode&quot;, &quot;hardwareNode&quot;]));
++        orp.util.assert(atLeastOneParameter);
++        orp.util.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;, &quot;node&quot;, &quot;pseudoNode&quot;, &quot;hardwareNode&quot;]));
+         if (uuidString) {
+-          Util.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
+-          Util.assert(uuidString.length == 36);
++          orp.util.assert(!node &amp;&amp; !pseudoNode &amp;&amp; !hardwareNode);
++          orp.util.assert(uuidString.length == 36);
+           this._uuidString = uuidString;
+         }
+         if (node || pseudoNode || hardwareNode) {
+-          Util.assert((node || pseudoNode).length == 12);
++          orp.util.assert((node || pseudoNode).length == 12);
+           var firstCharacter = (node || pseudoNode).charAt(0);
+           var firstDigit = parseInt(firstCharacter, orp.util.Uuid.HEX_RADIX);
+           if (hardwareNode) { 
+-            Util.assert((firstDigit &gt;= 0x0) &amp;&amp; (firstDigit &lt;= 0x7)); 
++            orp.util.assert((firstDigit &gt;= 0x0) &amp;&amp; (firstDigit &lt;= 0x7)); 
+           }
+           if (pseudoNode) { 
+-            Util.assert((firstDigit &gt;= 0x8) &amp;&amp; (firstDigit &lt;= 0xF)); 
++            orp.util.assert((firstDigit &gt;= 0x8) &amp;&amp; (firstDigit &lt;= 0xF)); 
+           }
+           this._uuidString = this._generateUuidString(node || pseudoNode || hardwareNode);
+         }
+       } else {
+-        Util.assert(false);
++        orp.util.assert(false);
+       }
+     }
+   } else {
+     this._uuidString = this._generateUuidString();
+   }
+     
+-  Util.assert(this.getVersion() == orp.util.Uuid.Version.TIME_BASED);
++  orp.util.assert(this.getVersion() == orp.util.Uuid.Version.TIME_BASED);
+ };
+ 
+ dj_inherits(orp.util.TimeBasedUuid, orp.util.Uuid);  // makes TimeBasedUuid be a subclass of Uuid
+@@ -212,9 +213,9 @@
+   var Uuid          = orp.util.Uuid;
+   var TimeBasedUuid = orp.util.TimeBasedUuid;
+   
+-  Util.assert(!pseudoNode || Util.isString(pseudoNode));  
++  orp.util.assert(!pseudoNode || orp.util.isString(pseudoNode));  
+   if (pseudoNode) {
+-    Util.assert(pseudoNode.length == 12);  
++    orp.util.assert(pseudoNode.length == 12);  
+   } else {
+     var pseudoNodeIndicatorBit = 0x8000;
+     var random15bitNumber = Math.floor( (Math.random() % 1) * Math.pow(2, 15) );
+@@ -365,7 +366,7 @@
+   
+   var returnString = hexTimeHigh + hexTimeMid + hexTimeLow;
+   
+-  Util.assert(returnString.length == 15);
++  orp.util.assert(returnString.length == 15);
+   return returnString;
+ };
+ 
+@@ -385,7 +386,7 @@
+   arrayA[2] &amp;= 0xFFFF;
+   arrayA[0] += arrayA[1] &gt;&gt;&gt; 16;
+   arrayA[1] &amp;= 0xFFFF;
+-  Util.assert((arrayA[0] &gt;&gt;&gt; 16) === 0);
++  orp.util.assert((arrayA[0] &gt;&gt;&gt; 16) === 0);
+ };
+ 
+ 
+@@ -424,10 +425,10 @@
+  * @return   An array with 4 elements, each of which is a 16-bit number.
+  */
+ orp.util.TimeBasedUuid._addTwo64bitArrays = function(arrayA, arrayB) {
+-  Util.assert(Util.isArray(arrayA));
+-  Util.assert(arrayA.length == 4);
+-  Util.assert(Util.isArray(arrayB));
+-  Util.assert(arrayB.length == 4);
++  orp.util.assert(orp.util.isArray(arrayA));
++  orp.util.assert(arrayA.length == 4);
++  orp.util.assert(orp.util.isArray(arrayB));
++  orp.util.assert(arrayB.length == 4);
+   var result = new Array(0, 0, 0, 0);
+   result[3] = arrayA[3] + arrayB[3];
+   result[2] = arrayA[2] + arrayB[2];
+@@ -451,10 +452,10 @@
+ orp.util.TimeBasedUuid._multiplyTwo64bitArrays = function(arrayA, arrayB) {
+   var TimeBasedUuid = orp.util.TimeBasedUuid;
+ 
+-  Util.assert(Util.isArray(arrayA));
+-  Util.assert(arrayA.length == 4);
+-  Util.assert(Util.isArray(arrayB));
+-  Util.assert(arrayB.length == 4);
++  orp.util.assert(orp.util.isArray(arrayA));
++  orp.util.assert(arrayA.length == 4);
++  orp.util.assert(orp.util.isArray(arrayB));
++  orp.util.assert(arrayB.length == 4);
+   var overflow = false;
+   if (arrayA[0] * arrayB[0] !== 0) { overflow = true; }
+   if (arrayA[0] * arrayB[1] !== 0) { overflow = true; }
+@@ -462,7 +463,7 @@
+   if (arrayA[1] * arrayB[0] !== 0) { overflow = true; }
+   if (arrayA[1] * arrayB[1] !== 0) { overflow = true; }
+   if (arrayA[2] * arrayB[0] !== 0) { overflow = true; }
+-  Util.assert(!overflow);
++  orp.util.assert(!overflow);
+   
+   var result = new Array(0, 0, 0, 0);
+   result[0] += arrayA[0] * arrayB[3];
+@@ -494,7 +495,7 @@
+  * For example:
+  * &lt;pre&gt;
+  *   result = TimeBasedUuid._padWithLeadingZeros(&quot;abc&quot;, 6);
+- *   Util.assert(result == &quot;000abc&quot;);
++ *   orp.util.assert(result == &quot;000abc&quot;);
+  * &lt;/pre&gt;
+  * 
+  * @scope    private class method
+
+Modified: trunk/source/util/Util.js
+===================================================================
+--- trunk/source/util/Util.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/Util.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -30,7 +30,8 @@
+  liability, or tort (including negligence), arising in any way out of or in 
+  connection with the use or distribution of the work.
+ *****************************************************************************/
+- 
++
++dojo.provide(&quot;orp.util.Util&quot;);
+ // dojo.require(&quot;orp.util.Uuid&quot;);
+ 
+ // -------------------------------------------------------------------
+@@ -53,27 +54,29 @@
+  * @scope    public instance constructor
+  * @syntax   DO NOT CALL THIS CONSTRUCTOR
+  */
++ /*
+ function Util() {
+   throw new Error(&quot;Util is a static class. You can't create instances of it.&quot;);
+ }
++*/
+ 
+-
+ // -------------------------------------------------------------------
+-// Util public class constants
++// Public class constants
+ // -------------------------------------------------------------------
+-Util.ASCII_VALUE_FOR_RETURN = 13;
+-Util.ASCII_VALUE_FOR_TAB = 9;
+-Util.ASCII_VALUE_FOR_ESCAPE = 27;
++orp.util.ASCII = {
++  RETURN: 13,
++  TAB: 9,
++  ESCAPE: 27,
++  LEFT_ARROW: 37,  // 123
++  UP_ARROW: 38,    // 126
++  RIGHT_ARROW: 39, // 124
++  DOWN_ARROW: 40,  // 125
++  BACKSPACE: 8,
++DELETE: 46 };
+ // &#37; = %
+ // &#38; = &amp;
+ // &#39; = '
+ // &#40; = (
+-Util.ASCII_VALUE_FOR_LEFT_ARROW = 37;  // 123
+-Util.ASCII_VALUE_FOR_UP_ARROW = 38;    // 126
+-Util.ASCII_VALUE_FOR_RIGHT_ARROW = 39; // 124
+-Util.ASCII_VALUE_FOR_DOWN_ARROW = 40;  // 125
+-Util.KEYCODE_FOR_BACKSPACE = 8;
+-Util.KEYCODE_FOR_DELETE = 46;
+ 
+ 
+ 
+@@ -87,8 +90,8 @@
+  * @scope    public class method
+  * @param    errorReporterFunction    A function which takes a single string argument. 
+  */
+-Util.setErrorReportCallback = function(errorReporterFunction) {
+-  Util.ourErrorReporter = errorReporterFunction;
++orp.util.setErrorReportCallback = function(errorReporterFunction) {
++  orp.util.ourErrorReporter = errorReporterFunction;
+ };
+ 
+ 
+@@ -98,10 +101,10 @@
+  * @scope    public class method
+  * @param    inText    The error message to be reported. 
+  */
+-Util.defaultErrorReporter = function(text) {
++orp.util.defaultErrorReporter = function(text) {
+   window.alert(text);
+ };
+-Util.ourErrorReporter = Util.defaultErrorReporter;
++orp.util.ourErrorReporter = orp.util.defaultErrorReporter;
+ 
+  
+  /**
+@@ -112,8 +115,8 @@
+  * @param    url    A string that gives the name of the file where the error was found.
+  * @param    line    The line number where the error was found.
+  */
+-Util.handleError = function(message, url, line) {
+-  Util.ourErrorReporter(&quot;Util.handleError()\n&quot; + message + &quot;\nline: &quot; + line + &quot;\nURL: &quot; + url);
++orp.util.handleError = function(message, url, line) {
++  orp.util.ourErrorReporter(&quot;orp.util.handleError()\n&quot; + message + &quot;\nline: &quot; + line + &quot;\nURL: &quot; + url);
+ };
+ 
+ 
+@@ -129,8 +132,8 @@
+  * @param    booleanValue    A boolean value, which needs to be true for the assertion to succeed. 
+  * @param    message    Optional. A string describing the assertion.
+  */
+-Util.assert = function(booleanValue, message) {
+-  if (Util.isBoolean(booleanValue)) {
++orp.util.assert = function(booleanValue, message) {
++  if (orp.util.isBoolean(booleanValue)) {
+     if (!booleanValue) {    
+       var exception = new Error();  // create an exception, just to get a stack trace
+       var stackString = exception.stack;
+@@ -146,10 +149,10 @@
+       }
+       stackString = stackList.join(&quot;\n&quot;);
+ 
+-      Util.ourErrorReporter(&quot;An assert statement failed with message: \n&quot; + message + &quot; \nThe method Util.assert() was called with a 'false' value.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
++      orp.util.ourErrorReporter(&quot;An assert statement failed with message: \n&quot; + message + &quot; \nThe method orp.util.assert() was called with a 'false' value.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
+     }
+   } else {
+-    Util.ourErrorReporter(&quot;An assert statement went sour.\nThe method Util.assert() was passed a non-boolean argument.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
++    orp.util.ourErrorReporter(&quot;An assert statement went sour.\nThe method orp.util.assert() was passed a non-boolean argument.\nHere's the stack trace, with the line number where the assert statement failed:\n&quot; + (stackString || &quot;&quot;));
+   }
+ };
+ 
+@@ -160,8 +163,8 @@
+  * @scope    public class method
+  * @param    statusReporterFunction    A function which takes a single string argument. 
+  */
+-Util.setStatusReporter = function(statusReporterFunction) {
+-  Util.ourStatusReporter = statusReporterFunction;
++orp.util.setStatusReporter = function(statusReporterFunction) {
++  orp.util.ourStatusReporter = statusReporterFunction;
+ };
+ 
+ 
+@@ -171,8 +174,8 @@
+  * @scope    public class method
+  * @param    message    A string with a status message.
+  */
+-Util.displayStatusBlurb = function(message) {
+-  Util.ourStatusReporter(message);
++orp.util.displayStatusBlurb = function(message) {
++  orp.util.ourStatusReporter(message);
+ };
+ 
+ 
+@@ -182,10 +185,10 @@
+  * @scope    public class method
+  * @param    text    The status message to be reported. 
+  */
+-Util.defaultStatusReporter = function(text) {
++orp.util.defaultStatusReporter = function(text) {
+   // do nothing!
+ };
+-Util.ourStatusReporter = Util.defaultStatusReporter;
++orp.util.ourStatusReporter = orp.util.defaultStatusReporter;
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -199,7 +202,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a function.
+  */
+-Util.isFunction = function(value) {
++orp.util.isFunction = function(value) {
+   return ((typeof value) == &quot;function&quot;);
+ };
+ 
+@@ -211,7 +214,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a string.
+  */
+-Util.isString = function(value) {
++orp.util.isString = function(value) {
+   return ((typeof value) == &quot;string&quot;);
+ };
+ 
+@@ -223,7 +226,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a number.
+  */
+-Util.isNumber = function(value) {
++orp.util.isNumber = function(value) {
+   return (((typeof value) == &quot;number&quot;) &amp;&amp; isFinite(value));
+ };
+ 
+@@ -236,12 +239,12 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a number or a string that represents a number.
+  */
+-Util.isNumeric = function(value) {
+-  var isNumber = Util.isNumber(value);
++orp.util.isNumeric = function(value) {
++  var isNumber = orp.util.isNumber(value);
+   if (isNumber) {
+     return true;
+   }
+-  var isNumeric = Util.isString(value) &amp;&amp; Util.isNumber(parseInt(value));
++  var isNumeric = orp.util.isString(value) &amp;&amp; orp.util.isNumber(parseInt(value));
+   return isNumeric;
+ };
+ 
+@@ -253,7 +256,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a boolean.
+  */
+-Util.isBoolean = function(value) {
++orp.util.isBoolean = function(value) {
+   return ((typeof value) == &quot;boolean&quot;);
+ };
+ 
+@@ -265,7 +268,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is an object.
+  */
+-Util.isObject = function(value) {
++orp.util.isObject = function(value) {
+   return (value &amp;&amp; ((typeof value) == &quot;object&quot;));
+ };
+ 
+@@ -277,7 +280,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a Date.
+  */
+-Util.isDate = function(value) {
++orp.util.isDate = function(value) {
+   return (value instanceof Date);
+ };
+ 
+@@ -289,7 +292,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if value is a UUID object.
+  */
+-Util.isUuid = function(value) {
++orp.util.isUuid = function(value) {
+   // return (value instanceof orp.util.Uuid);
+   return true; // PENDING: FIXME.
+ };
+@@ -304,8 +307,8 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if value is a UUID.
+  */
+-Util.isUuidValue = function(value) {
+-  if (Util.isUuid(value)) {
++orp.util.isUuidValue = function(value) {
++  if (orp.util.isUuid(value)) {
+     return true;
+   }
+   if ((typeof value) == &quot;string&quot;) {
+@@ -325,7 +328,7 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is an array.
+  */
+-Util.isArray = function(value) {
++orp.util.isArray = function(value) {
+   if (!value) {
+     return false;
+   }
+@@ -340,12 +343,12 @@
+  * @param    value    Any object or literal value. 
+  * @return   A boolean value. True if inValue is a hash table.
+  */
+-Util.isHashTable = function(value) {
++orp.util.isHashTable = function(value) {
+   return (value &amp;&amp; ((typeof value) == &quot;object&quot;));  // PENDING: we should be more restrictive!
+ };
+ 
+ 
+-Util.isEmpty = function(object) {
++orp.util.isEmpty = function(object) {
+   for (var key in object) {
+     return false;
+   }
+@@ -353,27 +356,27 @@
+ };
+ 
+ 
+-Util.hasProperty = function(object, property) {
++orp.util.hasProperty = function(object, property) {
+   return (object[property] !== undefined);
+ };
+ 
+-Util.hasProperties = function(object, properties) {
++orp.util.hasProperties = function(object, properties) {
+   for (var i in properties) {
+     if (object[properties[i]] === undefined) { return false; }
+   }
+   return true;
+ };
+ 
+-Util.hasNoUnexpectedProperties = function(object, expectedProperties) {
++orp.util.hasNoUnexpectedProperties = function(object, expectedProperties) {
+   for (var key in object) {
+-    if (!Util.isObjectInSet(key, expectedProperties)) { return false; }
++    if (!orp.util.isObjectInSet(key, expectedProperties)) { return false; }
+   }
+   return true;
+ };
+   
+-Util.hasExactlyTheseProperties = function(object, properties) {
+-  if (!Util.hasProperties(object, properties)) { return false; }
+-  if (!Util.hasNoUnexpectedProperties(object, properties)) { return false; }
++orp.util.hasExactlyTheseProperties = function(object, properties) {
++  if (!orp.util.hasProperties(object, properties)) { return false; }
++  if (!orp.util.hasNoUnexpectedProperties(object, properties)) { return false; }
+   return true;
+ };
+ 
+@@ -390,7 +393,7 @@
+  * @param    value    The array element to find the position of. 
+  * @return   Returns a number between 0 and array.length, or -1 if the element was not in the array.
+  */
+-Util.getArrayIndex = function(array, value) {
++orp.util.getArrayIndex = function(array, value) {
+   for (var i=0; i&lt;array.length; ++i) {
+     if (array[i] == value) {
+       return i;
+@@ -412,8 +415,8 @@
+  * @param    set    The Array to look for the object in. 
+  * @return   Returns true if the object was found in the set.
+  */
+-Util.isObjectInSet = function(object, set) {
+-  Util.assert(Util.isArray(set));
++orp.util.isObjectInSet = function(object, set) {
++  orp.util.assert(orp.util.isArray(set));
+   
+   for (var key in set) {
+     if (set[key] == object) {
+@@ -432,13 +435,13 @@
+  * @param    set    The Array to look for the objects in. 
+  * @return   Returns true if each of the objects was found in the set.
+  */
+-Util.areObjectsInSet = function(array, set) {
+-  Util.assert(Util.isArray(array));
+-  Util.assert(Util.isArray(set));
++orp.util.areObjectsInSet = function(array, set) {
++  orp.util.assert(orp.util.isArray(array));
++  orp.util.assert(orp.util.isArray(set));
+   
+   for (var key in array) {
+     var object = array[key];
+-    var objectIsInSet = Util.isObjectInSet(object, set);
++    var objectIsInSet = orp.util.isObjectInSet(object, set);
+     if (!objectIsInSet) {
+       return false;
+     }
+@@ -455,8 +458,8 @@
+  * @param    set    The Array that the object should be removed from. 
+  * @return   Returns true if the object was removed from the array.
+  */
+-Util.removeObjectFromSet = function(object, set) {
+-  Util.assert(Util.isArray(set));
++orp.util.removeObjectFromSet = function(object, set) {
++  orp.util.assert(orp.util.isArray(set));
+   
+   if (!object) {
+     return false;
+@@ -480,13 +483,13 @@
+  * @param    set    The Array that the object should be added to. 
+  * @return   Returns true if the object was added to the array.
+  */
+-Util.addObjectToSet = function(object, set) {
+-  Util.assert(Util.isArray(set));
++orp.util.addObjectToSet = function(object, set) {
++  orp.util.assert(orp.util.isArray(set));
+ 
+   if (!object) {
+     return false;
+   }
+-  if (Util.isObjectInSet(object, set)) {
++  if (orp.util.isObjectInSet(object, set)) {
+     return false;
+   }
+   set.push(object);
+@@ -501,8 +504,8 @@
+  * @param    hashTable   A hashTable containing values.
+  * @return   The number of values in inHashTable.
+  */
+-Util.lengthOfHashTable = function(hashTable) {
+-  Util.assert(Util.isHashTable(hashTable));
++orp.util.lengthOfHashTable = function(hashTable) {
++  orp.util.assert(orp.util.isHashTable(hashTable));
+   var count = 0;
+   for (var key in hashTable) {
+     count += 1;
+@@ -519,8 +522,8 @@
+  * @param    hashTable   A hashTable containing values.
+  * @return   An array containing the values that are in inHashTable.
+  */
+-Util.hashTableValues = function(hashTable) {
+-  Util.assert(Util.isHashTable(hashTable));
++orp.util.hashTableValues = function(hashTable) {
++  orp.util.assert(orp.util.isHashTable(hashTable));
+   var returnArray = [];
+   for (var key in hashTable) {
+     returnArray.push(hashTable[key]);
+@@ -528,26 +531,16 @@
+   return returnArray;
+ };
+ 
+-Util.trimString = function(str) {
+-   return str.replace(/^\s*|\s*$/g,&quot;&quot;);
++orp.util.trimString = function(str) {
++  return str.replace(/^\s*|\s*$/g,&quot;&quot;);
+ };
+ 
+ 
+ // -------------------------------------------------------------------
+-// Methods that operate on Dates
+-// -------------------------------------------------------------------
+-
+-// Util.getStringMonthDayYear = function(date) {
+-//   var returnString = Util.ABBREV_MONTHS_ARRAY[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
+-//   return returnString;
+-// };
+-
+-
+-// -------------------------------------------------------------------
+ // Methods for doing encryption
+ // -------------------------------------------------------------------
+ 
+-Util.hex_md5 = function(string) {
++orp.util.hex_md5 = function(string) {
+   // Calls the hex_md5() function in .../trunk/third_party/md5/md5.js
+   return hex_md5(string);
+ };
+@@ -568,7 +561,7 @@
+  * @param    eventObject    An event object. 
+  * @return   An HTML element.
+  */
+-Util.getTargetFromEvent = function(eventObject) {
++orp.util.getTargetFromEvent = function(eventObject) {
+   var target = null;
+   if (eventObject.target) {
+     target = eventObject.target;
+@@ -593,7 +586,7 @@
+  * @param callback    The function to call when the event happens.
+  * @param captures    True if the event should be captured by this function.
+  */
+-Util.addEventListener = function(element, eventType, callback, captures) {
++orp.util.addEventListener = function(element, eventType, callback, captures) {
+   if (element.addEventListener) {
+     // for DOM Level 2 browsers, like Firefox
+     element.addEventListener(eventType, callback, captures);
+@@ -641,7 +634,7 @@
+  * @param    url    A string with the URL of a file containing JavaScript code. 
+  * @return   A string containing the contents of the file.
+  */
+-Util.getStringContentsOfFileAtURL = function(url) {
++orp.util.getStringContentsOfFileAtURL = function(url) {
+   var anXMLHttpRequestObject = new window.XMLHttpRequest();
+   anXMLHttpRequestObject.open(&quot;GET&quot;, url, false);
+   anXMLHttpRequestObject.send(null);
+@@ -661,7 +654,7 @@
+  * 
+  * @scope    public class method
+  */
+-Util.setTargetsForExternalLinks = function() {
++orp.util.setTargetsForExternalLinks = function() {
+   if (!window.document.getElementsByTagName) {
+     return;
+   }
+@@ -682,7 +675,7 @@
+  * @scope    public class method
+  * @return   An HTML &quot;img&quot; element.
+  */
+-Util.createImageElement = function(imageFileName) {
++orp.util.createImageElement = function(imageFileName) {
+   var imagesDirectory = &quot;images/&quot;; // PENDING: this shouldn't be hard-coded in Util
+   var imageElement = document.createElement(&quot;img&quot;);
+   imageElement.src = imagesDirectory + imageFileName;
+@@ -698,7 +691,7 @@
+  * @param    htmlElement    The HTML element that we want the left offest of. 
+  * @return   An integer value equal to the number of pixels from the left of the page to htmlElement.
+  */
+-Util.getOffsetLeftFromElement = function(htmlElement) {
++orp.util.getOffsetLeftFromElement = function(htmlElement) {
+   var cumulativeOffset = 0;
+   if (htmlElement.offsetParent) {
+     while (htmlElement.offsetParent) {
+@@ -722,7 +715,7 @@
+  * @param    htmlElement    The HTML element that we want the top offest of. 
+  * @return   An integer value equal to the number of pixels from the top of the page to htmlElement.
+  */
+-Util.getOffsetTopFromElement = function(htmlElement) {
++orp.util.getOffsetTopFromElement = function(htmlElement) {
+   var cumulativeOffset = 0;
+   if (htmlElement.offsetParent) {
+     while (htmlElement.offsetParent) {
+@@ -744,7 +737,7 @@
+  * @param htmlElement The HTML element to check on
+  * @param aClass The String representing class name to check on
+  */
+-Util.css_hasClass = function(htmlElement, aClass) {
++orp.util.css_hasClass = function(htmlElement, aClass) {
+   var matchingRegex = new RegExp(&quot;(^|\\s)&quot; + aClass + &quot;($|\\s)&quot;);
+   return htmlElement.className.match(matchingRegex);
+ };
+@@ -754,8 +747,8 @@
+  * @param htmlElement The HTML element whose class is to be added
+  * @param newClass The String representing class name to add
+  */
+-Util.css_addClass = function(htmlElement, newClass) {
+-  if (!Util.css_hasClass(htmlElement,newClass)) {
++orp.util.css_addClass = function(htmlElement, newClass) {
++  if (!orp.util.css_hasClass(htmlElement,newClass)) {
+     htmlElement.className += ' ' + newClass;
+     return true;
+   }
+@@ -767,15 +760,15 @@
+  * @param htmlElement The HTML element whose class is to be removed
+  * @param oldClass The String representing class name to remove
+  */
+-Util.css_removeClass = function(htmlElement, oldClass) {
+-  if (Util.css_hasClass(htmlElement,oldClass)) {
++orp.util.css_removeClass = function(htmlElement, oldClass) {
++  if (orp.util.css_hasClass(htmlElement,oldClass)) {
+     var matchingRegex = new RegExp(&quot;(^|\\s)&quot; + oldClass); //BUG need to avoid replacing classNames that are a superset of oldClass
+     htmlElement.className = htmlElement.className.replace(matchingRegex,'');
+   }
+ };
+ 
+ // String Utilities
+-Util.getStringFromKeyEvent = function(eventObj) {
++orp.util.getStringFromKeyEvent = function(eventObj) {
+   return String.fromCharCode(eventObj.charCode); //Mozilla only call
+ };
+ 
+
+Deleted: trunk/source/util/UtilTest.html
+===================================================================
+--- trunk/source/util/UtilTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/UtilTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -1,80 +0,0 @@
+-&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+-&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
+-&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
+-
+-&lt;!-- 
+- Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+---&gt;
+-
+-  &lt;head&gt;
+-    &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
+-
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;Uuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;RandomUuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;TimeBasedUuid.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
+-  &lt;/head&gt;
+-  
+-  &lt;body&gt;
+-    &lt;h1&gt;Unit tests for Util.js&lt;/h1&gt;
+-
+-    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
+-    OpenRecord project.&lt;/p&gt;
+-    
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p&gt;You should be able to run these unit tests by going to
+-    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
+-    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
+-    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button. &lt;/p&gt;
+-
+-    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
+-    web browser, you should be able see the source for this file by using 
+-    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
+-    may be in this file, or they may be in a separate file that has the
+-    same name as this one, except with a .js extension instead of a .html
+-    extension.&lt;/p&gt;
+- 
+-    &lt;p&gt;The unit tests are set up to run in the
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
+-    written by 
+-    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
+-
+-    &lt;p&gt;&nbsp;&lt;/p&gt;
+-    &lt;hr/&gt;
+-    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
+-    rights relinquished under the Creative Commons  
+-    &lt;a rel=&quot;license external&quot; 
+-    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
+-    Dedication&lt;/a&gt;.&lt;/p&gt;
+-
+-&lt;!-- Creative Commons metadata for Public Domain License 
+-
+-&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
+-    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
+-    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
+-&lt;Work rdf:about=&quot;&quot;&gt;
+-   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
+-   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
+-   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
+-&lt;/Work&gt;
+-
+-&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
+-   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
+-&lt;/License&gt;
+-
+-&lt;/rdf:RDF&gt;
+-
+---&gt;
+-  &lt;/body&gt;
+-&lt;/html&gt;
+-
+
+Deleted: trunk/source/util/UtilTest.js
+===================================================================
+--- trunk/source/util/UtilTest.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/UtilTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -1,129 +0,0 @@
+-/*****************************************************************************
+- UtilTest.js
+- 
+-******************************************************************************
+- Written in 2005 by 
+-    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
+-    Mignon Belongie
+-  
+- Copyright rights relinquished under the Creative Commons  
+- Public Domain Dedication:
+-    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
+-  
+- You can copy freely from this file.  This work may be freely reproduced, 
+- distributed, transmitted, used, modified, built upon, or otherwise exploited
+- by anyone for any purpose.
+-  
+- This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
+- of any kind, either express or implied, including, without limitation, any 
+- warranties or conditions of title, non-infringement, merchantability, or 
+- fitness for a particular purpose. You are solely responsible for determining 
+- the appropriateness of using or distributing the work and assume all risks 
+- associated with use of this work, including but not limited to the risks and 
+- costs of errors, compliance with applicable laws, damage to or loss of data 
+- or equipment, and unavailability or interruption of operations.
+-
+- In no event shall the authors or contributors have any liability for any 
+- direct, indirect, incidental, special, exemplary, or consequential damages,
+- however caused and on any theory of liability, whether in contract, strict 
+- liability, or tort (including negligence), arising in any way out of or in 
+- connection with the use or distribution of the work.
+-*****************************************************************************/
+- 
+-var UtilTestVars = null;
+-
+-
+-// -------------------------------------------------------------------
+-// setUp and tearDown
+-// -------------------------------------------------------------------
+-
+-function setUp() {
+-  UtilTestVars = {};
+-  UtilTestVars.theHobbit = &quot;The Hobbit&quot;;
+-}
+-
+-function tearDown() {
+-  UtilTestVars = null;
+-}
+-
+-
+-// -------------------------------------------------------------------
+-// Test functions
+-// -------------------------------------------------------------------
+-
+-function testSimplestCase() {
+-  assertTrue(&quot;This is true&quot;, true);
+-}
+-
+-function testTypeCheckingMethods() {
+-  assertTrue('&quot;The Hobbit&quot; is a string', Util.isString(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not a number', Util.isNumber(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not numeric', Util.isNumeric(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not a boolean', Util.isBoolean(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not an object', Util.isObject(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not an array', Util.isArray(&quot;The Hobbit&quot;));
+-  assertFalse('&quot;The Hobbit&quot; is not a hash table', Util.isHashTable(&quot;The Hobbit&quot;));
+-}
+-
+-function testMethodsThatOperateOnSets() {
+-  var aTinySet = [];
+-  var theHobbit = UtilTestVars.theHobbit;
+-  assertFalse('&quot;The Hobbit&quot; is not in an empty set', Util.isObjectInSet(theHobbit, aTinySet));
+-  assertTrue('&quot;The Hobbit&quot; can be added to an empty set', Util.addObjectToSet(theHobbit, aTinySet));
+-  assertTrue('&quot;The Hobbit&quot; is in the set after being added', Util.isObjectInSet(theHobbit, aTinySet));
+-  assertTrue('&quot;The Hobbit&quot; can be removed from a set it is in', Util.removeObjectFromSet(theHobbit, aTinySet));
+-  assertFalse('&quot;The Hobbit&quot; is no longer in a set it was removed from', Util.isObjectInSet(theHobbit, aTinySet));
+-  assertFalse('&quot;The Hobbit&quot; can not be removed twice', Util.removeObjectFromSet(theHobbit, aTinySet));
+-
+-  var setNumber2 = [123, &quot;456&quot;, 78.9, new Date(), theHobbit];
+-  assertTrue('&quot;The Hobbit&quot; is in setNumber2', Util.isObjectInSet(theHobbit, setNumber2));
+-  assertTrue('78.9 is in setNumber2', Util.isObjectInSet(78.9, setNumber2));
+-  assertTrue('78.9 and &quot;The Hobbit&quot; is in setNumber2', Util.areObjectsInSet([78.9, theHobbit], setNumber2));
+-  assertTrue('All members of setNumber2 are in setNumber2', Util.areObjectsInSet(setNumber2, setNumber2));
+-}
+-
+-function testEncryptionMethods() {
+-  var longString = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
+-  assertTrue('md5 of &quot;&quot; is correct', (Util.hex_md5(&quot;&quot;) == &quot;d41d8cd98f00b204e9800998ecf8427e&quot;));
+-  assertTrue('md5 of &quot;iggy&quot; is correct', (Util.hex_md5(&quot;iggy&quot;) == &quot;0e026f55a72c0861a93e750c2a5427b1&quot;));
+-  assertTrue('md5 of longString is correct', (Util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
+-}
+-
+-function testIsEmpty() {
+-  var canada = {name:&quot;Canada&quot;, provinces:8};
+-  var atlantis = {};
+-  
+-  assertTrue('Canada has properties', !Util.isEmpty(canada));
+-  assertTrue('Atlantis does not have properties', Util.isEmpty(atlantis));
+-  
+-  delete canada.name;
+-  delete canada.provinces;
+-  assertTrue('Canada does not have properties', Util.isEmpty(canada));
+-}
+-
+-function testHasProperty() {
+-  var canada = {name:&quot;Canada&quot;, provinces:8};
+-  var atlantis = {};
+-
+-  assertTrue('Canada has a name', Util.hasProperty(canada, &quot;name&quot;));
+-  assertTrue('Canada does not have a foo', !Util.hasProperty(canada, &quot;foo&quot;));
+-  
+-  assertTrue('Atlantis does not have a name', !Util.hasProperty(atlantis, &quot;name&quot;));
+-
+-  assertTrue('Atlantis has []', Util.hasProperties(atlantis, []));
+-  assertTrue('Canada has [&quot;name&quot;, &quot;provinces&quot;]', Util.hasProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
+-  assertTrue('Canada has [&quot;name&quot;]', Util.hasProperties(canada, [&quot;name&quot;]));
+-  assertTrue('Canada has []', Util.hasProperties(canada, []));
+-  assertTrue('Canada does not have [&quot;foo&quot;, &quot;bar&quot;]', !Util.hasProperties(canada, [&quot;foo&quot;, &quot;bar&quot;]));
+-
+-  assertTrue('Canada has only [&quot;name&quot;, &quot;provinces&quot;]', Util.hasNoUnexpectedProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
+-  assertTrue('Canada does not have just [&quot;name&quot;]', !Util.hasNoUnexpectedProperties(canada, [&quot;name&quot;]));
+-  
+-  assertTrue('Canada does not have just [&quot;name&quot;]', !Util.hasExactlyTheseProperties(canada, [&quot;name&quot;]));
+-  assertTrue('Canada has [&quot;name&quot;, &quot;provinces&quot;]', Util.hasExactlyTheseProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
+-  assertTrue('Canada does not have [&quot;name&quot;, &quot;provinces&quot;, &quot;foo&quot;]', !Util.hasExactlyTheseProperties(canada, [&quot;name&quot;, &quot;provinces&quot;, &quot;foo&quot;]));
+-}
+-
+-// -------------------------------------------------------------------
+-// End of file
+-// -------------------------------------------------------------------
+
+Modified: trunk/source/util/Uuid.js
+===================================================================
+--- trunk/source/util/Uuid.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/Uuid.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -36,6 +36,7 @@
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.Uuid&quot;);
+ dojo.require(&quot;dojo.lang.*&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ 
+ 
+ // -------------------------------------------------------------------
+@@ -67,9 +68,9 @@
+         this._uuidString = namedParameters[&quot;uuidString&quot;];
+         
+         // Check for typos in parameter names
+-        Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;]));
++        orp.util.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [&quot;uuidString&quot;]));
+       } else {
+-        Util.assert(false);
++        orp.util.assert(false);
+       }
+     }
+   }
+@@ -115,12 +116,12 @@
+   if (dojo.lang.isString(namedParameters)) {
+     uuidString = namedParameters;
+   } else {
+-    Util.assert(dojo.lang.isObject(namedParameters));
++    orp.util.assert(dojo.lang.isObject(namedParameters));
+     uuidString = namedParameters[orp.util.Uuid.NamedParameters.uuidString];
+-    Util.assert(dojo.lang.isString(uuidString));
++    orp.util.assert(dojo.lang.isString(uuidString));
+     
+     // Check for typos in parameter names
+-    Util.assert(Util.hasNoUnexpectedProperties(namedParameters, [orp.util.Uuid.NamedParameters.uuidString]));
++    orp.util.assert(orp.util.hasNoUnexpectedProperties(namedParameters, [orp.util.Uuid.NamedParameters.uuidString]));
+   }
+ 
+   var uuid = new orp.util.Uuid(uuidString);
+@@ -164,7 +165,7 @@
+  * &lt;pre&gt;
+  *   var uuid = new orp.util.Uuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
+  *   var version = uuid.getVersion();
+- *   Util.assert(version == orp.util.Uuid.Version.TIME_BASED);
++ *   orp.util.assert(version == orp.util.Uuid.Version.TIME_BASED);
+  * &lt;/pre&gt;
+  *
+  * @scope    public instance method
+@@ -187,7 +188,7 @@
+  * &lt;pre&gt;
+  *   var uuid = new orp.util.Uuid(&quot;3B12F1DF-5232-4804-897E-917BF397618A&quot;);
+  *   var variant = uuid.getVariant();
+- *   Util.assert(variant == orp.util.Uuid.Variant.DCE);
++ *   orp.util.assert(variant == orp.util.Uuid.Variant.DCE);
+  * &lt;/pre&gt;
+  *
+  * @scope    public instance method
+@@ -200,7 +201,7 @@
+   //         (variant &quot;10__&quot; == DCE)
+   var variantCharacter = this._uuidString.charAt(19);
+   var variantNumber = parseInt(variantCharacter, orp.util.Uuid.HEX_RADIX);
+-  Util.assert((variantNumber &gt;= 0) &amp;&amp; (variantNumber &lt;= 16));
++  orp.util.assert((variantNumber &gt;= 0) &amp;&amp; (variantNumber &lt;= 16));
+   
+   if (!orp.util.Uuid._ourVariantLookupTable) {
+     var Variant = orp.util.Uuid.Variant;
+
+Modified: trunk/source/util/XmlConverter.js
+===================================================================
+--- trunk/source/util/XmlConverter.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/util/XmlConverter.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -33,6 +33,7 @@
+ // Provides and Requires
+ // -------------------------------------------------------------------
+ dojo.provide(&quot;orp.util.XmlConverter&quot;);
++dojo.require(&quot;orp.util.Util&quot;);
+ // dojo.provide(&quot;orp.util.XmlTextNodeToAttributeSpecifier&quot;);
+ // dojo.provide(&quot;orp.util.XmlAttributeToAttributeSpecifier&quot;);
+ 
+@@ -43,8 +44,8 @@
+  * @scope    public instance constructor
+  */
+ orp.util.XmlTextNodeToAttributeSpecifier = function(tagPath, attribute) {
+-  Util.assert(tagPath instanceof Array);
+-  Util.assert(attribute instanceof Item);
++  orp.util.assert(tagPath instanceof Array);
++  orp.util.assert(attribute instanceof Item);
+   this._tagPath = tagPath;
+   this._attribute = attribute;
+   var attributeCalledExpectedType = attribute.getWorld().getAttributeCalledExpectedType();
+@@ -67,7 +68,7 @@
+  * @scope    public instance constructor
+  */
+ orp.util.XmlAttributeToAttributeSpecifier = function(xmlAttributeName, attribute) {
+-  Util.assert(attribute instanceof Item);
++  orp.util.assert(attribute instanceof Item);
+   this._xmlAttributeName = xmlAttributeName;
+   this._attribute = attribute;
+   var attributeCalledExpectedType = attribute.getWorld().getAttributeCalledExpectedType();
+@@ -99,15 +100,15 @@
+  * @param    itemCategory                       If null, a new category is created from 'namespace' and 'itemTagName'.
+  */
+ orp.util.XmlConverter = function(world, url, nameSpace, itemTagName, itemCategory) {
+-  Util.assert(world instanceof World);
++  orp.util.assert(world instanceof World);
+   var urlSeparators = new RegExp(&quot;\\.|\\/&quot;);
+   var urlParts = url.split(urlSeparators);
+   var len = urlParts.length;
+-  Util.assert(urlParts[len-1] == &quot;xml&quot;);
++  orp.util.assert(urlParts[len-1] == &quot;xml&quot;);
+   if (!nameSpace) {
+     nameSpace = urlParts[len-2];
+   }
+-  Util.assert(Util.isString(itemTagName));
++  orp.util.assert(orp.util.isString(itemTagName));
+ 
+   var xmlDoc = document.implementation.createDocument(&quot;&quot;, &quot;doc&quot;, null);
+   var objXMLHTTP = new XMLHttpRequest();
+@@ -181,8 +182,8 @@
+     listOfOutputItems = this._doDefaultConversion(this._world, this._nameSpace, this._itemElements, this._itemCategory);
+   }
+   else {
+-    Util.assert(xmlToAttributeSpecifiers instanceof Array);
+-    Util.assert(xmlToAttributeSpecifiers[0] instanceof orp.util.XmlTextNodeToAttributeSpecifier);
++    orp.util.assert(xmlToAttributeSpecifiers instanceof Array);
++    orp.util.assert(xmlToAttributeSpecifiers[0] instanceof orp.util.XmlTextNodeToAttributeSpecifier);
+     for (var i = 0; i &lt; this._itemElements.length; ++i) {
+       var newItem = world.newItem();
+       newItem.assignToCategory(this._itemCategory);
+@@ -221,7 +222,7 @@
+     matchXmlAttribute = true;
+     var xmlAttributeToMatch = equalitySpecifier._xmlAttributeName;
+   } else {
+-    Util.assert(equalitySpecifier instanceof orp.util.XmlTextNodeToAttributeSpecifier,
++    orp.util.assert(equalitySpecifier instanceof orp.util.XmlTextNodeToAttributeSpecifier,
+                 &quot;equalitySpecifier should be of type orp.util.XmlTextNodeToAttributeSpecifier or orp.util.XmlAttributeToAttributeSpecifier.&quot;);
+     matchXmlAttribute = false;
+     var xmlTagPathToMatch = equalitySpecifier._tagPath;
+
+Modified: trunk/source/view/EntryView.js
+===================================================================
+--- trunk/source/view/EntryView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/EntryView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -83,9 +83,9 @@
+  */
+ EntryView.prototype = new View();  // makes EntryView be a subclass of View
+ function EntryView(superview, htmlElement, item, attribute, entry, isMultiLine) {
+-  Util.assert((!entry) || entry instanceof Entry);
+-  Util.assert(item instanceof Item);
+-  Util.assert(attribute instanceof Item); // PENDING need to check that attribute is an attribute
++  orp.util.assert((!entry) || entry instanceof Entry);
++  orp.util.assert(item instanceof Item);
++  orp.util.assert(attribute instanceof Item); // PENDING need to check that attribute is an attribute
+   
+   View.call(this, superview, htmlElement, &quot;EntryView&quot;);
+ 
+@@ -169,9 +169,9 @@
+  *
+  */
+ EntryView.prototype.setExpectedTypeEntries = function(expectedTypeEntries) {
+-  Util.assert(Util.isArray(expectedTypeEntries));
++  orp.util.assert(orp.util.isArray(expectedTypeEntries));
+   for (var key in expectedTypeEntries) {
+-    Util.assert(expectedTypeEntries[key] instanceof Entry);
++    orp.util.assert(expectedTypeEntries[key] instanceof Entry);
+   }
+   this._expectedTypeEntries = expectedTypeEntries;
+ };
+@@ -181,7 +181,7 @@
+  *
+  */
+ EntryView.prototype.setSuggestions = function(listOfSuggestions) {
+-  if (listOfSuggestions) {Util.assert(Util.isArray(listOfSuggestions));}
++  if (listOfSuggestions) {orp.util.assert(orp.util.isArray(listOfSuggestions));}
+   this._suggestions = listOfSuggestions;
+ };
+ 
+@@ -279,7 +279,7 @@
+     var typeNumber = this.getWorld().getItemFromUuid(World.UUID_FOR_TYPE_NUMBER);
+     if (dataType == typeNumber) {
+       if (this._entry.getValue() &lt; 0) {
+-        Util.css_addClass(this._textSpan,EntryView.CSS_CLASS_NEGATIVE_NUMBER);
++        orp.util.css_addClass(this._textSpan,EntryView.CSS_CLASS_NEGATIVE_NUMBER);
+       }
+     }
+   }
+@@ -293,9 +293,9 @@
+ }; */
+ 
+ EntryView.prototype.unSelect = function() {
+-  Util.assert(this._isLozenge());
++  orp.util.assert(this._isLozenge());
+   this._setClassName();
+-  //Util.css_removeClass(this._textSpan, EntryView.CSS_CLASS_SELECTED);
++  //orp.util.css_removeClass(this._textSpan, EntryView.CSS_CLASS_SELECTED);
+ };
+ 
+ /** Select this Entry
+@@ -391,7 +391,7 @@
+         newValue = this._provisionalText;
+       }
+       var newValueDisplayString = &quot;&quot;;
+-      if (Util.isString(newValue)) {
++      if (orp.util.isString(newValue)) {
+         newValueDisplayString = newValue;
+       }
+       else if (newValue instanceof Item) {
+@@ -422,7 +422,7 @@
+  * @param    value    The new value to be saved. 
+  */
+ EntryView.prototype._transformToExpectedType = function(value) {
+-  if (value &amp;&amp; Util.isString(value)) {
++  if (value &amp;&amp; orp.util.isString(value)) {
+     var world = this.getWorld();
+     var listOfExpectedTypeEntries;
+     if (this._expectedTypeEntries) {
+@@ -453,7 +453,7 @@
+  * @param    listOfTypes    The new value to be saved. 
+  */
+ EntryView._transformValueToExpectedType = function(world, value, listOfTypes) {
+-  if (value &amp;&amp; Util.isString(value) &amp;&amp; listOfTypes &amp;&amp; Util.isArray(listOfTypes)) {
++  if (value &amp;&amp; orp.util.isString(value) &amp;&amp; listOfTypes &amp;&amp; orp.util.isArray(listOfTypes)) {
+     var categoryCalledCategory = world.getCategoryCalledCategory();
+     var typeCalledText = world.getTypeCalledText();
+     var typeCalledDate = world.getTypeCalledDate();
+@@ -585,7 +585,7 @@
+  * @param    onClickFunction    A function to call. 
+  */
+ EntryView.prototype.setClickFunction = function(onClickFunction) {
+-  Util.assert(onClickFunction instanceof Function);
++  orp.util.assert(onClickFunction instanceof Function);
+   this._clickFunction = onClickFunction;
+ };
+ 
+@@ -678,15 +678,15 @@
+  * @param    inEventObject    An event object. 
+  */
+ EntryView.prototype.onKeyPress = function(eventObject) {
+-  if (eventObject.keyCode == Util.ASCII_VALUE_FOR_ESCAPE) {
++  if (eventObject.keyCode == orp.util.ASCII.ESCAPE) {
+     this._restoreText();
+     return true;
+   }
+   if (this._suggestionBox &amp;&amp; this._suggestionBox._keyPressOnInputField(eventObject)) {
+     return true;
+   }
+-  var ignoreKeyPressFunc = this._isEditing &amp;&amp; (eventObject.keyCode == Util.ASCII_VALUE_FOR_LEFT_ARROW || 
+-    eventObject.keyCode == Util.ASCII_VALUE_FOR_RIGHT_ARROW);
++  var ignoreKeyPressFunc = this._isEditing &amp;&amp; (eventObject.keyCode == orp.util.ASCII.LEFT_ARROW || 
++    eventObject.keyCode == orp.util.ASCII.RIGHT_ARROW);
+   if (!ignoreKeyPressFunc &amp;&amp; this._keyPressFunction &amp;&amp; this._keyPressFunction(eventObject, this)) {
+     return true;
+   }
+@@ -746,15 +746,15 @@
+   if (this._keyPressFunction &amp;&amp; this._keyPressFunction(myEvent, this)) {
+     return true;
+   }
+-  if (myEvent.keyCode ==  Util.KEYCODE_FOR_BACKSPACE || myEvent.keyCode == Util.KEYCODE_FOR_DELETE ||
++  if (myEvent.keyCode ==  orp.util.KEYCODE_FOR_BACKSPACE || myEvent.keyCode == orp.util.KEYCODE_FOR_DELETE ||
+       myEvent.keyCode === 0) {
+-    Util.assert(this._entry !== null);
++    orp.util.assert(this._entry !== null);
+     this._entry.voteToDelete();
+     this._entry = null;
+     this._valueIsItem = false;
+     this._setClassName();
+     this.getRootView().removeFromSelection(this);
+-    if ((myEvent.keyCode ==  Util.KEYCODE_FOR_BACKSPACE || myEvent.keyCode == Util.KEYCODE_FOR_DELETE) &amp;&amp;
++    if ((myEvent.keyCode ==  orp.util.KEYCODE_FOR_BACKSPACE || myEvent.keyCode == orp.util.KEYCODE_FOR_DELETE) &amp;&amp;
+         this.getSuperview().entryRemoved) {
+       this.getSuperview().entryRemoved(this);
+     }
+@@ -762,7 +762,7 @@
+       this._buildView();
+     }
+     if (myEvent.keyCode === 0) {
+-      this.startEditing(true,Util.getStringFromKeyEvent(myEvent));
++      this.startEditing(true, orp.util.getStringFromKeyEvent(myEvent));
+       return true;
+     }
+     return false;
+
+Modified: trunk/source/view/ItemView.js
+===================================================================
+--- trunk/source/view/ItemView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/ItemView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -58,8 +58,8 @@
+  */
+ ItemView.prototype = new View();  // makes ItemView be a subclass of View
+ function ItemView(superview, htmlElement, item) {
+-  Util.assert(htmlElement instanceof HTMLElement);
+-  Util.assert(item instanceof Item);
++  orp.util.assert(htmlElement instanceof HTMLElement);
++  orp.util.assert(item instanceof Item);
+ 
+   View.call(this, superview, htmlElement, &quot;ItemView&quot;);
+ 
+@@ -88,7 +88,7 @@
+  * @scope    public instance method
+  */
+ ItemView.prototype.refresh = function() {
+-  Util.assert(this._item instanceof Item);
++  orp.util.assert(this._item instanceof Item);
+   
+   // PENDING: this needs to be changed from DOM level 0 to DOM level 2.
+   var listOfStrings = [];
+
+Modified: trunk/source/view/LoginView.js
+===================================================================
+--- trunk/source/view/LoginView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/LoginView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -212,7 +212,7 @@
+  */
+ LoginView.prototype._signinPasswordKeyPress = function(eventObject) {
+   // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+-  if (eventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++  if (eventObject.keyCode == orp.util.ASCII.RETURN) {
+     this._clickOnSignInButton(eventObject);
+   }
+ };
+@@ -225,7 +225,7 @@
+  */
+ LoginView.prototype._createAccountPasswordKeyPress = function(eventObject) {
+   // see if &lt;return&gt; is pressed, if so, similate clicking on sign in button
+-  if (eventObject.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++  if (eventObject.keyCode == orp.util.ASCII.RETURN) {
+     this._clickOnNewAcctButton(eventObject);
+   }
+ };
+@@ -479,8 +479,8 @@
+     this._userSuggestionBoxDivElement.appendChild(table);
+     
+     // set-up the suggestion box to open just below the input field it comes from
+-    var suggestionBoxTop = Util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
+-    var suggestionBoxLeft = Util.getOffsetLeftFromElement(this._inputField);
++    var suggestionBoxTop = orp.util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
++    var suggestionBoxLeft = orp.util.getOffsetLeftFromElement(this._inputField);
+     this._userSuggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
+     this._userSuggestionBoxDivElement.style.left = suggestionBoxLeft + &quot;px&quot;;
+     // alert(this._inputField.offsetWidth);
+
+Modified: trunk/source/view/MultiEntriesView.js
+===================================================================
+--- trunk/source/view/MultiEntriesView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/MultiEntriesView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -65,8 +65,8 @@
+ function MultiEntriesView(superview, htmlElement, item, attribute) {
+   View.call(this, superview, htmlElement, &quot;MultiEntriesView&quot;);
+ 
+-  Util.assert(item instanceof Item);
+-  Util.assert(attribute instanceof Item); // PENDING need to check that attribute is an attribute
++  orp.util.assert(item instanceof Item);
++  orp.util.assert(attribute instanceof Item); // PENDING need to check that attribute is an attribute
+   
+   this._item = item;
+   this._attribute = attribute;
+@@ -103,7 +103,7 @@
+  * @param    item      The Item which just became real. 
+  */
+ MultiEntriesView.prototype._provisionalItemJustBecomeReal = function(item) {
+-  Util.assert(item == this._item);
++  orp.util.assert(item == this._item);
+   var superview = this.getSuperview();
+   if (superview._provisionalItemJustBecomeReal) {
+     superview._provisionalItemJustBecomeReal(item);
+@@ -124,7 +124,7 @@
+  *
+  */
+ MultiEntriesView.prototype.noLongerProvisional = function() {
+-  Util.assert(this._entryViews.length == 1); // provisional item should only have one entry
++  orp.util.assert(this._entryViews.length == 1); // provisional item should only have one entry
+   for (var key in this._entryViews) {
+     var entry = this._entryViews[key];
+     entry.noLongerProvisional();
+@@ -159,7 +159,7 @@
+  *
+  */
+ MultiEntriesView.prototype.setKeyPressFunction = function(keyPressFunction) {
+-  Util.assert(keyPressFunction instanceof Function);
++  orp.util.assert(keyPressFunction instanceof Function);
+   this._keyPressFunction = keyPressFunction;
+ };
+ 
+@@ -171,7 +171,7 @@
+  * @param    onClickFunction    A function to call. 
+  */
+ MultiEntriesView.prototype.setClickFunction = function(onClickFunction) {
+-  Util.assert(onClickFunction instanceof Function);
++  orp.util.assert(onClickFunction instanceof Function);
+   this._clickFunction = onClickFunction;
+ };
+ 
+@@ -210,9 +210,9 @@
+  */
+ MultiEntriesView.prototype._handleDrop = function(element) {
+   var draggedEntryView = element.or_entryView;
+-  if (!draggedEntryView) {Util.assert(false);}
++  if (!draggedEntryView) {orp.util.assert(false);}
+   var droppedEntry = draggedEntryView._entry;
+-  if (!droppedEntry) {Util.assert(false);}
++  if (!droppedEntry) {orp.util.assert(false);}
+   if (!this.hasEntry(droppedEntry)) {
+     var newEntry;
+     if (droppedEntry.getType() == this.getWorld().getTypeCalledConnection()) {
+@@ -243,13 +243,13 @@
+  *
+  */
+ MultiEntriesView.prototype._keyPressOnEditField = function(eventObject, entryView) {
+-  Util.assert(entryView instanceof EntryView);
++  orp.util.assert(entryView instanceof EntryView);
+   var asciiValueOfKey = eventObject.keyCode;
+   var move, doCreateNewEntry;
+   switch (asciiValueOfKey) {
+-    case Util.ASCII_VALUE_FOR_LEFT_ARROW: move = -1; break;
+-    case Util.ASCII_VALUE_FOR_RIGHT_ARROW: move = 1; break;
+-    case Util.ASCII_VALUE_FOR_RETURN:
++    case orp.util.ASCII.LEFT_ARROW: move = -1; break;
++    case orp.util.ASCII.RIGHT_ARROW: move = 1; break;
++    case orp.util.ASCII.RETURN:
+       if (eventObject.altKey) {
+         doCreateNewEntry = true;
+         break;
+@@ -266,8 +266,8 @@
+     return true;
+   }
+   if (move !== 0) {
+-    var index = Util.getArrayIndex(this._entryViews, entryView);
+-    Util.assert(index != -1);
++    var index = orp.util.getArrayIndex(this._entryViews, entryView);
++    orp.util.assert(index != -1);
+     index += move;
+     if (index &gt;= 0 &amp;&amp; index &lt; this._entryViews.length) {
+       entryView.stopEditing();
+
+Modified: trunk/source/view/NavbarView.js
+===================================================================
+--- trunk/source/view/NavbarView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/NavbarView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -117,7 +117,7 @@
+  * @param    ulElement    The &quot;ul&quot; HTMLElement for the menu of menu items. 
+  */
+ NavbarView.prototype._sortOrderUpdate = function(ulElement) {
+-  Util.assert(this._liElementBeingTouched !== null);
++  orp.util.assert(this._liElementBeingTouched !== null);
+   
+   var liElementPrefixString = NavbarView.ELEMENT_ID_MENU + '_';
+   var menuItemElementId = this._liElementBeingTouched.id;
+@@ -126,8 +126,8 @@
+   
+   var listOfPages = this._getNewOrderingForPageList(ulElement);
+   
+-  var arrayIndex = Util.getArrayIndex(listOfPages, pageToReorder);
+-  Util.assert(arrayIndex != -1);
++  var arrayIndex = orp.util.getArrayIndex(listOfPages, pageToReorder);
++  orp.util.assert(arrayIndex != -1);
+   var pageAbove = (arrayIndex === 0) ? null : listOfPages[arrayIndex-1];
+   var pageBelow = (arrayIndex &gt; listOfPages.length) ? null : listOfPages[arrayIndex+1];
+   pageToReorder.reorderBetween(pageAbove, pageBelow);
+@@ -195,7 +195,7 @@
+     // the id for the individual menu item to the right of the underscore.
+     var menuItemId = NavbarView.ELEMENT_ID_MENU + '_' + page.getUuidString();
+     var liElement = View.appendNewElement(ulElement, &quot;li&quot;, NavbarView.CSS_CLASS_MENU_ITEM, {id: menuItemId});
+-    if (page == this.getRootView().getCurrentPage()) {Util.css_addClass(liElement,NavbarView.CSS_CLASS_SELECTED);}
++    if (page == this.getRootView().getCurrentPage()) {orp.util.css_addClass(liElement,NavbarView.CSS_CLASS_SELECTED);}
+     var anchorElement = View.appendNewElement(liElement, &quot;a&quot;, null, {href: menuUrl}, menuText);
+     Event.observe(anchorElement, &quot;click&quot;, RootView.clickOnLocalLink.bindAsEventListener());
+     Event.observe(liElement, &quot;mousedown&quot;, this._mouseDownOnMenuItem.bindAsEventListener(this, liElement));
+
+Modified: trunk/source/view/PageView.js
+===================================================================
+--- trunk/source/view/PageView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/PageView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -92,8 +92,8 @@
+  */
+ PageView.prototype = new View();  // makes PageView be a subclass of View
+ function PageView(superview, htmlElement, pageItem) {
+-  Util.assert(htmlElement instanceof HTMLElement);
+-  Util.assert(pageItem instanceof Item);
++  orp.util.assert(htmlElement instanceof HTMLElement);
++  orp.util.assert(pageItem instanceof Item);
+ 
+   View.call(this, superview, htmlElement, &quot;PageView&quot;);
+ 
+@@ -145,7 +145,7 @@
+  * @scope    public instance method
+  */
+ PageView.prototype.doInitialDisplay = function() {
+-  Util.assert(this.getHtmlElement() instanceof HTMLElement);
++  orp.util.assert(this.getHtmlElement() instanceof HTMLElement);
+   
+   var attributeCalledName = this.getWorld().getAttributeCalledName();
+   var attributeCalledSummary = this.getWorld().getAttributeCalledSummary();
+
+Modified: trunk/source/view/RootView.js
+===================================================================
+--- trunk/source/view/RootView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/RootView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -74,16 +74,16 @@
+  * @syntax   var rootView = new RootView()
+  */
+ function RootView(world) {
+-  window.onerror = Util.handleError;
++  window.onerror = orp.util.handleError;
+   // window.onunload = window.doOnunloadActions;
+   // window.onfocus = window.doOnfocusActions;
+   // window.onblur = window.doOnblurActions;
+   // window.onresize = window.doOnresizeActions;  
+-  Util.setTargetsForExternalLinks();
++  orp.util.setTargetsForExternalLinks();
+   
+   RootView._ourSingleInstance = this;
+    
+-  Util.assert(world instanceof World);
++  orp.util.assert(world instanceof World);
+ 
+   // instance properties
+   this._world = world;
+@@ -136,7 +136,7 @@
+   this._anchorSpan = anchorSpan;
+   this._rootDiv = rootDiv;
+   
+-  Util.setErrorReportCallback(RootView.displayTextInDebugTextarea);
++  orp.util.setErrorReportCallback(RootView.displayTextInDebugTextarea);
+   this.setCurrentContentViewFromUrl();
+ }
+ 
+@@ -293,7 +293,7 @@
+  * @param    item    Any item.
+  */
+ RootView.prototype.getUrlForItem = function(item) {
+-  Util.assert(item instanceof Item);
++  orp.util.assert(item instanceof Item);
+   var categoryCalledPage = this.getWorld().getItemFromUuid(RootView.UUID_FOR_CATEGORY_PAGE);
+   var prefix;
+   if (item.isInCategory(categoryCalledPage)) {
+@@ -389,7 +389,7 @@
+     this._displayNavbar();
+     this._displayDebugArea();
+     if (this._currentContentView) {
+-      Util.assert(this._currentContentView instanceof Object);
++      orp.util.assert(this._currentContentView instanceof Object);
+       document.title = this._currentContentView.getPageTitle() + &quot; - openrecord.org&quot;;
+       this._currentContentView.includeOnScreen(true);
+     }
+@@ -471,7 +471,7 @@
+  * @scope    private instance method
+  */
+ RootView.prototype._displayDebugArea = function() {
+-  Util.assert(this._debugDivElement instanceof HTMLDivElement);
++  orp.util.assert(this._debugDivElement instanceof HTMLDivElement);
+ 
+   var listOfStrings = [];
+   listOfStrings.push(&quot;&lt;textarea readonly id=\&quot;&quot; + RootView.ELEMENT_ID_DEBUG_TEXTAREA + &quot;\&quot; rows=\&quot;20\&quot; cols=\&quot;100\&quot; wrap=\&quot;virtual\&quot;&gt;&lt;/textarea&gt;&quot;);
+@@ -568,7 +568,7 @@
+     this._selections[i].unSelect();
+   }
+   if (aView) {
+-    Util.assert(aView instanceof View);
++    orp.util.assert(aView instanceof View);
+     this._selections = [aView];
+   }
+   else {this._selections = [];}
+@@ -580,8 +580,8 @@
+  * @param    aView    A selectable object
+  */
+ RootView.prototype.addToSelection = function(aView) {
+-  Util.assert(aView instanceof View);
+-  Util.addObjectToSet(aView,this._selections);
++  orp.util.assert(aView instanceof View);
++  orp.util.addObjectToSet(aView,this._selections);
+ };
+ 
+ /**
+@@ -590,8 +590,8 @@
+  * @param    aView    A selectable object
+  */
+ RootView.prototype.removeFromSelection = function(aView) {
+-  Util.assert(aView instanceof View);
+-  Util.assert(Util.removeObjectFromSet(aView,this._selections));
++  orp.util.assert(aView instanceof View);
++  orp.util.assert(orp.util.removeObjectFromSet(aView,this._selections));
+ };
+   
+ // -------------------------------------------------------------------
+@@ -619,7 +619,7 @@
+   // &quot;ne-resize&quot;, &quot;se-resize&quot;, &quot;nw-resize&quot;, &quot;sw-resize&quot;
+   // window.document.body.style.cursor = &quot;wait&quot;;
+ 
+-  var htmlAnchorElement = Util.getTargetFromEvent(eventObject);
++  var htmlAnchorElement = orp.util.getTargetFromEvent(eventObject);
+   
+   window.location = htmlAnchorElement.href;
+   RootView._ourSingleInstance.setCurrentContentViewFromUrl();
+
+Modified: trunk/source/view/SectionView.js
+===================================================================
+--- trunk/source/view/SectionView.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/SectionView.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -94,7 +94,7 @@
+   View.call(this, superview, htmlElement, &quot;SectionView&quot;);
+ 
+   // instance properties
+-  Util.assert(sectionItem instanceof Item);
++  orp.util.assert(sectionItem instanceof Item);
+   this._section = sectionItem;
+ 
+   this._pluginView = null;
+@@ -147,7 +147,7 @@
+  * @return   A newly created plugin object, initialized to be the plugin for this section.
+  */
+ SectionView.prototype.getPluginInstanceFromPluginItem = function(pluginItem, pluginDiv) {
+-  Util.assert(pluginItem instanceof Item);
++  orp.util.assert(pluginItem instanceof Item);
+   
+   var newPlugin = null;
+   var pluginClass;
+@@ -240,7 +240,7 @@
+     var pluginItem = this.getWorld().getItemFromUuid(pluginClass.getPluginItemUuid());
+     optionElement.text = pluginItem.getDisplayString();
+     listener = this; 
+-    Util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
++    orp.util.addEventListener(optionElement, &quot;click&quot;, function(event) {listener.clickOnPluginSelectionMenu(event);});
+   }
+   View.appendNewTextNode(controlArea,&quot; of items whose &quot;);
+   this._queryEditSpan = View.appendNewElement(controlArea, &quot;span&quot;);
+@@ -270,7 +270,7 @@
+     for (var i=0; i &lt; entriesLayoutData.length; ++i) {
+       var layoutItem = entriesLayoutData[i].getConnectedItem(this._section);
+       var entriesAppliesToPlugin = layoutItem.getEntriesForAttribute(attributeAppliesToPlugin);
+-      Util.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
++      orp.util.assert(entriesAppliesToPlugin &amp;&amp; entriesAppliesToPlugin.length == 1);
+       if (entriesAppliesToPlugin[0].getValue() == pluginTypeItem) {
+         return layoutItem;
+       }
+@@ -309,7 +309,7 @@
+     matchingAttribute = this.getWorld().getAttributeCalledCategory();
+   }
+   else {
+-    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    orp.util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
+     matchingAttribute = listOfMatchingAttrs[0].getValue();
+   }
+   var attributeCalledQueryMatchingValue = this.getWorld().getAttributeCalledQueryMatchingValue();
+@@ -359,7 +359,7 @@
+  * @return   Returns true if the user pressed the return key, or false otherwise.
+  */
+ SectionView.prototype.keyPressOnMatchingValueField = function(event, anEntryView) {
+-  if (event.keyCode == Util.ASCII_VALUE_FOR_RETURN) {
++  if (event.keyCode == orp.util.ASCII.RETURN) {
+     anEntryView.stopEditing();
+     return true;
+   }
+@@ -375,7 +375,7 @@
+ SectionView.prototype.observedItemHasChanged = function(item) {
+   item.removeObserver(this); //item no longer needs to be observed as query editor span is rebuilt
+   var myQuery = this.getQuerySpec();
+-  Util.assert(item == myQuery);
++  orp.util.assert(item == myQuery);
+   var pluginItem = this._pluginView.getPluginItem();
+   this._pluginView.endOfLife();
+   this._pluginView = this.getPluginInstanceFromPluginItem(pluginItem, this._pluginDiv);
+@@ -392,7 +392,7 @@
+  */
+ SectionView.prototype.clickOnPluginSelectionMenu = function(eventObject) {
+   eventObject = eventObject || window.event;
+-  var optionElement = Util.getTargetFromEvent(eventObject);
++  var optionElement = orp.util.getTargetFromEvent(eventObject);
+   // PENDING: We could replace the lines above with &quot;var optionElement = this;&quot;
+   // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
+   
+@@ -428,7 +428,7 @@
+  */
+ SectionView.prototype.clickOnAttributeMenu = function(eventObject) {
+   eventObject = eventObject || window.event;
+-  var optionElement = Util.getTargetFromEvent(eventObject);
++  var optionElement = orp.util.getTargetFromEvent(eventObject);
+   // PENDING: We could replace the lines above with &quot;var optionElement = this;&quot;
+   // That would work fine in Firefox, but maybe it wouldn't work in other browsers?  
+   
+@@ -446,7 +446,7 @@
+     matchingAttribute = this.getWorld().getAttributeCalledCategory();
+   }
+   else {
+-    Util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
++    orp.util.assert(listOfMatchingAttrs.length==1, 'more than one matching attributes');
+     matchingAttribute = listOfMatchingAttrs[0].getValue();
+   }
+   if (matchingAttribute.getDisplayString() != newChoiceName) {
+@@ -464,10 +464,10 @@
+     for (var i in listOfMatchingEntries) {
+       var anEntry = listOfMatchingEntries[i];
+       anEntry.voteToDelete();
+-      Util.assert(anEntry.hasBeenDeleted());
++      orp.util.assert(anEntry.hasBeenDeleted());
+     }
+     listOfMatchingEntries = myQuery.getEntriesForAttribute(attributeCalledQueryMatchingValue);
+-    Util.assert(listOfMatchingEntries.length === 0);
++    orp.util.assert(listOfMatchingEntries.length === 0);
+     
+     // I think we need these next 3 lines in to make sure the view gets updated  
+     // to reflect the new query.  When we get a chance we should probably do 
+
+Modified: trunk/source/view/SuggestionBox.js
+===================================================================
+--- trunk/source/view/SuggestionBox.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/SuggestionBox.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -115,35 +115,35 @@
+   var index = -1;
+   var doSelectItem = false;
+   switch (asciiValueOfKey) {
+-    case Util.ASCII_VALUE_FOR_DOWN_ARROW:
++    case orp.util.ASCII.DOWN_ARROW:
+       if (this._selectedItem) {
+-        index = (Util.getArrayIndex(this._listOfMatchingItems, this._selectedItem)+1) % numberOfMatchingItems;
++        index = (orp.util.getArrayIndex(this._listOfMatchingItems, this._selectedItem)+1) % numberOfMatchingItems;
+       }
+       else {
+         index = 0;
+       }
+       break;
+-    case Util.ASCII_VALUE_FOR_UP_ARROW:
++    case orp.util.ASCII.UP_ARROW:
+       if (this._selectedItem) {
+-        index = Util.getArrayIndex(this._listOfMatchingItems, this._selectedItem)-1;
++        index = orp.util.getArrayIndex(this._listOfMatchingItems, this._selectedItem)-1;
+         if (index &lt; 0) {index = numberOfMatchingItems-1;}
+       }
+       else {
+         index = numberOfMatchingItems-1;
+       }
+       break;
+-      case Util.ASCII_VALUE_FOR_TAB:
++      case orp.util.ASCII.TAB:
+       if (this._inputField.value.length === 0) {return false;}
+       if (!this._selectedItem) {
+         this._selectedItem = this._listOfMatchingItems[0];
+         doSelectItem = true;
+       }
+       break;
+-    case Util.ASCII_VALUE_FOR_RETURN:
++    case orp.util.ASCII.RETURN:
+       if (this._selectedItem) {doSelectItem = true;}
+       break;
+-    case Util.ASCII_VALUE_FOR_LEFT_ARROW:
+-    case Util.ASCII_VALUE_FOR_RIGHT_ARROW:
++    case orp.util.ASCII.LEFT_ARROW:
++    case orp.util.ASCII.RIGHT_ARROW:
+       // if left or right arrow keys, then hide suggestion box
+       this._setShouldHide(true);
+       return false;
+@@ -252,8 +252,8 @@
+     this._suggestionBoxDivElement.appendChild(table);
+ 
+     // set-up the suggestion box to open just below the input field it comes from
+-    var suggestionBoxTop = Util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
+-    var suggestionBoxLeft = Util.getOffsetLeftFromElement(this._inputField);
++    var suggestionBoxTop = orp.util.getOffsetTopFromElement(this._inputField) + this._inputField.offsetHeight;
++    var suggestionBoxLeft = orp.util.getOffsetLeftFromElement(this._inputField);
+     this._suggestionBoxDivElement.style.top = suggestionBoxTop + &quot;px&quot;; 
+     this._suggestionBoxDivElement.style.left = (suggestionBoxLeft-2) + &quot;px&quot;;
+     this._suggestionBoxDivElement.style.width = (this._inputField.offsetWidth + 4)+ &quot;px&quot;; //HACK: Need to fix +4
+
+Modified: trunk/source/view/View.js
+===================================================================
+--- trunk/source/view/View.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/source/view/View.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -162,7 +162,7 @@
+  * @param    visibleFlag    True if the view should be visible on screen. False if the view should be hidden off screen.
+  */
+ View.prototype.includeOnScreen = function(visibleFlag) {
+-  Util.assert(Util.isBoolean(visibleFlag));
++  orp.util.assert(orp.util.isBoolean(visibleFlag));
+ 
+   if (visibleFlag) {
+     this.refresh();
+@@ -185,7 +185,7 @@
+  * @param    element    An HTML element. 
+  */
+ View.removeChildrenOfElement = function(element) {
+-  Util.assert(element instanceof HTMLElement);
++  orp.util.assert(element instanceof HTMLElement);
+   element.innerHTML = '';
+ };
+ 
+@@ -202,10 +202,10 @@
+  * @return   The newly created HTML element.
+  */
+ View.newElement = function(tagName, cssClassName, attributesInJson, text) {
+-  Util.assert(Util.isString(tagName));
+-  Util.assert(!cssClassName || Util.isString(cssClassName));
+-  Util.assert(!attributesInJson || Util.isObject(attributesInJson));
+-  Util.assert(!text|| Util.isString(text));
++  orp.util.assert(orp.util.isString(tagName));
++  orp.util.assert(!cssClassName || orp.util.isString(cssClassName));
++  orp.util.assert(!attributesInJson || orp.util.isObject(attributesInJson));
++  orp.util.assert(!text|| orp.util.isString(text));
+ 
+   var newElement = window.document.createElement(tagName);
+   if (cssClassName) {
+@@ -249,7 +249,7 @@
+  * @return   The newly created HTML element.
+  */
+ View.appendNewElement = function(parentElement, tagName, cssClassName, attributesInJson, text) {
+-  Util.assert(parentElement instanceof HTMLElement);
++  orp.util.assert(parentElement instanceof HTMLElement);
+   
+   var newElement = View.newElement(tagName, cssClassName, attributesInJson, text);
+   parentElement.appendChild(newElement);
+@@ -268,8 +268,8 @@
+  * @return   The newly created text node.
+  */
+ View.appendNewTextNode = function(parentElement, textString) {
+-  Util.assert(parentElement instanceof HTMLElement);
+-  Util.assert(Util.isString(textString));
++  orp.util.assert(parentElement instanceof HTMLElement);
++  orp.util.assert(orp.util.isString(textString));
+ 
+   var newTextNode = window.document.createTextNode(textString);
+   parentElement.appendChild(newTextNode);
+
+Modified: trunk/tests/LintTest.html
+===================================================================
+--- trunk/tests/LintTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/LintTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -16,7 +16,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/model/LintTest.html
+===================================================================
+--- trunk/tests/model/LintTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/model/LintTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -16,7 +16,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/CsvParserTest.html
+===================================================================
+--- trunk/tests/util/CsvParserTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/CsvParserTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../tests/util/CsvParserTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/DateValueTest.html
+===================================================================
+--- trunk/tests/util/DateValueTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/DateValueTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -15,7 +15,6 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;DateValueTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/DateValueTest.js
+===================================================================
+--- trunk/tests/util/DateValueTest.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/DateValueTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -38,6 +38,7 @@
+ function setUp() {
+   dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.Util&quot;);
+   dojo.require(&quot;orp.util.DateValue&quot;);
+   // TestVars = {};
+ }
+@@ -80,7 +81,7 @@
+   for (var i in dates) {
+     var dateValue = dates[i];
+     assertTrue('DateValue is valid', dateValue.isValid());
+-    assertTrue('Util.isDate() returns true', Util.isDate(dateValue));
++    assertTrue('orp.util.isDate() returns true', orp.util.isDate(dateValue));
+   }
+   assertTrue('Time display is right', dates[8].toShortLocaleDateString() == 'Feb 14, 1944 9:30 am');
+   assertTrue('Today is parsed correctly', dates[10].toShortLocaleDateString() =='Today');
+
+Modified: trunk/tests/util/LintTest.html
+===================================================================
+--- trunk/tests/util/LintTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/LintTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -16,7 +16,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/tests/util/TestSuite.html
+===================================================================
+--- trunk/tests/util/TestSuite.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/TestSuite.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -26,6 +26,7 @@
+         testSuite.addTestPage(&quot;../../../tests/util/CsvParserTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/DateValueTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/LintTest.html&quot;);
++        testSuite.addTestPage(&quot;../../../tests/util/UtilTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/UuidTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/XmlConverterTest.html&quot;);
+         testSuite.addTestPage(&quot;../../../tests/util/XmlConverterMultiplePassesTest.html&quot;);
+
+Copied: trunk/tests/util/UtilTest.html (from rev 329, trunk/source/util/UtilTest.html)
+===================================================================
+--- trunk/source/util/UtilTest.html	2005-09-16 01:43:17 UTC (rev 329)
++++ trunk/tests/util/UtilTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -0,0 +1,77 @@
++&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
++&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.1//EN&quot; &quot;<A HREF="http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd</A>&quot;&gt;
++&lt;html xmlns=&quot;<A HREF="http://www.w3.org/1999/xhtml">http://www.w3.org/1999/xhtml</A>&quot; xml:lang=&quot;en&quot; &gt;
++
++&lt;!-- 
++ Written in 2005 by Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++--&gt;
++
++  &lt;head&gt;
++    &lt;title&gt;Unit tests for Util.js&lt;/title&gt;
++
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;UtilTest.js&quot;&gt;&lt;/script&gt;
++  &lt;/head&gt;
++  
++  &lt;body&gt;
++    &lt;h1&gt;Unit tests for Util.js&lt;/h1&gt;
++
++    &lt;p&gt;This page is used to run unit tests for the JavaScript code in the 
++    OpenRecord project.&lt;/p&gt;
++    
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p&gt;You should be able to run these unit tests by going to
++    &lt;a href=&quot;../../third_party/jsunit/jsunit2_1/testRunner.html?testpage=&quot; 
++    onclick=&quot;href+=window.location.href;&quot; rel=&quot;external&quot;&gt;the local testRunner 
++    page&lt;/a&gt;, and hitting the &lt;b&gt;Run&lt;/b&gt; button. &lt;/p&gt;
++
++    &lt;p&gt;To see the tests, open this .html file in a text editor. Or, within a  
++    web browser, you should be able see the source for this file by using 
++    some menu like &lt;b&gt;View&lt;/b&gt; followed by &lt;b&gt;Page Source&lt;/b&gt;. The tests 
++    may be in this file, or they may be in a separate file that has the
++    same name as this one, except with a .js extension instead of a .html
++    extension.&lt;/p&gt;
++ 
++    &lt;p&gt;The unit tests are set up to run in the
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/jsunit/">http://www.edwardh.com/jsunit/</A>&quot; rel=&quot;external&quot;&gt;JsUnit framework&lt;/a&gt;
++    written by 
++    &lt;a href=&quot;<A HREF="http://www.edwardh.com/">http://www.edwardh.com/</A>&quot; rel=&quot;external&quot;&gt;Edward Hieatt&lt;/a&gt;. &lt;/p&gt;
++
++    &lt;p&gt;&nbsp;&lt;/p&gt;
++    &lt;hr/&gt;
++    &lt;p class=&quot;copyright&quot;&gt;You can copy freely from this work &mdash; copyright 
++    rights relinquished under the Creative Commons  
++    &lt;a rel=&quot;license external&quot; 
++    href=&quot;<A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>&quot;&gt;Public Domain 
++    Dedication&lt;/a&gt;.&lt;/p&gt;
++
++&lt;!-- Creative Commons metadata for Public Domain License 
++
++&lt;rdf:RDF xmlns=&quot;<A HREF="http://web.resource.org/cc/">http://web.resource.org/cc/</A>&quot;
++    xmlns:dc=&quot;<A HREF="http://purl.org/dc/elements/1.1/">http://purl.org/dc/elements/1.1/</A>&quot;
++    xmlns:rdf=&quot;<A HREF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">http://www.w3.org/1999/02/22-rdf-syntax-ns#</A>&quot;&gt;
++&lt;Work rdf:about=&quot;&quot;&gt;
++   &lt;dc:title&gt;openrecord.org&lt;/dc:title&gt;
++   &lt;dc:type rdf:resource=&quot;<A HREF="http://purl.org/dc/dcmitype/Text">http://purl.org/dc/dcmitype/Text</A>&quot; /&gt;
++   &lt;license rdf:resource=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot; /&gt;
++&lt;/Work&gt;
++
++&lt;License rdf:about=&quot;<A HREF="http://web.resource.org/cc/PublicDomain">http://web.resource.org/cc/PublicDomain</A>&quot;&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Reproduction">http://web.resource.org/cc/Reproduction</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/Distribution">http://web.resource.org/cc/Distribution</A>&quot; /&gt;
++   &lt;permits rdf:resource=&quot;<A HREF="http://web.resource.org/cc/DerivativeWorks">http://web.resource.org/cc/DerivativeWorks</A>&quot; /&gt;
++&lt;/License&gt;
++
++&lt;/rdf:RDF&gt;
++
++--&gt;
++  &lt;/body&gt;
++&lt;/html&gt;
++
+
+Copied: trunk/tests/util/UtilTest.js (from rev 330, trunk/source/util/UtilTest.js)
+===================================================================
+--- trunk/source/util/UtilTest.js	2005-09-20 01:56:25 UTC (rev 330)
++++ trunk/tests/util/UtilTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -0,0 +1,132 @@
++/*****************************************************************************
++ UtilTest.js
++ 
++******************************************************************************
++ Written in 2005 by 
++    Brian Douglas Skinner &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/openrecord-svn">brian.skinner at gumption.org</A>&gt;
++    Mignon Belongie
++  
++ Copyright rights relinquished under the Creative Commons  
++ Public Domain Dedication:
++    <A HREF="http://creativecommons.org/licenses/publicdomain/">http://creativecommons.org/licenses/publicdomain/</A>
++  
++ You can copy freely from this file.  This work may be freely reproduced, 
++ distributed, transmitted, used, modified, built upon, or otherwise exploited
++ by anyone for any purpose.
++  
++ This work is provided on an &quot;AS IS&quot; basis, without warranties or conditions 
++ of any kind, either express or implied, including, without limitation, any 
++ warranties or conditions of title, non-infringement, merchantability, or 
++ fitness for a particular purpose. You are solely responsible for determining 
++ the appropriateness of using or distributing the work and assume all risks 
++ associated with use of this work, including but not limited to the risks and 
++ costs of errors, compliance with applicable laws, damage to or loss of data 
++ or equipment, and unavailability or interruption of operations.
++
++ In no event shall the authors or contributors have any liability for any 
++ direct, indirect, incidental, special, exemplary, or consequential damages,
++ however caused and on any theory of liability, whether in contract, strict 
++ liability, or tort (including negligence), arising in any way out of or in 
++ connection with the use or distribution of the work.
++*****************************************************************************/
++ 
++var UtilTestVars = null;
++
++
++// -------------------------------------------------------------------
++// setUp and tearDown
++// -------------------------------------------------------------------
++
++function setUp() {
++  dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
++  dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
++  dojo.require(&quot;orp.util.Util&quot;);
++  UtilTestVars = {};
++  UtilTestVars.theHobbit = &quot;The Hobbit&quot;;
++}
++
++function tearDown() {
++  UtilTestVars = null;
++}
++
++
++// -------------------------------------------------------------------
++// Test functions
++// -------------------------------------------------------------------
++
++function testSimplestCase() {
++  assertTrue(&quot;This is true&quot;, true);
++}
++
++function testTypeCheckingMethods() {
++  assertTrue('&quot;The Hobbit&quot; is a string', orp.util.isString(&quot;The Hobbit&quot;));
++  assertFalse('&quot;The Hobbit&quot; is not a number', orp.util.isNumber(&quot;The Hobbit&quot;));
++  assertFalse('&quot;The Hobbit&quot; is not numeric', orp.util.isNumeric(&quot;The Hobbit&quot;));
++  assertFalse('&quot;The Hobbit&quot; is not a boolean', orp.util.isBoolean(&quot;The Hobbit&quot;));
++  assertFalse('&quot;The Hobbit&quot; is not an object', orp.util.isObject(&quot;The Hobbit&quot;));
++  assertFalse('&quot;The Hobbit&quot; is not an array', orp.util.isArray(&quot;The Hobbit&quot;));
++  assertFalse('&quot;The Hobbit&quot; is not a hash table', orp.util.isHashTable(&quot;The Hobbit&quot;));
++}
++
++function testMethodsThatOperateOnSets() {
++  var aTinySet = [];
++  var theHobbit = UtilTestVars.theHobbit;
++  assertFalse('&quot;The Hobbit&quot; is not in an empty set', orp.util.isObjectInSet(theHobbit, aTinySet));
++  assertTrue('&quot;The Hobbit&quot; can be added to an empty set', orp.util.addObjectToSet(theHobbit, aTinySet));
++  assertTrue('&quot;The Hobbit&quot; is in the set after being added', orp.util.isObjectInSet(theHobbit, aTinySet));
++  assertTrue('&quot;The Hobbit&quot; can be removed from a set it is in', orp.util.removeObjectFromSet(theHobbit, aTinySet));
++  assertFalse('&quot;The Hobbit&quot; is no longer in a set it was removed from', orp.util.isObjectInSet(theHobbit, aTinySet));
++  assertFalse('&quot;The Hobbit&quot; can not be removed twice', orp.util.removeObjectFromSet(theHobbit, aTinySet));
++
++  var setNumber2 = [123, &quot;456&quot;, 78.9, new Date(), theHobbit];
++  assertTrue('&quot;The Hobbit&quot; is in setNumber2', orp.util.isObjectInSet(theHobbit, setNumber2));
++  assertTrue('78.9 is in setNumber2', orp.util.isObjectInSet(78.9, setNumber2));
++  assertTrue('78.9 and &quot;The Hobbit&quot; is in setNumber2', orp.util.areObjectsInSet([78.9, theHobbit], setNumber2));
++  assertTrue('All members of setNumber2 are in setNumber2', orp.util.areObjectsInSet(setNumber2, setNumber2));
++}
++
++function testEncryptionMethods() {
++  var longString = &quot;When in the course of human events: d41d8cd98f00b204e9800998ecf8427e&quot;;
++  assertTrue('md5 of &quot;&quot; is correct', (orp.util.hex_md5(&quot;&quot;) == &quot;d41d8cd98f00b204e9800998ecf8427e&quot;));
++  assertTrue('md5 of &quot;iggy&quot; is correct', (orp.util.hex_md5(&quot;iggy&quot;) == &quot;0e026f55a72c0861a93e750c2a5427b1&quot;));
++  assertTrue('md5 of longString is correct', (orp.util.hex_md5(longString) == &quot;4d694e03af399831c6f0c1f1bcc2fc93&quot;));
++}
++
++function testIsEmpty() {
++  var canada = {name:&quot;Canada&quot;, provinces:8};
++  var atlantis = {};
++  
++  assertTrue('Canada has properties', !orp.util.isEmpty(canada));
++  assertTrue('Atlantis does not have properties', orp.util.isEmpty(atlantis));
++  
++  delete canada.name;
++  delete canada.provinces;
++  assertTrue('Canada does not have properties', orp.util.isEmpty(canada));
++}
++
++function testHasProperty() {
++  var canada = {name:&quot;Canada&quot;, provinces:8};
++  var atlantis = {};
++
++  assertTrue('Canada has a name', orp.util.hasProperty(canada, &quot;name&quot;));
++  assertTrue('Canada does not have a foo', !orp.util.hasProperty(canada, &quot;foo&quot;));
++  
++  assertTrue('Atlantis does not have a name', !orp.util.hasProperty(atlantis, &quot;name&quot;));
++
++  assertTrue('Atlantis has []', orp.util.hasProperties(atlantis, []));
++  assertTrue('Canada has [&quot;name&quot;, &quot;provinces&quot;]', orp.util.hasProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
++  assertTrue('Canada has [&quot;name&quot;]', orp.util.hasProperties(canada, [&quot;name&quot;]));
++  assertTrue('Canada has []', orp.util.hasProperties(canada, []));
++  assertTrue('Canada does not have [&quot;foo&quot;, &quot;bar&quot;]', !orp.util.hasProperties(canada, [&quot;foo&quot;, &quot;bar&quot;]));
++
++  assertTrue('Canada has only [&quot;name&quot;, &quot;provinces&quot;]', orp.util.hasNoUnexpectedProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
++  assertTrue('Canada does not have just [&quot;name&quot;]', !orp.util.hasNoUnexpectedProperties(canada, [&quot;name&quot;]));
++  
++  assertTrue('Canada does not have just [&quot;name&quot;]', !orp.util.hasExactlyTheseProperties(canada, [&quot;name&quot;]));
++  assertTrue('Canada has [&quot;name&quot;, &quot;provinces&quot;]', orp.util.hasExactlyTheseProperties(canada, [&quot;name&quot;, &quot;provinces&quot;]));
++  assertTrue('Canada does not have [&quot;name&quot;, &quot;provinces&quot;, &quot;foo&quot;]', !orp.util.hasExactlyTheseProperties(canada, [&quot;name&quot;, &quot;provinces&quot;, &quot;foo&quot;]));
++}
++
++// -------------------------------------------------------------------
++// End of file
++// -------------------------------------------------------------------
+
+Modified: trunk/tests/util/UuidTest.html
+===================================================================
+--- trunk/tests/util/UuidTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/UuidTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -15,8 +15,7 @@
+ 
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../tests/util/UuidTest.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;UuidTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+   &lt;body&gt;
+
+Modified: trunk/tests/util/XmlConverterMultiplePassesTest.html
+===================================================================
+--- trunk/tests/util/XmlConverterMultiplePassesTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/XmlConverterMultiplePassesTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -13,12 +13,11 @@
+   &lt;head&gt;
+     &lt;title&gt;Additional unit tests for XmlConverter.js&lt;/title&gt;
+ 
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/gtd_tiddlywiki/FileSaver.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/model/Record.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/tests/util/XmlConverterMultiplePassesTest.js
+===================================================================
+--- trunk/tests/util/XmlConverterMultiplePassesTest.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/XmlConverterMultiplePassesTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -41,6 +41,7 @@
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+   dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.require(&quot;orp.util.XmlConverter&quot;);
++  dojo.require(&quot;orp.util.Util&quot;);
+ 
+   XmlTextNodeToAttributeSpecifier = orp.util.XmlTextNodeToAttributeSpecifier;
+   XmlAttributeToAttributeSpecifier = orp.util.XmlAttributeToAttributeSpecifier;
+@@ -113,7 +114,7 @@
+   for (var i in itemsInItemCategory) {
+     names.push(itemsInItemCategory[i].getDisplayName());
+   }
+-  hasAll = Util.areObjectsInSet([&quot;carrot&quot;, &quot;cheese puff&quot;, &quot;radish&quot;, &quot;parsnip&quot;], names);
++  hasAll = orp.util.areObjectsInSet([&quot;carrot&quot;, &quot;cheese puff&quot;, &quot;radish&quot;, &quot;parsnip&quot;], names);
+   assertTrue('Item names should include &quot;carrot&quot;, &quot;cheese puff&quot;, &quot;radish&quot; and &quot;parsnip&quot;.', hasAll);  
+ }
+ 
+@@ -134,7 +135,7 @@
+     for (var j in listOfAttributes) {
+       names.push(listOfAttributes[j].getDisplayName());
+     }
+-    hasAll = Util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Food ID&quot;, &quot;Vitamin A&quot;, &quot;Vitamin C&quot;], names);
++    hasAll = orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Food ID&quot;, &quot;Vitamin A&quot;, &quot;Vitamin C&quot;], names);
+     assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot;, &quot;Food ID&quot;, &quot;Vitamin A&quot; and &quot;Vitamin C&quot;.', hasAll);  
+   }
+ }
+
+Modified: trunk/tests/util/XmlConverterTest.html
+===================================================================
+--- trunk/tests/util/XmlConverterTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/XmlConverterTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -13,12 +13,11 @@
+   &lt;head&gt;
+     &lt;title&gt;Unit tests for XmlConverter.js&lt;/title&gt;
+ 
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
++    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/OpenRecordLoader.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/md5/md5.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/gtd_tiddlywiki/FileSaver.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Uuid.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/DateValue.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/model/Record.js&quot;&gt;&lt;/script&gt;
+
+Modified: trunk/tests/util/XmlConverterTest.js
+===================================================================
+--- trunk/tests/util/XmlConverterTest.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/util/XmlConverterTest.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -39,6 +39,7 @@
+   dojo.hostenv.setModulePrefix(&quot;orp&quot;, &quot;../../../../source&quot;);
+   dojo.hostenv.setModulePrefix(&quot;dojo&quot;, &quot;../../../dojo/dojo-0.1.0/src&quot;);
+   dojo.require(&quot;orp.util.XmlConverter&quot;);
++  dojo.require(&quot;orp.util.Util&quot;);
+ 
+   XmlTextNodeToAttributeSpecifier = orp.util.XmlTextNodeToAttributeSpecifier;
+   XmlAttributeToAttributeSpecifier = orp.util.XmlAttributeToAttributeSpecifier;
+@@ -86,7 +87,7 @@
+     for (var j in listOfAttributes) {
+       names.push(listOfAttributes[j].getDisplayName());
+     }
+-    hasAll = Util.areObjectsInSet([&quot;food:name&quot;, &quot;food:color&quot;, &quot;food:flavor&quot;], names);
++    hasAll = orp.util.areObjectsInSet([&quot;food:name&quot;, &quot;food:color&quot;, &quot;food:flavor&quot;], names);
+     assertTrue('Each item should have attributes called &quot;food:name&quot;, &quot;food:color&quot; and &quot;food:flavor&quot;.', hasAll);  
+   }
+ }
+@@ -115,7 +116,7 @@
+     for (var j in listOfAttributes) {
+       names.push(listOfAttributes[j].getDisplayName());
+     }
+-    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Flavor&quot;.', Util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Flavor&quot;], names));
++    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Flavor&quot;.', orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Flavor&quot;], names));
+   }
+ }
+ 
+@@ -139,7 +140,7 @@
+   listOfFlavors = cheesePuff.getEntriesForAttribute(flavorAttribute);
+   assertTrue(&quot;'cheese puff' should have 2 flavors.&quot;, listOfFlavors.length == 2);
+   var flavorNames = [listOfFlavors[0].getValue(), listOfFlavors[1].getValue()];
+-  assertTrue(&quot;'cheese puff' should have flavors called 'salty' and 'cheesy'.&quot;, Util.areObjectsInSet(['salty', 'cheesy'], flavorNames));
++  assertTrue(&quot;'cheese puff' should have flavors called 'salty' and 'cheesy'.&quot;, orp.util.areObjectsInSet(['salty', 'cheesy'], flavorNames));
+ }
+ 
+ function testNestedXmlConversion() {
+@@ -156,7 +157,7 @@
+     for (var j in listOfAttributes) {
+       names.push(listOfAttributes[j].getDisplayName());
+     }
+-    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Vitamin C&quot;.', Util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Vitamin C&quot;], names));
++    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Vitamin C&quot;.', orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Vitamin C&quot;], names));
+   }
+ }
+ 
+@@ -180,9 +181,9 @@
+         listOfIds.push(item.getSingleEntryFromAttribute(listOfAttributes[j]).getValue());
+       }
+     }
+-    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Food ID&quot;.', Util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Food ID&quot;], names));
++    assertTrue('Each item should have attributes called &quot;Category&quot;, &quot;Name&quot; and &quot;Food ID&quot;.', orp.util.areObjectsInSet([&quot;Category&quot;, &quot;Name&quot;, &quot;Food ID&quot;], names));
+   }
+-  assertTrue('Values of the &quot;Food ID&quot; attribute should include &quot;32&quot;, &quot;47&quot; and &quot;114&quot;.', Util.areObjectsInSet([&quot;32&quot;, &quot;47&quot;, &quot;114&quot;], listOfIds));
++  assertTrue('Values of the &quot;Food ID&quot; attribute should include &quot;32&quot;, &quot;47&quot; and &quot;114&quot;.', orp.util.areObjectsInSet([&quot;32&quot;, &quot;47&quot;, &quot;114&quot;], listOfIds));
+ }
+ 
+ function testExpectedType() {
+
+Modified: trunk/tests/view/LintTest.html
+===================================================================
+--- trunk/tests/view/LintTest.html	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/tests/view/LintTest.html	2005-09-20 20:36:08 UTC (rev 333)
+@@ -16,7 +16,6 @@
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jsunit/jsunit2_1/app/jsUnitCore.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/dojo/dojo-0.1.0/dojo.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;../../third_party/jslint/fulljslint.js&quot;&gt;&lt;/script&gt;
+-    &lt;script type=&quot;text/javascript&quot; src=&quot;../../source/util/Util.js&quot;&gt;&lt;/script&gt;
+     &lt;script type=&quot;text/javascript&quot; src=&quot;LintTest.js&quot;&gt;&lt;/script&gt;
+   &lt;/head&gt;
+   
+
+Modified: trunk/third_party/gtd_tiddlywiki/FileSaver.js
+===================================================================
+--- trunk/third_party/gtd_tiddlywiki/FileSaver.js	2005-09-20 03:39:12 UTC (rev 332)
++++ trunk/third_party/gtd_tiddlywiki/FileSaver.js	2005-09-20 20:36:08 UTC (rev 333)
+@@ -109,7 +109,7 @@
+ FileSaver.prototype._saveTextToFile = function(text, fileUrl, append) {
+   // Make sure we were loaded from a &quot;file:&quot; URL
+   if (window.location.protocol != &quot;file:&quot;) {
+-    Util.assert(false, 'FileSaver.js can only be used for pages loaded from a &quot;<A HREF="file:///">file:///</A>&quot; location');
++    orp.util.assert(false, 'FileSaver.js can only be used for pages loaded from a &quot;<A HREF="file:///">file:///</A>&quot; location');
+   }
+ 
+   var success = this._mozillaSaveToFile(text, fileUrl, append);
+@@ -173,7 +173,7 @@
+     return false;
+   }
+   if (append) {
+-    Util.assert(false, &quot;PENDING: still need to write code for this&quot;);
++    orp.util.assert(false, &quot;PENDING: still need to write code for this&quot;);
+   } else {
+     var file = fileSystemObject.OpenTextFile(filePath, 2, -1, 0);
+   }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000316.html">[openrecord-svn] r332 - in trunk: source/util tests/util
+</A></li>
+	<LI>Next message: <A HREF="000318.html">[openrecord-svn] r335 - trunk/source
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#317">[ date ]</a>
+              <a href="thread.html#317">[ thread ]</a>
+              <a href="subject.html#317">[ subject ]</a>
+              <a href="author.html#317">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/openrecord-svn">More information about the openrecord-svn
+mailing list</a><br>
+</body></html>
